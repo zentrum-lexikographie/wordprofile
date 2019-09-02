@@ -6,7 +6,7 @@ sys.path.append('./moduls')
 sys.path.append('./xmlrpc/moduls')
 
 import MySQLdb
-from MMap import *
+from .MMap import *
 
 
 """
@@ -51,10 +51,10 @@ class WpSeMySql:
 
 
   def __error ( self, strObj ):
-    print "):",strObj
+    print("):",strObj)
 
   def __status ( self, strObj ):
-    print "|:",strObj
+    print("|:",strObj)
 
   """
     Initialisieren und Laden bestimmter Mappings aus der Wortprofil-Datenbank
@@ -149,7 +149,7 @@ class WpSeMySql:
   """
   def __get_type_char(self, iLength):
     if iLength > 4294967295:
-      print "text zu groß"
+      print("text zu groß")
       sys.exit(-1);
     elif iLength > 16777215:
       return "LONGTEXT BINARY NOT NULL"

@@ -72,68 +72,68 @@ class WpSeTree:
 
     ### Regeln
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Adjektiv"
-    myCollapsRule.strDepCat=u"Adverb"
+    myCollapsRule.strHeadCat="Adjektiv"
+    myCollapsRule.strDepCat="Adverb"
     myCollapsRule.bDepTerminal=True
-    myCollapsRule.strRelation=u"ADV"
+    myCollapsRule.strRelation="ADV"
     myCollapsRule.strDirection="left"
     vCollapsRule.append(myCollapsRule)
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Substantiv"
-    myCollapsRule.strDepCat=u"Adjektiv"
+    myCollapsRule.strHeadCat="Substantiv"
+    myCollapsRule.strDepCat="Adjektiv"
     myCollapsRule.bDepTerminal=None
-    myCollapsRule.strRelation=u"ATTR"
+    myCollapsRule.strRelation="ATTR"
     myCollapsRule.strDirection="left"
     vCollapsRule.append(myCollapsRule)
 
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Präposition"
-    myCollapsRule.strDepCat=u"Substantiv"
+    myCollapsRule.strHeadCat="Präposition"
+    myCollapsRule.strDepCat="Substantiv"
     myCollapsRule.bDepTerminal=None
-    myCollapsRule.strRelation=u"PN"
+    myCollapsRule.strRelation="PN"
     myCollapsRule.strDirection="right"
     vCollapsRule.append(myCollapsRule)
 
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Substantiv"
-    myCollapsRule.strDepCat=u"Präposition"
+    myCollapsRule.strHeadCat="Substantiv"
+    myCollapsRule.strDepCat="Präposition"
     myCollapsRule.bDepTerminal=False
-    myCollapsRule.strRelation=u"PP"
+    myCollapsRule.strRelation="PP"
     myCollapsRule.strDirection="right"
     vCollapsRule.append(myCollapsRule)
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Verb"
-    myCollapsRule.strDepCat=u"Substantiv"
+    myCollapsRule.strHeadCat="Verb"
+    myCollapsRule.strDepCat="Substantiv"
     myCollapsRule.bDepTerminal=None
-    myCollapsRule.strRelation=u"SUBJA"
+    myCollapsRule.strRelation="SUBJA"
     myCollapsRule.strDirection="left"
     vCollapsRule.append(myCollapsRule)
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Verb"
-    myCollapsRule.strDepCat=u"Substantiv"
+    myCollapsRule.strHeadCat="Verb"
+    myCollapsRule.strDepCat="Substantiv"
     myCollapsRule.bDepTerminal=None
-    myCollapsRule.strRelation=u"OBJ"
+    myCollapsRule.strRelation="OBJ"
     myCollapsRule.strDirection="right"
     vCollapsRule.append(myCollapsRule)
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Verb"
-    myCollapsRule.strDepCat=u"Adverb"
+    myCollapsRule.strHeadCat="Verb"
+    myCollapsRule.strDepCat="Adverb"
     myCollapsRule.bDepTerminal=True
-    myCollapsRule.strRelation=u"ADV"
+    myCollapsRule.strRelation="ADV"
     myCollapsRule.strDirection="right"
     vCollapsRule.append(myCollapsRule)
 
     myCollapsRule= self.CollapsRule()
-    myCollapsRule.strHeadCat=u"Verb"
-    myCollapsRule.strDepCat=u"Präposition"
+    myCollapsRule.strHeadCat="Verb"
+    myCollapsRule.strDepCat="Präposition"
     myCollapsRule.bDepTerminal=False
-    myCollapsRule.strRelation=u"PP"
+    myCollapsRule.strRelation="PP"
     myCollapsRule.strDirection="right"
     vCollapsRule.append(myCollapsRule)
 
@@ -215,24 +215,24 @@ class WpSeTree:
     while vStack!=[]:
       CurrendNode = vStack.pop()
       mapping1={}
-      for i in CurrendNode.mapCat.items():
+      for i in list(CurrendNode.mapCat.items()):
         mapping1=i[1]
       for i in CurrendNode.vChild:
         ### Id-Liste von nicht-umgedrehten Relationen
         vRel = self.rellist_to_idlist_directed ( [i.strRelation], mapRelToId, mapRelIdToType )
         if i.strRelation=="PP":
           mappingPrep={}
-          for j in i.mapCat.items():
+          for j in list(i.mapCat.items()):
             mappingPrep=j[1]
           iPrep=mappingPrep['LemmaId']
           for j in i.vChild:
-            for k in j.mapCat.items():
+            for k in list(j.mapCat.items()):
               mapping2=k[1]            
             listInfo.append((mapping1,mapping2,vRel,iPrep))
             vStack.append(j)
         else:
           mapping2={}
-          for j in i.mapCat.items():
+          for j in list(i.mapCat.items()):
             mapping2=j[1]
           listInfo.append((mapping1,mapping2,vRel,-1))
           vStack.append(i)
@@ -244,7 +244,7 @@ class WpSeTree:
   def rellist_to_idlist ( self, listRel, mapRelToId ):
     listRes=[]
     for i in listRel:
-      if mapRelToId.has_key(i):
+      if i in mapRelToId:
         listRes.append(mapRelToId[i])
     return listRes
 
@@ -254,7 +254,7 @@ class WpSeTree:
   def rellist_to_idlist_directed ( self, listRel, mapRelToId, mapRelIdToType ):
     listRes=[]
     for i in listRel:
-      if mapRelToId.has_key(i):
+      if i in mapRelToId:
         if mapRelIdToType[mapRelToId[i]] != 2:
           listRes.append(mapRelToId[i])
     return listRes

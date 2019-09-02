@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import mmap
-import os
-import codecs
-import sys
 import struct
+import sys
+
 
 ####################################
 # Klasse zum Abfragen von Daten über mmap
@@ -14,111 +13,95 @@ import struct
 # Die Listen müssen anhand der IDs sortiert sein und die IDs von 0 ab durchgängig durchgezählt sein
 # Die daten können via Datei (tab getrennt) oder via Python-liste (Liste aus Zweiertupeln) eingespielt werden
 class MMap:
+    g_strTmpDir = ""
+    g_strProjectName = ""
+    g_mmStrung = None
+    g_mmData = None
 
+    g_mySprungBinary = None
+    g_myDataBinary = None
 
-  g_strTmpDir=""
-  g_strProjectName=""
-  g_mmStrung=None
-  g_mmData=None
+    ######
+    ### erstellen eines MMap objektes mit angabe des Ortes für den Index
+    def __init__(self, strTmpDir, strProjectName):
+        self.g_strTmpDir = strTmpDir
+        self.g_strProjectName = strProjectName
 
-  g_mySprungBinary=None
-  g_myDataBinary=None
-  
+    ######
+    ### generieren des Index aus einer Tabellendatei (*.table -> *.jmp,*.dat)
+    def generate_index_from_file(self, strFilename):
 
-  ######
-  ### erstellen eines MMap objektes mit angabe des Ortes für den Index
-  def __init__(self, strTmpDir, strProjectName):
-    self.g_strTmpDir = strTmpDir
-    self.g_strProjectName = strProjectName
+        myData = open(strFilename, "r")
 
+        self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".jmp"), "wb")
+        self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".dat"), "wb")
 
-  ######
-  ### generieren des Index aus einer Tabellendatei (*.table -> *.jmp,*.dat)
-  def generate_index_from_file( self, strFilename ):
+        iPosition = 0
+        iCount = 0
+        for i in myData.readlines():
+            mySplit = i.strip('\n').split('\t')
+            iId = int(mySplit[0])
+            if iId != iCount:
+                print("): IDs sind nicht vortlaufend nummeriert")
+                sys.exit(-1)
+            strData = mySplit[1]
+            iLen = len(strData)
 
-    myData = open(strFilename,"r")
+            binSprung = struct.pack('@ l h', iPosition, iLen)
 
-    self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".jmp"),"wb")
-    self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".dat"),"wb")
+            self.g_mySprungBinary.write(binSprung)
+            self.g_myDataBinary.write(strData)
 
-    iPosition=0
-    iCount=0
-    for i in myData.readlines():
-      mySplit = i.strip('\n').split('\t')
-      iId = int(mySplit[0])
-      if iId != iCount:
-        print "): IDs sind nicht vortlaufend nummeriert"
-        sys.exit(-1)
-      strData = mySplit[1]
-      iLen=len(strData)
+            iPosition += len(strData)
+            iCount += 1
 
-      binSprung=struct.pack('@ l h',iPosition,iLen)
+        myData.close()
+        self.g_mySprungBinary.close()
+        self.g_myDataBinary.close()
 
-      self.g_mySprungBinary.write(binSprung)
-      self.g_myDataBinary.write(strData)
+    ######
+    ### generieren des Index aus einer Liste (-> *.jmp,*.dat)
+    def generate_index_from_list(self, listObj):
 
-      iPosition+=len(strData)
-      iCount+=1
+        self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".jmp"), "wb")
+        self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".dat"), "wb")
 
-    myData.close()
-    self.g_mySprungBinary.close()
-    self.g_myDataBinary.close()
+        iPosition = 0
+        iCount = 0
+        for i in listObj:
+            iId = int(i[0])
+            if iId != iCount:
+                print("): IDs sind nicht vortlaufend nummeriert")
+                sys.exit(-1)
+            strData = i[1]
+            iLen = len(strData)
 
-  ######
-  ### generieren des Index aus einer Liste (-> *.jmp,*.dat)
-  def generate_index_from_list( self, listObj ):
+            binSprung = struct.pack('@ l h', iPosition, iLen)
 
-    self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".jmp"),"wb")
-    self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".dat"),"wb")
-    
-    iPosition=0
-    iCount=0
-    for i in listObj:
-      iId = int(i[0])
-      if iId != iCount:
-        print "): IDs sind nicht vortlaufend nummeriert"
-        sys.exit(-1)
-      strData = i[1]
-      iLen=len(strData)
+            self.g_mySprungBinary.write(binSprung)
+            self.g_myDataBinary.write(strData)
 
-      binSprung=struct.pack('@ l h',iPosition,iLen)
+            iPosition += len(strData)
+            iCount += 1
 
-      self.g_mySprungBinary.write(binSprung)
-      self.g_myDataBinary.write(strData)
+        self.g_mySprungBinary.close()
+        self.g_myDataBinary.close()
 
-      iPosition+=len(strData)
-      iCount+=1
+    ######
+    ### laden des Index
+    def load(self):
 
-    self.g_mySprungBinary.close()
-    self.g_myDataBinary.close()
+        self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".jmp"), "rb")
+        self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".dat"), "rb")
 
+        self.g_mmSprung = mmap.mmap(self.g_mySprungBinary.fileno(), 0, prot=mmap.PROT_READ)
+        self.g_mmData = mmap.mmap(self.g_myDataBinary.fileno(), 0, prot=mmap.PROT_READ)
 
-  ######
-  ### laden des Index
-  def load( self ):
+    ######
+    ### abfragen von Daten
+    def get(self, iId):
 
-    self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".jmp"),"rb")
-    self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir,self.g_strProjectName,".dat"),"rb")
+        strData = self.g_mmSprung[iId * 10:(iId * 10 + 10)]
+        pairSprung = struct.unpack('@ l h', strData)
 
-    self.g_mmSprung = mmap.mmap(self.g_mySprungBinary.fileno(), 0, prot=mmap.PROT_READ)
-    self.g_mmData = mmap.mmap(self.g_myDataBinary.fileno(), 0, prot=mmap.PROT_READ)
-
-
-  ######
-  ### abfragen von Daten
-  def get( self, iId ):
-
-    strData = self.g_mmSprung[iId*10:(iId*10+10)]
-    pairSprung = struct.unpack('@ l h',strData)
-
-    return self.g_mmData[pairSprung[0]:pairSprung[0]+pairSprung[1]]    
-
-
-
-
-
-
-
-
-
-
+        return self.g_mmData[pairSprung[0]:pairSprung[0] + pairSprung[1]]

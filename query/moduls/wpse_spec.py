@@ -32,10 +32,10 @@ class WpSeSpec:
 
 
   def __error ( self, strObj ):
-    print "):",strObj
+    print("):",strObj)
 
   def __status ( self, strObj ):
-    print "|:",strObj
+    print("|:",strObj)
 
   """
     Einlesen der Spezifikation
@@ -89,7 +89,7 @@ class WpSeSpec:
             for j in myFileVariations.readlines():      
               myLine = j.rstrip('\n').split('\t')
               if len(myLine) == 2:
-                if not self.mapVariation.has_key(myLine[0]):
+                if myLine[0] not in self.mapVariation:
                   self.mapVariation[myLine[0]]=myLine[1]
           except:
             self.__error("unknown variation file:"+i)
@@ -101,7 +101,7 @@ class WpSeSpec:
             for j in myFileLemmaRepair.readlines():      
               myLine = j.rstrip('\n').split('\t')
               if len(myLine) == 2:
-                if not self.mapLemmaRepair.has_key(myLine[0]):
+                if myLine[0] not in self.mapLemmaRepair:
                   self.mapLemmaRepair[(setting[1],myLine[0])]=myLine[1]
           except:
             self.__error("unknown lemma repair file:"+i)

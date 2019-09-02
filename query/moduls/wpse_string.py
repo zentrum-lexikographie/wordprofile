@@ -12,14 +12,14 @@ sys.path.append('./xmlrpc/moduls')
 class WpSeString:
 
   def error ( self, strObj ):
-    print "):",strObj
+    print("):",strObj)
     #sys.exit(-1)
 
   def status ( self, strObj ):
-    print "|:",strObj
+    print("|:",strObj)
 
   def status_complete ( self, strObj ):
-    print "(:",strObj
+    print("(:",strObj)
 
   """
     Integer auf Subscript abbilden
