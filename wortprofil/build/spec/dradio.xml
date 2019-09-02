@@ -1,0 +1,1537 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+'build-specification': Hier kann ein Wortprofil-Projekt definiert werden.
+
+*Attribute von 'build-specification':
+  -Angabe der Spezifikationsversion:
+    version=<string>
+
+  -Angabe des Autors:
+    author=<string>
+
+  -Angabe des Pfades für die Wortprofil-Relationsdateien vom Syntaxparser:
+    relation-path=<path>
+
+  -Angabe des Pfades für die Ergebnistabellen:
+    table-path=<path>
+
+  -Angabe des Pfades des TMP-Verzeichnis, das von sort (UNIX) verwendet werden soll:
+    tmp-path=<path>
+
+  -Angabe, ob die Statistiken auch Separat für die Subkorpora berechnet werden sollen, so dass später Kookkurrenzen zu einzelnen Subkorpora abgefragt werden können:
+   use-subcorpora=<{yes,no}>
+
+  -Setzen eines Schwellwertes für die Minimalfrequenz der Lemmaformen. Eine Lemmaform muss die entsprechende Frequenz erreichen. Hierbei werden die Lemmaformen global über alle involvierten Relationsdateien gezählt. Bei der Angabe von '-1' wird kein Schwellwert angewendet:
+    lemma-cut=<integer>
+
+-->
+<build-specification  version="1.2" author="didakowski@bbaw.de" relation-path="../relations" table-path="../table/dradio" tmp-path="/home/didakowski/tmp" use-subcorpora="no" lemma-cut="-1" >
+
+  <!--
+  'corpus-name': Hier können den Korpuskürzeln, die in der Spezifikation verwendet werden, die vollen Korpusnamen zugeordnet werden. Die Zuordnungen geschehen über das Element 'item'.
+
+  Attribute von 'item':
+    -Korpuskürzel:
+      corpus=<string>
+    -Korpusname:
+      name=<string>
+  -->
+  <corpus-name>
+    <item corpus="dradio" name="Deutschlandradio"/>
+  </corpus-name>
+
+  <!--
+  'corpus-path': Hier kann zu den einzelnen Korpora die entsprechenden Dateipfade angegeben werden. Die Zuordnungen geschehen über das Element 'item'. Unter den entsprechenden Pfaden müssen dann die entsprechenden '*.wp'-Dateien liegen. Diese werden für die Berechnung der Texttreffer benötigt.
+
+  Attribute von 'item':
+    -Korpuskürzel:
+      corpus=<string>
+    -Korpuspfad:
+      path=<path>
+  -->
+  <corpus-path>
+    <item corpus="dradio" path="../../corpora/src/dradio"/>
+  </corpus-path>
+
+  <!--
+  'bibl-info': Hier kann zu den einzelnen Korpora eine Datei mit Meta-Daten (bibliographische Informationen) angegeben werden. Die Zuordnungen geschehen über das Element 'item'. Eine entsprechende Datei liegt in einem TAB-separierten Format vor und folgt folgender Struktur: Datei\tAttribut\tWert. So werden für Jedes Dokument (Datei) des Korpus Attribut-Wert-Paare definiert.
+
+  Attribute von 'item':
+    -Korpuskürzel:
+      corpus=<string>
+    -Bibl-Datei:
+      name=<file>
+  -->
+  <bibl-info>
+    <item corpus="dradio" file="../../corpora/src/dradio/bibl/bibliography.table"/>
+  </bibl-info>
+
+  <!--
+  'bibl-fields': Hier können zu den einzelnen Korpora angegeben werden, welche Attribute aus den bibliographischen Informationen verwendet werden. Relevant sind hierbei das Erscheinungsdatum 'date', die Rechte 'avail', die Textklasse 'textclass', der Bibl-String der Ersterscheinung 'orig' und der Bibl-String der vorliegenden Version 'scan'. Die Zuordnungen zu einem Korpus sind über das Element 'bibl-field realisiert. Des Weiteren kann bei 'avail' über das Attribut 'value' zusätzlich angegeben werden, welche Werte für Rechtefrei gelten. Die Werte können Kommagetrennt als liste angegeben werden.
+
+  Attribute von 'bibl-field':
+    -Korpuskürzel:
+      corpus=<string>
+
+  Attribute von 'date', 'textclass', 'orig' und 'scan':
+    -Attributname:
+      name=<string>
+
+  Attribute von 'avail':
+    -Attributname:
+      name=<string>
+    -Attributwert:
+      value=<stringlist>
+  -->
+  <bibl-fields>
+    <bibl-field corpus="dradio">
+		  <date name="date"/>
+		  <avail name="avail" value="R_dradio"/>
+		  <textclass name="textclass"/>
+		  <orig name="bibl"/>
+		  <scan name="biblLex"/>
+      <sigle name="sigle"/>
+    </bibl-field>
+  </bibl-fields>
+
+  <!--
+  'good-examples': Hier kann zu den einzelnen Korpora eine Datei angegeben werden, über die die einzelnen Treffer-Sätze gewichtet werden können. Eine entsprechende Datei liegt in einem TAB-separierten Format vor und folgt folgender Struktur: Datei\tSatz\tScore. Die Zuordnungen geschehen über das Element 'item'. Über das Element 'item' kann über das Attribut 'limit' Zudem eine Maximalanzahl von Dokumenten angegeben werden, die in die Wortprofilberechnung eingehen. Die auswahl der Dokumente orientiert sich dann an dem Score. Wenn keine Maximalanzahl gesetzt werden soll kann '-1'
+ als Wert angegeben werden.
+
+  Attribute von 'item':
+    -Korpuskürzel:
+      corpus=<string>
+    -Maximalanzahl:
+      limit=<integer>
+    -Score-Datei:
+      limit=<file>
+  -->
+  <good-examples>
+    <item corpus="dradio" limit="-1" file="../../gdex/table/dradio/sentence_scores.table"/>
+  </good-examples>
+
+  <!--
+  'doubles': Hier können mehrere XML-Dateien angegeben werden, die die Dateinamen von Dubletten enthalten. Die Dateinamen werden über das Container-Element 'file' angegeben.
+
+  Die XML-Struktur solch einer Dubletten-Datei folgt folgender Struktur:
+
+  <doubles>
+          <double length="14" number="2">
+                  <item corpus="dradio" file="./src/id_217049.ddc.xml" sentence="103"/>
+                  <item corpus="dradio" file="./src/id_217050.ddc.xml" sentence="103"/>
+          </double>
+  </doubles>
+
+  Hier steht 'length' für die Länge des entsprechenden Satzes und 'number' für die Anzahl von Dubletten+Original. Über 'corpus' wird das Korpuskürzel angegeben, über 'file' der Dateiname und üner 'sentence' die Satzposition. 
+
+  -->
+  <doubles>
+		<file>../../corpora/doubles/doubles_dradio.xml</file>
+	</doubles>
+
+  <!--
+  'connections': Angabe interrelationaler Schwellwerte. Es werden zwei Kookkurrenzen verglichen. Diese unterscheiden sich nur in der syntaktischen Relation. Wenn nun die Frequenz der ersten ('rel1') und der zweiten ('rel2') Kookkurrenzen zusammenaddiert wird, wird gefordert, dass die Frequenz der ersten Kookkurenz ('rel1') einen Mindestprozentwert der zusammenaddierten Frequenz erreicht. Jedoch hat sich diese Art von Schwellwert nicht durchgesetzt und wird im Grunde nicht mehr verwendet.
+
+  Attribute:
+    -syntaktische Relation der ersten Kookkurrenz:
+      rel1=<string>
+    -syntaktische Relation der zweiten Kookkurrenz:
+      rel2=<string>
+    -Minimaler Anteil in Prozent:
+      min=<integer>
+
+  -->
+	<connections>
+    <!-- zweifelhafte Objekte rausschmeißen
+		<check rel1="OBJ" rel2="SUBJA" min="25"/>-->
+	</connections>
+
+
+  <!--
+  'statistic-limits': Hier können Minimalschwellwerte für die Statistischen Maße angegeben werden. Dies betrifft die Maße MiLogFreq ('min-MiLogFreq'), logDice ('min-logDice'), Log-likelihood ('min-logLike'), MI³ ('min-MI3') und T-Score ('min-TScore'). Wenn für ein Maß kein Schwellwert angegeben ist, wird auch keiner angewand.
+
+  Attribute (optional):
+    -MiLogFreq:
+      min-MiLogFreq=<float>
+    -logDice:
+      min-LogDice=<float>
+    -MI³:
+      min-MI3=<float>
+    -Log-likelihood:
+      min-logLike=<float>
+    -T-Score:
+      min-TScore=<float>
+  -->
+	<statistic-limits min-MiLogFreq="0.0" min-logDice="0.0"/>
+
+
+  <!--
+  'POS-rewrite': Hier können die Wortarten von bestimmten lemmaformen initial umgeschrieben werden. Die umschreibungen werden über das Element 'rule' angegeben.
+
+  Attribute:
+    -Lemma:
+      lemma<string>
+    -komplexe Ausgangswortart:
+      from<string>
+    -Neue komplexe Wortart:
+      to<string>
+  -->
+  <POS-rewrite>
+		<rule lemma="Habit" from="NE-nom-sg" to="NN-nom-sg-masc"/>
+  </POS-rewrite>
+
+  <!--
+  'syn-trigger': Hier kann Einfluß auf die Frequenz-Schwellwertberechnung genommen werden. Normalerweise wird die Frequenz der einzelnen Kookkurrenzen berechnet, indem für jede identische Kookkurrenz 1 dazu addiert wird. Hier kann für bestimmte Kookkurrenzen angegeben werden, dass ein Wert ungleich eins (Trigger-Wert) für die entsprechende Kookkurrenz addiert wird. Dies geschieht über die Wortarten der Mitspieler in der Kookkurenz, der Angabe der syntaktischen Relation und der Angabe eines Triggers, der in den Wortprofil-Relationsdateien vorhanden ist. Ein Trigger spiegelt hierbei einen bistimmten syntaktischen Kontext wider:
+
+    -HasComma: ist in Koordination mit Komma
+    -IsCJ: ist zweitglied in einer Koordination
+    -HasPRF: Bei einem Subjekt existiert auch ein Akkusativobjekt mit 'sich'
+    -isAmbig: Verb hat ambige Wortzerlegung
+    -HasKON: ist in Koordination mit Konjunktion
+    -HasSUBJ: Verb hat Subjekt
+    -HasSUBJnn: Verb hat ein einfaches Nomen oder ein Personalpronomen als Subjekt
+    -IsPost: Genitivattribut ist nachgestellt
+    -IsPre: Genitivattribut ist vorangestellt
+    -HasDET: Nominalgruppe hat einen Determiner
+    -HasS: befindet sich unter einem Satzknoten (ist in einen vollständig analysierten (Teil-)Satz eingebettet)
+    -SentEWP: der Satz endet mit einem Satzzeichen
+    -SentBWU: der Satz beginnt mit einem Großbuchstaben
+    -SentIC: dem Satz konnte eine zusammenhängende Struktur zugewiesen werden (vollständige Analyse)
+    -SentHU: der Satz enthält keine unbekannten Wörter
+    -HasATTR: Nominalgruppe hat Adjektivattribut
+    -HasPART: Infinitivobjekt mit zu
+    -leftNN: Nominalgruppe hat direkt links daneben ein Nomen (NN,XY,NE,FM)
+    
+
+  Es kann einerseits formuliert werden, dass eine Kookkurrenz einen bestimmten Trigger ('trigger') haben muss, um einen bestimmten Trigger-Wert zu erhalten (über das Element 'stop'). Andererseits kann formuliert werden, dass eine Kookkurrenz einen bestimmten Trigger nicht haben darf, um einen bestimmten Trigger-Wert zu erhalten (über das Element 'req). Im Normalfall sollten die Trigger-Werte kleiner Null sein. Somit wird das erreichen derFrequenzschwellwerte erschwert. Die Kookkurrenzen werden über ihre Wortkategorien ('POS2' und 'POS2') und ihre syntaktische Relation ('relation') identifiziert.
+
+  Attribute für 'stop' und 'req':
+    -Wortkategorie des ersten Wortes der Kookkurrenz:
+      POS1=<string>
+    -Wortkategorie des zweiten Wortes der Kookkurrenz:
+      POS2=<string>
+    -syntaktische Relation der Kookkurrenz:
+      relation=<string>
+    -syntaktischer Trigger:
+      trigger=<string>
+    -Trigger-Wert:
+      score=<float>
+
+  -->
+  <syn-trigger>
+                <!-- Objekte nur wenn: verb ist in keiner koordination mit ',' -->
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJA" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJP" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJ" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJ" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJA" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJD" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJ-PRED" trigger="HasComma" score="0.5"/>
+
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJA" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJP" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJ" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJ" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJA" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJD" trigger="HasComma" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJ-PRED" trigger="HasComma" score="0.5"/>
+
+
+                <!-- Objekte nur wenn: verb ist nicht zweitglied in einer koordination -->
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJA" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJP" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJ" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJ" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJA" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJD" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="OBJI" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJ-PRED" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJA" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJP" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJ" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJ" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJA" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJD" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="OBJI" trigger="IsCJ" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJ-PRED" trigger="IsCJ" score="0.5"/>
+
+                <!-- Subjekt ohne reflexifpronomen -->
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJA" trigger="HasPRF" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJA" trigger="HasPRF" score="0.5"/>
+                <stop POS1="Verb" POS2="Substantiv" relation="SUBJ" trigger="HasPRF" score="0.5"/>
+                <stop POS1="Verb" POS2="Personalpronomen" relation="SUBJ" trigger="HasPRF" score="0.5"/>
+
+                <!-- hat ambige verbzerlegung -->
+                <stop relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="OBJI" POS1="Verb" POS2="Verb" trigger="isAmbig" score="0.5"/>
+                <stop relation="KON" POS1="Verb" POS2="Verb"  trigger="isAmbig" score="0.5"/>
+                <stop relation="PP" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="KOM" POS1="Verb" POS2="Substantiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="isAmbig" score="0.5"/>
+                <stop relation="ADV" POS1="Verb" POS2="Adverb" trigger="isAmbig" score="0.5"/>
+                <stop relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="isAmbig" score="0.5"/>
+                <stop relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="isAmbig" score="0.5"/>
+                <stop relation="ADV" POS1="Verb" POS2="Verb" trigger="isAmbig" score="0.5"/>
+                <stop relation="VZ" POS1="Verb" POS2="Verb" trigger="isAmbig" score="0.5"/>
+
+                <!-- Koordination mit 'und' -->
+                <req relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="HasKON" score="0.5"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="HasKON" score="0.5"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="HasKON" score="0.5"/>
+                <req relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="HasKON" score="0.5"/>
+                <req relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="HasKON" score="0.5"/>
+                <req relation="KON" POS1="Verb" POS2="Verb"  trigger="HasKON" score="0.5"/>
+
+                <!-- genitiv ist nachgestellt -->
+                <req POS1="Substantiv" POS2="Substantiv" relation="GMOD" trigger="IsPost" score="0.5"/>
+
+                <!-- Substantiv hat einen Artikel -->
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="HasDET" score="0.5"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="HasDET" score="0.5"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="HasDET+" score="0.5"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="HasDET+" score="0.5"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="HasDET+" score="0.5"/>
+
+                <!-- bei Objekten gibt es immer ein Subjekt -->
+                <req relation="OBJI" POS1="Verb" POS2="Verb" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="HasSUBJ" score="0.5"/>
+                <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="HasSUBJ" score="0.5"/>
+        
+                <!-- befindet sich unter einem Satzknoten -->
+                <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="OBJI" POS1="Verb" POS2="Verb" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="HasS" score="0.2"/>
+                <req relation="KON" POS1="Verb" POS2="Verb"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Substantiv"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Personalpronomen"  trigger="HasS" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Adjektiv"  trigger="HasS" score="0.2"/>
+                <req relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Substantiv" trigger="HasS" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adverb" trigger="HasS" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="HasS" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="HasS" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Verb" trigger="HasS" score="0.2"/>
+                <req relation="ATTR" POS1="Substantiv" POS2="Verb" trigger="HasS" score="0.2"/>
+                <req relation="VZ" POS1="Verb" POS2="Verb" trigger="HasS" score="0.2"/>
+
+                <!-- satz endet mit Satzzeichen -->
+                <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="OBJI" POS1="Verb" POS2="Verb" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KON" POS1="Verb" POS2="Verb"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Substantiv"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Personalpronomen"  trigger="SentEWP" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Adjektiv"  trigger="SentEWP" score="0.2"/>
+                <req relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Substantiv" trigger="SentEWP" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Personalpronomen" trigger="SentEWP" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adverb" trigger="SentEWP" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="SentEWP" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="SentEWP" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Verb" trigger="SentEWP" score="0.2"/>
+                <req relation="ATTR" POS1="Substantiv" POS2="Verb" trigger="SentEWP" score="0.2"/>
+                <req relation="VZ" POS1="Verb" POS2="Verb" trigger="SentEWP" score="0.2"/>
+
+                <!-- satz beginnt mit Großbuchstaben -->
+                <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="OBJI" POS1="Verb" POS2="Verb" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KON" POS1="Verb" POS2="Verb"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Substantiv"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Personalpronomen"  trigger="SentBWU" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Adjektiv"  trigger="SentBWU" score="0.2"/>
+                <req relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Substantiv" trigger="SentBWU" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Personalpronomen" trigger="SentBWU" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adverb" trigger="SentBWU" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="SentBWU" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="SentBWU" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Verb" trigger="SentBWU" score="0.2"/>
+                <req relation="ATTR" POS1="Substantiv" POS2="Verb" trigger="SentBWU" score="0.2"/>
+                <req relation="VZ" POS1="Verb" POS2="Verb" trigger="SentBWU" score="0.2"/>
+
+                <!-- mit vollständiger analyse -->
+                <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="OBJI" POS1="Verb" POS2="Verb" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="SentIC" score="0.2"/>
+                <req relation="KON" POS1="Verb" POS2="Verb"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Substantiv"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Personalpronomen"  trigger="SentIC" score="0.2"/>
+                <req relation="PRED" POS1="Personalpronomen" POS2="Adjektiv"  trigger="SentIC" score="0.2"/>
+                <req relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Personalpronomen" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="PP" POS1="Substantiv" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Personalpronomen" POS2="Substantiv" trigger="SentIC" score="0.2"/>
+                <req relation="KOM" POS1="Substantiv" POS2="Personalpronomen" trigger="SentIC" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adverb" trigger="SentIC" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="SentIC" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="SentIC" score="0.2"/>
+                <req relation="ADV" POS1="Verb" POS2="Verb" trigger="SentIC" score="0.2"/>
+                <req relation="ATTR" POS1="Substantiv" POS2="Verb" trigger="SentIC" score="0.2"/>
+                <req relation="VZ" POS1="Verb" POS2="Verb" trigger="SentIC" score="0.2"/>
+
+                <!-- keine unbekannten -->
+                <stop relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="SUBJP" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="SUBJP" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="SUBJ" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="SUBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJ" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJD" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJD" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="OBJI" POS1="Verb" POS2="Verb" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Substantiv" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Personalpronomen" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Substantiv" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Adjektiv" POS2="Adjektiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KON" POS1="Verb" POS2="Verb"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Substantiv" POS2="Substantiv"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Substantiv" POS2="Adjektiv"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Personalpronomen" POS2="Substantiv"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Substantiv" POS2="Personalpronomen"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Personalpronomen" POS2="Personalpronomen"  trigger="SentHU" score="0.2"/>
+                <stop relation="PRED" POS1="Personalpronomen" POS2="Adjektiv"  trigger="SentHU" score="0.2"/>
+                <stop relation="GMOD" POS1="Substantiv" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Substantiv" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Personalpronomen" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="PP" POS1="Substantiv" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Verb" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Verb" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Substantiv" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Personalpronomen" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Personalpronomen" POS2="Substantiv" trigger="SentHU" score="0.2"/>
+                <stop relation="KOM" POS1="Substantiv" POS2="Personalpronomen" trigger="SentHU" score="0.2"/>
+                <stop relation="ADV" POS1="Verb" POS2="Adverb" trigger="SentHU" score="0.2"/>
+                <stop relation="ADV" POS1="Verb" POS2="Adjektiv" trigger="SentHU" score="0.2"/>
+                <stop relation="ADV" POS1="Verb" POS2="Negationspartikel" trigger="SentHU" score="0.2"/>
+                <stop relation="ADV" POS1="Verb" POS2="Verb" trigger="SentHU" score="0.2"/>
+                <stop relation="ATTR" POS1="Substantiv" POS2="Verb" trigger="SentHU" score="0.2"/>
+                <stop relation="VZ" POS1="Verb" POS2="Verb" trigger="SentHU" score="0.2"/>
+  </syn-trigger>
+	
+
+  <!--
+  'extended-surface-form': Hier kann angegeben werden, welche Kookkurrenzen zu der Berechnung der häufigsten Oberflächenform herangezogen werden. Dies geschieht über die Wortarten des ersten ('surface1-stop' und 'surface1-req') oder des zweiten ('surface2-stop' und 'surface2-req') Wortes in der Kookkurenz, der Angabe der syntaktischen Relation und der Angabe eines Triggers, der in den Wortprofil-Relationsdateien vorhanden ist. Ein Trigger spiegelt hierbei einen bistimmten syntaktischen Kontext wider (siehe 'syn-trigger'). Es kann Angegeben werden, das eine Kookkurrenz einen bestimmten Trigger haben muss ('surface1-req' und 'surface2-req') oder dass eine Kookkurrenz einen bestimmten Trigger nicht besitzen darf ('surface1-stop' und 'surface2-stop')
+
+  Zusätzlich zu den Triggern für 'syn-trigger' sind über die Erstellung erweiterter Oberflächenformen (Anreichern der Wortprofil-Relation-Dateien mit Informationen) folgende Trigger hinzugekommen:
+
+  -StrandedCJ: wenn bei der Koordination einer Nominalgruppe ein zweitglied ohne artikel vorliegt
+  -Surface1Extended: Wenn das erste Wort eine erweiterte Oberflächenform besitzt
+  -Surface2Extended: Wenn das zweite Wort eine erweiterte Oberflächenform besitzt
+
+  Die erweiterten Oberflächenformen haben folgenden Aufbau:
+     LKontext_1 > ... > LKontext_n > Oberflächenform < RKontext_1 < ... < RKontext_k
+  wobei die Kontexte auch leer sein können
+
+  Attribute von 'surface1-req', 'surface2-req', 'surface1-stop' und 'surface2-stop':
+    -syntaktische Relation der Kookkurrenz:
+      relation=<string>
+    -Wortart des ersten bzw. zweiten Wortes der Kookkurenz
+      POS=<string>
+    -syntaktischer Trigger
+      trigger=<string>
+
+  -->
+  <extended-surface-form>
+    <surface2-req relation="GMOD" POS="Substantiv" trigger="Surface2Extended"/>
+
+    <surface1-stop relation="ATTR" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface1-stop relation="GMOD" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface1-stop relation="PP" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface1-stop relation="KOM" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface1-stop relation="PRED" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface1-stop relation="KON" POS="Substantiv" trigger="StrandedCJ"/>
+
+    <surface2-stop relation="GMOD" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="SUBJ" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="SUBJA" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="SUBJP" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="OBJA" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="OBJD" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="OBJ" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="PP" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="KOM" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="PRED" POS="Substantiv" trigger="StrandedCJ"/>
+    <surface2-stop relation="KON" POS="Substantiv" trigger="StrandedCJ"/>
+  </extended-surface-form>
+
+
+  <!--
+  'POS-mapping': können die komplexen Wortkategorien des Parsers (STTS-orientiert) auf einfachere Wortarten abgebildet werden. Zudem kann spezifiziert werden, welche Wortarten überhaupt einbezogen werden sollen. Komplexe Wortarten, die behandelt werden sollen werden über das Element 'rule' angegeben. Hier sollten alle komplexen Kategorien aus den Wortprofil-Relationsdateien behandelt werden. Wenn eine Wortkategorie ausgeschlossen werden soll, kann diese auf eine leere Zeichenkette abgebildet werden (to="").
+
+  Attribute für 'rule':
+    -komplexe Ausgangswortart:
+      from<string>
+    -neue Wortart:
+      to<string>
+  -->
+	<POS-mapping>
+
+    <!-- undefiniert -->
+		<rule from="-" to=""/>
+
+    <!-- ADJEKTIVE -->
+		<rule from="ADJA-x-sg-pos-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-pos-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-pos-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-sup-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-sup-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-sup-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-comp-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-comp-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-sg-comp-mixed-x" to="Adjektiv"/>
+
+		<rule from="ADJA-x-pl-pos-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-pos-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-pos-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-sup-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-sup-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-sup-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-comp-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-comp-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-pl-comp-mixed-x" to="Adjektiv"/>
+
+		<rule from="ADJA-x-x-pos-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-pos-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-pos-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-sup-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-sup-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-sup-mixed-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-comp-strong-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-comp-weak-x" to="Adjektiv"/>
+		<rule from="ADJA-x-x-comp-mixed-x" to="Adjektiv"/>
+
+		<rule from="ADJA-nom-sg-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-mixed-masc" to="Adjektiv"/>
+
+		<rule from="ADJA-acc-sg-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-mixed-masc" to="Adjektiv"/>
+
+		<rule from="ADJA-dat-sg-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-mixed-masc" to="Adjektiv"/>
+
+		<rule from="ADJA-gen-sg-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-weak-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-strong-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-mixed-masc" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-mixed-masc" to="Adjektiv"/>
+
+		<rule from="ADJA-nom-sg-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-mixed-fem" to="Adjektiv"/>
+
+		<rule from="ADJA-acc-sg-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-mixed-fem" to="Adjektiv"/>
+
+		<rule from="ADJA-dat-sg-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-mixed-fem" to="Adjektiv"/>
+
+		<rule from="ADJA-gen-sg-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-weak-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-strong-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-mixed-fem" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-mixed-fem" to="Adjektiv"/>
+
+		<rule from="ADJA-nom-sg-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-sg-sup-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-nom-pl-sup-mixed-neut" to="Adjektiv"/>
+
+		<rule from="ADJA-acc-sg-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-sg-sup-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-acc-pl-sup-mixed-neut" to="Adjektiv"/>
+
+		<rule from="ADJA-dat-sg-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-sg-sup-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-dat-pl-sup-mixed-neut" to="Adjektiv"/>
+
+		<rule from="ADJA-gen-sg-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-sg-sup-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-weak-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-strong-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-pos-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-comp-mixed-neut" to="Adjektiv"/>
+		<rule from="ADJA-gen-pl-sup-mixed-neut" to="Adjektiv"/>
+
+		<rule from="ADJD" to="Adjektiv"/>
+		<rule from="ADJC-comp" to="Adjektiv"/>
+		<rule from="ADJC-pos" to="Adjektiv"/>
+		<rule from="ADJC-sup" to="Adjektiv"/>
+
+    <!-- ADVERBIEN -->
+		<rule from="ADV" to="Adverb"/>
+
+    <!-- PRONOMEN -->
+		<rule from="PDS" to=""/>
+		<rule from="PDAT" to=""/>
+		<rule from="PIS" to=""/>
+		<rule from="PISNEG" to=""/>
+		<rule from="PIAT" to=""/>
+		<rule from="PIDAT" to=""/>
+		<rule from="PPER" to="Personalpronomen"/>
+
+		<rule from="PPER-first-nom-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-sg-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-nom-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-pl-neut" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-pl-neut" to="Personalpronomen"/>
+
+		<rule from="PPER-first-nom-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-sg-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-nom-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-pl-masc" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-pl-masc" to="Personalpronomen"/>
+
+		<rule from="PPER-first-nom-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-sg-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-nom-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-nom-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-nom-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-acc-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-acc-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-acc-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-dat-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-dat-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-dat-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-first-gen-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-second-gen-pl-fem" to="Personalpronomen"/>
+		<rule from="PPER-third-gen-pl-fem" to="Personalpronomen"/>
+
+		<rule from="PPOSS" to=""/>
+		<rule from="PPOSAT" to=""/>
+		<rule from="PRELS" to=""/>
+		<rule from="PRELAT" to=""/>
+		<rule from="PRF" to=""/>
+		<rule from="PWS" to=""/>
+		<rule from="PWAT" to=""/>
+		<rule from="PWAV" to=""/>
+		<rule from="PAV" to=""/>
+
+    <!-- FUNKTIONSWÖRTER -->
+		<rule from="APPR" to="Präposition"/>
+		<rule from="APPRART" to="Präposition"/>
+		<rule from="APPO" to="Postposition"/>
+		<rule from="APZR" to="Zirkumposition"/>
+		<rule from="ART" to="Artikel"/>
+		<rule from="ITJ" to="Interjektion"/>
+		<rule from="KOUI" to="Konjunktion"/>
+		<rule from="KON" to="Konjunktion"/>
+		<rule from="KOKOM" to="Konjunktion"/>
+		<rule from="PTKZU" to="NULL"/>
+		<rule from="PTKNEG" to="Negationspartikel"/>
+		<rule from="PTKVZ" to="Verbpartikel"/>
+		<rule from="PTKANT" to="NULL"/>
+		<rule from="PTKA" to="NULL"/>
+
+    <!-- SUBSTANTIVE -->
+
+		<rule from="NN-x-sg-x" to="Substantiv"/>
+
+		<rule from="NN-nom-sg-masc" to="Substantiv"/>
+		<rule from="NN-acc-sg-masc" to="Substantiv"/>
+		<rule from="NN-dat-sg-masc" to="Substantiv"/>
+		<rule from="NN-gen-sg-masc" to="Substantiv"/>
+		<rule from="NN-nom-pl-masc" to="Substantiv"/>
+		<rule from="NN-acc-pl-masc" to="Substantiv"/>
+		<rule from="NN-dat-pl-masc" to="Substantiv"/>
+		<rule from="NN-gen-pl-masc" to="Substantiv"/>
+
+		<rule from="NN-nom-sg-fem" to="Substantiv"/>
+		<rule from="NN-acc-sg-fem" to="Substantiv"/>
+		<rule from="NN-dat-sg-fem" to="Substantiv"/>
+		<rule from="NN-gen-sg-fem" to="Substantiv"/>
+		<rule from="NN-nom-pl-fem" to="Substantiv"/>
+		<rule from="NN-acc-pl-fem" to="Substantiv"/>
+		<rule from="NN-dat-pl-fem" to="Substantiv"/>
+		<rule from="NN-gen-pl-fem" to="Substantiv"/>
+
+		<rule from="NN-nom-sg-neut" to="Substantiv"/>
+		<rule from="NN-acc-sg-neut" to="Substantiv"/>
+		<rule from="NN-dat-sg-neut" to="Substantiv"/>
+		<rule from="NN-gen-sg-neut" to="Substantiv"/>
+		<rule from="NN-nom-pl-neut" to="Substantiv"/>
+		<rule from="NN-acc-pl-neut" to="Substantiv"/>
+		<rule from="NN-dat-pl-neut" to="Substantiv"/>
+		<rule from="NN-gen-pl-neut" to="Substantiv"/>
+		<rule from="NN-x-x-x" to="Substantiv"/>
+
+    <!-- EIGENNAMEN -->
+		<rule from="NE" to=""/>
+
+    <!-- AKRONYME -->
+		<rule from="XY" to="Substantiv"/>
+
+    <!-- ZAHLEN -->
+		<rule from="CARD" to="Kardinalzahl"/>
+
+    <!-- FREMDSPRACHLICHES MATERIAL -->
+		<rule from="FM" to="NULL"/>
+
+    <!-- VERBEN -->
+		<rule from="VVFIN-x-x-pret-imp" to="Verb"/>
+		<rule from="VVFIN-x-x-pres-imp" to="Verb"/>
+		<rule from="VVFIN-x-x-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-x-x-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-x-x-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-x-x-pres-subjII" to="Verb"/>
+
+		<rule from="VVFIN-pl-third-x-x" to="Verb"/>
+		<rule from="VVFIN-sg-third-x-x" to="Verb"/>
+		<rule from="VVFIN-pl-first-x-x" to="Verb"/>
+		<rule from="VVFIN-sg-first-x-x" to="Verb"/>
+		<rule from="VVFIN-pl-second-x-x" to="Verb"/>
+		<rule from="VVFIN-sg-second-x-x" to="Verb"/>
+
+		<rule from="VVFIN-x-third-pret-ind nicht" to="Verb"/>
+		<rule from="VVFIN-x-x-pret-ind" to="Verb"/>
+		<rule from="VVFIN-x-x-pres-ind" to="Verb"/>
+		<rule from="VVFIN-x-third-pret-ind" to="Verb"/>
+
+		<rule from="VVFIN-sg-first-pres-ind" to="Verb"/>
+		<rule from="VVFIN-sg-first-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-first-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-first-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-sg-first-pret-ind" to="Verb"/>
+		<rule from="VVFIN-sg-first-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-first-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-first-pret-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-first-pres-ind" to="Verb"/>
+
+		<rule from="VVFIN-pl-first-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-first-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-first-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-first-pret-ind" to="Verb"/>
+		<rule from="VVFIN-pl-first-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-first-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-first-pret-imp" to="Verb"/>
+
+		<rule from="VVFIN-sg-second-pres-ind" to="Verb"/>
+		<rule from="VVFIN-sg-second-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-second-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-second-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-sg-second-pret-ind" to="Verb"/>
+		<rule from="VVFIN-sg-second-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-second-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-second-pret-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-second-pres-ind" to="Verb"/>
+
+		<rule from="VVFIN-pl-second-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-second-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-second-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-second-pret-ind" to="Verb"/>
+		<rule from="VVFIN-pl-second-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-second-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-second-pret-imp" to="Verb"/>
+
+		<rule from="VVFIN-sg-third-pres-ind" to="Verb"/>
+		<rule from="VVFIN-sg-third-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-third-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-third-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-sg-third-pret-ind" to="Verb"/>
+		<rule from="VVFIN-sg-third-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-sg-third-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-sg-third-pret-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-third-pres-ind" to="Verb"/>
+
+		<rule from="VVFIN-pl-third-pres-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-third-pres-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-third-pres-imp" to="Verb"/>
+
+		<rule from="VVFIN-pl-third-pret-ind" to="Verb"/>
+		<rule from="VVFIN-pl-third-pret-subjI" to="Verb"/>
+		<rule from="VVFIN-pl-third-pret-subjII" to="Verb"/>
+		<rule from="VVFIN-pl-third-pret-imp" to="Verb"/>
+
+    <!-- Ausschließen wegen großer Ambiguität zu Nomen am Satzanfang -->
+		<rule from="VVIMP" to=""/>
+		<rule from="VVINF" to="Verb"/>
+
+		<rule from="VVIZU" to="Verb"/>
+		<rule from="VVPP" to="Verb"/>
+		<rule from="VVPP2" to="Verb"/>
+		<rule from="VVPP1" to="Verb"/>
+
+		<rule from="VAFIN" to="Auxiliar"/>
+		<rule from="VAIMP" to="Auxiliar"/>
+		<rule from="VAINF" to="Auxiliar"/>
+		<rule from="VAPP" to="Auxiliar"/>
+		<rule from="VMFIN" to="Modalverb"/>
+		<rule from="VMINF" to="Modalverb"/>
+		<rule from="VMPP" to="Modalverb"/>
+	</POS-mapping>
+
+  <!-- ====================  RELATIONSSPEZIFIKATIONEN ====================== -->
+
+
+  <!--
+  'input': Hier können Kookkurrenzen zu einer bestimmten syntaktischen Relationen einbezogen werden. Die TAB-separierten Kookkurrenz-Dateien zu der entsprechenden syntaktischen Relation werden über das Element 'file' angegeben. Die Informationen zu einer Kookkurrenz in einer Kookkurrenz-Datei sind folgend TAB-separiert aufgebaut:
+
+  1) Lemmaform des ersten Wortes
+  2) Lemmaform des zweiten Wortes
+  3) Lemmaform der Präposition
+  4) Oberflächenform des ersten Wortes
+  5) Oberflächenform des zweiten Wortes
+  6) Oberflächenform der Präposition
+  7) Wortart des ersten Wortes
+  8) Wortart des zweiten Wortes
+  9) Wortart der Präposition
+  10) Position des ersten Wortes im Satz
+  11) Position des zweiten Wortes im Satz
+  12) Position der Präposition im Satz
+  13) Position des Satzes im Text (der wievielte Satz)
+  14) Dateiname
+  15) syntaktischer Trigger (Informationen über den syntaktischen Kontext) 
+
+  Hierbei werden die einzelnen Trigger durch '|' getrennt geschrieben: T_1|T_2|...|T_n
+  
+  Attribute für 'file':
+    -Korpuskürzel:
+      corpus=<string>
+    -Wortprofil-Relation-Dateiname:
+      name<file>
+
+  Über das Element 'pre-cut' können hingegen Schwellwerte angegeben werden, die sich einerseits auf die Frequenz und andererseits auf die Lemmaform- und Oberflächenformlänge beziehen. Die Schwellwerte werden hierbei vor der Statistischen Berechnung angewendet. D.h. die Frequenzen für die statistischen Berechnungen gehen von den Daten nach der Anwendung dieser Schwellwerte aus. Über das Attribut 'min-frequency' kann hierbei eine minimalfrequenz für die Kookkurrenzen angegeben werden. Die Frequenz der Kookkurrenzen ergibt sich hierbei mit Berücksichtigung der Syntaktischen Trigger-Information (siehe 'syn-trigger'). Über das Attribut 'min-string-length' kann die minimale Zeichenkettenlänge der Lemma- und Oberflächenformen angegeben werden und über 'max-string-length' die entsprechende maximale Zeichenkettenlänge (ASCII).
+
+  Attribute für 'pre-cut':
+    -Minimalfrequenz:
+      min-frequency=<integer>
+    -minimal Stringlänge:
+      min-string-length=<integer>
+    -maximale Stringlänge:
+      max-string-length=<integer>
+  
+  Über das Element 'relation-symetric' kann eine symmetrische syntaktische Relation angegeben werden. Solch eine Relation ist z.B. die Koordination. Das bedeutet, dass es sich um eine ungerichtete Relation handelt. So wird hier die 'Richtung' der Kookkurrenz berücksichtigt, wie in den Relations-Dateien vorliegt, aber es wird zusätzlich die Kookkurrenz umgedreht und auch diese 'Richtung' berücksichtigt. Hierdurch wird der 'ungerichtete' Charakter abgebildet. 
+
+  Über das Element 'relation' hingegen wird hingegen eine gerichtete syntaktische Relation angegeben. Diese kann nicht in Kombination mit 'relation-symetric' angegeben werden.
+
+  Über das Element 'relation-inverted' kann eine gerichtete umgedrehte syntaktische Relation angegeben werden. Das bedeutet, dass die Kookkurrenzen aus den Relations-Dateien umgeddreht werden. 'relation-inverted' kann hierbei in Kombination mit 'relation-symetric' angegeben werden.
+
+  Attribute für 'relation-symetric', 'relation' und 'relation-inverted':
+    -Korpuskürzel:
+      corpus=<string>
+
+  Innerhalb von 'relation-symetric', 'relation' und 'relation-inverted' können relationsspezifische Dinge definiert werden.
+  
+  Über 'cut' kann ein Minimalschwellwert für die Frequenz angegeben werden. Der Schwellwert wird nach der Statistikberechnung angewendet und bezieht im 'Gegensatz zu 'pre-cut' keine syntaktischen Trigger-Informarion mit ein. 
+
+  Attribute für 'cut':
+    -Minimalfrequenz:
+      min-frequency=<int>
+
+  Über 'description' kann eine Kurzbeschreibung der Relation gegeben werden und über 'example' ein kleines Beispiel. Über 'snippet' kann zusätzlich eine generische Darlegung mit den Mitspielern gegeben werden, wobei '$mod' für den Modifizierer, '$gov' für den Kopf bzw. Governor und $prep für die Präposition steht. So kann beispielsweise als Snippet '$gov ist Kopf von $Mod' angegeben werden.
+
+  -->
+
+  <!-- KON (Beiordnung) -->
+	<input>
+    <file corpus="dradio" name="dradio/CJ__NN_NN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__PPER_NN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__NN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/CJ__PPER_PPER.rel"/>
+    <file corpus="dradio" name="dradio/CJ__ADJA_ADJA.rel"/>
+    <file corpus="dradio" name="dradio/CJ__ADJD_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/CJ__ADJC_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/CJ__ADJC_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/CJ__ADJD_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVFIN_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIZU_VVIZU.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVPP2_VVPP2.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVINF_VVINF.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIMP_VVIMP.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVFIN_VVINF.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVINF_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVFIN_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVFIN_VVIZU.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIZU_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIZU_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVFIN_VVPP2.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVINF_VVIZU.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIZU_VVINF.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVINF_VVPP2.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVIZU_VVPP2.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVPP2_VVINF.rel"/>
+    <file corpus="dradio" name="dradio/CJ__VVPP2_VVFIN.rel"/>
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation-symetric name="KON"> 
+      <snippet>$gov hat die Beiordnung $mod</snippet>
+      <example>das Flugzeug{1} und die Bahn{2}</example>
+      <description>in Koordination mit</description>
+			<cut min-frequency="2"/>
+    </relation-symetric>
+	</input>
+
+  <!-- GMOD (Genitivattribut) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/GMOD__NN_NN.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="GMOD">
+      <snippet>$mod ist Genitivattribut von $gov</snippet>
+      <example>das Auto{1} des Mannes{2}</example>
+      <description>ist Genitivattribut von</description>
+			<cut min-frequency="2"/>  
+    </relation>
+		<relation-inverted name="~GMOD">
+      <snippet>$mod hat Genitivattribut $gov</snippet>
+      <example>das Auto{2} des Mannes{1}</example>
+      <description>hat Genitivattribut</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- SUBJA (Aktiv-Subjekt) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/SUBJA__VVFIN_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJA__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJA__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJA__VVFIN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJA__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJA__VVPP2_PPER.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="SUBJA">
+      <snippet>$mod ist Subjekt von $gov</snippet>
+      <example>Hans{2} schläft{1}.</example>
+      <description>ist Subjekt von</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~SUBJA">
+      <snippet>$mod hat Subjekt $gov</snippet>
+      <example>Hans{1} schläft{2}.</example>
+      <description>hat Subjekt</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- SUBJP (Passiv-Subjekt) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/SUBJP__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJP__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJP__VVIZU_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJP__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJP__VVPP2_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJP__VVIZU_PPER.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="SUBJP">
+      <snippet>$mod ist Passivsubjekt von $gov</snippet>
+      <example>Hans{1} wird geschlagen{2}.</example>
+      <description>ist Passivsubjekt</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~SUBJP">
+      <snippet>$mod hat Passivsubjekt $gov</snippet>
+      <example>Hans{2} wird geschlagen{1}.</example>
+      <description>hat Passivsubjekt</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+  <!-- OBJ (Nominalobjekt) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <!-- (Akkusativobjekt) -->
+    <file corpus="dradio" name="dradio/OBJA__VVFIN_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVFIN_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVIMP_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVIMP_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVIZU_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVIZU_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVFIN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVFIN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVPP2_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVPP2_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVIMP_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVIMP_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA__VVIZU_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJA+__VVIZU_PPER.rel"/>
+
+    <!-- (Dativobjekt) -->
+    <file corpus="dradio" name="dradio/OBJD__VVFIN_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVFIN_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVINF_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVIMP_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVIMP_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVPP2_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVIZU_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVIZU_NN.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVFIN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVFIN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVINF_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVIMP_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVIMP_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVPP2_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVPP2_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD__VVIZU_PPER.rel"/>
+    <file corpus="dradio" name="dradio/OBJD+__VVIZU_PPER.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="OBJ">
+      <snippet>$mod ist Akkusativ-/Dativobjekt von $gov</snippet>
+      <example>Der Fremde gibt{1} dem Mann{2} ein Auto.</example>
+      <description>ist Akkusativ-/Dativobjekt von</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~OBJ">
+      <snippet>$mod hat Akkusativ-/Dativobjekt $gov</snippet>
+      <example>Der Fremde gibt{2} dem Mann{1} ein Auto.</example>
+      <description>hat Akkusativ-/Dativobjekt</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- PRED (prädikative Ergänzung) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_NN.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_PPER.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_ADJC.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="PRED">
+      <snippet>$gov hat Prädikativ $mod</snippet>
+      <example>Der Mann{1} ist eine Frau{2}</example>
+      <description>hat Prädikativ</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~PRED">
+      <snippet>$mod ist Prädikativ von $gov</snippet>
+      <example>Der Mann{2} ist eine Frau{1}</example>
+      <description>ist Prädikativ von</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- ADV (adverbialer Modifikator) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/ADV__VVFIN_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVFIN_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVFIN_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVFIN_PTKNEG.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVINF_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVINF_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVINF_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVINF_PTKNEG.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIMP_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIMP_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIMP_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIMP_PTKNEG.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIZU_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIZU_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIZU_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__VVIZU_PTKNEG.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJA_ADJD.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJA_ADJC.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJA_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJA_PTKNEG.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJD_ADV.rel"/>
+    <file corpus="dradio" name="dradio/ADV__ADJD_PTKNEG.rel"/>
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="ADV">
+      <snippet>$gov hat Adverbialbestimmung $mod</snippet>
+      <example>Heute{2} liebt{1} der Mann</example>
+      <description>hat Adverbialbestimmung</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~ADV">
+      <snippet>$mod ist Adverbialbestimmung von $gov</snippet>
+      <example>Heute{1} liebt{2} der Mann</example>
+      <description>ist Adverbialbestimmung von</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- ATTR (Attribut) -->
+  <input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+    <file corpus="dradio" name="dradio/ATTR__NN_ADJA.rel"/>
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="ATTR">
+      <snippet>$gov hat Adjektivattribut $mod</snippet>
+      <example>die schöne{2} Blume{1}</example>
+      <description>hat Adjektivattribut</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~ATTR">
+      <snippet>$mod ist Adjektivattribut von $gov</snippet>
+      <example>die schöne{1} Blume{2}</example>
+      <description>ist Adjektivattribut von</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- KOM (vergleichende Konjunktion) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+
+    <file corpus="dradio" name="dradio/KOM-CJ__NN_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__NN_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__PPER_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__PPER_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVFIN_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVINF_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVIMP_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVPP2_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVIZU_NN_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVFIN_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVINF_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVIMP_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVPP2_PPER_KOKOM.rel"/>
+    <file corpus="dradio" name="dradio/KOM-CJ__VVIZU_PPER_KOKOM.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="KOM">
+      <snippet>$gov hat vergleichende Wortgruppe $mod</snippet>
+      <example>der Mann{1} als Baum{2}</example>
+      <description>hat vergleichende Wortgruppe</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~KOM">
+      <snippet>$mod ist vergleichende Wortgruppe von $gov</snippet>
+      <example>der Mann{2} als Baum{1}</example>
+      <description>ist vergleichende Wortgruppe</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- PP (Präpositionalphrase) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+
+    <file corpus="dradio" name="dradio/PP-PN__NN_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__NN_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__NN_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__PPER_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__PPER_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__PPER_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVFIN_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVFIN_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVFIN_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVINF_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVINF_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVINF_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIMP_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIMP_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIMP_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVPP2_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVPP2_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVPP2_PPER_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIZU_NN_APPR.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIZU_NN_APPRART.rel"/>
+    <file corpus="dradio" name="dradio/PP-PN__VVIZU_PPER_APPR.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="PP">
+      <snippet>$gov hat Präpositionalgruppe $prep_$mod</snippet>
+      <example>Der Mann lebt{1} im{2a} Zoo{2b}./Der Mann{1} mit{2a} der Mütze{2b} lebt.</example>
+      <description>hat Präpositionalgruppe</description>
+			<cut min-frequency="2"/>
+    </relation>
+		<relation-inverted name="~PP">
+      <snippet>$prep_$mod ist Präpositionalgruppe von $gov</snippet>
+      <example>Der Mann lebt{2} im{1a} Zoo{1b}./Der Mann{2} mit{1a} der Mütze{1b} lebt.</example>
+      <description>ist Präpositionalgruppe von</description>
+			<cut min-frequency="2"/>
+    </relation-inverted>
+	</input>
+
+  <!-- VZ (Verbzusatz) -->
+	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
+
+    <file corpus="dradio" name="dradio/VZ__VVFIN_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/AVZ__VVFIN_VVFIN.rel"/>
+    <file corpus="dradio" name="dradio/AVZ__VVIMP_VVIMP.rel"/>
+
+		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
+		<relation name="VZ">
+      <snippet>$gov hat Verbzusatz $mod</snippet>
+      <example>Ich gebe{1} auf{2}.</example>
+      <description>hat Verbzusatz</description>
+			<cut min-frequency="2"/>
+    </relation>
+	</input>
+
+
+</build-specification>
+
