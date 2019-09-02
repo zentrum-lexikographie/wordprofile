@@ -50,7 +50,7 @@ class MMap:
             binSprung = struct.pack('@ l h', iPosition, iLen)
 
             self.g_mySprungBinary.write(binSprung)
-            self.g_myDataBinary.write(strData)
+            self.g_myDataBinary.write(strData.encode('utf-8'))
 
             iPosition += len(strData)
             iCount += 1
@@ -79,7 +79,7 @@ class MMap:
             binSprung = struct.pack('@ l h', iPosition, iLen)
 
             self.g_mySprungBinary.write(binSprung)
-            self.g_myDataBinary.write(strData)
+            self.g_myDataBinary.write(strData.encode('utf-8'))
 
             iPosition += len(strData)
             iCount += 1
@@ -90,12 +90,10 @@ class MMap:
     ######
     ### laden des Index
     def load(self):
-
-        self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".jmp"), "rb")
-        self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".dat"), "rb")
-
-        self.g_mmSprung = mmap.mmap(self.g_mySprungBinary.fileno(), 0, prot=mmap.PROT_READ)
-        self.g_mmData = mmap.mmap(self.g_myDataBinary.fileno(), 0, prot=mmap.PROT_READ)
+        self.g_mySprungBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".jmp"), "r+b")
+        self.g_myDataBinary = open("%s/%s%s" % (self.g_strTmpDir, self.g_strProjectName, ".dat"), "r+b")
+        self.g_mmSprung = mmap.mmap(self.g_mySprungBinary.fileno(), 0)
+        self.g_mmData = mmap.mmap(self.g_myDataBinary.fileno(), 0)
 
     ######
     ### abfragen von Daten

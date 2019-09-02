@@ -12,36 +12,32 @@
 """
 
 import sys
-sys.path.append('./moduls')
+
 sys.path.append('./xmlrpc/moduls')
 
-import xmlrpclib
-from drawTable import *
-import getopt
-import codecs
+import xmlrpc.client
 from optparse import OptionParser
 
 ### Komandozeilenoptionen einlesen
 parser = OptionParser()
-parser.add_option("-x", dest="host", default=None, help=u"Hostrechner (z.B. http://services.dwds.de:8049)")
+parser.add_option("-x", dest="host", default=None, help="Hostrechner (z.B. http://services.dwds.de:8049)")
 (options, args) = parser.parse_args()
 
 ### Komandozeilenoptionen prüfen
 if len(args) > 0:
-  parser.error("incorrect number of arguments")
-if options.host==None:
-  parser.error("missing host")
+    parser.error("incorrect number of arguments")
+if options.host == None:
+    parser.error("missing host")
 
 try:
-  ### XMLRPC-Client erstellen
-  s = xmlrpclib.ServerProxy(options.host)
-  #Print list of available methods
-  #print "methods:", s.system.listMethods()
+    ### XMLRPC-Client erstellen
+    s = xmlrpc.client.ServerProxy(options.host)
+    # Print list of available methods
+    # print "methods:", s.system.listMethods()
 
-  ### Prüfabfrage senden
-  strResponse = s.status()
+    ### Prüfabfrage senden
+    strResponse = s.status()
 
-  print "|: status: ",strResponse
+    print("|: status: ", strResponse)
 except:
-  print "): XMLRPC-Server ist nicht erreichbar"
-
+    print("): XMLRPC-Server ist nicht erreichbar")

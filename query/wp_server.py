@@ -28,20 +28,18 @@
   -get_concordances
 """
 
-import sys
-import xmlrpc.server
-
 import logging
-from moduls.MMap import *
-from moduls.OrthVariations import *
-
 import math
+import sys
 import time
+import xmlrpc.server
 from optparse import OptionParser
-from moduls.wpse_mysql import *
-from moduls.wpse_tree import *
-from moduls.wpse_string import *
-from moduls.wpse_spec import *
+
+from moduls.OrthVariations import OrthVariations
+from moduls.wpse_mysql import WpSeMySql
+from moduls.wpse_spec import WpSeSpec
+from moduls.wpse_string import WpSeString
+from moduls.wpse_tree import WpSeTree
 
 """
   Die Klasse managed Wortprofil-MySQL-Abfragen. 
@@ -128,8 +126,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     def status(self):
 
         try:
-
-            if self.CWpMySQL.connect() == False:
+            if not self.CWpMySQL.connect():
                 return "Can't connect to MySQL database (%s, %s)" % (self.strHost, self.strDatabase)
 
             # Testwort
@@ -172,7 +169,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
             ### Der Server läuft einwandfrei
             return "OK"
-
         except:
             return "Internal Server Error (exception)"
 
@@ -386,15 +382,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Die Methode ermöglicht es, zu einer liste von gegebenen Wörtern die Wortprofil-Lemma/POS-IDs für jedes der enthaltenen Wörter zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten für ein Wort). 
-
     *Eingabe ist eine Liste aus Lemma/Oberflächen-Formen mehrerer Wörter in UTF-8 ('Parts') (z.B. [Treffen,im,weiß,Haus]) zusammen mit der optionalen Angabe eines Subkorpus ('Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ('UseVariations'). Diese Parameter werden über einen Dictionary übergeben
-
     dictParam = {'Parts':<list>, 'Subcorpus':<string>, 'CaseSensitive':<bool=1>, 'UseVariations':<bool=0>}
-
     hiervon sind obligatorisch: 'Parts' 
-
     *Rückgabe ist eine Liste aus einer Liste von: Lemmaform ('Lemma'), part-of-speech ('POS'), Lemma-ID ('LemmaId'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten ('Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ('Relations'), die nach Relevanz geordnet sind. die Listeneinträge sind als dictionary abgelegt:
-
     [[ {'Lemma':<string>,'POS':<string>,'LemmaId':<int>,'PosId':<int>,'Frequency':<int>,'Count':<int>,'Relations:<Liste aus Strings>} , ... ], [ ... ], ... ]
 
   """
@@ -453,13 +444,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ). 
-
     *Eingabe ist die Lemma/Oberflächen-Form eines Wortes in UTF-8 ( 'Word') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ( 'UseVariations'). Diese Parameter werden über einen Dictionary übergeben: 
-
     mapParam = {'Word':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=0>, 'UseVariations':<bool=0>}
-
     hiervon sind obligatorisch: 'Word' 
-
     *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
   """
 
@@ -497,8 +484,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     def __get_lemma_and_pos_base(self, mapParam):
 
-        strWord = ""
-        strUnicodeWord = ''
         strSubcorpus = ""
         bCaseSensitive = False
         strQueryPOS = ""
@@ -530,13 +515,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ### bei case-insensitiver Abfrage
         if bCaseSensitive == False:
             strWord = strUnicodeWord.lower().encode('utf8')
-        strQField = ""
         if bCaseSensitive == True:
             strQField = "lemmaToRelation"
         else:
             strQField = "lemmaToRelationLower"
 
-            ### Abfragen der Tabellen: headPosRelFreq und lemmaToRelation oder lemmaToRelationLower
+        ### Abfragen der Tabellen: headPosRelFreq und lemmaToRelation oder lemmaToRelationLower
         ### und ermitteln der Frequenzinformationen und Wortarteninformation zu dem Abfragelemma
         strSelect = "SELECT " + strSubcorpus + "headPosRelFreq.id, " + strSubcorpus + "headPosRelFreq.POS," + strSubcorpus + "headPosRelFreq.frequency, " + strSubcorpus + "headPosRelFreq.count, " + strSubcorpus + "headPosRelFreq.relation "
         strFrom = """ FROM """ + strSubcorpus + """headPosRelFreq
@@ -568,7 +552,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ### durchgehen der Lemmainformationsliste
         for i in listLemmaPos:
             ### lemmaId, PosId, POS, frequency, count, relation
-
             ### Erstellen einer Liste von Lemmainformationen
             ### Erstellen eines Mappings von LemmaId/PosId auf die Lemmainformationenposition in der Liste
             if (i[0], i[1]) in mapDummy:
@@ -593,7 +576,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         mapDummy = {}
         for i in listDummy:
             iPos = i.iPos
-            strLemma = i.strLemma
             if iPos in mapDummy:
                 if mapDummy[iPos].iFrequency >= i.iFrequency:
                     pass
@@ -736,10 +718,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     def __gen_rel_cooccurrence_mapping(self, listData):
         mapRelData = {}
-
         ### Position der Relation-Information
         xRel = 0
-
         iCounter = 0
         for i in listData:
             if i[xRel] in mapRelData:
@@ -747,7 +727,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             else:
                 mapRelData[i[xRel]] = [iCounter]
             iCounter += 1
-
         return mapRelData
 
     """
@@ -796,8 +775,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
             ### zum Ergebnis hinzufügen
             listResult.append({'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId})
-            # for j in listTuples:
-            #  print j
 
         return listResult
 
@@ -838,9 +815,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ### Meta-Informationen
         strRel = self.CWpMySQL.mapIdToRel[iRelId]
-        strDesc = self.CWpSpec.strRelDesc
-        if strRel in self.CWpSpec.mapRelDesc:
-            strDesc = self.CWpSpec.mapRelDesc[strRel]
 
         return listTuples
 
@@ -851,15 +825,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     def __get_relation_tuples_mwe_check(self, mapParam, listRelationId):
 
         ### Defaults
-        iLemmaID = 0
-        iPosID = 0
         iStart = 0
         iNumber = 20
         strOrderBy = "logDice"
         iMinFreq = -100000000
         iMinStat = -100000000
         strSubcorpus = ""
-        listRelation = []
         iLemma2ID = -1
         iPos2ID = -1
 
@@ -1294,7 +1265,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         listMweId = strBaseId.split('@')
         setId = set()
         mapLemCat = {}
-        setFunc = set()
         strInfoId = ""
         iCount = 1
 
@@ -1348,7 +1318,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         setId = set()
         mapLemCat = {}
-        setFunc = set()
         strInfoId = ""
 
         ### grobes aufspalten in die MWE-Bestandteile
@@ -1735,8 +1704,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ### zusammenbauen der MWE-ID für spätere Abfragen
         strInitialInfo = "CONCAT('%s#%s#%s#%s#',%s,'#',%s,'#',%s)" % (
-        str(iLemmaID), str(iPosID), str(iLemma2ID), str(iPos2ID), "relations.prep", "relations.function",
-        "relations.info")
+            str(iLemmaID), str(iPosID), str(iLemma2ID), str(iPos2ID), "relations.prep", "relations.function",
+            "relations.info")
 
         ### mit Hilfe der Tabelle 'relations' die Treffer-Id ermitteln
         strCreate1 = "CREATE TEMPORARY TABLE myMweList1 LIKE tmpMweList1; "
@@ -1744,8 +1713,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         strSelect1 = "SELECT  info, " + strInitialInfo + " "
         strFrom1 = "FROM relations USE INDEX(I_" + strOrderBy + ") "
         strWhere1 = "WHERE lemma1=\"%s\" and POS1=\"%s\" and lemma2=\"%s\" and POS2=\"%s\" and function IN %s %s;" % (
-        listMweRec[0][0]["LemmaId"], listMweRec[0][0]["PosId"], listMweRec[0][1]["LemmaId"], listMweRec[0][1]["PosId"],
-        strRelIds, strWherePrep)
+            listMweRec[0][0]["LemmaId"], listMweRec[0][0]["PosId"], listMweRec[0][1]["LemmaId"],
+            listMweRec[0][1]["PosId"],
+            strRelIds, strWherePrep)
 
         self.CWpMySQL.connect()
         self.CWpMySQL.execute("SET NAMES 'utf8';")
@@ -1766,7 +1736,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
             ### Zusammenbauen der MWE-ID für spätere Abfragen
             strInfo2 = "CONCAT(myMweList%i.info,'@',idToConditionalFree_%i.lemma1,'#',idToConditionalFree_%i.pos1,'#',idToConditionalFree_%i.lemma2,'#',idToConditionalFree_%i.pos2,'#',idToConditionalFree_%i.prep,'#',idToConditionalFree_%i.function,'#',idToConditionalFree_%i.mate)" % (
-            iCount, iCount, iCount, iCount, iCount, iCount, iCount, iCount)
+                iCount, iCount, iCount, iCount, iCount, iCount, iCount, iCount)
 
             ### mit Hilfe der Tabelle 'tmpMweList' die Treffer-IDs ermitteln
             strCreate2 = "CREATE TEMPORARY TABLE myMweList" + str(iCount + 1) + " LIKE tmpMweList" + str(
@@ -1776,8 +1746,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strFrom2 = "FROM myMweList" + str(iCount) + " STRAIGHT_JOIN idToConditionalFree_" + str(
                 iCount) + " ON ( " + strRecJoinOn + " )"
             strWhere = " WHERE (lemma1=\"%s\" and POS1=\"%s\") and (lemma2=\"%s\" and POS2=\"%s\") and function IN %s %s " % (
-            listMweRec[i][0]["LemmaId"], listMweRec[i][0]["PosId"], listMweRec[i][1]["LemmaId"],
-            listMweRec[i][1]["PosId"], strRelIds, strWherePrep)
+                listMweRec[i][0]["LemmaId"], listMweRec[i][0]["PosId"], listMweRec[i][1]["LemmaId"],
+                listMweRec[i][1]["PosId"], strRelIds, strWherePrep)
 
             self.CWpMySQL.execute(strCreate2)
             self.CWpMySQL.execute(strIn2 + strSelect2 + strFrom2 + strWhere)  #
@@ -1786,7 +1756,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ### weiteres Zusammenbauen der MWE-ID für spätere Abfragen
         strInfoCut = "CONCAT(myMweList%i.info,'@',idToConditional_%i.lemma,'#',idToConditional_%i.pos,'#0#',idToConditional_%i.function,'#',idToConditional_%i.mate)" % (
-        iCount, iCount, iCount, iCount, iCount)
+            iCount, iCount, iCount, iCount, iCount)
 
         strRecSelect = self.__get_mwe_rec_select(iCount)
         strRecJoinOn = self.__get_mwe_rec_join_on(iCount)
@@ -2554,10 +2524,10 @@ if(ConditionalCheck_""" + str(
         ### Abschließendes Sortieren und Abschneiden
         lcmp = lambda idx: lambda i, j: (i[idx] > j[idx]) and -1 or (i[idx] < j[idx]) and 1 or 0
         abs_lcmp = lambda idx: lambda i, j: (math.fabs(i[idx]) > math.fabs(j[idx])) and -1 or (
-                    math.fabs(i[idx]) < math.fabs(j[idx])) and 1 or 0
+                math.fabs(i[idx]) < math.fabs(j[idx])) and 1 or 0
         rcmp = lambda idx: lambda i, j: (i[idx] < j[idx]) and -1 or (i[idx] > j[idx]) and 1 or 0
         abs_rcmp = lambda idx: lambda i, j: (math.fabs(i[idx]) < math.fabs(j[idx])) and -1 or (
-                    math.fabs(i[idx]) > math.fabs(j[idx])) and 1 or 0
+                math.fabs(i[idx]) > math.fabs(j[idx])) and 1 or 0
 
         if strOperation == "rmax":
             my_cmp = rcmp
@@ -3040,7 +3010,7 @@ if(ConditionalCheck_""" + str(
         strInfoSelect = ""
         for i in range(1, len(listInfoId) + 1):
             strInfoSelect += "infoDouble%i.tokenPosition1,infoDouble%i.tokenPosition2,infoDouble%i.prepPosition,\n" % (
-            i, i, i)
+                i, i, i)
 
         ###--WHERE--------------------------------------------------
         strInfoWhere = ""
@@ -3076,7 +3046,7 @@ if(ConditionalCheck_""" + str(
         strPositionSelect = ""
         for i in range(1, len(listInfoId) + 1):
             strPositionSelect += ", infoDouble.tokenPosition1_%i, infoDouble.tokenPosition2_%i, infoDouble.prepPosition_%i" % (
-            i, i, i)
+                i, i, i)
 
         ### Wenn innerhalb eines Subkorpus gesucht werden soll
         if strSubcorpus != "":
@@ -3271,14 +3241,13 @@ logger.addHandler(hdlr)
 logger.setLevel(logging.INFO)
 
 # Create server
-server = xmlrpc.server.SimpleXMLRPCServer(("", int(options.port)),
+server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(options.port)),
                                           requestHandler=RequestHandler, logRequests=False, allow_none=True)
 # register function information
 server.register_introspection_functions()
 
 # register wortprofil
-CWortprofilQuery = WortprofilQuery(CWpSpec)
-server.register_instance(CWortprofilQuery)
+server.register_instance(WortprofilQuery(CWpSpec))
 
 # Run the server's main loop
 server.serve_forever()
