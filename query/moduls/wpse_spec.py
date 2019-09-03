@@ -40,16 +40,14 @@ class WpSeSpec:
 
     def read_specification(self, strFilename):
 
-        ### Load SpecificationFile
         try:
-            fileConfig = codecs.open(strFilename, 'r', 'utf8')
+            fileConfig = open(strFilename, 'r', encoding='utf-8')
         except:
             self.__error("unknown specification file:" + strFilename)
             sys.exit(-1)
         self.strHost = None
         for i in fileConfig.readlines():
             setting = i.rstrip('\n').split('\t')
-            ### mögliche Parameter
             if len(setting) > 1:
                 if setting[0] == 'TablePath':
                     self.strTablePath = setting[1]
@@ -66,11 +64,11 @@ class WpSeSpec:
                 elif setting[0] == 'Port':
                     self.iPort = int(setting[1])
                 elif setting[0] == 'RelDescDefault':
-                    self.strRelDesc = setting[1].encode('utf8')
-                    self.strRelDescDetail = setting[2].encode('utf8')
+                    self.strRelDesc = setting[1]
+                    self.strRelDescDetail = setting[2]
                 elif setting[0] == 'RelDesc':
-                    self.mapRelDesc[setting[1]] = setting[2].encode('utf8')
-                    self.mapRelDescDetail[setting[1]] = setting[3].encode('utf8')
+                    self.mapRelDesc[setting[1]] = setting[2]
+                    self.mapRelDescDetail[setting[1]] = setting[3]
                 elif setting[0] == 'RelOrderDefault':
                     self.listRelOrder = setting[1].split(',')
                 elif setting[0] == 'RelOrder':
@@ -83,7 +81,7 @@ class WpSeSpec:
                     try:
                         # Load VariationFile
                         self.__status("read variation list %s" % (setting[1]))
-                        myFileVariations = codecs.open(setting[1], 'r', 'utf8')
+                        myFileVariations = open(setting[1], 'r', encoding='utf-8')
                         for j in myFileVariations.readlines():
                             myLine = j.rstrip('\n').split('\t')
                             if len(myLine) == 2:
@@ -95,7 +93,7 @@ class WpSeSpec:
                     try:
                         # Load LemmaRepairFile
                         self.__status("read lemma repair list %s" % (setting[2]))
-                        myFileLemmaRepair = codecs.open(setting[2], 'r', 'utf8')
+                        myFileLemmaRepair = open(setting[2], 'r', 'utf-8')
                         for j in myFileLemmaRepair.readlines():
                             myLine = j.rstrip('\n').split('\t')
                             if len(myLine) == 2:
