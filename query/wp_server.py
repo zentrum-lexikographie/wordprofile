@@ -94,7 +94,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Konstruktor
-  """
+    """
 
     def __init__(self, CWpSpec):
 
@@ -121,56 +121,53 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert. Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
-  """
+    """
 
     def status(self):
 
-        try:
-            if not self.CWpMySQL.connect():
-                return "Can't connect to MySQL database (%s, %s)" % (self.strHost, self.strDatabase)
+        if not self.CWpMySQL.connect():
+            return "Can't connect to MySQL database (%s, %s)" % (self.strHost, self.strDatabase)
 
-            # Testwort
-            strWord = "Mann"
-            mapParam = {}
+        # Testwort
+        strWord = "Mann"
+        mapParam = {}
 
-            ### Parameter für die Lemmainformationabfrage
-            mapParam["Word"] = strWord
-            mapParam["Subcorpus"] = ""
-            mapParam["CaseSensitive"] = True
-            mapParam["UseLemmatizer"] = False
-            mapParam["UseVariations"] = 1
+        ### Parameter für die Lemmainformationabfrage
+        mapParam["Word"] = strWord
+        mapParam["Subcorpus"] = ""
+        mapParam["CaseSensitive"] = True
+        mapParam["UseLemmatizer"] = False
+        mapParam["UseVariations"] = 1
 
-            ### Lemmainformationen abfragen
-            mapping = self.get_lemma_and_pos(mapParam)
+        ### Lemmainformationen abfragen
+        mapping = self.get_lemma_and_pos(mapParam)
 
-            mapSelect = {}
-            for i in mapping:
-                if i["POS"] == "Substantiv":
-                    mapSelect = i
+        mapSelect = {}
+        for i in mapping:
+            if i["POS"] == "Substantiv":
+                mapSelect = i
 
-            if mapSelect == {}:
-                return "Internal Server Error (get_lemma_and_pos)"
+        if mapSelect == {}:
+            return "Internal Server Error (get_lemma_and_pos)"
 
-            ### Parameter für die Kookkurrenzabfrage
-            mapParam["LemmaId"] = mapSelect["LemmaId"]
-            mapParam["Lemma"] = mapSelect["Lemma"]
-            mapParam["PosId"] = mapSelect["PosId"]
-            mapParam["Start"] = 0
-            mapParam["Number"] = 10
-            mapParam["OrderBy"] = "logDice"
-            mapParam["Relations"] = mapSelect["Relations"]
-            mapParam["ExtendedSurfaceForm"] = True
+        ### Parameter für die Kookkurrenzabfrage
+        mapParam["LemmaId"] = mapSelect["LemmaId"]
+        mapParam["Lemma"] = mapSelect["Lemma"]
+        mapParam["PosId"] = mapSelect["PosId"]
+        mapParam["Start"] = 0
+        mapParam["Number"] = 10
+        mapParam["OrderBy"] = "logDice"
+        mapParam["Relations"] = mapSelect["Relations"]
+        mapParam["ExtendedSurfaceForm"] = True
 
-            ### Kookkurrenzen abfragen
-            listRel = self.get_relations(mapParam)
+        ### Kookkurrenzen abfragen
+        listRel = self.get_relations(mapParam)
 
-            if len(listRel) == 0:
-                return "Internal Server Error (get_relations)"
+        if len(listRel) == 0:
+            return "Internal Server Error (get_relations)"
 
-            ### Der Server läuft einwandfrei
-            return "OK"
-        except:
-            return "Internal Server Error (exception)"
+        ### Der Server läuft einwandfrei
+        return "OK"
 
     """
     Zurückgeben der verwendeten Korpora (Namen)
@@ -191,7 +188,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben der Anzahl an abfragbaren Kookkurrenzen
-  """
+    """
 
     def get_no_of_cooccurrences(self):
         if 'relationSize' in self.CWpMySQL.mapTypeToValue:
@@ -201,7 +198,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben der Anzahl an möglichen Sätzen
-  """
+    """
 
     def get_no_of_sentences(self):
         if 'sentenceSize' in self.CWpMySQL.mapTypeToValue:
@@ -211,7 +208,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben der Anzahl an möglichen Texttreffern
-  """
+    """
 
     def get_no_of_hits(self):
         if 'infoSize' in self.CWpMySQL.mapTypeToValue:
@@ -221,7 +218,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben relationsbezogener Kookkurrenzinformationen
-  """
+    """
 
     def get_cooccurrence_info(self):
         for i in self.CWpMySQL.mapRelInfo:
@@ -235,21 +232,21 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben relationsbezogener Schwellwertinformationen
-  """
+    """
 
     def get_threshold_info(self):
         return self.CWpMySQL.mapThresholdInfo
 
     """
     Zurückgeben der maximalen Stelligkeit der MWE-Kookkurenzen
-  """
+    """
 
     def get_mwe_depth(self):
         return self.CWpMySQL.iMweDepth
 
     """
     Zurückgeben des Autornamen der Wortprofil-Spezifikation
-  """
+    """
 
     def get_author(self):
         if 'Author' in self.CWpMySQL.mapProjectInfo:
@@ -259,7 +256,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben des Erstellungsdatum der Wortprofil-Tabellen (nicht der Datenbank)
-  """
+    """
 
     def get_creation_date(self):
         if 'CreationDate' in self.CWpMySQL.mapProjectInfo:
@@ -269,7 +266,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben des Dateinamen der Wortprofil-Spezifikation
-  """
+    """
 
     def get_spec_filename(self):
         if 'SpecFile' in self.CWpMySQL.mapProjectInfo:
@@ -279,7 +276,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben der Version der Wortprofil-Spezifikation
-  """
+    """
 
     def get_spec_version(self):
         if 'SpecFileVersion' in self.CWpMySQL.mapProjectInfo:
@@ -289,7 +286,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Zurückgeben des Lemma-Cut-Schwellwertes
-  """
+    """
 
     def get_lemma_cut_threshold(self):
         if 'LemmaCut' in self.CWpMySQL.mapProjectInfo:
@@ -300,7 +297,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
     Ermitteln einer Liste von Relation-Ids 
     anhand einer Liste von Relationen (String)
-  """
+    """
 
     def gen_rel_ids_by_rel(self, listRel):
         setRes = set()
@@ -312,7 +309,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
     Ermitteln einer Liste von Sortierten Relations-Ids 
     anhand einer Liste von Relationen (String) und einer Wortkategorie
-  """
+    """
 
     def gen_rel_ids_by_rel_and_pos(self, listRel, strPOS):
         mapRelations = {}
@@ -334,7 +331,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
     Ermitteln einer Liste von Sortierten Relations-Ids 
     anhand einer Wortkategorie
-  """
+    """
 
     def gen_rel_ids_by_pos(self, strPOS):
         mapRelations = {}
@@ -355,7 +352,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
     Ermitteln eines Mapping von Relation-Id und Wortkategorie-Id auf die Zeile innerhalb 
     einer Liste von Kookkurenzinformationen (listData)
-  """
+    """
 
     def __gen_rel_pos_cooccurrence_mapping(self, listData):
         mapRes = {}
@@ -388,7 +385,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     *Rückgabe ist eine Liste aus einer Liste von: Lemmaform ('Lemma'), part-of-speech ('POS'), Lemma-ID ('LemmaId'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten ('Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ('Relations'), die nach Relevanz geordnet sind. die Listeneinträge sind als dictionary abgelegt:
     [[ {'Lemma':<string>,'POS':<string>,'LemmaId':<int>,'PosId':<int>,'Frequency':<int>,'Count':<int>,'Relations:<Liste aus Strings>} , ... ], [ ... ], ... ]
 
-  """
+    """
 
     def get_lemma_and_pos_by_list(self, mapParam):
 
@@ -448,7 +445,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     mapParam = {'Word':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=0>, 'UseVariations':<bool=0>}
     hiervon sind obligatorisch: 'Word' 
     *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
-  """
+    """
 
     def get_lemma_and_pos(self, mapParam):
         bUseExternalVariations = 1
@@ -480,7 +477,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Basismethode zur Abfrage von Lemmainformationen
-  """
+    """
 
     def __get_lemma_and_pos_base(self, mapParam):
 
@@ -501,11 +498,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 strQueryPOS = " and POS=\"%s\" " % (str(self.CWpMySQL.mapPosToId[mapParam["POS"]]))
 
         ### evtl. Zeichenencodings behandeln
-        if isinstance(strWord, type('')):
-            strUnicodeWord = strWord
-            strWord = strWord.encode("utf8")
-        else:
-            strUnicodeWord = str(strWord.decode('utf8'))
+        strUnicodeWord = strWord
 
         ### Prüfen auf valides Eingabelemma
         for i in strUnicodeWord:
@@ -514,7 +507,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ### bei case-insensitiver Abfrage
         if bCaseSensitive == False:
-            strWord = strUnicodeWord.lower().encode('utf8')
+            strWord = strUnicodeWord.lower()
         if bCaseSensitive == True:
             strQField = "lemmaToRelation"
         else:
@@ -542,7 +535,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert. 
     Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
     eher Substantiv als Verb.
-  """
+    """
 
     def __check_and_sort_lemma_and_pos_list(self, listLemmaPos, strUnicodeWord, bCaseSensitive):
 
@@ -600,7 +593,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             iLemma = i.iLemma
             iPos = i.iPos
             strPos = i.strPos
-
             strLemma = i.strLemma
 
             ### bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
@@ -618,7 +610,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 listRelation.append(j)
 
             strUnicode1 = strUnicodeWord
-            strUnicode2 = str(strLemma.decode('utf8'))
+            strUnicode2 = strLemma
             bInputIsUpper1 = strUnicode1[0].isupper()
             bInputIsUpper2 = strUnicode2[0].isupper()
 
@@ -662,7 +654,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             
 [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
 
-  """
+    """
 
     def get_lemma_and_pos_diff(self, mapParam):
 
@@ -689,7 +681,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 mapParam1['Word'] = self.CWpSpec.mapVariation[strLemma]
                 list1 = self.get_lemma_and_pos(mapParam1)
 
-                ### Lemmainformationen zum zweiten Lemma ermitteln
+        ### Lemmainformationen zum zweiten Lemma ermitteln
         list2 = self.get_lemma_and_pos(mapParam2)
         if list2 == [] and bool(bUseExternalVariations):
             strLemma = mapParam2['Word']
@@ -714,7 +706,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
     Ermitteln eines Mapping von Relation-Id auf die Zeile innerhalb 
     einer Liste von Kookkurenzinformationen (listData)
-  """
+    """
 
     def __gen_rel_cooccurrence_mapping(self, listData):
         mapRelData = {}
@@ -748,7 +740,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     Wenn der Wert von 'ConcordNo' der 0 entspricht gibt es aus rechtlichen Gründen keine Texttreffer. Dann ist 'ConcordNoAccessible' auch 0. 
 
-  """
+    """
 
     def get_relations(self, mapParam):
         ### Liste aus Relation-Ids ermitteln
@@ -790,7 +782,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     *Rückgabe ist eine Liste aus Kookkurrenztupeln. Ein Kookkurrenztupel enthält folgende Information: syntaktische Relation ('Relation'), Snippet ('Snippet'), Lemma des Kookkurrenzpartners ('Lemma'), Oberflächenform des Kookkurrenzpartners ('Form'), part-of-speech des Dependenten ('POS'), statistic Score ( 'Score'), Concordanz-ID ('ConcordId'), ob es MWEs zu der Kookkurrrenz gibt ('HasMwe' mit den Werten 0 oder 1), Anzahl der Belege ('ConcordNo'). Die Information 'Score' ist komplex und besteht aus einem Dictionary mit einem Eintrag für 'MiLogFreq', für 'logDice', für 'Frequency', für 'MI3', für 'AScore', für 'logLike'. Zudem wird die Gesamtanzahl der möglichen Belege zurückgegeben ('ConcordNo') und die Anzahl der anzeigbaren Belege ('ConcordNoAccessible'). Die Listeneinträge sind als dictionary abgelegt:
 
     [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]     
-  """
+    """
 
     def get_cooccurrences(self, mapParam):
 
@@ -820,7 +812,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die Wortprofil-MySQL-Datenbank
-  """
+    """
 
     def __get_relation_tuples_mwe_check(self, mapParam, listRelationId):
 
@@ -964,13 +956,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
             ###Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
             strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
-                                                     self.CWpMySQL.mapRelIdToType[i[xRel]], strPrepSurface,
+                                                     self.CWpMySQL.mapRelIdToType[i[xRel]],
+                                                     strPrepSurface,
                                                      bExtendedSurfaceForm)
 
             ### evt. Lemma Reparieren
-            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma.decode('utf8')), None)
+            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
             if strLemmaRepair != None:
-                strLemma = strLemmaRepair.encode('utf8')
+                strLemma = strLemmaRepair
 
             ### Lemma+Präposition formatieren
             if self.CWpMySQL.mapRelIdToType[i[xRel]] == 1 and strPrep != "-" and strPrep != "":
@@ -1079,7 +1072,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                                                      bExtendedSurfaceForm)
 
             ### evt. Lemma Reparieren
-            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma.decode('utf8')), None)
+            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
             if strLemmaRepair != None:
                 strLemma = strLemmaRepair.encode('utf8')
 
@@ -2658,7 +2651,7 @@ if(ConditionalCheck_""" + str(
                                                          strPrepSurface, bExtendedSurfaceForm)
 
                 ### evt. Lemma Reparieren
-                strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma.decode('utf8')), None)
+                strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
                 if strLemmaRepair != None:
                     strLemma = strLemmaRepair.encode('utf8')
 
@@ -3204,50 +3197,65 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
             self.connection.shutdown(1)
 
 
-# Create option parser
-parser = OptionParser()
-parser.add_option("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)")
-parser.add_option("-p", dest="port", default=None, help="Angabe des Ports")
-parser.add_option("-r", action="store_false", dest="reload_mmap", default=True, help="mmap-Dateien nicht neu berechnen")
-parser.add_option("--log", dest="logfile", default=None, help="Angabe der log-Datei (Default: log/wp_{date}.log)")
+def test_server(spec='spec/dradio.local.spec'):
+    global g_bReloadMmap
+    CWpSpec = WpSeSpec()
+    g_bReloadMmap = True
+    CWpSpec.read_specification(spec)
+    wp_query = WortprofilQuery(CWpSpec)
+    CWpMySQL = WpSeMySql(CWpSpec, g_bReloadMmap)
+    return CWpMySQL, wp_query
 
-(options, args) = parser.parse_args()
 
-### Prüfen der Parameter
-if options.spec == None:
-    parser.error("missing specification file")
-    sys.exit(-1)
-if options.port == None:
-    parser.error("missing port")
-    sys.exit(-1)
+def main():
+    global g_bReloadMmap, logger
+    # Create option parser
+    parser = OptionParser()
+    parser.add_option("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)")
+    parser.add_option("-p", dest="port", default=None, help="Angabe des Ports")
+    parser.add_option("-r", action="store_false", dest="reload_mmap", default=True, help="mmap-Dateien nicht neu berechnen")
+    parser.add_option("--log", dest="logfile", default=None, help="Angabe der log-Datei (Default: log/wp_{date}.log)")
 
-CWpSpec = WpSeSpec()
+    (options, args) = parser.parse_args()
 
-CWpSpec.read_specification(options.spec)
+    ### Prüfen der Parameter
+    if options.spec == None:
+        parser.error("missing specification file")
+        sys.exit(-1)
+    if options.port == None:
+        parser.error("missing port")
+        sys.exit(-1)
 
-g_bReloadMmap = options.reload_mmap
+    CWpSpec = WpSeSpec()
 
-if options.logfile == None:
-    g_logFile = "./log/wp_" + time.strftime("%d_%m_%Y") + ".log"
-else:
-    g_logFile = options.logfile
+    CWpSpec.read_specification(options.spec)
 
-### Schreiben der Logging-Informationen
-logger = logging.getLogger('wortprofilserver')
-hdlr = logging.FileHandler(g_logFile)
-formatter = logging.Formatter("%(asctime)s  %(levelname)s  %(message)s")
-hdlr.setFormatter(formatter)
-logger.addHandler(hdlr)
-logger.setLevel(logging.INFO)
+    g_bReloadMmap = options.reload_mmap
 
-# Create server
-server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(options.port)),
-                                          requestHandler=RequestHandler, logRequests=False, allow_none=True)
-# register function information
-server.register_introspection_functions()
+    if options.logfile == None:
+        g_logFile = "./log/wp_" + time.strftime("%d_%m_%Y") + ".log"
+    else:
+        g_logFile = options.logfile
 
-# register wortprofil
-server.register_instance(WortprofilQuery(CWpSpec))
+    ### Schreiben der Logging-Informationen
+    logger = logging.getLogger('wortprofilserver')
+    hdlr = logging.FileHandler(g_logFile)
+    formatter = logging.Formatter("%(asctime)s  %(levelname)s  %(message)s")
+    hdlr.setFormatter(formatter)
+    logger.addHandler(hdlr)
+    logger.setLevel(logging.INFO)
 
-# Run the server's main loop
-server.serve_forever()
+    # Create server
+    server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(options.port)),
+                                              requestHandler=RequestHandler, logRequests=False, allow_none=True)
+    # register function information
+    server.register_introspection_functions()
+
+    # register wortprofil
+    server.register_instance(WortprofilQuery(CWpSpec))
+
+    # Run the server's main loop
+    server.serve_forever()
+
+if __name__ == '__main__':
+    main()

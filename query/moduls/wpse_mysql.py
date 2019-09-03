@@ -1,11 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os
 import sys
 
 import MySQLdb
 
-from .MMap import MMap
 
 """
   Hilfsklasse für die Kommunikation mit MySQL und für die Bereitstellung bestimmter Mappings, die sich aus der Wortprofil-Datenbank ergeben
@@ -495,39 +493,25 @@ class WpSeMySql:
     """
 
     def __calc_lemma_mapping(self):
-        # try:
-        self.mmapIdToLem = MMap(self.strTablePath, "mapping_lemma")
-        if not os.path.isfile(self.strTablePath + "/mapping_lemma.dat") or self.bReloadMmap:
+        if not self.mmapIdToLem:
             self.__status("generate mmap")
             self.connect()
             self.execute("SET NAMES 'utf8';")
             self.execute("Select * From lemmaToRelation")
-            listDummy = self.cursor.fetchall()
+            self.mmapIdToLem = dict(self.cursor.fetchall())
             self.disconnect()
-            self.mmapIdToLem.generate_index_from_list(listDummy)
-        self.mmapIdToLem.load()
 
-    # except:
-    #   self.__error("MySQL: lemma mapping failed")
 
     """
       Abfragen und ablegen (MMap) des Oberflächenform-Mappings
     """
 
     def __calc_surface_mapping(self):
-        # try:
-        self.mmapIdToSurf = MMap(self.strTablePath, "mapping_surface")
-        if not os.path.isfile(self.strTablePath + "/mapping_surface.dat") or self.bReloadMmap:
+        if not self.mmapIdToSurf:
             self.connect()
             self.execute("SET NAMES 'utf8';")
             self.execute("Select * From idToSurface")
-            listDummy = self.cursor.fetchall()
-            self.disconnect()
-            self.mmapIdToSurf.generate_index_from_list(listDummy)
-        self.mmapIdToSurf.load()
-
-    # except:
-    #     self.__error("surface mapping failed")
+            self.mmapIdToSurf = dict(self.cursor.fetchall())
 
     """
       Einfache MySQL-Funktionen anlegen. Diese werden für die MWE-Abfragen benötigt, um die Treffer-Ids zu sortieren

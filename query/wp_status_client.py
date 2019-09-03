@@ -11,10 +11,6 @@
 
 """
 
-import sys
-
-sys.path.append('./xmlrpc/moduls')
-
 import xmlrpc.client
 from optparse import OptionParser
 
@@ -29,15 +25,12 @@ if len(args) > 0:
 if options.host == None:
     parser.error("missing host")
 
-try:
-    ### XMLRPC-Client erstellen
-    s = xmlrpc.client.ServerProxy(options.host)
-    # Print list of available methods
-    # print "methods:", s.system.listMethods()
+### XMLRPC-Client erstellen
+s = xmlrpc.client.ServerProxy(options.host)
+# Print list of available methods
+# print "methods:", s.system.listMethods()
 
-    ### Prüfabfrage senden
-    strResponse = s.status()
+### Prüfabfrage senden
+strResponse = s.status()
 
-    print("|: status: ", strResponse)
-except:
-    print("): XMLRPC-Server ist nicht erreichbar")
+print("|: status: ", strResponse)
