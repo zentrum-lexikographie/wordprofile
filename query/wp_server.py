@@ -41,15 +41,14 @@ from moduls.wpse_spec import WpSeSpec
 from moduls.wpse_string import WpSeString
 from moduls.wpse_tree import WpSeTree
 
-"""
-  Die Klasse managed Wortprofil-MySQL-Abfragen. 
-  *Es Können (MWE-)Kookkurrenzen abgefragt werden.
-  *Es können Texttreffer Abgefragt werden.
-  *Es können Wortprofile miteinander Verglichen werden. 
-"""
-
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
+    """
+      Die Klasse managed Wortprofil-MySQL-Abfragen.
+      *Es Können (MWE-)Kookkurrenzen abgefragt werden.
+      *Es können Texttreffer Abgefragt werden.
+      *Es können Wortprofile miteinander Verglichen werden.
+    """
     class CooccInfo:
         iLemma1Id = None
         iLemma2Id = None
@@ -60,22 +59,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         iInfoId = None
 
     class HeadLemmaPosRel:
-        setRelation = set()
-        strPos = ''
-        strLemma = ''
-        idPos = 0
-        idLemma = 0
-        iFrequency = 0
-        iCount = 0
-
         def __init__(self):
-            setRelation = set()
-            strPos = ''
-            strLemma = ''
-            iPos = 0
-            iLemma = 0
-            iFrequency = 0
-            iCount = 0
+            self.setRelation = set()
+            self.strPos = ''
+            self.strLemma = ''
+            self.iPos = 0
+            self.iLemma = 0
+            self.iFrequency = 0
+            self.iCount = 0
 
     mapCorpus = {}
     mapIdToLem = {}
@@ -92,10 +83,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     ### Hilfsklasse für das einlesen der Spezifikationsdatei
     CWpSpec = None
 
-    """
-    Konstruktor
-    """
-
     def __init__(self, CWpSpec):
 
         self.CWpStr = WpSeString()
@@ -104,7 +91,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ### Hilfsklassen initialisieren
         self.CWpTree = WpSeTree()
         self.CWpSpec = CWpSpec
-        self.CWpMySQL = WpSeMySql(self.CWpSpec, g_bReloadMmap)
+        self.CWpMySQL = WpSeMySql(self.CWpSpec)
         if self.CWpMySQL.check_connection() == False:
             self.CWpStr.error("MySQL-Verbindung fehlgeschlagen")
             sys.exit(-1)
@@ -119,14 +106,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         self.CWpStr.status_complete("init complete")
 
-    """
-    Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert. Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
-    """
-
     def status(self):
-
+        """
+        Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert. Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
+        """
         if not self.CWpMySQL.connect():
-            return "Can't connect to MySQL database (%s, %s)" % (self.strHost, self.strDatabase)
+            return "Can't connect to MySQL database (%s, %s)" % (self.CWpMySQL.strHost, self.CWpMySQL.strDatabase)
 
         # Testwort
         strWord = "Mann"
@@ -169,16 +154,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ### Der Server läuft einwandfrei
         return "OK"
 
-    """
-    Zurückgeben der verwendeten Korpora (Namen)
-  """
-
     def get_used_corpora(self):
         return self.CWpMySQL.vCorpusName
-
-    """
-    Zurückgeben der Anzahl an abfragbaren Lemmaformen
-  """
 
     def get_no_of_lemmas(self):
         if 'lemmaSize' in self.CWpMySQL.mapTypeToValue:
@@ -186,19 +163,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         else:
             return None
 
-    """
-    Zurückgeben der Anzahl an abfragbaren Kookkurrenzen
-    """
-
     def get_no_of_cooccurrences(self):
         if 'relationSize' in self.CWpMySQL.mapTypeToValue:
             return self.CWpMySQL.mapTypeToValue['relationSize']
         else:
             return None
-
-    """
-    Zurückgeben der Anzahl an möglichen Sätzen
-    """
 
     def get_no_of_sentences(self):
         if 'sentenceSize' in self.CWpMySQL.mapTypeToValue:
@@ -206,19 +175,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         else:
             return None
 
-    """
-    Zurückgeben der Anzahl an möglichen Texttreffern
-    """
-
     def get_no_of_hits(self):
         if 'infoSize' in self.CWpMySQL.mapTypeToValue:
             return self.CWpMySQL.mapTypeToValue['infoSize']
         else:
             return None
-
-    """
-    Zurückgeben relationsbezogener Kookkurrenzinformationen
-    """
 
     def get_cooccurrence_info(self):
         for i in self.CWpMySQL.mapRelInfo:
@@ -230,23 +191,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             self.CWpMySQL.mapRelInfo[i]['Description'] = strRelDesc
         return self.CWpMySQL.mapRelInfo
 
-    """
-    Zurückgeben relationsbezogener Schwellwertinformationen
-    """
-
     def get_threshold_info(self):
         return self.CWpMySQL.mapThresholdInfo
 
-    """
-    Zurückgeben der maximalen Stelligkeit der MWE-Kookkurenzen
-    """
-
     def get_mwe_depth(self):
         return self.CWpMySQL.iMweDepth
-
-    """
-    Zurückgeben des Autornamen der Wortprofil-Spezifikation
-    """
 
     def get_author(self):
         if 'Author' in self.CWpMySQL.mapProjectInfo:
@@ -254,19 +203,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         else:
             return None
 
-    """
-    Zurückgeben des Erstellungsdatum der Wortprofil-Tabellen (nicht der Datenbank)
-    """
-
     def get_creation_date(self):
         if 'CreationDate' in self.CWpMySQL.mapProjectInfo:
             return self.CWpMySQL.mapProjectInfo['CreationDate']
         else:
             return None
-
-    """
-    Zurückgeben des Dateinamen der Wortprofil-Spezifikation
-    """
 
     def get_spec_filename(self):
         if 'SpecFile' in self.CWpMySQL.mapProjectInfo:
@@ -274,19 +215,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         else:
             return None
 
-    """
-    Zurückgeben der Version der Wortprofil-Spezifikation
-    """
-
     def get_spec_version(self):
         if 'SpecFileVersion' in self.CWpMySQL.mapProjectInfo:
             return self.CWpMySQL.mapProjectInfo['SpecFileVersion']
         else:
             return None
-
-    """
-    Zurückgeben des Lemma-Cut-Schwellwertes
-    """
 
     def get_lemma_cut_threshold(self):
         if 'LemmaCut' in self.CWpMySQL.mapProjectInfo:
@@ -294,24 +227,22 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         else:
             return None
 
-    """
-    Ermitteln einer Liste von Relation-Ids 
-    anhand einer Liste von Relationen (String)
-    """
-
     def gen_rel_ids_by_rel(self, listRel):
+        """
+        Ermitteln einer Liste von Relation-Ids
+        anhand einer Liste von Relationen (String)
+        """
         setRes = set()
         for i in listRel:
             if i in self.CWpMySQL.mapRelToId:
                 setRes.add(self.CWpMySQL.mapRelToId[i])
         return list(setRes)
 
-    """
-    Ermitteln einer Liste von Sortierten Relations-Ids 
-    anhand einer Liste von Relationen (String) und einer Wortkategorie
-    """
-
     def gen_rel_ids_by_rel_and_pos(self, listRel, strPOS):
+        """
+        Ermitteln einer Liste von Sortierten Relations-Ids
+        anhand einer Liste von Relationen (String) und einer Wortkategorie
+        """
         mapRelations = {}
         for i in listRel:
             if i in self.CWpMySQL.mapRelToId:
@@ -328,12 +259,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 listSortId.append(mapRelations[i])
         return listSortId
 
-    """
-    Ermitteln einer Liste von Sortierten Relations-Ids 
-    anhand einer Wortkategorie
-    """
-
     def gen_rel_ids_by_pos(self, strPOS):
+        """
+        Ermitteln einer Liste von Sortierten Relations-Ids
+        anhand einer Wortkategorie
+        """
         mapRelations = {}
         for i in self.CWpMySQL.mapRelToId:
             mapRelations[i] = self.CWpMySQL.mapRelToId[i]
@@ -349,12 +279,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 listSortId.append(mapRelations[i])
         return listSortId
 
-    """
-    Ermitteln eines Mapping von Relation-Id und Wortkategorie-Id auf die Zeile innerhalb 
-    einer Liste von Kookkurenzinformationen (listData)
-    """
-
     def __gen_rel_pos_cooccurrence_mapping(self, listData):
+        """
+        Ermitteln eines Mapping von Relation-Id und Wortkategorie-Id auf die Zeile innerhalb
+        einer Liste von Kookkurenzinformationen (listData)
+        """
         mapRes = {}
 
         ### Positionen von Relation, Lemmaform und Wortkategorie
@@ -377,19 +306,15 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             iCounter += 1
         return mapRes
 
-    """
-    Die Methode ermöglicht es, zu einer liste von gegebenen Wörtern die Wortprofil-Lemma/POS-IDs für jedes der enthaltenen Wörter zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten für ein Wort). 
-    *Eingabe ist eine Liste aus Lemma/Oberflächen-Formen mehrerer Wörter in UTF-8 ('Parts') (z.B. [Treffen,im,weiß,Haus]) zusammen mit der optionalen Angabe eines Subkorpus ('Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ('UseVariations'). Diese Parameter werden über einen Dictionary übergeben
-    dictParam = {'Parts':<list>, 'Subcorpus':<string>, 'CaseSensitive':<bool=1>, 'UseVariations':<bool=0>}
-    hiervon sind obligatorisch: 'Parts' 
-    *Rückgabe ist eine Liste aus einer Liste von: Lemmaform ('Lemma'), part-of-speech ('POS'), Lemma-ID ('LemmaId'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten ('Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ('Relations'), die nach Relevanz geordnet sind. die Listeneinträge sind als dictionary abgelegt:
-    [[ {'Lemma':<string>,'POS':<string>,'LemmaId':<int>,'PosId':<int>,'Frequency':<int>,'Count':<int>,'Relations:<Liste aus Strings>} , ... ], [ ... ], ... ]
-
-    """
-
     def get_lemma_and_pos_by_list(self, mapParam):
-
-        ### Parameter
+        """
+        Die Methode ermöglicht es, zu einer liste von gegebenen Wörtern die Wortprofil-Lemma/POS-IDs für jedes der enthaltenen Wörter zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten für ein Wort).
+        *Eingabe ist eine Liste aus Lemma/Oberflächen-Formen mehrerer Wörter in UTF-8 ('Parts') (z.B. [Treffen,im,weiß,Haus]) zusammen mit der optionalen Angabe eines Subkorpus ('Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ('UseVariations'). Diese Parameter werden über einen Dictionary übergeben
+        dictParam = {'Parts':<list>, 'Subcorpus':<string>, 'CaseSensitive':<bool=1>, 'UseVariations':<bool=0>}
+        hiervon sind obligatorisch: 'Parts'
+        *Rückgabe ist eine Liste aus einer Liste von: Lemmaform ('Lemma'), part-of-speech ('POS'), Lemma-ID ('LemmaId'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten ('Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ('Relations'), die nach Relevanz geordnet sind. die Listeneinträge sind als dictionary abgelegt:
+        [[ {'Lemma':<string>,'POS':<string>,'LemmaId':<int>,'PosId':<int>,'Frequency':<int>,'Count':<int>,'Relations:<Liste aus Strings>} , ... ], [ ... ], ... ]
+        """
         listLemma = mapParam['Parts']
         if len(listLemma) < 1:
             return []
@@ -439,15 +364,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listResult
 
-    """
-    Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ). 
-    *Eingabe ist die Lemma/Oberflächen-Form eines Wortes in UTF-8 ( 'Word') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ( 'UseVariations'). Diese Parameter werden über einen Dictionary übergeben: 
-    mapParam = {'Word':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=0>, 'UseVariations':<bool=0>}
-    hiervon sind obligatorisch: 'Word' 
-    *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
-    """
-
     def get_lemma_and_pos(self, mapParam):
+        """
+        Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
+        *Eingabe ist die Lemma/Oberflächen-Form eines Wortes in UTF-8 ( 'Word') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ( 'UseVariations'). Diese Parameter werden über einen Dictionary übergeben:
+        mapParam = {'Word':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=0>, 'UseVariations':<bool=0>}
+        hiervon sind obligatorisch: 'Word'
+        *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
+        """
         bUseExternalVariations = 1
 
         ### Parameter
@@ -468,7 +392,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strWord = mapParam['Word']
             listVariants = self.COrthVariations.gen(strWord)
             for j in listVariants:
-                mapParam['Word'] = j.encode('utf8')
+                mapParam['Word'] = j
                 listRes = self.__get_lemma_and_pos_base(mapParam)
                 if listRes != []:
                     break
@@ -641,74 +565,69 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listResult
 
-    """
-    Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ). 
-    
-    mapParam = {'Word1':<string>, 'Word2':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=False>}
-
-    hiervon sind obligatorisch: 'Word1' und 'Word2' 
-
-    *Eingabe ist die Lemma/Oberflächen-Form des ersten Wortes in UTF-8 ('Word1') und des zweiten Vergleichswortes in UTF-8 ('Word2') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive'). Diese Parameter werden über einen Dictionary übergeben
-
-    *Rückgabe ist eine Liste aus: erster Lemmaform ('Lemma1'), zweiter Lemmaform ('Lemma2'), erster Lemma-ID ('LemmaId1'), zweiter Lemma-ID ('LemmaId2'), part-of-speech ('POS'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten für das erste Wort ('Frequency1') und für das zweite Wort ('Frequency2'), Anzahl Relationen ohne Doppelte für das erte Wort ('Count1') und für das zweite Wort ('Count2') und Liste aller möglichen Relationen für beide Wörter ('Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt:
-            
-[ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
-
-    """
-
-    def get_lemma_and_pos_diff(self, mapParam):
-
-        ### Parameter
-        mapParam1 = {}
-        mapParam2 = {}
-        mapParam1["Word"] = mapParam["Word1"]
-        mapParam2["Word"] = mapParam["Word2"]
-        bUseExternalVariations = 1
-        if "UseVariations" in mapParam:
-            bUseExternalVariations = mapParam["UseVariations"]
-        if "Subcorpus" in mapParam:
-            mapParam1["Subcorpus"] = mapParam["Subcorpus"]
-            mapParam2["Subcorpus"] = mapParam["Subcorpus"]
-        if "CaseSensitive" in mapParam:
-            mapParam1["CaseSensitive"] = mapParam["CaseSensitive"]
-            mapParam2["CaseSensitive"] = mapParam["CaseSensitive"]
-
-        ### Lemmainformationen zum ersten Lemma ermitteln
-        list1 = self.get_lemma_and_pos(mapParam1)
-        if list1 == [] and bool(bUseExternalVariations):
-            strLemma = mapParam1['Word']
-            if strLemma in self.CWpSpec.mapVariation:
-                mapParam1['Word'] = self.CWpSpec.mapVariation[strLemma]
-                list1 = self.get_lemma_and_pos(mapParam1)
-
-        ### Lemmainformationen zum zweiten Lemma ermitteln
-        list2 = self.get_lemma_and_pos(mapParam2)
-        if list2 == [] and bool(bUseExternalVariations):
-            strLemma = mapParam2['Word']
-            if strLemma in self.CWpSpec.mapVariation:
-                mapParam2['Word'] = self.CWpSpec.mapVariation[strLemma]
-                list2 = self.get_lemma_and_pos(mapParam2)
-
-        ### nur Lemmata mit der gleichen Wortart sind vergleichbar
-        listResult = []
-        for i in list1:
-            for j in list2:
-                if i['PosId'] == j['PosId']:
-                    listRelations = self.CWpStr.intersect(i['Relations'], j['Relations'])
-                    listResult.append(
-                        {'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'LemmaId1': i['LemmaId'], 'LemmaId2': j['LemmaId'],
-                         'PosId': i['PosId'], 'POS': i['POS'], 'Frequency1': i['Frequency'],
-                         'Frequency2': j['Frequency'], 'Count1': i['Count'], 'Count2': j['Count'],
-                         'Relations': listRelations})
-
-        return listResult
-
-    """
-    Ermitteln eines Mapping von Relation-Id auf die Zeile innerhalb 
-    einer Liste von Kookkurenzinformationen (listData)
-    """
+    # def get_lemma_and_pos_diff(self, mapParam):
+    #     """
+    #     Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
+    #     mapParam = {'Word1':<string>, 'Word2':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=False>}
+    #     hiervon sind obligatorisch: 'Word1' und 'Word2'
+    #     *Eingabe ist die Lemma/Oberflächen-Form des ersten Wortes in UTF-8 ('Word1') und des zweiten Vergleichswortes in UTF-8 ('Word2') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive'). Diese Parameter werden über einen Dictionary übergeben
+    #     *Rückgabe ist eine Liste aus: erster Lemmaform ('Lemma1'), zweiter Lemmaform ('Lemma2'), erster Lemma-ID ('LemmaId1'), zweiter Lemma-ID ('LemmaId2'), part-of-speech ('POS'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten für das erste Wort ('Frequency1') und für das zweite Wort ('Frequency2'), Anzahl Relationen ohne Doppelte für das erte Wort ('Count1') und für das zweite Wort ('Count2') und Liste aller möglichen Relationen für beide Wörter ('Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt:
+    #     [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
+    #     """
+    #
+    #     ### Parameter
+    #     mapParam1 = {}
+    #     mapParam2 = {}
+    #     mapParam1["Word"] = mapParam["Word1"]
+    #     mapParam2["Word"] = mapParam["Word2"]
+    #     bUseExternalVariations = 1
+    #     if "UseVariations" in mapParam:
+    #         bUseExternalVariations = mapParam["UseVariations"]
+    #     if "Subcorpus" in mapParam:
+    #         mapParam1["Subcorpus"] = mapParam["Subcorpus"]
+    #         mapParam2["Subcorpus"] = mapParam["Subcorpus"]
+    #     if "CaseSensitive" in mapParam:
+    #         mapParam1["CaseSensitive"] = mapParam["CaseSensitive"]
+    #         mapParam2["CaseSensitive"] = mapParam["CaseSensitive"]
+    #
+    #     ### Lemmainformationen zum ersten Lemma ermitteln
+    #     list1 = self.get_lemma_and_pos(mapParam1)
+    #     if list1 == [] and bool(bUseExternalVariations):
+    #         strLemma = mapParam1['Word']
+    #         if strLemma in self.CWpSpec.mapVariation:
+    #             mapParam1['Word'] = self.CWpSpec.mapVariation[strLemma]
+    #             list1 = self.get_lemma_and_pos(mapParam1)
+    #
+    #     ### Lemmainformationen zum zweiten Lemma ermitteln
+    #     list2 = self.get_lemma_and_pos(mapParam2)
+    #     if list2 == [] and bool(bUseExternalVariations):
+    #         strLemma = mapParam2['Word']
+    #         if strLemma in self.CWpSpec.mapVariation:
+    #             mapParam2['Word'] = self.CWpSpec.mapVariation[strLemma]
+    #             list2 = self.get_lemma_and_pos(mapParam2)
+    #
+    #     # print(list1)
+    #     # print(list2)
+    #
+    #     ### nur Lemmata mit der gleichen Wortart sind vergleichbar
+    #     listResult = []
+    #     for i in list1:
+    #         for j in list2:
+    #             if i['PosId'] == j['PosId']:
+    #                 listRelations = self.CWpStr.intersect(i['Relations'], j['Relations'])
+    #                 listResult.append(
+    #                     {'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'LemmaId1': i['LemmaId'], 'LemmaId2': j['LemmaId'],
+    #                      'PosId': i['PosId'], 'POS': i['POS'], 'Frequency1': i['Frequency'],
+    #                      'Frequency2': j['Frequency'], 'Count1': i['Count'], 'Count2': j['Count'],
+    #                      'Relations': listRelations})
+    #
+    #     return listResult
 
     def __gen_rel_cooccurrence_mapping(self, listData):
+        """
+        Ermitteln eines Mapping von Relation-Id auf die Zeile innerhalb
+        einer Liste von Kookkurenzinformationen (listData)
+        """
         mapRelData = {}
         ### Position der Relation-Information
         xRel = 0
@@ -3198,22 +3117,19 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
 
 def test_server(spec='spec/dradio.local.spec'):
-    global g_bReloadMmap
     CWpSpec = WpSeSpec()
-    g_bReloadMmap = True
     CWpSpec.read_specification(spec)
     wp_query = WortprofilQuery(CWpSpec)
-    CWpMySQL = WpSeMySql(CWpSpec, g_bReloadMmap)
+    CWpMySQL = WpSeMySql(CWpSpec)
     return CWpMySQL, wp_query
 
 
 def main():
-    global g_bReloadMmap, logger
+    global logger
     # Create option parser
     parser = OptionParser()
     parser.add_option("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)")
     parser.add_option("-p", dest="port", default=None, help="Angabe des Ports")
-    parser.add_option("-r", action="store_false", dest="reload_mmap", default=True, help="mmap-Dateien nicht neu berechnen")
     parser.add_option("--log", dest="logfile", default=None, help="Angabe der log-Datei (Default: log/wp_{date}.log)")
 
     (options, args) = parser.parse_args()
@@ -3227,10 +3143,7 @@ def main():
         sys.exit(-1)
 
     CWpSpec = WpSeSpec()
-
     CWpSpec.read_specification(options.spec)
-
-    g_bReloadMmap = options.reload_mmap
 
     if options.logfile == None:
         g_logFile = "./log/wp_" + time.strftime("%d_%m_%Y") + ".log"
@@ -3256,6 +3169,7 @@ def main():
 
     # Run the server's main loop
     server.serve_forever()
+
 
 if __name__ == '__main__':
     main()

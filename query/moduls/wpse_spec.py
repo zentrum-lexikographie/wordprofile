@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import codecs
 
 """
   Hilfsklasse für das einlesen der Spezifikation (TAB-separierte Datei) und das Bereitstellen der Parameter
@@ -93,7 +92,7 @@ class WpSeSpec:
                     try:
                         # Load LemmaRepairFile
                         self.__status("read lemma repair list %s" % (setting[2]))
-                        myFileLemmaRepair = open(setting[2], 'r', 'utf-8')
+                        myFileLemmaRepair = open(setting[2], 'r', encoding='utf-8')
                         for j in myFileLemmaRepair.readlines():
                             myLine = j.rstrip('\n').split('\t')
                             if len(myLine) == 2:

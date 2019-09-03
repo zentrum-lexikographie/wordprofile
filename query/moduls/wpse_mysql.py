@@ -4,7 +4,6 @@ import sys
 
 import MySQLdb
 
-
 """
   Hilfsklasse für die Kommunikation mit MySQL und für die Bereitstellung bestimmter Mappings, die sich aus der Wortprofil-Datenbank ergeben
 """
@@ -38,8 +37,6 @@ class WpSeMySql:
     mapThresholdInfo = {}
 
     vCorpusName = []
-
-    bReloadMmap = False
     strTablePath = ""
 
     bHasHit = False
@@ -57,7 +54,7 @@ class WpSeMySql:
       Initialisieren und Laden bestimmter Mappings aus der Wortprofil-Datenbank
     """
 
-    def __init__(self, CWpSpec, bReloadMmap):
+    def __init__(self, CWpSpec):
         self.strHost = CWpSpec.strHost
         self.strSocket = CWpSpec.strSocket
         self.strUser = CWpSpec.strUser
@@ -65,12 +62,6 @@ class WpSeMySql:
         self.strDatabase = CWpSpec.strDatabase
         self.iPort = CWpSpec.iPort
         self.strTablePath = CWpSpec.strTablePath
-
-        self.bReloadMmap = bReloadMmap
-
-    """
-      Prüfen, ob eine Verbindung zu MySQL besteht
-    """
 
     def check_connection(self):
         self.connect()
