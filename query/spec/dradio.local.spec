@@ -23,7 +23,7 @@ Database	wordprofile
 # Ort der Wortprofil-Tabellen und von Tabellen die Umschreibungen von Lemmaformen auf der Eingabe- und Ausgabeseite betreffen
 #
 ### Pfad für die Wortprofil-Tabellen
-TablePath	../wortprofil/table/dradio
+TablePath	../table/dradio
 ### Optionale Angabe von Lemmavariationen (TAB-separierte Datei mit 'LemmaVariation\tLemma')
 ### Falls mehrere solcher Dateien vorliegen, können diese untereinander über 'Variations' aufgeführt werden
 Variations	./spec/lex_variations.csv

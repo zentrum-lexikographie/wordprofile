@@ -51,7 +51,7 @@
       path=<path>
   -->
   <corpus-path>
-    <item corpus="dradio" path="../../corpora/src/dradio"/>
+      <item corpus="dradio" path="../corpora/src/dradio"/>
   </corpus-path>
 
   <!--
@@ -64,7 +64,7 @@
       name=<file>
   -->
   <bibl-info>
-    <item corpus="dradio" file="../../corpora/src/dradio/bibl/bibliography.table"/>
+      <item corpus="dradio" file="../corpora/src/dradio/bibl/bibliography.table"/>
   </bibl-info>
 
   <!--
@@ -127,7 +127,7 @@
 
   -->
   <doubles>
-		<file>../../corpora/doubles/doubles_dradio.xml</file>
+      <file>../corpora/doubles/doubles_dradio.xml</file>
 	</doubles>
 
   <!--
@@ -318,7 +318,7 @@
                 <req relation="OBJ" POS1="Verb" POS2="Personalpronomen" trigger="HasSUBJ" score="0.5"/>
                 <req relation="OBJA" POS1="Verb" POS2="Substantiv" trigger="HasSUBJ" score="0.5"/>
                 <req relation="OBJA" POS1="Verb" POS2="Personalpronomen" trigger="HasSUBJ" score="0.5"/>
-        
+
                 <!-- befindet sich unter einem Satzknoten -->
                 <req relation="SUBJA" POS1="Verb" POS2="Substantiv" trigger="HasS" score="0.2"/>
                 <req relation="SUBJA" POS1="Verb" POS2="Personalpronomen" trigger="HasS" score="0.2"/>
@@ -612,268 +612,9 @@
 		<rule from="-" to=""/>
 
     <!-- ADJEKTIVE -->
-		<rule from="ADJA-x-sg-pos-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-pos-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-pos-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-sup-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-sup-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-sup-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-comp-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-comp-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-sg-comp-mixed-x" to="Adjektiv"/>
-
-		<rule from="ADJA-x-pl-pos-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-pos-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-pos-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-sup-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-sup-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-sup-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-comp-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-comp-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-pl-comp-mixed-x" to="Adjektiv"/>
-
-		<rule from="ADJA-x-x-pos-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-pos-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-pos-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-sup-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-sup-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-sup-mixed-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-comp-strong-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-comp-weak-x" to="Adjektiv"/>
-		<rule from="ADJA-x-x-comp-mixed-x" to="Adjektiv"/>
-
-		<rule from="ADJA-nom-sg-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-mixed-masc" to="Adjektiv"/>
-
-		<rule from="ADJA-acc-sg-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-mixed-masc" to="Adjektiv"/>
-
-		<rule from="ADJA-dat-sg-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-mixed-masc" to="Adjektiv"/>
-
-		<rule from="ADJA-gen-sg-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-weak-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-strong-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-mixed-masc" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-mixed-masc" to="Adjektiv"/>
-
-		<rule from="ADJA-nom-sg-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-mixed-fem" to="Adjektiv"/>
-
-		<rule from="ADJA-acc-sg-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-mixed-fem" to="Adjektiv"/>
-
-		<rule from="ADJA-dat-sg-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-mixed-fem" to="Adjektiv"/>
-
-		<rule from="ADJA-gen-sg-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-weak-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-strong-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-mixed-fem" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-mixed-fem" to="Adjektiv"/>
-
-		<rule from="ADJA-nom-sg-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-sg-sup-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-nom-pl-sup-mixed-neut" to="Adjektiv"/>
-
-		<rule from="ADJA-acc-sg-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-sg-sup-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-acc-pl-sup-mixed-neut" to="Adjektiv"/>
-
-		<rule from="ADJA-dat-sg-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-sg-sup-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-dat-pl-sup-mixed-neut" to="Adjektiv"/>
-
-		<rule from="ADJA-gen-sg-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-sg-sup-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-weak-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-strong-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-pos-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-comp-mixed-neut" to="Adjektiv"/>
-		<rule from="ADJA-gen-pl-sup-mixed-neut" to="Adjektiv"/>
-
+        <rule from="ADJ" to="Adjektiv"/>
 		<rule from="ADJD" to="Adjektiv"/>
-		<rule from="ADJC-comp" to="Adjektiv"/>
-		<rule from="ADJC-pos" to="Adjektiv"/>
-		<rule from="ADJC-sup" to="Adjektiv"/>
+        <rule from="ADJC" to="Adjektiv"/>
 
     <!-- ADVERBIEN -->
 		<rule from="ADV" to="Adverb"/>
@@ -887,81 +628,6 @@
 		<rule from="PIDAT" to=""/>
 		<rule from="PPER" to="Personalpronomen"/>
 
-		<rule from="PPER-first-nom-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-sg-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-nom-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-pl-neut" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-pl-neut" to="Personalpronomen"/>
-
-		<rule from="PPER-first-nom-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-sg-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-nom-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-pl-masc" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-pl-masc" to="Personalpronomen"/>
-
-		<rule from="PPER-first-nom-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-sg-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-nom-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-nom-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-nom-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-acc-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-acc-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-acc-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-dat-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-dat-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-dat-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-first-gen-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-second-gen-pl-fem" to="Personalpronomen"/>
-		<rule from="PPER-third-gen-pl-fem" to="Personalpronomen"/>
-
 		<rule from="PPOSS" to=""/>
 		<rule from="PPOSAT" to=""/>
 		<rule from="PRELS" to=""/>
@@ -974,51 +640,21 @@
 
     <!-- FUNKTIONSWÖRTER -->
 		<rule from="APPR" to="Präposition"/>
-		<rule from="APPRART" to="Präposition"/>
 		<rule from="APPO" to="Postposition"/>
-		<rule from="APZR" to="Zirkumposition"/>
+        <!--		<rule from="APZR" to="Zirkumposition"/>-->
 		<rule from="ART" to="Artikel"/>
-		<rule from="ITJ" to="Interjektion"/>
-		<rule from="KOUI" to="Konjunktion"/>
+        <!--		<rule from="ITJ" to="Interjektion"/>-->
+        <!--		<rule from="KOUI" to="Konjunktion"/>-->
 		<rule from="KON" to="Konjunktion"/>
-		<rule from="KOKOM" to="Konjunktion"/>
-		<rule from="PTKZU" to="NULL"/>
+        <!--		<rule from="KOKOM" to="Konjunktion"/>-->
+        <!--		<rule from="PTKZU" to="NULL"/>-->
 		<rule from="PTKNEG" to="Negationspartikel"/>
-		<rule from="PTKVZ" to="Verbpartikel"/>
+        <!--		<rule from="PTKVZ" to="Verbpartikel"/>-->
 		<rule from="PTKANT" to="NULL"/>
 		<rule from="PTKA" to="NULL"/>
 
     <!-- SUBSTANTIVE -->
-
-		<rule from="NN-x-sg-x" to="Substantiv"/>
-
-		<rule from="NN-nom-sg-masc" to="Substantiv"/>
-		<rule from="NN-acc-sg-masc" to="Substantiv"/>
-		<rule from="NN-dat-sg-masc" to="Substantiv"/>
-		<rule from="NN-gen-sg-masc" to="Substantiv"/>
-		<rule from="NN-nom-pl-masc" to="Substantiv"/>
-		<rule from="NN-acc-pl-masc" to="Substantiv"/>
-		<rule from="NN-dat-pl-masc" to="Substantiv"/>
-		<rule from="NN-gen-pl-masc" to="Substantiv"/>
-
-		<rule from="NN-nom-sg-fem" to="Substantiv"/>
-		<rule from="NN-acc-sg-fem" to="Substantiv"/>
-		<rule from="NN-dat-sg-fem" to="Substantiv"/>
-		<rule from="NN-gen-sg-fem" to="Substantiv"/>
-		<rule from="NN-nom-pl-fem" to="Substantiv"/>
-		<rule from="NN-acc-pl-fem" to="Substantiv"/>
-		<rule from="NN-dat-pl-fem" to="Substantiv"/>
-		<rule from="NN-gen-pl-fem" to="Substantiv"/>
-
-		<rule from="NN-nom-sg-neut" to="Substantiv"/>
-		<rule from="NN-acc-sg-neut" to="Substantiv"/>
-		<rule from="NN-dat-sg-neut" to="Substantiv"/>
-		<rule from="NN-gen-sg-neut" to="Substantiv"/>
-		<rule from="NN-nom-pl-neut" to="Substantiv"/>
-		<rule from="NN-acc-pl-neut" to="Substantiv"/>
-		<rule from="NN-dat-pl-neut" to="Substantiv"/>
-		<rule from="NN-gen-pl-neut" to="Substantiv"/>
-		<rule from="NN-x-x-x" to="Substantiv"/>
+        <rule from="NN" to="Substantiv"/>
 
     <!-- EIGENNAMEN -->
 		<rule from="NE" to=""/>
@@ -1033,105 +669,11 @@
 		<rule from="FM" to="NULL"/>
 
     <!-- VERBEN -->
-		<rule from="VVFIN-x-x-pret-imp" to="Verb"/>
-		<rule from="VVFIN-x-x-pres-imp" to="Verb"/>
-		<rule from="VVFIN-x-x-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-x-x-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-x-x-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-x-x-pres-subjII" to="Verb"/>
+        <rule from="VV" to="Verb"/>
+        <rule from="VA" to="Auxiliar"/>
+        <rule from="VM" to="Modalverb"/>
 
-		<rule from="VVFIN-pl-third-x-x" to="Verb"/>
-		<rule from="VVFIN-sg-third-x-x" to="Verb"/>
-		<rule from="VVFIN-pl-first-x-x" to="Verb"/>
-		<rule from="VVFIN-sg-first-x-x" to="Verb"/>
-		<rule from="VVFIN-pl-second-x-x" to="Verb"/>
-		<rule from="VVFIN-sg-second-x-x" to="Verb"/>
-
-		<rule from="VVFIN-x-third-pret-ind nicht" to="Verb"/>
-		<rule from="VVFIN-x-x-pret-ind" to="Verb"/>
-		<rule from="VVFIN-x-x-pres-ind" to="Verb"/>
-		<rule from="VVFIN-x-third-pret-ind" to="Verb"/>
-
-		<rule from="VVFIN-sg-first-pres-ind" to="Verb"/>
-		<rule from="VVFIN-sg-first-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-first-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-first-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-sg-first-pret-ind" to="Verb"/>
-		<rule from="VVFIN-sg-first-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-first-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-first-pret-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-first-pres-ind" to="Verb"/>
-
-		<rule from="VVFIN-pl-first-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-first-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-first-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-first-pret-ind" to="Verb"/>
-		<rule from="VVFIN-pl-first-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-first-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-first-pret-imp" to="Verb"/>
-
-		<rule from="VVFIN-sg-second-pres-ind" to="Verb"/>
-		<rule from="VVFIN-sg-second-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-second-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-second-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-sg-second-pret-ind" to="Verb"/>
-		<rule from="VVFIN-sg-second-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-second-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-second-pret-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-second-pres-ind" to="Verb"/>
-
-		<rule from="VVFIN-pl-second-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-second-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-second-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-second-pret-ind" to="Verb"/>
-		<rule from="VVFIN-pl-second-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-second-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-second-pret-imp" to="Verb"/>
-
-		<rule from="VVFIN-sg-third-pres-ind" to="Verb"/>
-		<rule from="VVFIN-sg-third-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-third-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-third-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-sg-third-pret-ind" to="Verb"/>
-		<rule from="VVFIN-sg-third-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-sg-third-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-sg-third-pret-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-third-pres-ind" to="Verb"/>
-
-		<rule from="VVFIN-pl-third-pres-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-third-pres-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-third-pres-imp" to="Verb"/>
-
-		<rule from="VVFIN-pl-third-pret-ind" to="Verb"/>
-		<rule from="VVFIN-pl-third-pret-subjI" to="Verb"/>
-		<rule from="VVFIN-pl-third-pret-subjII" to="Verb"/>
-		<rule from="VVFIN-pl-third-pret-imp" to="Verb"/>
-
-    <!-- Ausschließen wegen großer Ambiguität zu Nomen am Satzanfang -->
-		<rule from="VVIMP" to=""/>
-		<rule from="VVINF" to="Verb"/>
-
-		<rule from="VVIZU" to="Verb"/>
-		<rule from="VVPP" to="Verb"/>
-		<rule from="VVPP2" to="Verb"/>
-		<rule from="VVPP1" to="Verb"/>
-
-		<rule from="VAFIN" to="Auxiliar"/>
-		<rule from="VAIMP" to="Auxiliar"/>
-		<rule from="VAINF" to="Auxiliar"/>
-		<rule from="VAPP" to="Auxiliar"/>
-		<rule from="VMFIN" to="Modalverb"/>
-		<rule from="VMINF" to="Modalverb"/>
-		<rule from="VMPP" to="Modalverb"/>
-	</POS-mapping>
+    </POS-mapping>
 
   <!-- ====================  RELATIONSSPEZIFIKATIONEN ====================== -->
 
@@ -1201,29 +743,8 @@
     <file corpus="dradio" name="dradio/CJ__PPER_NN.rel"/>
     <file corpus="dradio" name="dradio/CJ__NN_PPER.rel"/>
     <file corpus="dradio" name="dradio/CJ__PPER_PPER.rel"/>
-    <file corpus="dradio" name="dradio/CJ__ADJA_ADJA.rel"/>
-    <file corpus="dradio" name="dradio/CJ__ADJD_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/CJ__ADJC_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/CJ__ADJC_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/CJ__ADJD_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVFIN_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIZU_VVIZU.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVPP2_VVPP2.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVINF_VVINF.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIMP_VVIMP.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVFIN_VVINF.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVINF_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVFIN_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVFIN_VVIZU.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIZU_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIZU_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVFIN_VVPP2.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVINF_VVIZU.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIZU_VVINF.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVINF_VVPP2.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVIZU_VVPP2.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVPP2_VVINF.rel"/>
-    <file corpus="dradio" name="dradio/CJ__VVPP2_VVFIN.rel"/>
+        <file corpus="dradio" name="dradio/CJ__ADJ_ADJ.rel"/>
+        <file corpus="dradio" name="dradio/CJ__VV_VV.rel"/>
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation-symetric name="KON"> 
       <snippet>$gov hat die Beiordnung $mod</snippet>
@@ -1254,12 +775,8 @@
 
   <!-- SUBJA (Aktiv-Subjekt) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
-    <file corpus="dradio" name="dradio/SUBJA__VVFIN_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJA__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJA__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJA__VVFIN_PPER.rel"/>
-    <file corpus="dradio" name="dradio/SUBJA__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/SUBJA__VVPP2_PPER.rel"/>
+        <file corpus="dradio" name="dradio/SUBJA__VV_NN.rel"/>
+        <file corpus="dradio" name="dradio/SUBJA__VV_PPER.rel"/>
 
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="SUBJA">
@@ -1278,12 +795,8 @@
 
   <!-- SUBJP (Passiv-Subjekt) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
-    <file corpus="dradio" name="dradio/SUBJP__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJP__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJP__VVIZU_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJP__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/SUBJP__VVPP2_PPER.rel"/>
-    <file corpus="dradio" name="dradio/SUBJP__VVIZU_PPER.rel"/>
+        <file corpus="dradio" name="dradio/SUBJP__VV_NN.rel"/>
+        <file corpus="dradio" name="dradio/SUBJP__VV_PPER.rel"/>
 
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="SUBJP">
@@ -1302,48 +815,12 @@
   <!-- OBJ (Nominalobjekt) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
     <!-- (Akkusativobjekt) -->
-    <file corpus="dradio" name="dradio/OBJA__VVFIN_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVFIN_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVIMP_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVIMP_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVIZU_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVIZU_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVFIN_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVFIN_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVPP2_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVPP2_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVIMP_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVIMP_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA__VVIZU_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJA+__VVIZU_PPER.rel"/>
+        <file corpus="dradio" name="dradio/OBJA__VV_NN.rel"/>
+        <file corpus="dradio" name="dradio/OBJA__VV_PPER.rel"/>
 
     <!-- (Dativobjekt) -->
-    <file corpus="dradio" name="dradio/OBJD__VVFIN_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVFIN_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVINF_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVIMP_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVIMP_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVPP2_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVIZU_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVIZU_NN.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVFIN_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVFIN_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVINF_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVIMP_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVIMP_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVPP2_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVPP2_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD__VVIZU_PPER.rel"/>
-    <file corpus="dradio" name="dradio/OBJD+__VVIZU_PPER.rel"/>
+        <file corpus="dradio" name="dradio/OBJD__VV_NN.rel"/>
+        <file corpus="dradio" name="dradio/OBJD__VV_PPER.rel"/>
 
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="OBJ">
@@ -1363,13 +840,11 @@
   <!-- PRED (prädikative Ergänzung) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
     <file corpus="dradio" name="dradio/SUBJ-PRED__NN_NN.rel"/>
-    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/SUBJ-PRED__NN_ADJC.rel"/>
+        <file corpus="dradio" name="dradio/SUBJ-PRED__NN_ADJ.rel"/>
     <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_NN.rel"/>
     <file corpus="dradio" name="dradio/SUBJ-PRED__NN_PPER.rel"/>
     <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_PPER.rel"/>
-    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_ADJC.rel"/>
+        <file corpus="dradio" name="dradio/SUBJ-PRED__PPER_ADJ.rel"/>
 
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="PRED">
@@ -1388,28 +863,12 @@
 
   <!-- ADV (adverbialer Modifikator) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
-    <file corpus="dradio" name="dradio/ADV__VVFIN_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVFIN_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVFIN_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVFIN_PTKNEG.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVINF_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVINF_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVINF_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVINF_PTKNEG.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIMP_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIMP_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIMP_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIMP_PTKNEG.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIZU_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIZU_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIZU_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__VVIZU_PTKNEG.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJA_ADJD.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJA_ADJC.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJA_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJA_PTKNEG.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJD_ADV.rel"/>
-    <file corpus="dradio" name="dradio/ADV__ADJD_PTKNEG.rel"/>
+        <file corpus="dradio" name="dradio/ADV__VV_ADJ.rel"/>
+        <file corpus="dradio" name="dradio/ADV__VV_ADV.rel"/>
+        <file corpus="dradio" name="dradio/ADV__VV_PTKNEG.rel"/>
+        <file corpus="dradio" name="dradio/ADV__ADJ_ADJ.rel"/>
+        <file corpus="dradio" name="dradio/ADV__ADJ_ADV.rel"/>
+        <file corpus="dradio" name="dradio/ADV__ADJ_PTKNEG.rel"/>
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="ADV">
       <snippet>$gov hat Adverbialbestimmung $mod</snippet>
@@ -1427,7 +886,7 @@
 
   <!-- ATTR (Attribut) -->
   <input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
-    <file corpus="dradio" name="dradio/ATTR__NN_ADJA.rel"/>
+      <file corpus="dradio" name="dradio/ATTR__NN_ADJ.rel"/>
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="ATTR">
       <snippet>$gov hat Adjektivattribut $mod</snippet>
@@ -1519,9 +978,8 @@
   <!-- VZ (Verbzusatz) -->
 	<input use-baseform-as-surface1="no" use-baseform-as-surface2="no">
 
-    <file corpus="dradio" name="dradio/VZ__VVFIN_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/AVZ__VVFIN_VVFIN.rel"/>
-    <file corpus="dradio" name="dradio/AVZ__VVIMP_VVIMP.rel"/>
+        <!--    <file corpus="dradio" name="dradio/VZ__VV_VV.rel"/>-->
+        <file corpus="dradio" name="dradio/AVZ__VV_VV.rel"/>
 
 		<pre-cut min-frequency="2" max-string-length="50" min-string-length="2"/>
 		<relation name="VZ">
