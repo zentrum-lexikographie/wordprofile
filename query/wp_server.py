@@ -2785,28 +2785,52 @@ if(ConditionalCheck_""" + str(
             strIndex = "I_date"
 
         ### Wenn Kontextsätze angezeigt werden sollen
-        strJoinContext = ""
-        strSelectContext = ""
-        if bUseContext == 1:
-            strSelectContext = ", s_left.Sentence, s_right.Sentence "
-            strJoinContext = """LEFT JOIN concordSentences as s_left ON (s_left.corpus=relDouble.corpus and s_left.FileId=relDouble.File and s_left.SentenceId=(relDouble.sentence-1)) 
-                          LEFT JOIN concordSentences as s_right ON (s_right.corpus=relDouble.corpus and s_right.FileId=relDouble.File and s_right.SentenceId=(relDouble.sentence+1))"""
+        if bUseContext:
+            query = """
+            SELECT
+                s_center.Sentence, idToInfo.tokenPosition1, idToInfo.tokenPosition2, idToInfo.prepPosition, 
+                idToInfo.corpus, idToInfo.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, 
+                s_center.Page, idToTei.file, idToInfo.Score, s_left.Sentence, s_right.Sentence 
+            FROM
+                idToInfo
+            LEFT JOIN concordSentences as s_center ON
+                (s_center.corpus = idToInfo.corpus
+                and s_center.FileId = idToInfo.File
+                and s_center.SentenceId = idToInfo.sentence)
+            LEFT JOIN idToTei ON
+                (idToInfo.corpus = idToTei.corpus
+                and idToInfo.file = idToTei.file)
+            LEFT JOIN concordSentences as s_left ON
+                (s_left.corpus = idToInfo.corpus
+                and s_left.FileId = idToInfo.File
+                and s_left.SentenceId =(idToInfo.sentence-1))
+            LEFT JOIN concordSentences as s_right ON
+                (s_right.corpus = idToInfo.corpus
+                and s_right.FileId = idToInfo.File
+                and s_right.SentenceId =(idToInfo.sentence + 1))
+            WHERE idToInfo.id={}
+            LIMIT {},{}
+            """.format(iInfoId, iStart, iNumber)
+        else:
+            query = """
+            SELECT
+                s_center.Sentence, idToInfo.tokenPosition1, idToInfo.tokenPosition2, idToInfo.prepPosition, 
+                idToInfo.corpus, idToInfo.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, 
+                s_center.Page, idToTei.file, idToInfo.Score
+            FROM
+                idToInfo
+            LEFT JOIN concordSentences as s_center ON
+                (s_center.corpus = idToInfo.corpus
+                and s_center.FileId = idToInfo.File
+                and s_center.SentenceId = idToInfo.sentence)
+            LEFT JOIN idToTei ON (idToInfo.corpus=idToTei.corpus and idToInfo.file=idToTei.file)
+            WHERE idToInfo.id={}
+            LIMIT {},{}
+            """.format(iInfoId, iStart, iNumber)
 
-        ### Ermitteln der Texttreffer
-        strCreate = "CREATE TEMPORARY TABLE relDouble LIKE idToInfo; "
-        strIn = "INSERT INTO relDouble SELECT idToInfo.* FROM idToInfo USE INDEX(" + strIndex + ") WHERE idToInfo.id=\"" + str(
-            iInfoId) + "\" " + strSubcorpus + strInternalUser + " LIMIT " + str(iStart) + ", " + str(iNumber) + " ; "
-        strSelect = "SELECT s_center.Sentence, relDouble.tokenPosition1, relDouble.tokenPosition2, relDouble.prepPosition, relDouble.corpus, relDouble.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, s_center.Page, idToFile.File, relDouble.Score " + strSelectContext
-        strFrom = """FROM relDouble LEFT JOIN idToFile ON (idToFile.id=relDouble.File) 
-                        LEFT JOIN concordSentences as s_center ON (s_center.corpus=relDouble.corpus and s_center.FileId=relDouble.File and s_center.SentenceId=relDouble.sentence) 
-                        """ + strJoinContext + """
-                        LEFT JOIN idToTei ON (relDouble.corpus=idToTei.corpus and relDouble.File=idToTei.file) """
         ### MySQL-Abfrage
         self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
-        self.CWpMySQL.execute(strCreate)
-        self.CWpMySQL.execute(strIn)
-        self.CWpMySQL.execute(strSelect + strFrom)
+        self.CWpMySQL.execute(query)
         listRes = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
