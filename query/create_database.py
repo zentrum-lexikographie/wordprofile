@@ -24,7 +24,7 @@ from optparse import OptionParser
 
 import MySQLdb
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, INTEGER
 
 
 # from sqlalchemy.dialects.mysql import INTEGER
@@ -42,7 +42,7 @@ def read_table(path, columns=None, mapping=False):
 tables_columns = {
     # mappings
     'mapping_function': ['Id', 'Relation', 'RandomType', 'Usage', 'Label', 'Example'],  # TODO what is random type?
-    'mapping_POS': ['Id', 'POS'],
+    'mapping_POS': ['Id', 'Pos'],
     'mapping_lemma': ['Id', 'Lemma'],
     'mapping_corpus': ['Id', 'CorpusName'],
     'mapping_corpus_name': ['CorpusName', 'CorpusFullName'],
@@ -60,6 +60,7 @@ tables_columns = {
     'mapping_position_info_tei': ['MatchId', 'WortPosition1', 'WordPosition2', 'PrepPosition',
                                   'SentencePosition', 'FileId', 'CorpusId', 'Rights', 'DatumId', 'NegDatumId',
                                   'GdexScore'],
+    'head_pos_rel_freq': ['LemmaId', 'PosId', 'RelationId', 'Frequency', 'Count'],
     'relations': ['RelationId', 'Lemma1Id', 'Lemma2Id', 'Lemma3Id',
                   'Surface1Id', 'Surface2Id', 'Surface3Id',
                   'Pos1Id', 'Pos2Id', 'Pos3Id',
@@ -130,65 +131,81 @@ def get_type_char(iLength):
         return "CHAR(" + str(iLength) + ") BINARY NOT NULL"
 
 
-"""
- Erstellen der MySQL-Tabellen
-"""
+def create_new_tables(engine, directory):
+    mapping_function = read_table(os.path.realpath(directory + '/mapping_function.table'),
+                                  columns=tables_columns['mapping_function'])
+    mapping_lemma = read_table(os.path.realpath(directory + '/mapping_lemma.table'),
+                               columns=tables_columns['mapping_lemma'])
+    mapping_surface = read_table(os.path.realpath(directory + '/mapping_surface.table'),
+                                 columns=tables_columns['mapping_surface'])
+    mapping_pos = read_table(os.path.realpath(directory + '/mapping_POS.table'), columns=tables_columns['mapping_POS'])
+
+    table_relations = read_table(os.path.realpath(directory + '/relations.table'), columns=tables_columns['relations'])
+    table_relations['Relation'] = pd.merge(
+        table_relations, mapping_function, left_on='RelationId', right_on='Id')['Relation']
+    table_relations['Lemma1'] = pd.merge(
+        table_relations, mapping_lemma, left_on='Lemma1Id', right_on='Id')['Lemma']
+    table_relations['Lemma2'] = pd.merge(
+        table_relations, mapping_lemma, left_on='Lemma2Id', right_on='Id')['Lemma']
+    table_relations['Lemma3'] = pd.merge(
+        table_relations, mapping_lemma, left_on='Lemma3Id', right_on='Id')['Lemma']
+    table_relations['Surface1'] = pd.merge(
+        table_relations, mapping_surface, left_on='Surface1Id', right_on='Id')['Surface']
+    table_relations['Surface2'] = pd.merge(
+        table_relations, mapping_surface, left_on='Surface2Id', right_on='Id')['Surface']
+    table_relations['Surface3'] = pd.merge(
+        table_relations, mapping_surface, left_on='Surface3Id', right_on='Id')['Surface']
+    table_relations['Pos1'] = pd.merge(
+        table_relations, mapping_pos, left_on='Pos1Id', right_on='Id')['Pos']
+    table_relations['Pos2'] = pd.merge(
+        table_relations, mapping_pos, left_on='Pos2Id', right_on='Id')['Pos']
+    table_relations['Pos3'] = pd.merge(
+        table_relations, mapping_pos, left_on='Pos3Id', right_on='Id')['Pos']
+    # table_relations = table_relations[
+    #     ['Relation', 'Lemma1', 'Lemma2', 'Lemma3', 'Surface1', 'Surface2', 'Surface3', 'Pos1', 'Pos2', 'Pos3',
+    #      'MatchId', 'CountsWithRights', 'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike']]
+    table_relations.to_sql('relations_test', con=engine, index=False, chunksize=16)
+
+    table_freqs = read_table(os.path.realpath(directory + '/head_pos_rel_freq.table'),
+                             columns=tables_columns['head_pos_rel_freq'])
+    table_freqs['Lemma'] = pd.merge(table_freqs, mapping_lemma, left_on='LemmaId', right_on='Id')['Lemma']
+    table_freqs['Pos'] = pd.merge(table_freqs, mapping_pos, left_on='PosId', right_on='Id')['Pos']
+    table_freqs['Relation'] = pd.merge(table_freqs, mapping_function, left_on='RelationId', right_on='Id')['Relation']
+    # table_freqs = table_freqs[['Lemma', 'Pos', 'Relation', 'Frequency', 'Count']]
+    table_freqs.to_sql('head_pos_rel_freq_test', con=engine, index=False, chunksize=16, if_exists='replace',
+                       dtype={'LemmaId': INTEGER, 'PosId': INTEGER, 'RelationId': INTEGER, 'Frequency': INTEGER,
+                              'Count': INTEGER})
+
+    mapping_textclass = read_table(os.path.realpath(directory + '/mapping_TEI_textclass.table'),
+                                   columns=tables_columns['mapping_TEI_textclass'])
+    table_tei = read_table(os.path.realpath(directory + '/mapping_TEI.table'),
+                           columns=tables_columns['mapping_TEI'])
+    mapping_avail = read_table(os.path.realpath(directory + '/mapping_TEI_avail.table'),
+                               columns=tables_columns['mapping_TEI_avail'])
+    mapping_corpus = read_table(os.path.realpath(directory + '/mapping_corpus.table'),
+                                columns=tables_columns['mapping_corpus'])
+    table_tei['TextClass'] = pd.merge(table_tei, mapping_textclass, left_on='TextClassId', right_on='Id')[
+        'TextClass']
+    table_tei['Avail'] = pd.merge(table_tei, mapping_avail, left_on='AvailId', right_on='Id')['Rights']
+    mapping_files = read_table(os.path.realpath(directory + '/mapping_file.table'),
+                               columns=tables_columns['mapping_file'])
+    table_tei['File'] = pd.merge(table_tei, mapping_files, left_on='FileId', right_on='Id')['FileName']
+    table_tei['Corpus'] = pd.merge(table_tei, mapping_corpus, left_on='CorpusId', right_on='Id')['CorpusName']
+    # table_tei = table_tei[['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClass', 'Avail']]
+    table_tei.to_sql('tei_test', con=engine, index=False, chunksize=16)
+
+    concord_sentences = read_table(os.path.realpath(directory + '/concord_sentences.table'),
+                                   columns=tables_columns['concord_sentences'])
+    concord_sentences['File'] = pd.merge(concord_sentences, mapping_files, left_on='FileId', right_on='Id')[
+        'FileName']
+    concord_sentences['Corpus'] = pd.merge(concord_sentences, mapping_corpus, left_on='CorpusId', right_on='Id')[
+        'CorpusName']
+    # concord_sentences = concord_sentences[['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClass', 'Avail']]
+    concord_sentences.to_sql('concord_sentences_test', con=engine, index=False, chunksize=16)
 
 
 def create_tables(cursor, directory, g_bSubCorpus=False):
     global g_listCorpus
-    engine = create_engine('mysql+pymysql://wpuser:wpuser@localhost/wordprofile2')
-
-    # table_relations = read_table(os.path.realpath(directory + '/relations.table'), columns=tables_columns['relations'])
-    # mapping_function = read_table(os.path.realpath(directory + '/mapping_function.table'),
-    #                               columns=tables_columns['mapping_function'])
-    # table_relations['Relation'] = pd.merge(
-    #     table_relations, mapping_function, left_on='RelationId', right_on='Id')['Relation']
-    # mapping_lemma = read_table(os.path.realpath(directory + '/mapping_lemma.table'),
-    #                            columns=tables_columns['mapping_lemma'])
-    # table_relations['Lemma1'] = pd.merge(
-    #     table_relations, mapping_lemma, left_on='Lemma1Id', right_on='Id')['Lemma']
-    # table_relations['Lemma2'] = pd.merge(
-    #     table_relations, mapping_lemma, left_on='Lemma2Id', right_on='Id')['Lemma']
-    # table_relations['Lemma3'] = pd.merge(
-    #     table_relations, mapping_lemma, left_on='Lemma3Id', right_on='Id')['Lemma']
-    # mapping_surface = read_table(os.path.realpath(directory + '/mapping_surface.table'),
-    #                              columns=tables_columns['mapping_surface'])
-    # table_relations['Surface1'] = pd.merge(
-    #     table_relations, mapping_surface, left_on='Surface1Id', right_on='Id')['Surface']
-    # table_relations['Surface2'] = pd.merge(
-    #     table_relations, mapping_surface, left_on='Surface2Id', right_on='Id')['Surface']
-    # table_relations['Surface3'] = pd.merge(
-    #     table_relations, mapping_surface, left_on='Surface3Id', right_on='Id')['Surface']
-    # mapping_pos = read_table(os.path.realpath(directory + '/mapping_POS.table'), columns=tables_columns['mapping_POS'])
-    # table_relations['Pos1'] = pd.merge(
-    #     table_relations, mapping_pos, left_on='Pos1Id', right_on='Id')['POS']
-    # table_relations['Pos2'] = pd.merge(
-    #     table_relations, mapping_pos, left_on='Pos2Id', right_on='Id')['POS']
-    # table_relations['Pos3'] = pd.merge(
-    #     table_relations, mapping_pos, left_on='Pos3Id', right_on='Id')['POS']
-    # table_relations = table_relations[
-    #     ['Relation', 'Lemma1', 'Lemma2', 'Lemma3', 'Surface1', 'Surface2', 'Surface3', 'Pos1', 'Pos2', 'Pos3',
-    #      'MatchId', 'CountsWithRights', 'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike']]
-    # table_relations.to_sql('relations_test', con=engine, index=False, chunksize=32)
-
-    mapping_tei = read_table(os.path.realpath(directory + '/mapping_TEI.table'),
-                             columns=tables_columns['mapping_TEI'])
-    mapping_textclass = read_table(os.path.realpath(directory + '/mapping_TEI_textclass.table'),
-                                   columns=tables_columns['mapping_TEI_textclass'])
-    mapping_tei['TextClass'] = pd.merge(mapping_tei, mapping_textclass, left_on='TextClassId', right_on='Id')[
-        'TextClass']
-    mapping_avail = read_table(os.path.realpath(directory + '/mapping_TEI_avail.table'),
-                               columns=tables_columns['mapping_TEI_avail'])
-    mapping_tei['Avail'] = pd.merge(mapping_tei, mapping_avail, left_on='AvailId', right_on='Id')['Rights']
-    mapping_files = read_table(os.path.realpath(directory + '/mapping_file.table'),
-                               columns=tables_columns['mapping_file'])
-    mapping_tei['FileId'] = pd.merge(mapping_tei, mapping_files, left_on='FileId', right_on='Id')['FileName']
-    mapping_corpus = read_table(os.path.realpath(directory + '/mapping_corpus.table'),
-                                columns=tables_columns['mapping_corpus'])
-    mapping_tei['CorpusId'] = pd.merge(mapping_tei, mapping_corpus, left_on='CorpusId', right_on='Id')['CorpusName']
-    mapping_tei = mapping_tei[['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClass', 'Avail']]
-    mapping_tei.to_sql('mapping_tei_test', con=engine, index=False, chunksize=32)
 
     print('(: get data types')
     table_types = read_table(os.path.realpath(directory + '/types.table'), mapping=True)
@@ -730,10 +747,6 @@ def create_tables_hits(cursor, directory):
    index I_score_date_desc (id,Score,DateDesc,Avail,corpus)
 
   )
-
-  PARTITION BY HASH(id)
-  PARTITIONS 100
-
   """)
 
     ### Temporäre Tabelle für Berechnungen des Wortprofil-Servers
@@ -845,8 +858,6 @@ if 'Host' not in mapConfig and 'Socket' not in mapConfig:
     parser.error("missing Host/Socket in config file")
     sys.exit(-1)
 
-mapConfig['Database'] = 'wordprofile2'
-
 if 'Host' in mapConfig:
     print('|: host: ' + mapConfig['Host'])
 else:
@@ -878,6 +889,9 @@ cursor.execute("CREATE DATABASE " + mapConfig['Database'] + " CHARACTER SET utf8
 cursor.execute("set autocommit=1")
 cursor.execute("USE " + mapConfig['Database'])
 
+engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(
+    mapConfig['User'], mapConfig['Passwd'], mapConfig['Database']))
+create_new_tables(engine, mapConfig['TablePath'].rstrip('/'))
 ### Erstellen der MySQL-Tabellen
 create_tables(cursor, mapConfig['TablePath'].rstrip('/'))
 ### Laden in die MySQL-Tabellen

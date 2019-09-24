@@ -16,7 +16,7 @@ Port	3306
 ### MySQL-Passwort
 Passwd	wpuser
 ### MySQL-Wortprofil-Datenbankname
-Database	wordprofile
+Database	wordprofile2
 
 ###### Daten ######
 #
