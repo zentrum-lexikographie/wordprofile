@@ -420,39 +420,27 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if mapParam["POS"] != "*" and mapParam["POS"] != "":
                 strQueryPOS = " and POS=\"%s\" " % (str(self.CWpMySQL.mapPosToId[mapParam["POS"]]))
 
-        ### evtl. Zeichenencodings behandeln
-        strUnicodeWord = strWord
-
         ### Prüfen auf valides Eingabelemma
-        for i in strUnicodeWord:
+        for i in strWord:
             if not i.isalpha() and i != '-':
                 return []
-
-        ### bei case-insensitiver Abfrage
-        if bCaseSensitive == False:
-            strWord = strUnicodeWord.lower()
-        if bCaseSensitive == True:
-            strQField = "lemmaToRelation"
-        else:
-            strQField = "lemmaToRelationLower"
 
         ### Abfragen der Tabellen: headPosRelFreq und lemmaToRelation oder lemmaToRelationLower
         ### und ermitteln der Frequenzinformationen und Wortarteninformation zu dem Abfragelemma
         strSelect = "SELECT " + strSubcorpus + "headPosRelFreq.id, " + strSubcorpus + "headPosRelFreq.POS," + strSubcorpus + "headPosRelFreq.frequency, " + strSubcorpus + "headPosRelFreq.count, " + strSubcorpus + "headPosRelFreq.relation "
         strFrom = """ FROM """ + strSubcorpus + """headPosRelFreq
-                  LEFT JOIN """ + strQField + """ ON(""" + strSubcorpus + """headPosRelFreq.id =""" + strQField + """.id) """
-        strWhere = "WHERE ( " + strQField + ".lemma=\"" + strWord + "\"" + strQueryPOS + ");"
+                  LEFT JOIN lemmaToRelation ON(""" + strSubcorpus + """headPosRelFreq.id = lemmaToRelation.id) """
+        strWhere = "WHERE ( lemmaToRelation.lemma=\"" + strWord.lower() + "\"" + strQueryPOS + ");"
 
         ### MySQL abfragen
         self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
         self.CWpMySQL.execute(strSelect + strFrom + strWhere)
 
         ### lemmaId, PosId, POS, frequency, count, relation
         listResult = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
-        return self.__check_and_sort_lemma_and_pos_list(listResult, strUnicodeWord, bCaseSensitive)
+        return self.__check_and_sort_lemma_and_pos_list(listResult, strWord, bCaseSensitive)
 
     """
     Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert. 
