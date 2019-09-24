@@ -49,7 +49,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       *Es können Texttreffer Abgefragt werden.
       *Es können Wortprofile miteinander Verglichen werden.
     """
-
     class CooccInfo:
         iLemma1Id = None
         iLemma2Id = None
