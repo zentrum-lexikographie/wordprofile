@@ -49,6 +49,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       *Es können Texttreffer Abgefragt werden.
       *Es können Wortprofile miteinander Verglichen werden.
     """
+
     class CooccInfo:
         iLemma1Id = None
         iLemma2Id = None
@@ -2805,7 +2806,7 @@ if(ConditionalCheck_""" + str(
                           LEFT JOIN concordSentences as s_right ON (s_right.corpus=relDouble.corpus and s_right.FileId=relDouble.File and s_right.SentenceId=(relDouble.sentence+1))"""
 
         ### Ermitteln der Texttreffer
-        strCreate = "CREATE TEMPORARY TABLE relDouble LIKE idToInfoTmp; "
+        strCreate = "CREATE TEMPORARY TABLE relDouble LIKE idToInfo; "
         strIn = "INSERT INTO relDouble SELECT idToInfo.* FROM idToInfo USE INDEX(" + strIndex + ") WHERE idToInfo.id=\"" + str(
             iInfoId) + "\" " + strSubcorpus + strInternalUser + " LIMIT " + str(iStart) + ", " + str(iNumber) + " ; "
         strSelect = "SELECT s_center.Sentence, relDouble.tokenPosition1, relDouble.tokenPosition2, relDouble.prepPosition, relDouble.corpus, relDouble.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, s_center.Page, idToFile.File, relDouble.Score " + strSelectContext
