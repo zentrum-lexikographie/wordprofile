@@ -43,6 +43,17 @@ from moduls.wpse_string import WpSeString
 from moduls.wpse_tree import WpSeTree
 
 
+class CooccInfo:
+    def __init__(self, info_id, lemma_id_1=0, lemma_id_2=0, pos_id_1=0, pos_id_2=0, prep_id=0, rel_id=0):
+        self.iLemma1Id = lemma_id_1
+        self.iLemma2Id = lemma_id_2
+        self.iPos1Id = pos_id_1
+        self.iPos2Id = pos_id_2
+        self.iPrepId = prep_id
+        self.iRelId = rel_id
+        self.iInfoId = info_id
+
+
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
       Die Klasse managed Wortprofil-MySQL-Abfragen.
@@ -50,16 +61,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       *Es können Texttreffer Abgefragt werden.
       *Es können Wortprofile miteinander Verglichen werden.
     """
-
-    class CooccInfo:
-        def __init__(self):
-            self.iLemma1Id = None
-            self.iLemma2Id = None
-            self.iPos1Id = None
-            self.iPos2Id = None
-            self.iPrepId = None
-            self.iRelId = None
-            self.iInfoId = None
 
     mapCorpus = {}
     mapIdToLem = {}
@@ -768,7 +769,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
     Methode, um IDs in den MWE-Kookkurenzlisten auf Strings abzubilden
-    hier wird im gegensatz zu '__relation_tuples_2_strings' mit einer 
+    hier wird im gegensatz zu '__relation_tuples_2_strings' mit einer
     Positionsliste (listCooccRef) für die Kookkurrenztupel (listData) gearbeitet
   """
 
@@ -875,13 +876,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return listMapRes
 
     """
-    Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2') mit POS-ID ('POS') vergleichende Wortprofilrelationen abzufragen. 
+    Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2') mit POS-ID ('POS') vergleichende Wortprofilrelationen abzufragen.
 
     *Eingabe ist ein Dictionary aus Parametern. Zu der Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2') und der POS-ID ('POS') sind wetere Parameter: ab dem wievielten Eintrag die DiffTupel zu den einzelnen Relationen zürückgegeben werden sollen ('Start'), wieviele Einträge zurückgegeben werden sollen ('Number'), nach welcher Statistik ('Frequency','MiLogFreq','MI3','logDice') sortiert werden soll ('OrderBy'), die minimal erlaubte Frequenz ('MinFreq'), der minimal erlaubte Statistikwert ('MinStat'), evtl. Angabe eines Subcorpus in dem gesucht werden soll ('Subcorpus') und bezüglich welchee Relationen abgefragt werden soll (bei keiner Angabe in allen) ('Relations'). Zudem kann die Vergleichsoperation angegeben werden ('Operation'). Möglich sind 'adiff' (Wortprofil-Unterschiede), 'rmax' (Wortprofil-Gemeinsamkeiten) und experimentell 'diff', 'sum', 'min', 'max',  'avg', 'havg' und 'havg'. Über die Option 'NBest' kann bestimmt werden, dass nur n viele Tupel für Wort 1 und n viele Tupel für Wort 2 berücksichtigt werden sollen.
 
     mapParam = {'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,'MinFreq':<int=-inf>,'MinStat':<float=-inf>,'Subcorpus':<string>,'Relations':<stringlist>,'Operation':<string>,'NBest':<int=inf>}
 
-    Hiervon sind obligatorisch: 'LemmaId1', 'LemmaId2', 'PosId' und 'Relations' 
+    Hiervon sind obligatorisch: 'LemmaId1', 'LemmaId2', 'PosId' und 'Relations'
 
     *Rückgabe ist eine Liste aus einzelnen Relationsinformationen (als Dictionary), mit kurzem Relationsnamen ('Relation'), einer kurzen Relationsbeschreibung ('Description') und den Diff-Kookkurrenztupeln ('Tuples'):
 
@@ -891,8 +892,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
 
-    Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben. 
-  
+    Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
+
   """
 
     def get_diff(self, mapParam):
@@ -919,7 +920,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return listResult
 
     """
-    Indirekter aufruf von get_diff mit der Operation 'rmax' 
+    Indirekter aufruf von get_diff mit der Operation 'rmax'
 
   """
 
@@ -928,127 +929,105 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         mapParam['Operation'] = 'rmax'
         return self.get_diff(mapParam)
 
-    """
-    Extrahieren der Bestandteile einer Komplexen Treffer-Id bzw. Mwe-Id
 
-  """
-
-    def __extract_coocc_info(self, strObj):
+    def __extract_coocc_info(self, hit_mwe_id_string):
         """
         Extrahieren der Bestandteile einer Komplexen Treffer-Id bzw. Mwe-Id
         """
-        ### grobes aufspalten in die MWE-Bestandteile
-        listMweId = strObj.split('@')
-
-        listCoocc = []
-
-        for i in listMweId:
-            listMweIdLocal = i.split('#')
-
-            CCooccInfo = self.CooccInfo()
-
-            if len(listMweIdLocal) == 1:
-                CCooccInfo.iLemma1Id = 0
-                CCooccInfo.iPos1Id = 0
-                CCooccInfo.iLemma2Id = 0
-                CCooccInfo.iPos2Id = 0
-                CCooccInfo.iPrepId = 0
-                CCooccInfo.iRelId = 0
-                CCooccInfo.iInfoId = int(listMweIdLocal[0])
+        coocc_infos = []
+        for hit_mwe_id in hit_mwe_id_string.split('@'):
+            hit_mwe_id = [int(i) for i in hit_mwe_id.split('#')]
+            if len(hit_mwe_id) == 1:
+                coocc_info = CooccInfo(hit_mwe_id[0])
             else:
-                CCooccInfo.iLemma1Id = int(listMweIdLocal[0])
-                CCooccInfo.iPos1Id = int(listMweIdLocal[1])
-                CCooccInfo.iLemma2Id = int(listMweIdLocal[2])
-                CCooccInfo.iPos2Id = int(listMweIdLocal[3])
-                CCooccInfo.iPrepId = int(listMweIdLocal[4])
-                CCooccInfo.iRelId = int(listMweIdLocal[5])
-                CCooccInfo.iInfoId = int(listMweIdLocal[6])
+                coocc_info = CooccInfo(*(hit_mwe_id[-1:] + hit_mwe_id[:-1]))
+            coocc_infos.append(coocc_info)
+        return coocc_infos
 
-            listCoocc.append(CCooccInfo)
 
-        return listCoocc
+"""
+Extrahieren der Namens Bestandteile aus einer komplexen Treffer-Id bzw. MWE-Id
+"""
 
-    """
-    Extrahieren der Namens Bestandteile aus einer komplexen Treffer-Id bzw. MWE-Id
-  """
 
-    def __extract_mwe_parts(self, strObj):
+def __extract_mwe_parts(self, strObj):
+    # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
+    strBaseId = strObj
+    ### grobes aufspalten in die MWE-Bestandteile
+    listMweId = strBaseId.split('@')
+    iCount = 1
+    vInfo = []
+    for i in listMweId:
+        listMweIdLocal = i.split('#')
+        if iCount == 1:
 
-        # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
-        strBaseId = strObj
-        ### grobes aufspalten in die MWE-Bestandteile
-        listMweId = strBaseId.split('@')
-        iCount = 1
-        vInfo = []
-        for i in listMweId:
-            listMweIdLocal = i.split('#')
-            if iCount == 1:
+            mapInfo = {}
+            mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[0]))
+            mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])]
+            vInfo.append(mapInfo)
 
-                mapInfo = {}
-                mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[0]))
-                mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])]
-                vInfo.append(mapInfo)
+            mapInfo2 = {}
+            mapInfo2['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
+            mapInfo2['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
+            vInfo.append(mapInfo2)
 
-                mapInfo2 = {}
-                mapInfo2['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo2['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
-                vInfo.append(mapInfo2)
+        else:
 
-            else:
+            mapInfo = {}
+            mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
+            mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
+            vInfo.append(mapInfo)
 
-                mapInfo = {}
-                mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
-                vInfo.append(mapInfo)
+        iCount += 1
 
-            iCount += 1
+    return vInfo
 
-        return vInfo
 
-    """
-    Extrahieren bestimmter Informationen aus einer komplexen Treffer-Id bzw. Mwe-Id:
-    *Menge von Treffer-Ids
-    *Abbildung von zweiter Lemmaform+Wortkategorie auf die möglichen Relation-Ids
-    *Ein Treffer-Id-String durch '#' getrennt
-  """
-
-    def __extract_mwe_info(self, strObj):
-
-        # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
-        strBaseId = strObj
-
-        ### grobes aufspalten in die MWE-Bestandteile
-        listMweId = strBaseId.split('@')
-        setId = set()
-        mapLemCat = {}
-        strInfoId = ""
-        iCount = 1
-
-        for i in listMweId:
-            listMweIdLocal = i.split('#')
-            if iCount == 1:
-                setId.add(int(listMweIdLocal[6]))
-
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])])
-                mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = listRelId
-
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
-                mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
-            else:
-                setId.add(int(listMweIdLocal[6]))
-
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
-                mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
-
-            iCount += 1
-
-        ### Treffer-Id-String durch '#' getrennt
-        for i in setId:
-            if strInfoId != "":
-                strInfoId += "#"
-            strInfoId += str(i)
-
-        return (setId, mapLemCat, strInfoId)
+#
+#   """
+#   Extrahieren bestimmter Informationen aus einer komplexen Treffer-Id bzw. Mwe-Id:
+#   *Menge von Treffer-Ids
+#   *Abbildung von zweiter Lemmaform+Wortkategorie auf die möglichen Relation-Ids
+#   *Ein Treffer-Id-String durch '#' getrennt
+# """
+#
+#   def __extract_mwe_info(self, strObj):
+#
+#       # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
+#       strBaseId = strObj
+#
+#       ### grobes aufspalten in die MWE-Bestandteile
+#       listMweId = strBaseId.split('@')
+#       setId = set()
+#       mapLemCat = {}
+#       strInfoId = ""
+#       iCount = 1
+#
+#       for i in listMweId:
+#           listMweIdLocal = i.split('#')
+#           if iCount == 1:
+#               setId.add(int(listMweIdLocal[6]))
+#
+#               listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])])
+#               mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = listRelId
+#
+#               listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+#               mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
+#           else:
+#               setId.add(int(listMweIdLocal[6]))
+#
+#               listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+#               mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
+#
+#           iCount += 1
+#
+#       ### Treffer-Id-String durch '#' getrennt
+#       for i in setId:
+#           if strInfoId != "":
+#               strInfoId += "#"
+#           strInfoId += str(i)
+#
+#       return (setId, mapLemCat, strInfoId)
 
     """
     Extrahieren der Bestandteile einer Komplexen Relation-Id
