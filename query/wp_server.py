@@ -308,7 +308,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listResult
 
-    # TODO: refactor for relation client
     def get_lemma_and_pos(self, mapParam):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
@@ -317,65 +316,49 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         hiervon sind obligatorisch: 'Word'
         *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
         """
-        bUseExternalVariations = 1
+        use_external_variations = bool(mapParam.get('UseVariations', True))
+        is_case_sensitive = bool(mapParam.get("CaseSensitive", False))
+        word = mapParam.get("Word")
+        pos = mapParam.get("POS", "")
 
-        ### Parameter
-        if "UseVariations" in mapParam:
-            bUseExternalVariations = mapParam["UseVariations"]
+        results = self.__get_lemma_and_pos_base(word, pos, is_case_sensitive)
 
-        ### Ermitteln der Lemmainformationen
-        listRes = self.__get_lemma_and_pos_base(mapParam)
-        if listRes == [] and bool(bUseExternalVariations):
-            strWord = mapParam['Word']
-            ### evtl. Variationen in der Schreibweise berücksichtigen
-            if strWord in self.CWpSpec.mapVariation:
-                mapParam['Word'] = self.CWpSpec.mapVariation[strWord]
-                listRes = self.__get_lemma_and_pos_base(mapParam)
+        ### evtl. Variationen in der Schreibweise berücksichtigen
+        if not results and use_external_variations and word in self.CWpSpec.mapVariation:
+            word = self.CWpSpec.mapVariation[word]
+            results = self.__get_lemma_and_pos_base(word, pos, is_case_sensitive)
 
         ### evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
-        if listRes == [] and bool(bUseExternalVariations):
-            strWord = mapParam['Word']
-            listVariants = self.COrthVariations.gen(strWord)
-            for j in listVariants:
-                mapParam['Word'] = j
-                listRes = self.__get_lemma_and_pos_base(mapParam)
-                if listRes != []:
+        if not results and use_external_variations:
+            for word in self.COrthVariations.gen(word):
+                results = self.__get_lemma_and_pos_base(word, pos, is_case_sensitive)
+                if results:
                     break
 
-        return listRes
+        return results
 
-    # TODO: refactor for relation client
-    def __get_lemma_and_pos_base(self, mapParam):
+    def __get_lemma_and_pos_base(self, word, pos, is_case_sensitive):
         """
         Basismethode zur Abfrage von Lemmainformationen
         """
-        strWord = mapParam["Word"]
+        if not all(c.isalpha() or c == '-' for c in word):
+            return []
 
-        ### Prüfen auf valides Eingabelemma
-        for i in strWord:
-            if not i.isalpha() and i != '-':
-                return []
-
-        ### Abfragen der Tabellen: headPosRelFreq und lemmaToRelation oder lemmaToRelationLower
-        ### und ermitteln der Frequenzinformationen und Wortarteninformation zu dem Abfragelemma
         query = """
             SELECT LemmaId, PosId, Frequency, Count, RelationId FROM head_pos_rel_freq_test  
             WHERE head_pos_rel_freq_test.lemma LIKE '{}' {};
         """.format(
-            strWord.lower(),
-            " and POS='{}'".format(self.CWpMySQL.mapPosToId[mapParam["POS"]])
-            if 'POS' in mapParam and mapParam["POS"] not in ["*", ""] else "")
+            word.lower(),
+            " and POS='{}'".format(self.CWpMySQL.mapPosToId[pos]) if pos not in ["*", ""] else "")
 
-        ### MySQL abfragen
         self.CWpMySQL.connect()
         self.CWpMySQL.execute(query)
-        ### lemmaId, PosId, POS, frequency, count, relation
-        listResult = self.CWpMySQL.fetchall()
+        db_results = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
-        return self.__check_and_sort_lemma_and_pos_list(listResult, strWord, bool(mapParam["CaseSensitive"]))
+        return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
 
-    def __check_and_sort_lemma_and_pos_list(self, head_pos_rel_freqs, word, is_case_sensitive):
+    def __get_valid_sorted_lemmas(self, head_pos_rel_freqs, word, is_case_sensitive):
         """
         Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
         Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
