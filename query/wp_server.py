@@ -33,6 +33,7 @@ import math
 import sys
 import time
 import xmlrpc.server
+from collections import defaultdict
 from optparse import OptionParser
 
 from moduls.OrthVariations import OrthVariations
@@ -51,23 +52,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     """
 
     class CooccInfo:
-        iLemma1Id = None
-        iLemma2Id = None
-        iPos1Id = None
-        iPos2Id = None
-        iPrepId = None
-        iRelId = None
-        iInfoId = None
-
-    class HeadLemmaPosRel:
         def __init__(self):
-            self.setRelation = set()
-            self.strPos = ''
-            self.strLemma = ''
-            self.iPos = 0
-            self.iLemma = 0
-            self.iFrequency = 0
-            self.iCount = 0
+            self.iLemma1Id = None
+            self.iLemma2Id = None
+            self.iPos1Id = None
+            self.iPos2Id = None
+            self.iPrepId = None
+            self.iRelId = None
+            self.iInfoId = None
 
     mapCorpus = {}
     mapIdToLem = {}
@@ -383,114 +375,54 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return self.__check_and_sort_lemma_and_pos_list(listResult, strWord, bool(mapParam["CaseSensitive"]))
 
-    # TODO: refactor for relation client
-    def __check_and_sort_lemma_and_pos_list(self, listLemmaPos, strUnicodeWord, bCaseSensitive):
+    def __check_and_sort_lemma_and_pos_list(self, head_pos_rel_freqs, word, is_case_sensitive):
         """
         Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
         Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
         eher Substantiv als Verb.
         """
-        mapDummy = {}
-        listDummy = []
+        lemma_pos_mapping = defaultdict(list)
+        for lemma_id, pos_id, frequency, count, relation_id in head_pos_rel_freqs:
+            lemma_pos_mapping[(lemma_id, pos_id)].append((relation_id, frequency, count))
 
-        ### durchgehen der Lemmainformationsliste
-        for i in listLemmaPos:
-            ### lemmaId, PosId, POS, frequency, count, relation
-            ### Erstellen einer Liste von Lemmainformationen
-            ### Erstellen eines Mappings von LemmaId/PosId auf die Lemmainformationenposition in der Liste
-            if (i[0], i[1]) in mapDummy:
-                iRef = mapDummy[(i[0], i[1])]
-                listDummy[iRef].setRelation.add(self.CWpMySQL.mapIdToRel[i[4]])
-                listDummy[iRef].iFrequency += i[2]
-                listDummy[iRef].iCount += i[3]
-            else:
-                CHeadLemmaPosRel = self.HeadLemmaPosRel()
-                CHeadLemmaPosRel.iLemma = i[0]
-                CHeadLemmaPosRel.iPos = i[1]
-                CHeadLemmaPosRel.strPos = self.CWpMySQL.mapIdToPOS[i[1]]
-                CHeadLemmaPosRel.iFrequency = i[2]
-                CHeadLemmaPosRel.iCount = i[3]
-                CHeadLemmaPosRel.strLemma = self.CWpMySQL.mmapIdToLem.get(i[0])
-                CHeadLemmaPosRel.setRelation = set()
-                CHeadLemmaPosRel.setRelation.add(self.CWpMySQL.mapIdToRel[i[4]])
-                mapDummy[(i[0], i[1])] = len(listDummy)
-                listDummy.append(CHeadLemmaPosRel)
+        # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
+        most_frequent_lemma = {}
+        for (lemma_id, pos_id), relations in lemma_pos_mapping.items():
+            frequency = sum(frequency for _, frequency, _ in relations)
+            count = sum(count for _, _, count in relations)
+            if pos_id not in most_frequent_lemma or most_frequent_lemma[pos_id][1] < frequency:
+                most_frequent_lemma[pos_id] = (lemma_id, frequency, count, relations)
+        pos_sorted = sorted(most_frequent_lemma.items(), key=lambda x: x[1][1], reverse=True)
 
-        ### Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
-        mapDummy = {}
-        for i in listDummy:
-            iPos = i.iPos
-            if iPos in mapDummy:
-                if mapDummy[iPos].iFrequency >= i.iFrequency:
-                    pass
-                else:
-                    mapDummy[iPos] = i
-            else:
-                mapDummy[iPos] = i
+        results = []
+        for pos_id, (lemma_id, frequency, count, relations) in pos_sorted:
+            pos = self.CWpMySQL.mapIdToPOS[pos_id]
+            lemma = self.CWpMySQL.mmapIdToLem[lemma_id]
+            relations = [self.CWpMySQL.mapIdToRel[relation_id] for (relation_id, frequency, count) in relations]
 
-        ### Ergebnislisten, die nachher aneinandergehängt werden
-        listRes1a = []
-        listRes1b = []
-        listRes2 = []
-        listRes3 = []
-        listRes4 = []
-
-        ### Lemmainformationen nach Frequenz sortieren
-        vSort = list(mapDummy.values())
-        vSort.sort(key=lambda x: x.iFrequency, reverse=True)
-
-        ### durchgehen der sortierten Lemmainformationen
-        for i in vSort:
-            iLemma = i.iLemma
-            iPos = i.iPos
-            strPos = i.strPos
-            strLemma = i.strLemma
-
-            ### bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
-            if bCaseSensitive:
-                if strPos != "Substantiv" and strLemma[0].isupper() == True:
+            # bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
+            if is_case_sensitive:
+                if pos != "Substantiv" and lemma[0].isupper():
                     continue
-                if strPos == "Substantiv" and strLemma[0].isupper() != True:
+                if pos == "Substantiv" and lemma[0].islower():
                     continue
 
-            strPos = i.strPos
-            iFrequency = i.iFrequency
-            iCount = i.iCount
-            listRelation = []
-            for j in i.setRelation:
-                listRelation.append(j)
-
-            strUnicode1 = strUnicodeWord
-            strUnicode2 = strLemma
-            bInputIsUpper1 = strUnicode1[0].isupper()
-            bInputIsUpper2 = strUnicode2[0].isupper()
-
-            ### Relevanz der einzelnen Informationen über die verschiedenen Ergebnislisten behandeln
-            if strUnicode1 == strUnicode2 and bInputIsUpper1 and bInputIsUpper2:
-                if strPos == "Substantiv":
-                    listRes1a.append(
-                        {'LemmaId': iLemma, 'PosId': iPos, 'POS': strPos, 'Lemma': strLemma, 'Frequency': iFrequency,
-                         'Count': iCount, 'Relations': listRelation})
+            # Relevanz der einzelnen Informationen über die verschiedenen Ergebnislisten behandeln
+            if word == lemma and word[0].isupper() and lemma[0].isupper():
+                if pos == "Substantiv":
+                    score = 1
                 else:
-                    listRes1b.append(
-                        {'LemmaId': iLemma, 'PosId': iPos, 'POS': strPos, 'Lemma': strLemma, 'Frequency': iFrequency,
-                         'Count': iCount, 'Relations': listRelation})
-            elif strUnicode1.lower() == strUnicode2.lower():
-                listRes2.append(
-                    {'LemmaId': iLemma, 'PosId': iPos, 'POS': strPos, 'Lemma': strLemma, 'Frequency': iFrequency,
-                     'Count': iCount, 'Relations': listRelation})
-            elif bInputIsUpper1 == bInputIsUpper2:
-                listRes3.append(
-                    {'LemmaId': iLemma, 'PosId': iPos, 'POS': strPos, 'Lemma': strLemma, 'Frequency': iFrequency,
-                     'Count': iCount, 'Relations': listRelation})
+                    score = 2
+            elif word.lower() == lemma.lower():
+                score = 3
+            elif word[0].isupper() == lemma[0].isupper():
+                score = 4
             else:
-                listRes4.append(
-                    {'LemmaId': iLemma, 'PosId': iPos, 'POS': strPos, 'Lemma': strLemma, 'Frequency': iFrequency,
-                     'Count': iCount, 'Relations': listRelation})
-
-        listResult = listRes1a + listRes1b + listRes2 + listRes3 + listRes4
-
-        return listResult
+                score = 5
+            results.append((score, {'LemmaId': lemma_id, 'PosId': pos_id, 'POS': pos, 'Lemma': lemma,
+                                    'Frequency': frequency, 'Count': count, 'Relations': relations}))
+        results = [r[1] for r in sorted(results, key=lambda x: x[0])]
+        return results
 
     # def get_lemma_and_pos_diff(self, mapParam):
     #     """
