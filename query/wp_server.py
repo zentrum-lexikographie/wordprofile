@@ -155,78 +155,29 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ### Der Server läuft einwandfrei
         return "OK"
 
-    def get_used_corpora(self):
-        return self.CWpMySQL.vCorpusName
-
-    def get_no_of_lemmas(self):
-        if 'lemmaSize' in self.CWpMySQL.mapTypeToValue:
-            return self.CWpMySQL.mapTypeToValue['lemmaSize']
-        else:
-            return None
-
-    def get_no_of_cooccurrences(self):
-        if 'relationSize' in self.CWpMySQL.mapTypeToValue:
-            return self.CWpMySQL.mapTypeToValue['relationSize']
-        else:
-            return None
-
-    def get_no_of_sentences(self):
-        if 'sentenceSize' in self.CWpMySQL.mapTypeToValue:
-            return self.CWpMySQL.mapTypeToValue['sentenceSize']
-        else:
-            return None
-
-    def get_no_of_hits(self):
-        if 'infoSize' in self.CWpMySQL.mapTypeToValue:
-            return self.CWpMySQL.mapTypeToValue['infoSize']
-        else:
-            return None
-
-    def get_cooccurrence_info(self):
+    def get_info(self):
         for i in self.CWpMySQL.mapRelInfo:
-            strRelDesc = ""
             if self.CWpMySQL.mapRelInfo[i]['Name'] in self.CWpSpec.mapRelDesc:
                 strRelDesc = self.CWpSpec.mapRelDesc[self.CWpMySQL.mapRelInfo[i]['Name']]
             else:
                 strRelDesc = self.CWpSpec.strRelDesc
             self.CWpMySQL.mapRelInfo[i]['Description'] = strRelDesc
-        return self.CWpMySQL.mapRelInfo
 
-    def get_threshold_info(self):
-        return self.CWpMySQL.mapThresholdInfo
-
-    def get_mwe_depth(self):
-        return self.CWpMySQL.iMweDepth
-
-    def get_author(self):
-        if 'Author' in self.CWpMySQL.mapProjectInfo:
-            return self.CWpMySQL.mapProjectInfo['Author']
-        else:
-            return None
-
-    def get_creation_date(self):
-        if 'CreationDate' in self.CWpMySQL.mapProjectInfo:
-            return self.CWpMySQL.mapProjectInfo['CreationDate']
-        else:
-            return None
-
-    def get_spec_filename(self):
-        if 'SpecFile' in self.CWpMySQL.mapProjectInfo:
-            return self.CWpMySQL.mapProjectInfo['SpecFile']
-        else:
-            return None
-
-    def get_spec_version(self):
-        if 'SpecFileVersion' in self.CWpMySQL.mapProjectInfo:
-            return self.CWpMySQL.mapProjectInfo['SpecFileVersion']
-        else:
-            return None
-
-    def get_lemma_cut_threshold(self):
-        if 'LemmaCut' in self.CWpMySQL.mapProjectInfo:
-            return self.CWpMySQL.mapProjectInfo['LemmaCut']
-        else:
-            return None
+        return {
+            "used_corpora": self.CWpMySQL.vCorpusName,
+            "lemma_size": self.CWpMySQL.mapTypeToValue.get('lemmaSize', None),
+            "relation_size": self.CWpMySQL.mapTypeToValue.get('relationSize', None),
+            "sentence_size": self.CWpMySQL.mapTypeToValue.get('sentenceSize', None),
+            "info_size": self.CWpMySQL.mapTypeToValue.get('infoSize', None),
+            "threshold": self.CWpMySQL.mapThresholdInfo,
+            "mwe_depth": self.CWpMySQL.iMweDepth,
+            "author": self.CWpMySQL.mapProjectInfo.get('Author', None),
+            "creation_date": self.CWpMySQL.mapProjectInfo.get('CreationDate', None),
+            "spec_file": self.CWpMySQL.mapProjectInfo.get('SpecFile', None),
+            "spec_file_version": self.CWpMySQL.mapProjectInfo.get('SpecFileVersion', None),
+            "lemma_cut": self.CWpMySQL.mapProjectInfo.get('LemmaCut', None),
+            "cooccurrence_info": self.CWpMySQL.mapRelInfo,
+        }
 
     def gen_rel_ids_by_rel(self, listRel):
         """

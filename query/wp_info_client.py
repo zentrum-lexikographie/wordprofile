@@ -28,52 +28,39 @@ if options.host == None:
 
 ### XMLRPC-Client erstellen
 s = xmlrpc.client.ServerProxy(options.host)
-
-listResult = []
+result = s.get_info()
 
 ### Propjektinformationen
 print("\033[32;1mproject:\033[m")
-print("author:", s.get_author())
-print("creation date:", s.get_creation_date())
-print("spec version:", s.get_spec_version())
-print("spec file:", s.get_spec_filename())
+print("author:", result['author'])
+print("creation date:", result['creation_date'])
+print("spec version:", result['spec_file_version'])
+print("spec file:", result['spec_file'])
 
 ### verwendete Korpora
-listKorpora = s.get_used_corpora()
+listKorpora = result['used_corpora']
 print("\033[32;1mcorpora:\033[m")
-strKorpora = ""
-for i in listKorpora:
-    if strKorpora != "":
-        strKorpora += ","
-    strKorpora += i
-print(strKorpora)
+print(",".join(listKorpora))
 
 ### Einbettungstiefe der MWE-Relationen
-iMweDepth = s.get_mwe_depth()
 print("\033[32;1mMWE info:\033[m")
-print("MweDepth:", str(iMweDepth))
+print("MweDepth:", result['mwe_depth'])
 
 ### Zahlen über Gößen
-iNoOfLemma = s.get_no_of_lemmas()
-iNoOfCooccurrences = s.get_no_of_cooccurrences()
-iNoOfSentences = s.get_no_of_sentences()
-iNoOfHits = s.get_no_of_hits()
 print("\033[32;1mglobal info:\033[m")
-print("NoOfLemmas:", iNoOfLemma)
-print("NoOfCooccurrences:", iNoOfCooccurrences)
-print("NoOfSentences:", iNoOfSentences)
-print("NoOfHits:", iNoOfHits)
+print("NoOfLemmas:", result['lemma_size'])
+print("NoOfCooccurrences:", result['relation_size'])
+print("NoOfSentences:", result['sentence_size'])
+print("NoOfHits:", result['info_size'])
 
 ### relationsbezogene Kookkurrenzinformationen
-mapCooccurrenceInfo = s.get_cooccurrence_info()
 print("\033[32;1mcooccurrence info:\033[m")
-for i in list(mapCooccurrenceInfo.items()):
+for i in list(result['cooccurrence_info'].items()):
     print(i[0] + ":", i[1])
 
 ### Schwellwerte
-mapThresholdInfo = s.get_threshold_info()
 print("\033[32;1mglobal threshold info:\033[m")
-print("LemmaCut:", s.get_lemma_cut_threshold())
+print("LemmaCut:", result['lemma_cut'])
 print("\033[32;1mrelation threshold info:\033[m")
-for i in list(mapThresholdInfo.items()):
+for i in list(result['threshold'].items()):
     print(i[0] + ":", i[1])
