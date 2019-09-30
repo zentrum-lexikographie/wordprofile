@@ -49,6 +49,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       *Es können Texttreffer Abgefragt werden.
       *Es können Wortprofile miteinander Verglichen werden.
     """
+
     class CooccInfo:
         iLemma1Id = None
         iLemma2Id = None
@@ -364,6 +365,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listResult
 
+    # TODO: refactor for relation client
     def get_lemma_and_pos(self, mapParam):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
@@ -399,26 +401,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listRes
 
-    """
-    Basismethode zur Abfrage von Lemmainformationen
-    """
-
+    # TODO: refactor for relation client
     def __get_lemma_and_pos_base(self, mapParam):
-
-        strSubcorpus = ""
-        bCaseSensitive = False
-        strQueryPOS = ""
-
+        """
+        Basismethode zur Abfrage von Lemmainformationen
+        """
         strWord = mapParam["Word"]
-
-        ### Parameter
-        if "Subcorpus" in mapParam:
-            strSubcorpus = mapParam["Subcorpus"]
-        if "CaseSensitive" in mapParam:
-            bCaseSensitive = bool(mapParam["CaseSensitive"])
-        if "POS" in mapParam:
-            if mapParam["POS"] != "*" and mapParam["POS"] != "":
-                strQueryPOS = " and POS=\"%s\" " % (str(self.CWpMySQL.mapPosToId[mapParam["POS"]]))
 
         ### Prüfen auf valides Eingabelemma
         for i in strWord:
@@ -427,29 +415,30 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ### Abfragen der Tabellen: headPosRelFreq und lemmaToRelation oder lemmaToRelationLower
         ### und ermitteln der Frequenzinformationen und Wortarteninformation zu dem Abfragelemma
-        strSelect = "SELECT " + strSubcorpus + "headPosRelFreq.id, " + strSubcorpus + "headPosRelFreq.POS," + strSubcorpus + "headPosRelFreq.frequency, " + strSubcorpus + "headPosRelFreq.count, " + strSubcorpus + "headPosRelFreq.relation "
-        strFrom = """ FROM """ + strSubcorpus + """headPosRelFreq
-                  LEFT JOIN lemmaToRelation ON(""" + strSubcorpus + """headPosRelFreq.id = lemmaToRelation.id) """
-        strWhere = "WHERE ( lemmaToRelation.lemma=\"" + strWord.lower() + "\"" + strQueryPOS + ");"
+        query = """
+            SELECT LemmaId, PosId, Frequency, Count, RelationId FROM head_pos_rel_freq_test  
+            WHERE head_pos_rel_freq_test.lemma LIKE '{}' {};
+        """.format(
+            strWord.lower(),
+            " and POS='{}'".format(self.CWpMySQL.mapPosToId[mapParam["POS"]])
+            if 'POS' in mapParam and mapParam["POS"] not in ["*", ""] else "")
 
         ### MySQL abfragen
         self.CWpMySQL.connect()
-        self.CWpMySQL.execute(strSelect + strFrom + strWhere)
-
+        self.CWpMySQL.execute(query)
         ### lemmaId, PosId, POS, frequency, count, relation
         listResult = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
-        return self.__check_and_sort_lemma_and_pos_list(listResult, strWord, bCaseSensitive)
+        return self.__check_and_sort_lemma_and_pos_list(listResult, strWord, bool(mapParam["CaseSensitive"]))
 
-    """
-    Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert. 
-    Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
-    eher Substantiv als Verb.
-    """
-
+    # TODO: refactor for relation client
     def __check_and_sort_lemma_and_pos_list(self, listLemmaPos, strUnicodeWord, bCaseSensitive):
-
+        """
+        Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
+        Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
+        eher Substantiv als Verb.
+        """
         mapDummy = {}
         listDummy = []
 
@@ -648,7 +637,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     """
 
-    def get_relations(self, mapParam):
+    def get_relations(self, mapParam):  # TODO!
         ### Liste aus Relation-Ids ermitteln
         listSortId = self.gen_rel_ids_by_rel_and_pos(mapParam["Relations"], self.CWpMySQL.mapIdToPOS[mapParam["PosId"]])
 
@@ -1079,7 +1068,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
   """
 
     def __extract_coocc_info(self, strObj):
-
+        """
+        Extrahieren der Bestandteile einer Komplexen Treffer-Id bzw. Mwe-Id
+        """
         ### grobes aufspalten in die MWE-Bestandteile
         listMweId = strObj.split('@')
 
@@ -2636,21 +2627,15 @@ if(ConditionalCheck_""" + str(
 
         return listMapRes
 
-    """
-    Die Funktion ermöglicht es, anhand einer Concordanz-ID ('InfoId') eine Relation abzufragen.
-
-    mapParam = {'InfoId':<int>,'Subcorpus':<string>}
-
-    hiervon sind obligatorisch: 'InfoId' 
-
-    *Rückgabe ist ein Dictionary aus: syntaktischer Relation ('Relation'), Lemmaform von W1 ('Lemma1'), Lemmaform von W2 ('Lemma2'), POS-Tag von W1 ('POS1'), POS-Tag von W2 ('POS2'), Oberflächenform von W1 ('Form1'), Oberflächenform von W2 ('Form2'):
-
-{'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>} 
-  """
-
     def get_relation_by_info_id(self, mapParam):
-
-        strInfoId = mapParam["InfoId"]
+        """
+        Die Funktion ermöglicht es, anhand einer Concordanz-ID ('InfoId') eine Relation abzufragen.
+        mapParam = {'InfoId':<int>,'Subcorpus':<string>}
+        hiervon sind obligatorisch: 'InfoId'
+        *Rückgabe ist ein Dictionary aus: syntaktischer Relation ('Relation'), Lemmaform von W1 ('Lemma1'), Lemmaform von W2 ('Lemma2'), POS-Tag von W1 ('POS1'), POS-Tag von W2 ('POS2'), Oberflächenform von W1 ('Form1'), Oberflächenform von W2 ('Form2'):
+        {'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>}
+        """
+        strInfoId = mapParam.get("InfoId", "")
         ### ermitteln der Relationsrelevanten Informationen aus der Treffer-Id
         listCooccInfo = self.__extract_coocc_info(strInfoId)
         CCooccInfo = listCooccInfo[-1]
@@ -2675,114 +2660,56 @@ if(ConditionalCheck_""" + str(
         return {'Description': strDescLoc, 'Relation': strRel, 'Lemma1': strLem1, 'Lemma2': strLem2, 'POS1': strPOS1,
                 'POS2': strPOS2}
 
-    """
-    Diese Methode ist ein Mix aus 'get_concordances' und 'get_relation_by_info_id'. 
-
-    Die Eingabe gleicht der Eingabe bei der Methode 'get_concordances' 
-
-    Rückgabe ist ein Dictionary mit: Relationsbeschreibung ('Description', z.B.: Mann ist Subjekt von laufen), Lemmaform von W1 ( 'Lemma1'), Lemmaform von W2 ( 'Lemma2'), POS-Tag von W1 ( 'POS1'), POS-Tag von W2 ( 'POS2'), Oberflächenform von W1 ( 'Form1'), Oberflächenform von W2 ( 'Form2') und einer Liste mit Konkordanz-Informationen ( 'Tuples') die dem Format der Rückgabe von 'get_concordances' entspricht:
-
-    {'Relation':<string>,'Description':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>,'Tuples':[ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string>* ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]} 
-  """
-
     def get_concordances_and_relation(self, mapParam):
-
+        """
+        Diese Methode ist ein Mix aus 'get_concordances' und 'get_relation_by_info_id'.
+        Die Eingabe gleicht der Eingabe bei der Methode 'get_concordances'
+        Rückgabe ist ein Dictionary mit: Relationsbeschreibung ('Description', z.B.: Mann ist Subjekt von laufen), Lemmaform von W1 ( 'Lemma1'), Lemmaform von W2 ( 'Lemma2'), POS-Tag von W1 ( 'POS1'), POS-Tag von W2 ( 'POS2'), Oberflächenform von W1 ( 'Form1'), Oberflächenform von W2 ( 'Form2') und einer Liste mit Konkordanz-Informationen ( 'Tuples') die dem Format der Rückgabe von 'get_concordances' entspricht:
+        {'Relation':<string>,'Description':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>,'Tuples':[ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string>* ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]}
+      """
         mapRelation = self.get_relation_by_info_id(mapParam)
-        listTuples = self.get_concordances(mapParam)
-        mapRelation['Tuples'] = listTuples
-
+        mapRelation['Tuples'] = self.get_concordances(mapParam)
         return mapRelation
 
-    """
-    Die Methode ermöglicht es, anhand einer Concord-ID Texttreffer abzufragen. 
-
-    *Eingabe ist die Concordanz-ID ( 'InfoId') und ein Range von Belegen (Startpunkt ( 'Start') und Anzahl ( 'Number')) und die Angabe, ob nach Datum/Quality-Score absteigend sortiert werden soll ( 'DateDesc'), ob nach Quality-Score sortiert werden soll ('UseScore') und evtl. ein Subcorpus ( 'Subcorpus'). Über die Option 'UseContext' kann zudem angegeben werden ob zusätzlich ein lechter und linker Satz zurückgegeben werden soll. Des Weiteren kann über 'InternalUser' angegeben werden, ob rechtebehaftete Inhalte angezeigt werden. Diese Parameter werden über einen dictionary übergeben:
-
-    mapParam = {'InfoId':<int/string>,'Start':<int=0>,'Number':<int=20> ,'InternalUser':<bool> ,'Subcorpus':<string> ,'UseScore':<bool=0> ,'UseContext':<bool=0> ,'DateDesc':<bool=1>}
-
-    Hiervon sind obligatorisch: 'InfoId' 
-
-
-
-    *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
-
-    [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ] 
-  """
-
     def get_concordances(self, mapParam):
-        strInfoId = ""
-        if ("InfoId" in mapParam):
-            strInfoId = mapParam["InfoId"]
+        """
+        Die Methode ermöglicht es, anhand einer Concord-ID Texttreffer abzufragen.
+        *Eingabe ist die Concordanz-ID ( 'InfoId') und ein Range von Belegen (Startpunkt ( 'Start') und Anzahl ( 'Number')) und die Angabe, ob nach Datum/Quality-Score absteigend sortiert werden soll ( 'DateDesc'), ob nach Quality-Score sortiert werden soll ('UseScore') und evtl. ein Subcorpus ( 'Subcorpus'). Über die Option 'UseContext' kann zudem angegeben werden ob zusätzlich ein lechter und linker Satz zurückgegeben werden soll. Des Weiteren kann über 'InternalUser' angegeben werden, ob rechtebehaftete Inhalte angezeigt werden. Diese Parameter werden über einen dictionary übergeben:
+        mapParam = {'InfoId':<int/string>,'Start':<int=0>,'Number':<int=20> ,'InternalUser':<bool> ,'Subcorpus':<string> ,'UseScore':<bool=0> ,'UseContext':<bool=0> ,'DateDesc':<bool=1>}
+        Hiervon sind obligatorisch: 'InfoId'
+
+        *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
+        [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]
+      """
+        strInfoId = mapParam.get("InfoId", "")
 
         ### Extrahieren der Relationsrelevanten Informationen aus der Treffer-Id
         listCooccInfo = self.__extract_coocc_info(strInfoId)
 
         if len(listCooccInfo) > 1:
-            return self.__get_concordances_mwe_base(mapParam)
+            print('-- Currently not supported!')
+            # return self.__get_concordances_mwe_base(mapParam)
         else:
             return self.__get_concordances_base(mapParam)
 
-    """
-    Abfragen von Texttreffern anhand einer Treffer-Id
-  """
-
     def __get_concordances_base(self, mapParam):
+        bUseContext = bool(mapParam.get("UseContext", False))
+        bInternalUser = bool(mapParam.get("InternalUser", False))
+        bUseScore = mapParam.get("UseScore", 0)
+        strInfoId = mapParam.get("InfoId", "")
+        iStart = mapParam.get("Start", 0)
+        iNumber = mapParam.get("Number", 20)
+        subcorpus_id = self.CWpMySQL.mapCorpusToId.get(mapParam["Subcorpus"], -1)
 
-        strInfoId = ""
-        iStart = 0
-        iNumber = 20
-        strSubcorpus = ""
-
-        bDateDesc = 1
-        bUseScore = 0
-        bUseContext = 0
-
-        ### Parameter
-        if ("UseContext" in mapParam):
-            bUseContext = mapParam["UseContext"]
-        bInternalUser = False
-        if ("InternalUser" in mapParam):
-            bInternalUser = bool(mapParam["InternalUser"])
-        if ("UseScore" in mapParam):
-            bUseScore = mapParam["UseScore"]
-        if ("DateDesc" in mapParam):
-            bDateDesc = mapParam["DateDesc"]
-        if ("InfoId" in mapParam):
-            strInfoId = mapParam["InfoId"]
-        if ("Start" in mapParam):
-            iStart = mapParam["Start"]
-        if ("Number" in mapParam):
-            iNumber = mapParam["Number"]
-        if ("Subcorpus" in mapParam):
-            strSubcorpus = mapParam["Subcorpus"]
-        strSubcorpus = strSubcorpus
-        bInverse = 0
-        if 'Inverse' in mapParam:
-            bInverse = mapParam['Inverse']
-
-        ### für interne Uder ist alles sichtbar
-        strInternalUser = ""
-        if bInternalUser == False:
-            strInternalUser = " and avail=true "
+        ### für interne User ist alles sichtbar
+        strInternalUser = " and idToInfo.avail=1 " if not bInternalUser else ""
 
         ### Extrahieren der Relationsrelevanten Informationen aus der Treffer-Id
         listCooccInfo = self.__extract_coocc_info(strInfoId)
         iInfoId = listCooccInfo[0].iInfoId
 
         ### wenn innerhalb eines Subkorpus gesucht werden soll
-        if strSubcorpus != "":
-            strSubcorpus = " and idToInfo.corpus=\"" + str(self.CWpMySQL.mapCorpusToId[strSubcorpus]) + "\" "
-
-        ### Sortierungen
-        strIndex = ""
-        if bDateDesc == 1 and bUseScore == 1:
-            strIndex = "I_score_date_desc"
-        elif bDateDesc == 1 and bUseScore == 0:
-            strIndex = "I_date_desc"
-        elif bDateDesc == 0 and bUseScore == 1:
-            strIndex = "I_score_date"
-        else:
-            strIndex = "I_date"
+        strSubcorpus = " and idToInfo.corpus='{}' ".format(subcorpus_id) if subcorpus_id >= 0 else ""
 
         ### Wenn Kontextsätze angezeigt werden sollen
         if bUseContext:
@@ -2808,9 +2735,9 @@ if(ConditionalCheck_""" + str(
                 (s_right.corpus = idToInfo.corpus
                 and s_right.FileId = idToInfo.File
                 and s_right.SentenceId =(idToInfo.sentence + 1))
-            WHERE idToInfo.id={}
+            WHERE idToInfo.id={} {} {}
             LIMIT {},{}
-            """.format(iInfoId, iStart, iNumber)
+            """.format(iInfoId, strSubcorpus, strInternalUser, iStart, iNumber)
         else:
             query = """
             SELECT
@@ -2824,53 +2751,54 @@ if(ConditionalCheck_""" + str(
                 and s_center.FileId = idToInfo.File
                 and s_center.SentenceId = idToInfo.sentence)
             LEFT JOIN idToTei ON (idToInfo.corpus=idToTei.corpus and idToInfo.file=idToTei.file)
-            WHERE idToInfo.id={}
+            WHERE idToInfo.id={} {} {}
             LIMIT {},{}
-            """.format(iInfoId, iStart, iNumber)
+            """.format(iInfoId, strSubcorpus, strInternalUser, iStart, iNumber)
 
-        ### MySQL-Abfrage
         self.CWpMySQL.connect()
         self.CWpMySQL.execute(query)
         listRes = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
-        ### Ausgabe generieren
         listMapRes = []
-        for i in listRes:
-            if i[0] == None:
+        for item in listRes:
+            if len(item) == 13:
+                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
+                 avail, page, file, score) = item
+            elif len(item) == 15:
+                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
+                 avail,
+                 page, file, score, sentence_left, sentence_right) = item
+            else:
+                raise ValueError("Unexpected number of columns")
+            if not sentence:
                 print("skip line: None in table!")
                 continue
 
-            mapBib = {}
-            mapBib["Corpus"] = self.CWpMySQL.mapIdToCorpus[i[4]]
-            mapBib["Date"] = self.CWpMySQL.mapIdToDate[i[5]]
-            mapBib["TextClass"] = self.CWpMySQL.mapIdToTextclass[i[6]]
-            mapBib["Orig"] = i[7]
-            mapBib["Scan"] = i[8]
-            mapBib["Avail"] = self.CWpMySQL.mapIdToAvail[i[9]]
-            mapBib["Page"] = i[10]
-            mapBib["File"] = i[11]
-            strScore = i[12]
-
-            (strMyOrig, strMyScan) = self.CWpStr.gen_bibl_with_page(mapBib["Orig"], mapBib["Scan"], mapBib["Page"])
-
-            mapBib["Orig"] = strMyOrig
-            mapBib["Scan"] = strMyScan
+            mapBib = {
+                "Corpus": self.CWpMySQL.mapIdToCorpus[corpus],
+                "Date": self.CWpMySQL.mapIdToDate[date],
+                "TextClass": self.CWpMySQL.mapIdToTextclass[textclass],
+                "Orig": orig.replace('#page#', page),
+                "Scan": scan.replace('#page#', page),
+                "Avail": self.CWpMySQL.mapIdToAvail[avail],
+                "Page": page,
+                "File": file,
+            }
 
             ### Sätze formatieren
-            if bUseContext == 1:
-                strLeft = self.CWpStr.format_sentence(i[13])
-                strRight = self.CWpStr.format_sentence(i[14])
-            else:
-                strLeft = ""
-                strRight = ""
-            strCenter = self.CWpStr.format_sentence_center(i[0], i[1], i[2], i[3])
+            strLeft = self.CWpStr.format_sentence(sentence_left) if bUseContext else ""
+            strRight = self.CWpStr.format_sentence(sentence_right) if bUseContext else ""
+            strCenter = self.CWpStr.format_sentence_center(sentence, token_position_1, token_position_2, prep_position)
 
             ### zur Ausgabe hinzufügen
-            listMapRes.append(
-                {"Bibl": mapBib, "ConcordLine": strCenter, "ConcordLeft": strLeft, "ConcordRight": strRight,
-                 "Score": strScore})
-
+            listMapRes.append({
+                "Bibl": mapBib,
+                "ConcordLine": strCenter,
+                "ConcordLeft": strLeft,
+                "ConcordRight": strRight,
+                "Score": score
+            })
         return listMapRes
 
     """
@@ -3127,17 +3055,18 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
             self.connection.shutdown(1)
 
 
-def test_server(spec='spec/dradio.local.spec'):
-    CWpSpec = WpSeSpec()
-    CWpSpec.read_specification(spec)
-    wp_query = WortprofilQuery(CWpSpec)
-    CWpMySQL = WpSeMySql(CWpSpec)
-    return CWpMySQL, wp_query
-
+# def test_server(spec='spec/dradio.local.spec'):
+#     CWpSpec = WpSeSpec()
+#     CWpSpec.read_specification(spec)
+#     wp_query = WortprofilQuery(CWpSpec)
+#     CWpMySQL = WpSeMySql(CWpSpec)
+#     return CWpMySQL, wp_query
+#
 
 def main():
     global logger
     # Create option parser
+    # TODO replace by argparse
     parser = OptionParser()
     parser.add_option("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)")
     parser.add_option("-p", dest="port", default=None, help="Angabe des Ports")
