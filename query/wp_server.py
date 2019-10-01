@@ -12,7 +12,7 @@ import sys
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from moduls import deprecated
 from moduls.OrthVariations import OrthVariations
@@ -50,7 +50,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     CWpSpec = None
 
     def __init__(self, CWpSpec):
-
         self.CWpStr = WpSeString()
         self.CWpStr.status("start init ...")
 
@@ -58,13 +57,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         self.CWpTree = WpSeTree()
         self.CWpSpec = CWpSpec
         self.CWpMySQL = WpSeMySql(self.CWpSpec)
-        if self.CWpMySQL.check_connection() == False:
+        if not self.CWpMySQL.check_connection():
             self.CWpStr.error("MySQL-Verbindung fehlgeschlagen")
             sys.exit(-1)
         self.CWpMySQL.init_data()
-
         self.COrthVariations = OrthVariations()
-
         self.CWpStr.status("MWE-Depth = %i" % self.CWpMySQL.iMweDepth)
 
         if self.CWpMySQL.iMweDepth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
@@ -118,10 +115,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     def get_info(self):
         for i in self.CWpMySQL.mapRelInfo:
             if self.CWpMySQL.mapRelInfo[i]['Name'] in self.CWpSpec.mapRelDesc:
-                strRelDesc = self.CWpSpec.mapRelDesc[self.CWpMySQL.mapRelInfo[i]['Name']]
+                description = self.CWpSpec.mapRelDesc[self.CWpMySQL.mapRelInfo[i]['Name']]
             else:
-                strRelDesc = self.CWpSpec.strRelDesc
-            self.CWpMySQL.mapRelInfo[i]['Description'] = strRelDesc
+                description = self.CWpSpec.strRelDesc
+            self.CWpMySQL.mapRelInfo[i]['Description'] = description
 
         return {
             "used_corpora": self.CWpMySQL.vCorpusName,
@@ -151,30 +148,21 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 setRes.add(self.CWpMySQL.mapRelToId[i])
         return list(setRes)
 
-    @deprecated
-    def gen_rel_ids_by_rel_and_pos(self, listRel, strPOS):
+    def get_ordered_relation_ids(self, relations, pos):
         """
-        Ermitteln einer Liste von Sortierten Relations-Ids
-        anhand einer Liste von Relationen (String) und einer Wortkategorie
+        Gets relation ids sorted by the specified ordering
         """
-        mapRelations = {}
-        for i in listRel:
-            if i in self.CWpMySQL.mapRelToId:
-                mapRelations[i] = self.CWpMySQL.mapRelToId[i]
+        relation_to_id = {}
+        for r in relations:
+            if r in self.CWpMySQL.mapRelToId:
+                relation_to_id[r] = self.CWpMySQL.mapRelToId[r]
 
-        if strPOS in self.CWpSpec.mapRelOrder:
-            listSort = self.CWpSpec.mapRelOrder[strPOS]
-        else:
-            listSort = self.CWpSpec.listRelOrder
-
-        listSortId = []
-        for i in listSort:
-            if i in mapRelations:
-                listSortId.append(mapRelations[i])
-        return listSortId
+        relation_order = self.CWpSpec.mapRelOrder.get(pos, self.CWpSpec.listRelOrder)
+        ordered_ids = [relation_to_id[i] for i in relation_order if i in relations]
+        return ordered_ids
 
     @deprecated
-    def gen_rel_ids_by_pos(self, strPOS):
+    def gen_mwe_rel_ids_by_pos(self, strPOS):
         """
         Ermitteln einer Liste von Sortierten Relations-Ids
         anhand einer Wortkategorie
@@ -441,8 +429,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             iCounter += 1
         return mapRelData
 
-    @deprecated
-    def get_relations(self, mapParam):  # TODO!
+    def get_relations(self, params):
         """
         Die Methode ermöglicht es, anhand einer Wortprofil-Lemma-ID und POS-ID Wortprofilrelationen abzufragen.
         *Eingabe ist ein Dictionary aus Parametern. Zu der Wortprofil-Lemma-ID ('LemmaId') und POS-ID ('PosId') sind wetere Parameter: ab dem wievielten Eintrag die Tupel zu den einzelnen Relationen zürückgegeben werden sollen ('Start'), wieviele Einträge zurückgegeben werden sollen ('Number'), nach welcher Statistik ('Frequency','MiLogFreq','MI3','logDice','AScore','logLike') sortiert werden soll ('OrderBy'), die minimal erlaubte Frequenz ('MinFreq'), der minimal erlaubte Statistikwert ('MinStat'), evtl. Angabe eines Subcorpus in dem gesucht werden soll ('Subcorpus') und bezüglich welcher Relationen abgefragt werden soll ('Relations')
@@ -454,32 +441,38 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
         Wenn der Wert von 'ConcordNo' der 0 entspricht gibt es aus rechtlichen Gründen keine Texttreffer. Dann ist 'ConcordNoAccessible' auch 0.
         """
-        listSortId = self.gen_rel_ids_by_rel_and_pos(mapParam["Relations"], self.CWpMySQL.mapIdToPOS[mapParam["PosId"]])
+        lemma_id = params["LemmaId"]
+        lemma2_id = params.get("Lemma2Id", -1)
+        pos_id = params["PosId"]
+        pos2_id = params.get("Pos2Id", -1)
+        relations = params.get("Relations", [])
+        use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        min_freq = params.get("MinFreq", -100000000)
+        min_stat = params.get("MinStat", -100000000)
+        subcorpus = params.get("Subcorpus", "")
 
-        listResult = []
-        for i in listSortId:
+        ordered_relation_ids = self.get_ordered_relation_ids(relations, self.CWpMySQL.mapIdToPOS[pos_id])
 
-            # ermitteln der Kookkurrenzen
-            listTuples = self.__get_relation_tuples_mwe_check(mapParam, i)
-
+        results = []
+        for rel_id in ordered_relation_ids:
+            cooccs = self.__get_relation_tuples_mwe_check(lemma_id, lemma2_id, pos_id, pos2_id, start, number,
+                                                          order_by, min_freq, min_stat, subcorpus, rel_id)
             # IDs in den Kookkurenzlisten auf Strings abbilden
-            listTuples = self.__relation_tuples_2_strings(listTuples, mapParam)
-
+            cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, use_extended_surface_form)
             # Meta-Informationen
-            strRel = self.CWpMySQL.mapIdToRel[i]
-            strDesc = self.CWpSpec.strRelDesc
-            if strRel in self.CWpSpec.mapRelDesc:
-                strDesc = self.CWpSpec.mapRelDesc[strRel]
-
+            relation = self.CWpMySQL.mapIdToRel[rel_id]
+            description = self.CWpSpec.mapRelDesc.get(relation, self.CWpSpec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
-            strRelId = str(mapParam["LemmaId"]) + '#' + str(mapParam["PosId"]) + '#' + str(i)
+            hit_id = "{}#{}#{}".format(lemma_id, pos_id, rel_id)
 
-            # zum Ergebnis hinzufügen
-            listResult.append({'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId})
+            results.append({'Relation': relation, 'Description': description, 'Tuples': cooccs, 'RelId': hit_id})
 
-        return listResult
+        return results
 
-    def get_cooccurrences(self, mapParam):
+    def get_cooccurrences(self, params):
         """
         Die Methode ermöglicht es, anhand einer Relations-ID Kookkurrenzen für eine bestimmte Relation abzufragen
         (für normale Relationen und MWE-Relationen).
@@ -503,111 +496,91 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
            'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,
            'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
         """
-
-        # Parameter
-        strRelId = mapParam["RelId"]
+        hit_id = params["RelId"]
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        min_freq = params.get("MinFreq", -100000000)
+        min_stat = params.get("MinStat", -100000000)
+        subcorpus = params.get("Subcorpus", "")
 
         # Prüfen, ob es sich um eine ID einer MWE-Relation handelt
-        if strRelId.find('@') != -1:
-            ###zurückgeben von MWE Kookkurrenzen zu der entsprechenden ID
-            return self.get_mwe_cooccurrences(mapParam)
+        if hit_id.find('@') != -1:
+            return self.get_mwe_cooccurrences(params)
 
         # Informationen aus der komplexen ID extrahieren
-        (iLemId, iCatId, iRelId) = self.__extract_relation_info(strRelId)
-        mapParam['LemmaId'] = iLemId
-        mapParam['PosId'] = iCatId
+        lemma_id, pos_id, rel_id = [int(i) for i in hit_id.split("#")[:3]]
+        cooccs = self.__get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number,
+                                                      order_by, min_freq, min_stat, subcorpus, rel_id)
+        cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, False)
 
-        # Ermitteln der Kookkurrenzen
-        listTuples = self.__get_relation_tuples_mwe_check(mapParam, iRelId)
+        return cooccs
 
-        # IDs in den Kookkurenzlisten auf Strings abbilden
-        listTuples = self.__relation_tuples_2_strings(listTuples, mapParam)
-
-        # Meta-Informationen
-        strRel = self.CWpMySQL.mapIdToRel[iRelId]
-
-        return listTuples
-
-    @deprecated
-    def __get_relation_tuples_mwe_check(self, mapParam, listRelationId):
+    def __get_relation_tuples_mwe_check(self, lemma_id, lemma2_id, pos_id, pos2_id, start, number, order_by, min_freq,
+                                        min_stat, subcorpus, relation_id):
         """
         Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
         Wortprofil-MySQL-Datenbank
         """
-
-        # Defaults
-        iStart = 0
-        iNumber = 20
-        strOrderBy = "logDice"
-        iMinFreq = -100000000
-        iMinStat = -100000000
-        strSubcorpus = ""
-        iLemma2ID = -1
-        iPos2ID = -1
-
-        # Parameter
-        iLemmaID = mapParam["LemmaId"]
-        iPosID = mapParam["PosId"]
-        if "Lemma2Id" in mapParam:
-            iLemma2ID = mapParam["Lemma2Id"]
-        if "Pos2Id" in mapParam:
-            iPos2ID = mapParam["Pos2Id"]
-        if "Start" in mapParam:
-            iStart = mapParam["Start"]
-        if "Number" in mapParam:
-            iNumber = mapParam["Number"]
-        if "OrderBy" in mapParam:
-            strOrderBy = mapParam["OrderBy"]
-        if "MinFreq" in mapParam:
-            iMinFreq = mapParam["MinFreq"]
-        if "MinStat" in mapParam:
-            iMinStat = mapParam["MinStat"]
-        if "Subcorpus" in mapParam:
-            strSubcorpus = mapParam["Subcorpus"]
-
         # Minimalfrequenz behandeln (MWE-Kookkurenzen einbezogen)
-        strMinFreq = ""
-        strMinFreqMweCheck = ""
-        if iMinFreq > 0:
-            strMinFreq = " and (-relations.frequency)>=" + str(iMinFreq) + " "
-            strMinFreqMweCheck = " and (-ConditionalCheck_1.frequency)>=" + str(iMinFreq) + " "
+        str_min_freq = ""
+        str_min_freq_mwe_check = ""
+        if min_freq > 0:
+            str_min_freq = " and (-relations.frequency)>=" + str(min_freq) + " "
+            str_min_freq_mwe_check = " and (-ConditionalCheck_1.frequency)>=" + str(min_freq) + " "
 
         # Minimalstatistikwerte behandeln (MWE-Kookkurenzen einbezogen)
-        strMinStat = ""
-        strMinStatMweCheck = ""
-        if iMinStat > -100000000:
-            strMinStat = " and (-relations." + strOrderBy + ")>=" + str(iMinStat) + " "
-            strMinStatMweCheck = " and (-ConditionalCheck_1.logDice)>=" + str(iMinStat) + " "
-
-        # In-MySQL-Statement aus den Relation-IDs generieren
-        strRelIds = self.CWpMySQL.list_2_in([listRelationId])
+        str_min_stat = ""
+        str_min_stat_mwe_check = ""
+        if min_stat > -100000000:
+            str_min_stat = " and (-relations." + order_by + ")>=" + str(min_stat) + " "
+            str_min_stat_mwe_check = " and (-ConditionalCheck_1.logDice)>=" + str(min_stat) + " "
 
         # wenn es allgemein MWE-Relationen gibt
         if self.CWpMySQL.iMweDepth > 0:
-
-            strSelect = "SELECT  function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, if(ConditionalCheck_1.id1!=CAST('None' as UNSIGNED) " + strMinFreqMweCheck + strMinStatMweCheck + " ,1,0) as MweId "
-            strFrom = "FROM " + strSubcorpus + "relations USE INDEX(I_" + strOrderBy + ") LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) "
+            select_from_sql = """
+            SELECT  
+                function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
+                -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, 
+                if(ConditionalCheck_1.id1!=CAST('None' as UNSIGNED) {} {} ,1,0) as MweId 
+            FROM 
+                {}relations USE INDEX(I_{}) LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) 
+            """.format(
+                str_min_freq_mwe_check, str_min_stat_mwe_check, subcorpus, order_by
+            )
         else:
-            strSelect = "SELECT  function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, '0' "
-            strFrom = "FROM " + strSubcorpus + "relations USE INDEX(I_" + strOrderBy + ") "
+            select_from_sql = """
+            SELECT  
+                function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
+                -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, '0' 
+            FROM 
+                {}relations USE INDEX(I_{})
+            """.format(
+                subcorpus, order_by
+            )
 
         # evtl. auch das zweite Wort in der Kookkurrenz einschränken
-        if iPos2ID == -1 or iLemma2ID == -1:
-            strWhere = "WHERE lemma1=\"" + str(iLemmaID) + "\" and POS1=\"" + str(
-                iPosID) + "\" and function IN " + strRelIds + " " + strMinFreq + " " + strMinStat + " LIMIT " + str(
-                iStart) + ", " + str(iNumber) + ";"
+        if pos2_id == -1 or lemma2_id == -1:
+            where_sql = "WHERE lemma1='{}' and POS1='{}' and function IN ({}) {} {} LIMIT {}, {};".format(
+                lemma_id, pos_id, relation_id, str_min_freq, str_min_stat, start, number
+            )
         else:
-            strWhere = "WHERE lemma1=\"" + str(iLemmaID) + "\" and POS1=\"" + str(iPosID) + "\" and lemma2=\"" + str(
-                iLemma2ID) + "\" and POS2=\"" + str(
-                iPos2ID) + "\" and function IN " + strRelIds + " " + strMinFreq + " " + strMinStat + " ORDER BY frequency;"
+            where_sql = """WHERE lemma1='{}' and POS1='{}' and 
+                                lemma2='{}' and POS2='{}' and 
+                                function IN ({}) {} {} ORDER BY frequency;""".format(
+                lemma_id, pos_id, lemma2_id, pos2_id, relation_id, str_min_freq, str_min_stat
+            )
 
         # MySQL abfragen
         self.CWpMySQL.connect()
-        self.CWpMySQL.execute(strSelect + strFrom + strWhere)
-        listResult = self.CWpMySQL.fetchall()
+        self.CWpMySQL.execute(select_from_sql + where_sql)
+        db_results = self.CWpMySQL.fetchall()
         self.CWpMySQL.disconnect()
 
-        return listResult
+        Coocc = namedtuple("Coocc", ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "POS",
+                                     "Frequency", "FreqBelege", "Score_MiLogFreq", "Score_logDice", "Score_MI3", "Info",
+                                     "ConditionalCheck"])
+        return map(Coocc._make, db_results)
 
     @deprecated
     def __mwe_id_prefix(self, listRelData, listCooccRef):
@@ -625,100 +598,61 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return strMweId
 
-    @deprecated
-    def __relation_tuples_2_strings(self, listCooccTupel, mapParam):
+    def __relation_tuples_2_strings(self, lemma_id, pos_id, coocc_tuples, use_extended_surface_form):
         """
         Methode, um IDs in den Kookkurenzlisten auf Strings abzubilden
         """
-        strOrder = "logDice"
-        if "OrderBy" in mapParam:
-            strOrder = mapParam["OrderBy"]
-        bExtendedSurfaceForm = False
-        if "ExtendedSurfaceForm" in mapParam:
-            bExtendedSurfaceForm = bool(mapParam["ExtendedSurfaceForm"])
+        results = []
+        for coocc in coocc_tuples:
+            result = {}
+            result['Relation'] = self.CWpMySQL.mapIdToRel[coocc.Rel]
+            result['POS'] = self.CWpMySQL.mapIdToPOS[coocc.POS]
+            lemma = self.CWpMySQL.mmapIdToLem.get(coocc.Lemma2)
+            prep = self.CWpMySQL.mmapIdToLem.get(coocc.Prep)
+            surface = self.CWpMySQL.mmapIdToSurf.get(coocc.Surface2)
 
-        # Positionen in den Kookkurrenztupeln
-        # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score_MiLogFrweq(11)score_logDice,(12)score_MI3,(13)info
-        xRel = 0
-        xPrep = 1
-        xLemma1 = 2
-        xLemma2 = 3
-        xSurfacePrep = 4
-        xSurface1 = 5
-        xSurface2 = 6
-        xPOS = 7
-        xFrequency = 8
-        xFreqBelege = 9
-        xScore_MiLogFreq = 10
-        xScore_logDice = 11
-        xScore_MI3 = 12
-        xInfo = 13
-        xConditionalCheck = 14
-
-        # durchgehen der Kookkurrenztupel
-        listMapRes = []
-        for i in listCooccTupel:
-            localMap = {}
-            mapScore = {}
-
-            # Ids auf Strings mappen
-            localMap['Relation'] = self.CWpMySQL.mapIdToRel[i[xRel]]
-            localMap['POS'] = self.CWpMySQL.mapIdToPOS[i[xPOS]]
-            strLemma = self.CWpMySQL.mmapIdToLem.get(i[xLemma2])
-            strPrep = self.CWpMySQL.mmapIdToLem.get(i[xPrep])
-            strSurface = self.CWpMySQL.mmapIdToSurf.get(i[xSurface2])
-            strPrepSurface = strPrep
-
-            ###Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
-                                                     self.CWpMySQL.mapRelIdToType[i[xRel]],
-                                                     strPrepSurface,
-                                                     bExtendedSurfaceForm)
-
+            # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
+            surface = self.CWpStr.surface_mapping(surface, result['Relation'],
+                                                  self.CWpMySQL.mapRelIdToType[coocc.Rel],
+                                                  prep,
+                                                  use_extended_surface_form)
             # evt. Lemma Reparieren
-            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
-            if strLemmaRepair != None:
-                strLemma = strLemmaRepair
-
+            lemma = self.CWpSpec.mapLemmaRepair.get((result['POS'], lemma), lemma)
             # Lemma+Präposition formatieren
-            if self.CWpMySQL.mapRelIdToType[i[xRel]] == 1 and strPrep != "-" and strPrep != "":
-                strLemma = strLemma + ' ' + strPrep
-            elif self.CWpMySQL.mapRelIdToType[i[xRel]] != 1 and strPrep != "-" and strPrep != "":
-                strLemma = strPrep + ' ' + strLemma
+            if prep not in ["-", ""]:
+                if self.CWpMySQL.mapRelIdToType[coocc.Rel] == 1:
+                    lemma = lemma + ' ' + prep
+                else:
+                    lemma = prep + ' ' + lemma
 
             # Informationen in einer Map bündeln
-            localMap['Lemma'] = strLemma
-            localMap['Form'] = strSurface
-            mapScore['Frequency'] = i[xFrequency]
-            mapScore['MiLogFreq'] = i[xScore_MiLogFreq]
-            mapScore['logDice'] = i[xScore_logDice]
-            mapScore['MI3'] = i[xScore_MI3]
-            localMap['Score'] = mapScore
-            localMap["ConcordId"] = str(mapParam["LemmaId"]) + "#" + str(mapParam["PosId"]) + "#" + str(
-                i[xLemma2]) + "#" + str(i[xPOS]) + "#" + str(i[xPrep]) + "#" + str(i[xRel]) + '#' + str(i[xInfo])
+            result['Lemma'] = lemma
+            result['Form'] = surface
+            result['Score'] = {
+                'Frequency': coocc.Frequency,
+                'MiLogFreq': coocc.Score_MiLogFreq,
+                'logDice': coocc.Score_logDice,
+                'MI3': coocc.Score_MI3,
+            }
+            result["ConcordId"] = "{}#{}#{}#{}#{}#{}#{}".format(
+                lemma_id, pos_id, coocc.Lemma2, coocc.POS, coocc.Prep, coocc.Rel, coocc.Info)
 
             # MWE-Zugänglichkeit
-            if len(i) > xConditionalCheck:
-                if int(i[xConditionalCheck]) == 0:
-                    localMap["HasMwe"] = 0
-                else:
-                    localMap["HasMwe"] = 1
+            if int(coocc.ConditionalCheck) == 0:
+                result["HasMwe"] = 0
             else:
-                localMap["HasMwe"] = 0
+                result["HasMwe"] = 1
 
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
-            iConcordNo = i[xFrequency]
-            iFreqBelege = i[xFreqBelege]
-            if self.CWpMySQL.mapRelIdToType[i[xRel]] == 2 and i[xLemma1] == i[xLemma2]:
-                iConcordNo = iConcordNo / 2
-                iFreqBelege = iFreqBelege / 2
-            localMap['ConcordNo'] = iConcordNo
-            localMap['ConcordNoAccessible'] = iFreqBelege
-
-            # Zur Ergebnisliste hinzufügen
-            listMapRes.append(localMap)
-
-        return listMapRes
+            concord_no = coocc.Frequency
+            support_no = coocc.FreqBelege
+            if self.CWpMySQL.mapRelIdToType[coocc.Rel] == 2 and coocc.Lemma1 == coocc.Lemma2:
+                concord_no = concord_no / 2
+                support_no = support_no / 2
+            result['ConcordNo'] = concord_no
+            result['ConcordNoAccessible'] = support_no
+            results.append(result)
+        return results
 
     @deprecated
     def __mwe_relation_tuples_2_strings(self, listData, listCooccRef, mapParam, strInfoId):
@@ -780,7 +714,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strSurface = self.CWpMySQL.mmapIdToSurf.get(i[xSurface2])
             strPrepSurface = strPrep
 
-            ###Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
+            # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
             strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
                                                      self.CWpMySQL.mapRelIdToType[i[xRel]], strPrepSurface,
                                                      bExtendedSurfaceForm)
@@ -850,7 +784,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
 
         """
-        listSortId = self.gen_rel_ids_by_rel_and_pos(mapParam["Relations"], self.CWpMySQL.mapIdToPOS[mapParam["PosId"]])
+        listSortId = self.get_ordered_relation_ids(mapParam["Relations"], self.CWpMySQL.mapIdToPOS[mapParam["PosId"]])
 
         listData = self.get_relation_tuples_diff(mapParam, listSortId)
 
@@ -952,15 +886,15 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if iCount == 1:
                 setId.add(int(listMweIdLocal[6]))
 
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])])
                 mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = listRelId
 
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
                 mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
             else:
                 setId.add(int(listMweIdLocal[6]))
 
-                listRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
                 mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
 
             iCount += 1
@@ -972,18 +906,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strInfoId += str(i)
 
         return (setId, mapLemCat, strInfoId)
-
-    @deprecated
-    def __extract_relation_info(self, strObj):
-        """
-        Extrahieren der Bestandteile einer Komplexen Relation-Id
-        """
-        listRelId = strObj.split('#')
-        iLemId = int(listRelId[0])
-        iCatId = int(listRelId[1])
-        iRelId = int(listRelId[2])
-
-        return (iLemId, iCatId, iRelId)
 
     @deprecated
     def __extract_mwe_relation_info(self, strObj):
@@ -1067,7 +989,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         strInfoPrefix = ""
         for j in mapRelDataRef:
 
-            listLocalRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelDataRef[j]:
 
@@ -1180,7 +1102,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # durchgehen der Relationen des Mapping
         for j in mapRelDataRef:
 
-            listLocalRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelDataRef[j]:
 
@@ -1563,7 +1485,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         for j in mapRelData:
 
             # Prüfen, ob zu der Wortkategorie die syntaktische Relation behandelt werden soll
-            listLocalRelId = self.gen_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelData[j]:
                     # IDs in den Kookkurrenz-Informationen auf Strings abbilden
@@ -2294,7 +2216,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 strPrep = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef1]][xPrep])
                 strPrepSurface = strPrep
 
-                ###Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
+                # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
                 strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
                                                          self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]],
                                                          strPrepSurface, bExtendedSurfaceForm)
@@ -2351,7 +2273,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     strPrep = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef2]][xPrep])
                     strPrepSurface = strPrep
 
-                    ###Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
+                    # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
                     strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
                                                              self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]],
                                                              strPrepSurface, bExtendedSurfaceForm)
@@ -2417,9 +2339,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         Rückgabe ist ein Dictionary mit: Relationsbeschreibung ('Description', z.B.: Mann ist Subjekt von laufen), Lemmaform von W1 ( 'Lemma1'), Lemmaform von W2 ( 'Lemma2'), POS-Tag von W1 ( 'POS1'), POS-Tag von W2 ( 'POS2'), Oberflächenform von W1 ( 'Form1'), Oberflächenform von W2 ( 'Form2') und einer Liste mit Konkordanz-Informationen ( 'Tuples') die dem Format der Rückgabe von 'get_concordances' entspricht:
         {'Relation':<string>,'Description':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>,'Tuples':[ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string>* ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]}
       """
-        mapRelation = self.get_relation_by_info_id(params)
-        mapRelation['Tuples'] = self.get_concordances(params)
-        return mapRelation
+        relation = self.get_relation_by_info_id(params)
+        relation['Tuples'] = self.get_concordances(params)
+        return relation
 
     def get_concordances(self, params):
         """
@@ -2584,20 +2506,20 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         strInfoId = mapParam["InfoId"]
         listInfoId = self.__extract_coocc_info(strInfoId)
 
-        ###--SELECT--------------------------------------------------
+        # --SELECT--------------------------------------------------
         strInfoSelect = ""
         for i in range(1, len(listInfoId) + 1):
             strInfoSelect += "infoDouble%i.tokenPosition1,infoDouble%i.tokenPosition2,infoDouble%i.prepPosition,\n" % (
                 i, i, i)
 
-        ###--WHERE--------------------------------------------------
+        # --WHERE--------------------------------------------------
         strInfoWhere = ""
         for i in range(1, len(listInfoId) + 1):
             if strInfoWhere != "":
                 strInfoWhere += " and "
             strInfoWhere += " infoDouble%i.id=\"%s\" " % (i, listInfoId[i - 1].iInfoId)
 
-        ###--JOIN--------------------------------------------------
+        # --JOIN--------------------------------------------------
         strInfoJoin = ""
         for i in range(2, len(listInfoId) + 1):
             strInfoJoin += """  INNER JOIN idToInfo as infoDouble""" + str(i) + """ ON (
@@ -2620,7 +2542,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             else:
                 strInfoJoin += ")\n"
 
-        ###--Position-Select--------------------------------------------------
+        # --Position-Select--------------------------------------------------
         strPositionSelect = ""
         for i in range(1, len(listInfoId) + 1):
             strPositionSelect += ", infoDouble.tokenPosition1_%i, infoDouble.tokenPosition2_%i, infoDouble.prepPosition_%i" % (
