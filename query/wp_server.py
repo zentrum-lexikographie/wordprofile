@@ -18,7 +18,8 @@ from moduls import deprecated
 from moduls.OrthVariations import OrthVariations
 from moduls.wpse_mysql import WpSeMySql
 from moduls.wpse_spec import WpSeSpec
-from moduls.wpse_string import WpSeString
+from moduls.wpse_string import format_sentence, format_sentence_center, format_sentence_center_mwe, \
+    surface_mapping, intersect
 from moduls.wpse_tree import WpSeTree
 
 
@@ -34,40 +35,26 @@ class CooccInfo:
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
-    mapCorpus = {}
-    mapIdToLem = {}
-    mapIdToSurf = {}
-
-    # Hilfsklasse für die Generiereung Orthographischer Variationen
-    COrthVariations = None
-    # Hilfsklasse für die MySQL-Seitigen Grundfunktionen
-    CWpMySQL = None
-    # Hilfsklasse für die Generierung eines Parsebaums (geordnete Liste aus Dependent-Kopf-Relationen) aus einer Lemmaliste
-    CWpTree = None
-    # Hilfsklasse für String-Hilfsfunktionen
-    CWpStr = None
-    # Hilfsklasse für das einlesen der Spezifikationsdatei
-    CWpSpec = None
-
     def __init__(self, CWpSpec):
-        self.CWpStr = WpSeString()
-        self.CWpStr.status("start init ...")
-
-        # Hilfsklassen initialisieren
+        print("|: start init ...")
+        # Generierung eines Parsebaums (geordnete Liste aus Dependent-Kopf-Relationen) aus einer Lemmaliste
         self.CWpTree = WpSeTree()
+        # Einlesen der Spezifikationsdatei
         self.CWpSpec = CWpSpec
+        # MySQL-Seitigen Grundfunktionen
         self.CWpMySQL = WpSeMySql(self.CWpSpec)
         if not self.CWpMySQL.check_connection():
-            self.CWpStr.error("MySQL-Verbindung fehlgeschlagen")
+            print("): MySQL-Verbindung fehlgeschlagen")
             sys.exit(-1)
         self.CWpMySQL.init_data()
+        # Generiereung Orthographischer Variationen
         self.COrthVariations = OrthVariations()
-        self.CWpStr.status("MWE-Depth = %i" % self.CWpMySQL.iMweDepth)
+        print("|: MWE-Depth = %i" % self.CWpMySQL.iMweDepth)
 
         if self.CWpMySQL.iMweDepth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
-            self.CWpStr.error("Missing MWE-Specification")
+            print("): Missing MWE-Specification")
 
-        self.CWpStr.status_complete("init complete")
+        print("|: init complete")
 
     def status(self):
         """
@@ -402,7 +389,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         for i in list1:
             for j in list2:
                 if i['PosId'] == j['PosId']:
-                    listRelations = self.CWpStr.intersect(i['Relations'], j['Relations'])
+                    listRelations = intersect(i['Relations'], j['Relations'])
                     listResult.append(
                         {'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'LemmaId1': i['LemmaId'], 'LemmaId2': j['LemmaId'],
                          'PosId': i['PosId'], 'POS': i['POS'], 'Frequency1': i['Frequency'],
@@ -612,10 +599,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             surface = self.CWpMySQL.mmapIdToSurf.get(coocc.Surface2)
 
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            surface = self.CWpStr.surface_mapping(surface, result['Relation'],
-                                                  self.CWpMySQL.mapRelIdToType[coocc.Rel],
-                                                  prep,
-                                                  use_extended_surface_form)
+            surface = surface_mapping(surface, self.CWpMySQL.mapRelIdToType[coocc.Rel],
+                                      prep,
+                                      use_extended_surface_form)
             # evt. Lemma Reparieren
             lemma = self.CWpSpec.mapLemmaRepair.get((result['POS'], lemma), lemma)
             # Lemma+Präposition formatieren
@@ -715,9 +701,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strPrepSurface = strPrep
 
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
-                                                     self.CWpMySQL.mapRelIdToType[i[xRel]], strPrepSurface,
-                                                     bExtendedSurfaceForm)
+            strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[i[xRel]], strPrepSurface,
+                                         bExtendedSurfaceForm)
 
             # evt. Lemma Reparieren
             strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
@@ -2217,9 +2202,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 strPrepSurface = strPrep
 
                 # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
-                                                         self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]],
-                                                         strPrepSurface, bExtendedSurfaceForm)
+                strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]],
+                                             strPrepSurface, bExtendedSurfaceForm)
 
                 # evt. Lemma Reparieren
                 strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
@@ -2274,9 +2258,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     strPrepSurface = strPrep
 
                     # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                    strSurface = self.CWpStr.surface_mapping(strSurface, localMap['Relation'],
-                                                             self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]],
-                                                             strPrepSurface, bExtendedSurfaceForm)
+                    strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]],
+                                                 strPrepSurface, bExtendedSurfaceForm)
 
                     # Lemma+Präposition formatieren
                     if self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]] == 1 and strPrep != "-":
@@ -2426,9 +2409,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
                  avail,
                  page, file, score, sentence_left, sentence_right) = item
+                sentence_left = format_sentence(sentence_left)
+                sentence_right = format_sentence(sentence_right)
             else:
                 (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
                  avail, page, file, score) = item
+                sentence_left = sentence_right = ""
             if not sentence:
                 print("skip line: None in table!")
                 continue
@@ -2443,12 +2429,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 "Page": page,
                 "File": file,
             }
-
-            sentence_left = self.CWpStr.format_sentence(sentence_left) if use_context else ""
-            sentence_right = self.CWpStr.format_sentence(sentence_right) if use_context else ""
-            sentence_main = self.CWpStr.format_sentence_center(sentence, token_position_1, token_position_2,
-                                                               prep_position)
-
+            sentence_main = format_sentence_center(sentence, token_position_1, token_position_2,
+                                                   prep_position)
             results.append({
                 "Bibl": bib_entry,
                 "ConcordLine": sentence_main,
@@ -2623,15 +2605,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strScore = i[9]
 
             # Bibl-Strings mit Seitenzahlen anreichern
-            (strMyOrig, strMyScan) = self.CWpStr.gen_bibl_with_page(mapBib["Orig"], mapBib["Scan"], mapBib["Page"])
-
-            mapBib["Orig"] = strMyOrig
-            mapBib["Scan"] = strMyScan
+            mapBib["Orig"] = mapBib["Orig"].replace('#page#', mapBib["Page"])
+            mapBib["Scan"] = mapBib["Scan"].replace('#page#', mapBib["Page"])
 
             # Satzkontext Formatieren
             if bUseContext == 1:
-                strLeft = self.CWpStr.format_sentence(i[10])
-                strRight = self.CWpStr.format_sentence(i[11])
+                strLeft = format_sentence(i[10])
+                strRight = format_sentence(i[11])
             else:
                 strLeft = ""
                 strRight = ""
@@ -2652,7 +2632,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 iAbstand += 3
 
             # Satz Formatieren
-            strCenter = self.CWpStr.format_sentence_center_mwe(i[0], listPosition)
+            strCenter = format_sentence_center_mwe(i[0], listPosition)
 
             # dem Ergebnis hinzufügen
             listMapRes.append(

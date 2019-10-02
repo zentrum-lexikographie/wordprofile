@@ -174,7 +174,7 @@ class WpSeMySql:
                     port=self.iPort,
                     db=self.strDatabase)
             self.cursor = self.conn.cursor()
-            self.execute("SET NAMES 'utf8';")
+            self.execute("SET NAMES 'latin1';")
             return True
         except:
             return False
