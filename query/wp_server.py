@@ -8,7 +8,6 @@
 
 import logging
 import math
-import sys
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
@@ -21,6 +20,29 @@ from moduls.wpse_spec import WpSeSpec
 from moduls.wpse_string import format_sentence, format_sentence_center, format_sentence_center_mwe, \
     surface_mapping, intersect
 from moduls.wpse_tree import WpSeTree
+
+parser = ArgumentParser()
+parser.add_argument('-s', dest='spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+parser.add_argument('-p', dest='port', type=str, required=True, help="Angabe des Ports")
+parser.add_argument('--log', dest='logfile', type=str,
+                    default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
+                    help="Angabe der log-Datei (Default: log/wp_{date}.log)")
+args = parser.parse_args()
+
+logger = logging.getLogger('wordprofile')
+logger.setLevel(logging.DEBUG)
+
+ch = logging.StreamHandler()
+fh = logging.FileHandler(args.logfile)
+ch.setLevel(logging.DEBUG)
+fh.setLevel(logging.DEBUG)
+# create formatter and add it to the handlers
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+fh.setFormatter(formatter)
+# add the handlers to the logger
+logger.addHandler(ch)
+logger.addHandler(fh)
 
 
 class CooccInfo:
@@ -35,33 +57,27 @@ class CooccInfo:
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
-    def __init__(self, CWpSpec):
-        print("|: start init ...")
+    def __init__(self, wp_spec_file):
+        logger.info("start init ...")
         # Generierung eines Parsebaums (geordnete Liste aus Dependent-Kopf-Relationen) aus einer Lemmaliste
         self.CWpTree = WpSeTree()
         # Einlesen der Spezifikationsdatei
-        self.CWpSpec = CWpSpec
+        self.CWpSpec = WpSeSpec(wp_spec_file)
         # MySQL-Seitigen Grundfunktionen
         self.CWpMySQL = WpSeMySql(self.CWpSpec)
-        if not self.CWpMySQL.check_connection():
-            print("): MySQL-Verbindung fehlgeschlagen")
-            sys.exit(-1)
         self.CWpMySQL.init_data()
-        print("|: MWE-Depth = %i" % self.CWpMySQL.iMweDepth)
+        logger.info("MWE-Depth = %i" % self.CWpMySQL.mwe_depth)
 
-        if self.CWpMySQL.iMweDepth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
-            print("): Missing MWE-Specification")
+        if self.CWpMySQL.mwe_depth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
+            logger.warning("Missing MWE-Specification")
 
-        print("|: init complete")
+        logger.info("init complete")
 
     def status(self):
         """
         Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert.
         Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
         """
-        if not self.CWpMySQL.connect():
-            return "Can't connect to MySQL database (%s, %s)" % (self.CWpMySQL.strHost, self.CWpMySQL.strDatabase)
-
         params = {
             "Word": "Mann",
             "Subcorpus": "",
@@ -106,13 +122,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             self.CWpMySQL.mapRelInfo[i]['Description'] = description
 
         return {
-            "used_corpora": self.CWpMySQL.vCorpusName,
+            "used_corpora": self.CWpMySQL.corpus_names,
             "lemma_size": self.CWpMySQL.mapTypeToValue.get('lemmaSize', None),
             "relation_size": self.CWpMySQL.mapTypeToValue.get('relationSize', None),
             "sentence_size": self.CWpMySQL.mapTypeToValue.get('sentenceSize', None),
             "info_size": self.CWpMySQL.mapTypeToValue.get('infoSize', None),
             "threshold": self.CWpMySQL.mapThresholdInfo,
-            "mwe_depth": self.CWpMySQL.iMweDepth,
+            "mwe_depth": self.CWpMySQL.mwe_depth,
             "author": self.CWpMySQL.mapProjectInfo.get('Author', None),
             "creation_date": self.CWpMySQL.mapProjectInfo.get('CreationDate', None),
             "spec_file": self.CWpMySQL.mapProjectInfo.get('SpecFile', None),
@@ -281,10 +297,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             word.lower(),
             " and POS='{}'".format(self.CWpMySQL.mapPosToId[pos]) if pos not in ["*", ""] else "")
 
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute(query)
-        db_results = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
+        db_results = self.CWpMySQL.fetchall(query)
 
         return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
 
@@ -378,9 +391,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if strLemma in self.CWpSpec.mapVariation:
                 mapParam2['Word'] = self.CWpSpec.mapVariation[strLemma]
                 list2 = self.get_lemma_and_pos(mapParam2)
-
-        # print(list1)
-        # print(list2)
 
         # nur Lemmata mit der gleichen Wortart sind vergleichbar
         listResult = []
@@ -522,7 +532,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             str_min_stat_mwe_check = " and (-ConditionalCheck_1.logDice)>=" + str(min_stat) + " "
 
         # wenn es allgemein MWE-Relationen gibt
-        if self.CWpMySQL.iMweDepth > 0:
+        if self.CWpMySQL.mwe_depth > 0:
             select_from_sql = """
             SELECT  
                 function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
@@ -556,12 +566,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 lemma_id, pos_id, lemma2_id, pos2_id, relation_id, str_min_freq, str_min_stat
             )
 
-        # MySQL abfragen
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute(select_from_sql + where_sql)
-        db_results = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
-
+        db_results = self.CWpMySQL.fetchall(select_from_sql + where_sql)
         Coocc = namedtuple("Coocc", ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "POS",
                                      "Frequency", "FreqBelege", "Score_MiLogFreq", "Score_logDice", "Score_MI3", "Info",
                                      "ConditionalCheck"])
@@ -1295,8 +1300,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             listMweRec[0][1]["PosId"],
             strRelIds, strWherePrep)
 
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
         self.CWpMySQL.execute(strCreate1)
         self.CWpMySQL.execute(strIn1 + strSelect1 + strFrom1 + strWhere1)  #
 
@@ -1386,7 +1389,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 iCount2) + "=myMateCut.id" + str(iCount2)
             iCount2 += 1
 
-        if self.CWpMySQL.iMweDepth > iCount:
+        if self.CWpMySQL.mwe_depth > iCount:
 
             strMinFreqCheck = ""
             if iMinFreq > 0:
@@ -1420,10 +1423,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         )
                         """
 
-        self.CWpMySQL.execute(strSelect3 + strFrom3)
-
-        listResult = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
+        listResult = self.CWpMySQL.fetchall(strSelect3 + strFrom3)
 
         return listResult
 
@@ -1632,7 +1632,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         strLimit1 = " LIMIT " + str(iStart) + "," + str(iNumber) + ";"
 
         # Ermitteln der Kookkurrrenzen
-        if self.CWpMySQL.iMweDepth > iMweStelligkeit:
+        if self.CWpMySQL.mwe_depth > iMweStelligkeit:
 
             # Schwellwerte für den MWE-Check
             strMinFreqCheck = ""
@@ -1667,9 +1667,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         )
                         """
 
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
-
         self.CWpMySQL.execute(strCreate1)
         # ausfüren der MySQL-Abfrage für die verschiedenen Lemmaformen und Wortarten der Vorhergehenden komplexen MWE-ID (An bestehende Lemma wird angehängt)
         for i in mapLemCat:
@@ -1679,12 +1676,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     "$FUNCTION$", str(j))
                 self.CWpMySQL.execute(strIn1 + strSelect1 + strFrom1 + strWhereDummy + strLimit1)
 
-        self.CWpMySQL.execute(strSelect3 + strFrom3)
-
-        listResult = self.CWpMySQL.fetchall()
-
-        self.CWpMySQL.disconnect()
-
+        listResult = self.CWpMySQL.fetchall(strSelect3 + strFrom3)
         return listResult
 
     @deprecated
@@ -1805,7 +1797,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             iStart) + " and x.row_number <= " + str(iNumber + iStart) + ";"
 
         # Ermitteln der Kookkurrrenzen
-        if self.CWpMySQL.iMweDepth > iMweStelligkeit:
+        if self.CWpMySQL.mwe_depth > iMweStelligkeit:
 
             # Schwellwerte für den MWE-Check
             strMinFreqCheck = ""
@@ -1846,18 +1838,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             strWhere3 = " WHERE lemma2=\"" + str(iLemma2ID) + "\"  and POS2=\"" + str(iPos2ID) + "\" "
 
         # MySQL Abfrage
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
         self.CWpMySQL.execute(strCreate1)
         self.CWpMySQL.execute(strIn1 + strSelect1 + strFrom1 + strWhere1 + strOrder1)
         self.CWpMySQL.execute(strVar2)
         self.CWpMySQL.execute(strCreate2)
         self.CWpMySQL.execute(strIn2 + strSelect2 + strFrom2 + strWhere2)
-        self.CWpMySQL.execute(strSelect3 + strFrom3 + strWhere3)
-        listResult = self.CWpMySQL.fetchall()
-
-        self.CWpMySQL.disconnect()
-
+        listResult = self.CWpMySQL.fetchall(strSelect3 + strFrom3 + strWhere3)
         return listResult
 
     @deprecated
@@ -1907,12 +1893,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # strOrder = "ORDER BY "+strOrderBy+";"
 
         # MySQL-Abfrage
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
-        self.CWpMySQL.execute(strSelect)  # + strOrder
-        listResult = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
-
+        listResult = self.CWpMySQL.fetchall(strSelect)  # + strOrder
         return listResult
 
     @deprecated
@@ -2396,10 +2377,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             LIMIT {},{}
             """.format(info_id, subcorpus_cond, internal_user_cond, start_index, result_number)
 
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute(query)
-        db_results = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
+        db_results = self.CWpMySQL.fetchall(query)
 
         results = []
         for item in db_results:
@@ -2414,7 +2392,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                  avail, page, file, score) = item
                 sentence_left = sentence_right = ""
             if not sentence:
-                print("skip line: None in table!")
+                logger.info("skip line: None in table!")
                 continue
 
             bib_entry = {
@@ -2576,19 +2554,15 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         LEFT JOIN idToTei ON (infoDouble.corpus=idToTei.corpus and infoDouble.File=idToTei.file) """
 
         # MySQL-Abfrage
-        self.CWpMySQL.connect()
-        self.CWpMySQL.execute("SET NAMES 'utf8';")
         self.CWpMySQL.execute(strCreate)
         self.CWpMySQL.execute(strIn1 + strSelect1 + strFrom1)
-        self.CWpMySQL.execute(strSelect2 + strFrom2)
-        listRes = self.CWpMySQL.fetchall()
-        self.CWpMySQL.disconnect()
+        listRes = self.CWpMySQL.fetchall(strSelect2 + strFrom2)
 
         # Ausgabe formatieren
         listMapRes = []
         for i in listRes:
             if i[0] == None:
-                print("): skip line: None in table!")
+                logger.warning("skip line: None in table!")
                 continue
 
             mapBib = {}
@@ -2652,7 +2626,7 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
             # get arguments
             data = self.rfile.read(int(self.headers["content-length"]))
             # Log client request
-            logger.info('Client request: \n%s\n' % data)
+            logger.info('Client request: \n  %s\n' % data)
 
             response = self.server._marshaled_dispatch(
                 data, getattr(self, '_dispatch', None)
@@ -2675,32 +2649,13 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
 
 def main():
-    global logger
-    parser = ArgumentParser()
-    parser.add_argument('-s', dest='spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
-    parser.add_argument('-p', dest='port', type=str, required=True, help="Angabe des Ports")
-    parser.add_argument('--log', dest='logfile', type=str,
-                        default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
-                        help="Angabe der log-Datei (Default: log/wp_{date}.log)")
-    args = parser.parse_args()
-
-    # Schreiben der Logging-Informationen
-    logger = logging.getLogger('wortprofilserver')
-    hdlr = logging.FileHandler(args.logfile)
-    formatter = logging.Formatter("%(asctime)s  %(levelname)s  %(message)s")
-    hdlr.setFormatter(formatter)
-    logger.addHandler(hdlr)
-    logger.setLevel(logging.INFO)
-
-    CWpSpec = WpSeSpec()
-    CWpSpec.read_specification(args.spec)
     # Create server
     server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(args.port)),
                                               requestHandler=RequestHandler, logRequests=False, allow_none=True)
     # register function information
     server.register_introspection_functions()
     # register wortprofil
-    server.register_instance(WortprofilQuery(CWpSpec))
+    server.register_instance(WortprofilQuery(args.spec))
     # Run the server's main loop
     server.serve_forever()
 
