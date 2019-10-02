@@ -15,7 +15,7 @@ from argparse import ArgumentParser
 from collections import defaultdict, namedtuple
 
 from moduls import deprecated
-from moduls.OrthVariations import OrthVariations
+from moduls.OrthVariations import generate_orth_variations
 from moduls.wpse_mysql import WpSeMySql
 from moduls.wpse_spec import WpSeSpec
 from moduls.wpse_string import format_sentence, format_sentence_center, format_sentence_center_mwe, \
@@ -47,8 +47,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             print("): MySQL-Verbindung fehlgeschlagen")
             sys.exit(-1)
         self.CWpMySQL.init_data()
-        # Generiereung Orthographischer Variationen
-        self.COrthVariations = OrthVariations()
         print("|: MWE-Depth = %i" % self.CWpMySQL.iMweDepth)
 
         if self.CWpMySQL.iMweDepth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
@@ -262,7 +260,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         # evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
         if not results and use_external_variations:
-            for word in self.COrthVariations.gen(word):
+            for word in generate_orth_variations(word):
                 results = self.__get_lemma_and_pos_base(word, pos, is_case_sensitive)
                 if results:
                     break
