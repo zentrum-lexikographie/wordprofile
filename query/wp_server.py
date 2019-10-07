@@ -11,12 +11,13 @@ import math
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
+from functools import cmp_to_key
 
 from moduls import deprecated
 from moduls.OrthVariations import generate_orth_variations
 from moduls.wpse_mysql import WpSeMySql
 from moduls.wpse_spec import WpSeSpec
-from moduls.wpse_string import surface_mapping, intersect
+from moduls.wpse_string import surface_mapping
 from moduls.wpse_tree import WpSeTree
 
 parser = ArgumentParser()
@@ -58,17 +59,15 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     def __init__(self, wp_spec_file):
         logger.info("start init ...")
         # Generierung eines Parsebaums (geordnete Liste aus Dependent-Kopf-Relationen) aus einer Lemmaliste
-        self.CWpTree = WpSeTree()
+        self.wp_tree = WpSeTree()
         # Einlesen der Spezifikationsdatei
-        self.CWpSpec = WpSeSpec(wp_spec_file)
+        self.wp_spec = WpSeSpec(wp_spec_file)
         # MySQL-Seitigen Grundfunktionen
-        self.CWpMySQL = WpSeMySql(self.CWpSpec)
-        self.CWpMySQL.init_data()
-        logger.info("MWE-Depth = %i" % self.CWpMySQL.mwe_depth)
-
-        if self.CWpMySQL.mwe_depth > 0 and len(self.CWpSpec.mapMweRelOrder) == 0:
+        self.wp_db = WpSeMySql(self.wp_spec)
+        self.wp_db.init_data()
+        logger.info("MWE-Depth = %i" % self.wp_db.mwe_depth)
+        if self.wp_db.mwe_depth > 0 and len(self.wp_spec.mapMweRelOrder) == 0:
             logger.warning("Missing MWE-Specification")
-
         logger.info("init complete")
 
     def status(self):
@@ -112,27 +111,27 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return "OK"
 
     def get_info(self):
-        for i in self.CWpMySQL.mapRelInfo:
-            if self.CWpMySQL.mapRelInfo[i]['Name'] in self.CWpSpec.mapRelDesc:
-                description = self.CWpSpec.mapRelDesc[self.CWpMySQL.mapRelInfo[i]['Name']]
+        for i in self.wp_db.mapRelInfo:
+            if self.wp_db.mapRelInfo[i]['Name'] in self.wp_spec.mapRelDesc:
+                description = self.wp_spec.mapRelDesc[self.wp_db.mapRelInfo[i]['Name']]
             else:
-                description = self.CWpSpec.strRelDesc
-            self.CWpMySQL.mapRelInfo[i]['Description'] = description
+                description = self.wp_spec.strRelDesc
+            self.wp_db.mapRelInfo[i]['Description'] = description
 
         return {
-            "used_corpora": self.CWpMySQL.corpus_names,
-            "lemma_size": self.CWpMySQL.mapTypeToValue.get('lemmaSize', None),
-            "relation_size": self.CWpMySQL.mapTypeToValue.get('relationSize', None),
-            "sentence_size": self.CWpMySQL.mapTypeToValue.get('sentenceSize', None),
-            "info_size": self.CWpMySQL.mapTypeToValue.get('infoSize', None),
-            "threshold": self.CWpMySQL.mapThresholdInfo,
-            "mwe_depth": self.CWpMySQL.mwe_depth,
-            "author": self.CWpMySQL.mapProjectInfo.get('Author', None),
-            "creation_date": self.CWpMySQL.mapProjectInfo.get('CreationDate', None),
-            "spec_file": self.CWpMySQL.mapProjectInfo.get('SpecFile', None),
-            "spec_file_version": self.CWpMySQL.mapProjectInfo.get('SpecFileVersion', None),
-            "lemma_cut": self.CWpMySQL.mapProjectInfo.get('LemmaCut', None),
-            "cooccurrence_info": self.CWpMySQL.mapRelInfo,
+            "used_corpora": self.wp_db.corpus_names,
+            "lemma_size": self.wp_db.mapTypeToValue.get('lemmaSize', None),
+            "relation_size": self.wp_db.mapTypeToValue.get('relationSize', None),
+            "sentence_size": self.wp_db.mapTypeToValue.get('sentenceSize', None),
+            "info_size": self.wp_db.mapTypeToValue.get('infoSize', None),
+            "threshold": self.wp_db.mapThresholdInfo,
+            "mwe_depth": self.wp_db.mwe_depth,
+            "author": self.wp_db.mapProjectInfo.get('Author', None),
+            "creation_date": self.wp_db.mapProjectInfo.get('CreationDate', None),
+            "spec_file": self.wp_db.mapProjectInfo.get('SpecFile', None),
+            "spec_file_version": self.wp_db.mapProjectInfo.get('SpecFileVersion', None),
+            "lemma_cut": self.wp_db.mapProjectInfo.get('LemmaCut', None),
+            "cooccurrence_info": self.wp_db.mapRelInfo,
         }
 
     @deprecated
@@ -143,8 +142,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         setRes = set()
         for i in listRel:
-            if i in self.CWpMySQL.mapRelToId:
-                setRes.add(self.CWpMySQL.mapRelToId[i])
+            if i in self.wp_db.mapRelToId:
+                setRes.add(self.wp_db.mapRelToId[i])
         return list(setRes)
 
     def get_ordered_relation_ids(self, relations, pos):
@@ -153,10 +152,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         relation_to_id = {}
         for r in relations:
-            if r in self.CWpMySQL.mapRelToId:
-                relation_to_id[r] = self.CWpMySQL.mapRelToId[r]
+            if r in self.wp_db.mapRelToId:
+                relation_to_id[r] = self.wp_db.mapRelToId[r]
 
-        relation_order = self.CWpSpec.mapRelOrder.get(pos, self.CWpSpec.listRelOrder)
+        relation_order = self.wp_spec.mapRelOrder.get(pos, self.wp_spec.listRelOrder)
         ordered_ids = [relation_to_id[i] for i in relation_order if i in relations]
         return ordered_ids
 
@@ -167,13 +166,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         anhand einer Wortkategorie
         """
         mapRelations = {}
-        for i in self.CWpMySQL.mapRelToId:
-            mapRelations[i] = self.CWpMySQL.mapRelToId[i]
+        for i in self.wp_db.mapRelToId:
+            mapRelations[i] = self.wp_db.mapRelToId[i]
 
-        if strPOS in self.CWpSpec.mapMweRelOrder:
-            listSort = self.CWpSpec.mapMweRelOrder[strPOS]
+        if strPOS in self.wp_spec.mapMweRelOrder:
+            listSort = self.wp_spec.mapMweRelOrder[strPOS]
         else:
-            listSort = self.CWpSpec.listMweRelOrder
+            listSort = self.wp_spec.listMweRelOrder
 
         listSortId = []
         for i in listSort:
@@ -265,17 +264,17 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         word = params.get("Word")
         pos = params.get("POS", "")
 
-        results = self.CWpMySQL.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+        results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
 
         # evtl. Variationen in der Schreibweise berücksichtigen
-        if not results and use_external_variations and word in self.CWpSpec.mapVariation:
-            word = self.CWpSpec.mapVariation[word]
-            results = self.CWpMySQL.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+        if not results and use_external_variations and word in self.wp_spec.mapVariation:
+            word = self.wp_spec.mapVariation[word]
+            results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
 
         # evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
         if not results and use_external_variations:
             for word in generate_orth_variations(word):
-                results = self.CWpMySQL.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+                results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
                 if results:
                     break
 
@@ -291,7 +290,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         *Rückgabe ist eine Liste aus: erster Lemmaform ('Lemma1'), zweiter Lemmaform ('Lemma2'), erster Lemma-ID ('LemmaId1'), zweiter Lemma-ID ('LemmaId2'), part-of-speech ('POS'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten für das erste Wort ('Frequency1') und für das zweite Wort ('Frequency2'), Anzahl Relationen ohne Doppelte für das erte Wort ('Count1') und für das zweite Wort ('Count2') und Liste aller möglichen Relationen für beide Wörter ('Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt:
         [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
         """
-
         # Parameter
         mapParam1 = {}
         mapParam2 = {}
@@ -311,16 +309,16 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         list1 = self.get_lemma_and_pos(mapParam1)
         if list1 == [] and bool(bUseExternalVariations):
             strLemma = mapParam1['Word']
-            if strLemma in self.CWpSpec.mapVariation:
-                mapParam1['Word'] = self.CWpSpec.mapVariation[strLemma]
+            if strLemma in self.wp_spec.mapVariation:
+                mapParam1['Word'] = self.wp_spec.mapVariation[strLemma]
                 list1 = self.get_lemma_and_pos(mapParam1)
 
         # Lemmainformationen zum zweiten Lemma ermitteln
         list2 = self.get_lemma_and_pos(mapParam2)
         if list2 == [] and bool(bUseExternalVariations):
             strLemma = mapParam2['Word']
-            if strLemma in self.CWpSpec.mapVariation:
-                mapParam2['Word'] = self.CWpSpec.mapVariation[strLemma]
+            if strLemma in self.wp_spec.mapVariation:
+                mapParam2['Word'] = self.wp_spec.mapVariation[strLemma]
                 list2 = self.get_lemma_and_pos(mapParam2)
 
         # nur Lemmata mit der gleichen Wortart sind vergleichbar
@@ -328,7 +326,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         for i in list1:
             for j in list2:
                 if i['PosId'] == j['PosId']:
-                    listRelations = intersect(i['Relations'], j['Relations'])
+                    listRelations = list(set(i['Relations']) | set(j['Relations']))
                     listResult.append(
                         {'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'LemmaId1': i['LemmaId'], 'LemmaId2': j['LemmaId'],
                          'PosId': i['PosId'], 'POS': i['POS'], 'Frequency1': i['Frequency'],
@@ -380,17 +378,17 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         min_stat = params.get("MinStat", -100000000)
         subcorpus = params.get("Subcorpus", "")
 
-        ordered_relation_ids = self.get_ordered_relation_ids(relations, self.CWpMySQL.mapIdToPOS[pos_id])
+        ordered_relation_ids = self.get_ordered_relation_ids(relations, self.wp_db.mapIdToPOS[pos_id])
 
         results = []
         for rel_id in ordered_relation_ids:
-            cooccs = self.CWpMySQL.get_relation_tuples_mwe_check(lemma_id, lemma2_id, pos_id, pos2_id, start, number,
-                                                                 order_by, min_freq, min_stat, subcorpus, rel_id)
+            cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, lemma2_id, pos_id, pos2_id, start, number,
+                                                              order_by, min_freq, min_stat, subcorpus, rel_id)
             # IDs in den Kookkurenzlisten auf Strings abbilden
             cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, use_extended_surface_form)
             # Meta-Informationen
-            relation = self.CWpMySQL.mapIdToRel[rel_id]
-            description = self.CWpSpec.mapRelDesc.get(relation, self.CWpSpec.strRelDesc)
+            relation = self.wp_db.mapIdToRel[rel_id]
+            description = self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
             hit_id = "{}#{}#{}".format(lemma_id, pos_id, rel_id)
 
@@ -436,8 +434,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         # Informationen aus der komplexen ID extrahieren
         lemma_id, pos_id, rel_id = [int(i) for i in hit_id.split("#")[:3]]
-        cooccs = self.CWpMySQL.get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number,
-                                                             order_by, min_freq, min_stat, subcorpus, rel_id)
+        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number,
+                                                          order_by, min_freq, min_stat, subcorpus, rel_id)
         cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, False)
 
         return cooccs
@@ -465,21 +463,21 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         results = []
         for coocc in coocc_tuples:
             result = {}
-            result['Relation'] = self.CWpMySQL.mapIdToRel[coocc.Rel]
-            result['POS'] = self.CWpMySQL.mapIdToPOS[coocc.POS]
-            lemma = self.CWpMySQL.mmapIdToLem.get(coocc.Lemma2)
-            prep = self.CWpMySQL.mmapIdToLem.get(coocc.Prep)
-            surface = self.CWpMySQL.mmapIdToSurf.get(coocc.Surface2)
+            result['Relation'] = self.wp_db.mapIdToRel[coocc.Rel]
+            result['POS'] = self.wp_db.mapIdToPOS[coocc.POS]
+            lemma = self.wp_db.mmapIdToLem.get(coocc.Lemma2)
+            prep = self.wp_db.mmapIdToLem.get(coocc.Prep)
+            surface = self.wp_db.mmapIdToSurf.get(coocc.Surface2)
 
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            surface = surface_mapping(surface, self.CWpMySQL.mapRelIdToType[coocc.Rel],
+            surface = surface_mapping(surface, self.wp_db.mapRelIdToType[coocc.Rel],
                                       prep,
                                       use_extended_surface_form)
             # evt. Lemma Reparieren
-            lemma = self.CWpSpec.mapLemmaRepair.get((result['POS'], lemma), lemma)
+            lemma = self.wp_spec.mapLemmaRepair.get((result['POS'], lemma), lemma)
             # Lemma+Präposition formatieren
             if prep not in ["-", ""]:
-                if self.CWpMySQL.mapRelIdToType[coocc.Rel] == 1:
+                if self.wp_db.mapRelIdToType[coocc.Rel] == 1:
                     lemma = lemma + ' ' + prep
                 else:
                     lemma = prep + ' ' + lemma
@@ -505,7 +503,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             concord_no = coocc.Frequency
             support_no = coocc.FreqBelege
-            if self.CWpMySQL.mapRelIdToType[coocc.Rel] == 2 and coocc.Lemma1 == coocc.Lemma2:
+            if self.wp_db.mapRelIdToType[coocc.Rel] == 2 and coocc.Lemma1 == coocc.Lemma2:
                 concord_no = concord_no / 2
                 support_no = support_no / 2
             result['ConcordNo'] = concord_no
@@ -566,26 +564,26 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             mapScore = {}
 
             # Ids auf Strings mappen
-            localMap['Relation'] = self.CWpMySQL.mapIdToRel[i[xRel]]
-            localMap['POS'] = self.CWpMySQL.mapIdToPOS[i[xPOS2]]
-            strLemma = self.CWpMySQL.mmapIdToLem.get(i[xLemma2])
-            strPrep = self.CWpMySQL.mmapIdToLem.get(i[xPrep])
-            strSurface = self.CWpMySQL.mmapIdToSurf.get(i[xSurface2])
+            localMap['Relation'] = self.wp_db.mapIdToRel[i[xRel]]
+            localMap['POS'] = self.wp_db.mapIdToPOS[i[xPOS2]]
+            strLemma = self.wp_db.mmapIdToLem.get(i[xLemma2])
+            strPrep = self.wp_db.mmapIdToLem.get(i[xPrep])
+            strSurface = self.wp_db.mmapIdToSurf.get(i[xSurface2])
             strPrepSurface = strPrep
 
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[i[xRel]], strPrepSurface,
+            strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[i[xRel]], strPrepSurface,
                                          bExtendedSurfaceForm)
 
             # evt. Lemma Reparieren
-            strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
+            strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
             if strLemmaRepair != None:
                 strLemma = strLemmaRepair.encode('utf8')
 
             # Lemma+Präposition formatieren
-            if self.CWpMySQL.mapRelIdToType[i[xRel]] == 1 and strPrep != "-" and strPrep != "":
+            if self.wp_db.mapRelIdToType[i[xRel]] == 1 and strPrep != "-" and strPrep != "":
                 strLemma = strLemma + ' ' + strPrep
-            elif self.CWpMySQL.mapRelIdToType[i[xRel]] != 1 and strPrep != "-" and strPrep != "":
+            elif self.wp_db.mapRelIdToType[i[xRel]] != 1 and strPrep != "-" and strPrep != "":
                 strLemma = strPrep + ' ' + strLemma
 
             # Informationen in einer Map bündeln
@@ -608,7 +606,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             iConcordNo = i[xFrequency]
             iFreqBelege = i[xFreqBelege]
-            if self.CWpMySQL.mapRelIdToType[i[xRel]] == 2 and i[xLemma1] == i[xLemma2]:
+            if self.wp_db.mapRelIdToType[i[xRel]] == 2 and i[xLemma1] == i[xLemma2]:
                 iConcordNo = iConcordNo / 2
                 iFreqBelege = iFreqBelege / 2
             localMap['ConcordNo'] = iConcordNo
@@ -620,48 +618,55 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return listMapRes
 
     @deprecated
-    def get_diff(self, mapParam):
+    def get_diff(self, params):
         """
         Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2')
         mit POS-ID ('POS') vergleichende Wortprofilrelationen abzufragen.
-
         *Eingabe ist ein Dictionary aus Parametern. Zu der Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2') und der POS-ID ('POS') sind wetere Parameter: ab dem wievielten Eintrag die DiffTupel zu den einzelnen Relationen zürückgegeben werden sollen ('Start'), wieviele Einträge zurückgegeben werden sollen ('Number'), nach welcher Statistik ('Frequency','MiLogFreq','MI3','logDice') sortiert werden soll ('OrderBy'), die minimal erlaubte Frequenz ('MinFreq'), der minimal erlaubte Statistikwert ('MinStat'), evtl. Angabe eines Subcorpus in dem gesucht werden soll ('Subcorpus') und bezüglich welchee Relationen abgefragt werden soll (bei keiner Angabe in allen) ('Relations'). Zudem kann die Vergleichsoperation angegeben werden ('Operation'). Möglich sind 'adiff' (Wortprofil-Unterschiede), 'rmax' (Wortprofil-Gemeinsamkeiten) und experimentell 'diff', 'sum', 'min', 'max',  'avg', 'havg' und 'havg'. Über die Option 'NBest' kann bestimmt werden, dass nur n viele Tupel für Wort 1 und n viele Tupel für Wort 2 berücksichtigt werden sollen.
-
         mapParam = {'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,'MinFreq':<int=-inf>,'MinStat':<float=-inf>,'Subcorpus':<string>,'Relations':<stringlist>,'Operation':<string>,'NBest':<int=inf>}
-
         Hiervon sind obligatorisch: 'LemmaId1', 'LemmaId2', 'PosId' und 'Relations'
-
         *Rückgabe ist eine Liste aus einzelnen Relationsinformationen (als Dictionary), mit kurzem Relationsnamen ('Relation'), einer kurzen Relationsbeschreibung ('Description') und den Diff-Kookkurrenztupeln ('Tuples'):
-
         [ {'Relation':<string>,'Description':<string>,'Tuples'<list>}, ... ]
-
         Die Diff-Kookkurrenztupel ('Tuples') zu einer syntaktischen Relation sind als Liste abgelegt. Ein DiffKookkurrenztupel? enthält folgende Information: syntaktische Relation ( 'Relation'), Lemmaform des Kookkurrenzpartners ( 'Lemma'), Oberflächenform des Kookkurrenzpartners ( 'Form'), part-of-speech des Kookkurenzpartners ( 'POS'), statistic Score ( 'Score'), Concordanz-ID fürs erste word ('ConcordId1') und fürs zweite Wort ('ConcordId2'), die Farbe/Position im Diff ('Position' mit 'left', 'center' und 'right'). Die Information 'Score' ist komplex und besteht aus einem Dictionary mit einem Eintrag für 'Frequenzy1' und 'Frequenzy2' und für 'Rank1' und 'Rank2' und für 'Assoziation1' und 'Assoziation2' jeweils für Wort1 und Wort2 und dem Vergleichscore 'AScomp'. Zudem wird die Gesamtanzahl der möglichen Belege zurückgegeben ('ConcordNo1', 'ConcordNo2') und die Anzahl der anzeigbaren belege ('ConcordNoAccessible2', 'ConcordNoAccessible2'). Die Listeneinträge sind als dictionary abgelegt:
-
         [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
-
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
-
         """
-        listSortId = self.get_ordered_relation_ids(mapParam["Relations"], self.CWpMySQL.mapIdToPOS[mapParam["PosId"]])
+        lemma1_id = params["LemmaId1"]
+        lemma2_id = params["LemmaId2"]
+        pos_id = params["PosId"]
+        cooccs = params["Relations"]
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        min_freq = params.get("MinFreq", -100000000)
+        min_stat = params.get("MinStat", -100000000)
+        subcorpus = params.get("Subcorpus", "")
 
-        listData = self.CWpMySQL.get_relation_tuples_diff(mapParam, listSortId)
+        operation = params.get("Operation", "adiff")
+        use_intersection = params.get("Intersection", False)
+        nbest = params.get("NBest", None)
+        use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
 
-        mapRelData = self.__gen_rel_cooccurrence_mapping(listData)
+        ordered_relation_ids = self.get_ordered_relation_ids(cooccs, self.wp_db.mapIdToPOS[pos_id])
+        diffs = self.wp_db.get_relation_tuples_diff(lemma1_id, lemma2_id, pos_id, ordered_relation_ids, order_by,
+                                                    min_freq, min_stat, subcorpus)
+        cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
 
-        listResult = []
-        for i in listSortId:
-            if i in mapRelData:
-                listTuples = self.__calculate_diff(i, listData, mapRelData[i], mapParam)
-                listTuples = self.__diff_relation_tuples_2_strings(listData, listTuples, mapParam)
+        relations = []
+        for i in ordered_relation_ids:
+            if i in cooccs:
+                results = self.__calculate_diff(lemma1_id, lemma2_id, diffs, cooccs[i], number, nbest,
+                                                use_intersection, operation)
+                results = self.__diff_relation_tuples_2_strings(diffs, results, use_extended_surface_form)
 
-                strRel = self.CWpMySQL.mapIdToRel[i]
-                strDesc = self.CWpSpec.strRelDesc
-                if strRel in self.CWpSpec.mapRelDesc:
-                    strDesc = self.CWpSpec.mapRelDesc[strRel]
+                relation_name = self.wp_db.mapIdToRel[i]
+                description = self.wp_spec.strRelDesc
+                if relation_name in self.wp_spec.mapRelDesc:
+                    description = self.wp_spec.mapRelDesc[relation_name]
 
-                listResult.append({'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples})
+                relations.append({'Relation': relation_name, 'Description': description, 'Tuples': results})
 
-        return listResult
+        return relations
 
     @deprecated
     def get_intersection(self, mapParam):
@@ -701,20 +706,20 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if iCount == 1:
 
                 mapInfo = {}
-                mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[0]))
-                mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])]
+                mapInfo['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[0]))
+                mapInfo['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[1])]
                 vInfo.append(mapInfo)
 
                 mapInfo2 = {}
-                mapInfo2['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo2['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
+                mapInfo2['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[2]))
+                mapInfo2['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[3])]
                 vInfo.append(mapInfo2)
 
             else:
 
                 mapInfo = {}
-                mapInfo['Lemma'] = self.CWpMySQL.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo['POS'] = self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])]
+                mapInfo['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[2]))
+                mapInfo['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[3])]
                 vInfo.append(mapInfo)
 
             iCount += 1
@@ -744,15 +749,15 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if iCount == 1:
                 setId.add(int(listMweIdLocal[6]))
 
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[1])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[1])])
                 mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = listRelId
 
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[3])])
                 mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
             else:
                 setId.add(int(listMweIdLocal[6]))
 
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[int(listMweIdLocal[3])])
+                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[3])])
                 mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
 
             iCount += 1
@@ -828,13 +833,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         mapParam["ConcordIdRemember"] = ""
 
         # eine Menge von binären Dependenzrelationen mit einer Sortierung, die die MWE-Wortprofilabfrage ermöglicht
-        listInfo = self.CWpTree.lemma_and_pos_list_to_tree(mapParam['Parts'], self.CWpMySQL.mapRelToId,
-                                                           self.CWpMySQL.mapRelIdToType)
+        listInfo = self.wp_tree.lemma_and_pos_list_to_tree(mapParam['Parts'], self.wp_db.mapRelToId,
+                                                           self.wp_db.mapRelIdToType)
         if len(listInfo) == 0:
             return {'data': [], 'parts': {}}
 
         # Abfragen der Kookkurrenzen
-        listData = self.CWpMySQL.get_mwe_relations_by_list_base(mapParam, listInfo)
+        listData = self.wp_db.get_mwe_relations_by_list_base(mapParam, listInfo)
 
         # Mapping von den Relationen auf die Kookkurenzen erstellen
         mapRelDataRef = self.__gen_rel_pos_cooccurrence_mapping(listData)
@@ -847,7 +852,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         strInfoPrefix = ""
         for j in mapRelDataRef:
 
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelDataRef[j]:
 
@@ -861,12 +866,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     else:
                         strRelId = "undef"
 
-                    strRel = self.CWpMySQL.mapIdToRel[i]
-                    strDesc = self.CWpSpec.strRelDesc
-                    if strRel in self.CWpSpec.mapRelDesc:
-                        strDesc = self.CWpSpec.mapRelDesc[strRel]
+                    strRel = self.wp_db.mapIdToRel[i]
+                    strDesc = self.wp_spec.strRelDesc
+                    if strRel in self.wp_spec.mapRelDesc:
+                        strDesc = self.wp_spec.mapRelDesc[strRel]
 
-                    strLem = self.CWpMySQL.mmapIdToLem.get(j[0])
+                    strLem = self.wp_db.mmapIdToLem.get(j[0])
 
                     if strLem in mapResultPerLemma:
                         mapResultPerLemma[strLem].append(
@@ -926,17 +931,17 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 return {'data': [], 'parts': {}}
             # id der Präposition ermitteln
             if 'Prep' in i:
-                idPRep = self.CWpMySQL.get_prep_id(i['Prep'])
+                idPRep = self.wp_db.get_prep_id(i['Prep'])
             else:
                 idPRep = -1
 
             if i['Relation'] == "*":
                 # unbestimmte Relation
-                vRel = self.CWpTree.rellist_to_idlist_directed(mapping1[0]['Relations'], self.CWpMySQL.mapRelToId,
-                                                               self.CWpMySQL.mapRelIdToType)
+                vRel = self.wp_tree.rellist_to_idlist_directed(mapping1[0]['Relations'], self.wp_db.mapRelToId,
+                                                               self.wp_db.mapRelIdToType)
             else:
                 # bestimmte Relation
-                vRel = [self.CWpMySQL.mapRelToId[i['Relation']]]
+                vRel = [self.wp_db.mapRelToId[i['Relation']]]
 
             if len(mapping1) > 0 and len(mapping2) > 0:
                 listInfo.append((mapping1[0], mapping2[0], vRel, idPRep))
@@ -947,7 +952,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             return None
 
         # Mwe-Kookkurrenzen ermitteln
-        listData = self.CWpMySQL.get_mwe_relations_by_list_base(mapParam, listInfo)
+        listData = self.wp_db.get_mwe_relations_by_list_base(mapParam, listInfo)
 
         # Mapping von den Relationen auf die Kookkurenzen erstellen
         mapRelDataRef = self.__gen_rel_pos_cooccurrence_mapping(listData)
@@ -960,7 +965,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # durchgehen der Relationen des Mapping
         for j in mapRelDataRef:
 
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelDataRef[j]:
 
@@ -974,12 +979,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     else:
                         strRelId = "undef"
 
-                    strRel = self.CWpMySQL.mapIdToRel[i]
-                    strDesc = self.CWpSpec.strRelDesc
-                    if strRel in self.CWpSpec.mapRelDesc:
-                        strDesc = self.CWpSpec.mapRelDesc[strRel]
+                    strRel = self.wp_db.mapIdToRel[i]
+                    strDesc = self.wp_spec.strRelDesc
+                    if strRel in self.wp_spec.mapRelDesc:
+                        strDesc = self.wp_spec.mapRelDesc[strRel]
 
-                    strLem = self.CWpMySQL.mmapIdToLem.get(j[0])
+                    strLem = self.wp_db.mmapIdToLem.get(j[0])
 
                     if strLem in mapResultPerLemma:
                         mapResultPerLemma[strLem].append(
@@ -1022,7 +1027,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             listRelations = self.gen_rel_ids_by_rel(mapParam['Relations'])
 
         # Ermitteln Kookkurrenzen für alle syntaktischen Relationen
-        listData = self.CWpMySQL.get_relation_tuples_mwe(mapParam, listRelations, setInfoId)
+        listData = self.wp_db.get_relation_tuples_mwe(mapParam, listRelations, setInfoId)
 
         # Erstellen einer Map, die den Relationen die Kookkurrenzen zuordnet
         mapRelData = self.__gen_rel_pos_cooccurrence_mapping(listData)
@@ -1034,7 +1039,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         for j in mapRelData:
 
             # Prüfen, ob zu der Wortkategorie die syntaktische Relation behandelt werden soll
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.CWpMySQL.mapIdToPOS[j[1]])
+            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
             for i in listLocalRelId:
                 if i in mapRelData[j]:
                     # IDs in den Kookkurrenz-Informationen auf Strings abbilden
@@ -1045,13 +1050,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         i)  # strInfoId
 
                     # Metainformationen
-                    strRel = self.CWpMySQL.mapIdToRel[i]
-                    strDesc = self.CWpSpec.strRelDesc
-                    if strRel in self.CWpSpec.mapRelDesc:
-                        strDesc = self.CWpSpec.mapRelDesc[strRel]
+                    strRel = self.wp_db.mapIdToRel[i]
+                    strDesc = self.wp_spec.strRelDesc
+                    if strRel in self.wp_spec.mapRelDesc:
+                        strDesc = self.wp_spec.mapRelDesc[strRel]
 
                     # Lemmaform ermitteln
-                    strLem = self.CWpMySQL.mmapIdToLem.get(j[0])
+                    strLem = self.wp_db.mmapIdToLem.get(j[0])
 
                     # zum Ergebnis hinzufügen
                     if strLem in mapResultPerLemma:
@@ -1078,7 +1083,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # ermitteln der Kookkurenzen
         mapParam['ConcordIdRemember'] = mapParam['RelId']
         mapParam['ConcordId'] = strMweId
-        listData = self.CWpMySQL.get_relation_tuples_mwe_single(mapParam, setInfoId, mapLemCat)
+        listData = self.wp_db.get_relation_tuples_mwe_single(mapParam, setInfoId, mapLemCat)
 
         # Mapping von den Relationen auf die Kookkurenzen erstellen
         mapRelData = self.__gen_rel_pos_cooccurrence_mapping(listData)
@@ -1097,7 +1102,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return listTuples
 
     @deprecated
-    def __calculate_diff(self, iRel, listData, listRelData, mapParam):
+    def __calculate_diff(self, lemma1_id, lemma2_id, listData, listRelData, number, nbest, use_intersection, operation):
         """
         Berechnung des Vergleiches zweier Wortprofile
         Über die Vergleichsfunktionen lassen sich zwei Wörter anhand ihrer Wortprofile vergleichen.
@@ -1121,32 +1126,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             rmax(K) = max(r₁(K),r₂(K))
             Danach werden diese Kookkurrenzpartner anhand der Maximalränge absteigend sortiert und nach dem Wert L abgeschnitten.
         """
-        iNumber = 10
-        if "Number" in mapParam:
-            iNumber = mapParam["Number"]
-
-        strOperation = "adiff"
-        if "Operation" in mapParam:
-            strOperation = mapParam["Operation"]
-
-        # Ob die Schnittbildung berechnet werden soll (bei rmax)
-        bIntersect = False
-        if "Intersection" in mapParam:
-            bIntersect = bool(mapParam["Intersection"])
-        else:
-            if strOperation == "rmax":
-                bIntersect = True
-            else:
-                bIntersect = False
-
-        # Frühzeitiges abschneiden der Kandidaten für die Berechnung
-        iNBest = None
-        if "NBest" in mapParam:
-            iNBest = mapParam["NBest"]
-
-        iLem1 = mapParam["LemmaId1"]
-        iLem2 = mapParam["LemmaId2"]
-
         # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score,(11)info
         xRel = 0
         xPrep = 1
@@ -1176,8 +1155,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         iCountRank2 = 1
         for k in listRelData:
             i = listData[k]
-            if i[xLemma1] == iLem2:
-                if iCountRank2 <= iNBest or iNBest == None:
+            if i[xLemma1] == lemma2_id:
+                if nbest == None or iCountRank2 <= nbest:
                     mapData[(i[xPrep], i[xLemma2])] = (k, i)
                     mapRank[k] = iCountRank2
                 iCountRank2 += 1
@@ -1185,8 +1164,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         iCountRank1 = 1
         for k in listRelData:
             i = listData[k]
-            if i[xLemma1] == iLem1:
-                if iCountRank1 <= iNBest or iNBest == None:
+            if i[xLemma1] == lemma1_id:
+                if nbest == None or iCountRank1 <= nbest:
                     if (i[xPrep], i[xLemma2]) in mapData:
                         (iPos, myTuple) = mapData[(i[xPrep], i[xLemma2])]
                         iRef1 = k
@@ -1196,9 +1175,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     mapRank[k] = iCountRank1
                 iCountRank1 += 1
 
-        if bIntersect:
+        if use_intersection:
             # wenn der Schnitt berechnet werden soll
-            listRes = []
+            results = []
             for i in mapCenter:
                 iRef = mapCenter[i]
                 if iRef != -1:
@@ -1207,11 +1186,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     iRank1 = mapRank[iRef1]
                     iRank2 = mapRank[iRef2]
 
-                    iScore = self.__diff_operation(strOperation, listData[iRef1][xScore], listData[iRef2][xScore],
+                    iScore = self.__diff_operation(operation, listData[iRef1][xScore], listData[iRef2][xScore],
                                                    iRank1, iRank2)
-                    listRes.append((iRef1, iRef2, iRank1, iRank2, iScore))
+                    results.append((iRef1, iRef2, iRank1, iRank2, iScore))
         else:
-            listRes = []
+            results = []
             for k in listRelData:
                 i = listData[k]
                 # für Lemma1 und Lemma2
@@ -1225,19 +1204,19 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         iRank1 = mapRank[iRef1]
                         iRank2 = mapRank[iRef2]
 
-                        iScore = self.__diff_operation(strOperation, i[xScore], listData[iRef2][xScore], iRank1, iRank2)
+                        iScore = self.__diff_operation(operation, i[xScore], listData[iRef2][xScore], iRank1, iRank2)
 
-                        listRes.append((iRef1, iRef2, iRank1, iRank2, iScore))
+                        results.append((iRef1, iRef2, iRank1, iRank2, iScore))
 
                 elif k in mapRank:
                     # für nur Lemma1
-                    if i[xLemma1] == iLem1:
+                    if i[xLemma1] == lemma1_id:
                         iRef1 = k
                         iRef2 = -1
                         iRank1 = mapRank[iRef1]
                         iRank2 = -1
 
-                        iScore = self.__diff_operation(strOperation, i[xScore], 0, iRank1, 0)
+                        iScore = self.__diff_operation(operation, i[xScore], 0, iRank1, 0)
 
                     # für nur Lemma2
                     else:
@@ -1246,9 +1225,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         iRank1 = -1
                         iRank2 = mapRank[iRef2]
 
-                        iScore = self.__diff_operation(strOperation, 0, listData[iRef2][xScore], 0, iRank2)
+                        iScore = self.__diff_operation(operation, 0, listData[iRef2][xScore], 0, iRank2)
 
-                    listRes.append((iRef1, iRef2, iRank1, iRank2, iScore))
+                    results.append((iRef1, iRef2, iRank1, iRank2, iScore))
 
         # Abschließendes Sortieren und Abschneiden
         lcmp = lambda idx: lambda i, j: (i[idx] > j[idx]) and -1 or (i[idx] < j[idx]) and 1 or 0
@@ -1258,24 +1237,24 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         abs_rcmp = lambda idx: lambda i, j: (math.fabs(i[idx]) < math.fabs(j[idx])) and -1 or (
                 math.fabs(i[idx]) > math.fabs(j[idx])) and 1 or 0
 
-        if strOperation == "rmax":
+        if operation == "rmax":
             my_cmp = rcmp
         else:
             my_cmp = lcmp
         # TODO cmp was removed in Python3. Seems weird anyway...
-        if strOperation == "adiff":
-            listRes.sort(cmp=abs_lcmp(yScore))
-            listRes = listRes[0:iNumber]
-            listRes.sort(cmp=lcmp(yScore))
-        elif strOperation == "ardiff":
-            listRes.sort(cmp=abs_lcmp(yScore))
-            listRes = listRes[0:iNumber]
-            listRes.sort(cmp=lcmp(yScore))
+        if operation == "adiff":
+            results.sort(key=cmp_to_key(abs_lcmp(yScore)))
+            results = results[0:number]
+            results.sort(key=cmp_to_key(lcmp(yScore)))
+        elif operation == "ardiff":
+            results.sort(key=cmp_to_key(abs_lcmp(yScore)))
+            results = results[0:number]
+            results.sort(key=cmp_to_key(lcmp(yScore)))
         else:
-            listRes.sort(cmp=my_cmp(yScore))
-            listRes = listRes[0:iNumber]
+            results.sort(key=cmp_to_key(my_cmp(yScore)))
+            results = results[0:number]
 
-        return listRes
+        return results
 
     @deprecated
     def __diff_operation(self, strOperation, Sa, Sb, Ra, Rb):
@@ -1321,14 +1300,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return iScore
 
     @deprecated
-    def __diff_relation_tuples_2_strings(self, listData, listRes, mapParam):
+    def __diff_relation_tuples_2_strings(self, listData, listRes, use_extended_surface_form):
         """
         Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
         """
-        bExtendedSurfaceForm = False
-        if "ExtendedSurfaceForm" in mapParam:
-            bExtendedSurfaceForm = bool(mapParam["ExtendedSurfaceForm"])
-
         # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score,(11)info
         xRel = 0
         xPrep = 1
@@ -1352,7 +1327,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         listMapRes = []
 
         for i in listRes:
-            localMap = {}
+            localMap = {
+                "POS": None
+            }
             mapScore = {}
             mapScore['AScomp'] = i[yScore]
             mapScore['Rank1'] = i[yRank1]
@@ -1366,39 +1343,39 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                 iConcordNo1 = listData[i[yRef1]][xFrequency]
                 iFreqBelege1 = listData[i[yRef1]][xFreqBelege]
-                if self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]] == 2 and listData[i[yRef1]][xLemma1] == \
+                if self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] == 2 and listData[i[yRef1]][xLemma1] == \
                         listData[i[yRef1]][xLemma2]:
                     iConcordNo1 = iConcordNo1 / 2
                     iFreqBelege1 = iFreqBelege1 / 2
                 localMap['ConcordNo1'] = iConcordNo1
                 localMap['ConcordNoAccessible1'] = iFreqBelege1
 
-                localMap['Relation'] = self.CWpMySQL.mapIdToRel[listData[i[yRef1]][xRel]]
+                localMap['Relation'] = self.wp_db.mapIdToRel[listData[i[yRef1]][xRel]]
 
                 # Ids auf Strings mappen
-                strLemma = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef1]][xLemma2])
-                strSurface = self.CWpMySQL.mmapIdToSurf.get(listData[i[yRef1]][xSurface2])
-                strPrep = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef1]][xPrep])
+                strLemma = self.wp_db.mmapIdToLem.get(listData[i[yRef1]][xLemma2])
+                strSurface = self.wp_db.mmapIdToSurf.get(listData[i[yRef1]][xSurface2])
+                strPrep = self.wp_db.mmapIdToLem.get(listData[i[yRef1]][xPrep])
                 strPrepSurface = strPrep
 
                 # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]],
-                                             strPrepSurface, bExtendedSurfaceForm)
+                strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]],
+                                             strPrepSurface, use_extended_surface_form)
 
                 # evt. Lemma Reparieren
-                strLemmaRepair = self.CWpSpec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
+                strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
                 if strLemmaRepair != None:
                     strLemma = strLemmaRepair.encode('utf8')
 
                 # Lemma+Präposition formatieren
-                if self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]] == 1 and strPrep != "-":
+                if self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] == 1 and strPrep != "-":
                     strLemma = strLemma + ' ' + strPrep
-                elif self.CWpMySQL.mapRelIdToType[listData[i[yRef1]][xRel]] != 1 and strPrep != "-":
+                elif self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] != 1 and strPrep != "-":
                     strLemma = strPrep + ' ' + strLemma
 
                 localMap['Lemma'] = strLemma
                 localMap['Form'] = strSurface
-                localMap['POS'] = self.CWpMySQL.mapIdToPOS[listData[i[yRef1]][xPOS]]
+                localMap['POS'] = self.wp_db.mapIdToPOS[listData[i[yRef1]][xPOS]]
 
                 if i[yRef2] == -1:
                     localMap['Position'] = 'left'
@@ -1420,7 +1397,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                 iConcordNo2 = listData[i[yRef2]][xFrequency]
                 iFreqBelege2 = listData[i[yRef2]][xFreqBelege]
-                if self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]] == 2 and listData[i[yRef2]][xLemma1] == \
+                if self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] == 2 and listData[i[yRef2]][xLemma1] == \
                         listData[i[yRef2]][xLemma2]:
                     iConcordNo2 = iConcordNo2 / 2
                     iFreqBelege2 = iFreqBelege2 / 2
@@ -1429,27 +1406,27 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                 if i[yRef1] == -1:
 
-                    localMap['Relation'] = self.CWpMySQL.mapIdToRel[listData[i[yRef2]][xRel]]
+                    localMap['Relation'] = self.wp_db.mapIdToRel[listData[i[yRef2]][xRel]]
 
                     # Ids auf Strings mappen
-                    strLemma = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef2]][xLemma2])
-                    strSurface = self.CWpMySQL.mmapIdToSurf.get(listData[i[yRef2]][xSurface2])
-                    strPrep = self.CWpMySQL.mmapIdToLem.get(listData[i[yRef2]][xPrep])
+                    strLemma = self.wp_db.mmapIdToLem.get(listData[i[yRef2]][xLemma2])
+                    strSurface = self.wp_db.mmapIdToSurf.get(listData[i[yRef2]][xSurface2])
+                    strPrep = self.wp_db.mmapIdToLem.get(listData[i[yRef2]][xPrep])
                     strPrepSurface = strPrep
 
                     # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                    strSurface = surface_mapping(strSurface, self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]],
-                                                 strPrepSurface, bExtendedSurfaceForm)
+                    strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]],
+                                                 strPrepSurface, use_extended_surface_form)
 
                     # Lemma+Präposition formatieren
-                    if self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]] == 1 and strPrep != "-":
+                    if self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] == 1 and strPrep != "-":
                         strLemma = strLemma + ' ' + strPrep
-                    elif self.CWpMySQL.mapRelIdToType[listData[i[yRef2]][xRel]] != 1 and strPrep != "-":
+                    elif self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] != 1 and strPrep != "-":
                         strLemma = strPrep + ' ' + strLemma
 
                     localMap['Lemma'] = strLemma
                     localMap['Form'] = strSurface
-                    localMap['POS'] = self.CWpMySQL.mapIdToPOS[listData[i[yRef2]][xPOS]]
+                    localMap['POS'] = self.wp_db.mapIdToPOS[listData[i[yRef2]][xPOS]]
                     localMap['Position'] = 'right'
             else:
                 mapScore['Frequency2'] = 0
@@ -1476,16 +1453,16 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         coocc_info = self.__extract_coocc_info(info_id)[-1]
 
         # Ids auf Strings mappen
-        lemma1 = self.CWpMySQL.mmapIdToLem.get(coocc_info.iLemma1Id)
-        pos1 = self.CWpMySQL.mapIdToPOS.get(coocc_info.iPos1Id)
-        lemma2 = self.CWpMySQL.mmapIdToLem.get(coocc_info.iLemma2Id)
-        pos2 = self.CWpMySQL.mapIdToPOS.get(coocc_info.iPos2Id)
-        relation = self.CWpMySQL.mapIdToRel.get(coocc_info.iRelId)
-        prep = self.CWpMySQL.mmapIdToLem.get(coocc_info.iPrepId)
+        lemma1 = self.wp_db.mmapIdToLem.get(coocc_info.iLemma1Id)
+        pos1 = self.wp_db.mapIdToPOS.get(coocc_info.iPos1Id)
+        lemma2 = self.wp_db.mmapIdToLem.get(coocc_info.iLemma2Id)
+        pos2 = self.wp_db.mapIdToPOS.get(coocc_info.iPos2Id)
+        relation = self.wp_db.mapIdToRel.get(coocc_info.iRelId)
+        prep = self.wp_db.mmapIdToLem.get(coocc_info.iPrepId)
 
         # Meta-Daten generieren
-        if relation in self.CWpSpec.mapRelDescDetail:
-            description = self.CWpSpec.mapRelDescDetail[relation]
+        if relation in self.wp_spec.mapRelDescDetail:
+            description = self.wp_spec.mapRelDescDetail[relation]
             description = description.replace('$1', lemma1)
             description = description.replace('$2', lemma2)
             description = description.replace('$3', prep)
@@ -1518,18 +1495,18 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       """
         info_id = params.get("InfoId")
         use_context = bool(params.get("UseContext", False))
-        subcorpus_id = self.CWpMySQL.mapCorpusToId.get(params["Subcorpus"], -1)
+        subcorpus_id = self.wp_db.mapCorpusToId.get(params["Subcorpus"], -1)
         is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
         coocc_infos = self.__extract_coocc_info(info_id)
 
         if len(coocc_infos) > 1:
-            return self.CWpMySQL.get_concordances_mwe_base(params)
+            return self.wp_db.get_concordances_mwe_base(params)
         else:
-            return self.CWpMySQL.get_concordances(coocc_infos[0].iInfoId, use_context, subcorpus_id,
-                                                  is_internal_user,
-                                                  start_index, result_number)
+            return self.wp_db.get_concordances(coocc_infos[0].iInfoId, use_context, subcorpus_id,
+                                               is_internal_user,
+                                               start_index, result_number)
 
 
 class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):

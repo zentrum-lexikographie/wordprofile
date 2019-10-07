@@ -2,13 +2,11 @@
 # -*- coding: utf-8 -*-
 
 """
-
   Das Client-Programm fragt eine Wortprofil-MySQL-Datenbank über einen XMLRPC-Server ab und vergleicht zwei Eingabelemmata. 
   Das Vergleichsergebnis wird in Tabellenform und farblich gekennzeichnet ausgegeben.
 
   Beispielaufruf:
   python wp_cmp_client.py -x http://localhost:8080 --l1 Mann --l2 Frau
-
 """
 
 import sys
@@ -66,7 +64,7 @@ def white(x):
     return "\033[37;1m" + x + "\033[1m"
 
 
-### Komandozeilenoptionen einlesen
+# Komandozeilenoptionen einlesen
 parser = OptionParser()
 parser.add_option("--l1", dest="lemma1", default=None, help="das Eingabewort")
 parser.add_option("--l2", dest="lemma2", default=None, help="das Eingabewort")
@@ -90,35 +88,33 @@ parser.add_option("--sf", action="store_true", dest="surface", default=False,
 
 (options, args) = parser.parse_args()
 
-### Komandozeilenoptionen prüfen
+# Komandozeilenoptionen prüfen
 if len(args) > 0:
     parser.error("incorrect number of arguments")
 
 if options.lemma1 == None or options.lemma2 == None:
     parser.error("missing input word pair")
 
-### Komandozeilenoptionen prüfen
+# Komandozeilenoptionen prüfen
 if options.host == None:
     parser.error("missing host")
 
 s = xmlrpc.client.ServerProxy(options.host)
-# Print list of available methods
-# print "methods:", s.system.listMethods()
 
-### Abfrageoptionen für die Lemmainformationen erstellen
+# Abfrageoptionen für die Lemmainformationen erstellen
 mapParam = {}
 mapParam["Word1"] = options.lemma1
 mapParam["Word2"] = options.lemma2
 mapParam["Subcorpus"] = options.corpus
 mapParam["CaseSensitive"] = int(options.case_sensitive)
 
-### Lemmainformationen vom Wortprofilserver abfragen
+# Lemmainformationen vom Wortprofilserver abfragen
 mapping = s.get_lemma_and_pos_diff(mapParam)
 
-### Wenn die Lemmata enthalten sind
+# Wenn die Lemmata enthalten sind
 if len(mapping) > 0:
 
-    ### Ermitteln der Wortart (evtl. über Tastatureingabe)
+    # Ermitteln der Wortart (evtl. über Tastatureingabe)
     if len(mapping) == 1:
         mapSelect = mapping[0]
         print("\033[32;1m" + "(1) " + "\033[m" + yellow(mapSelect["Lemma1"]) + "/" + cyan(mapSelect["Lemma2"]) + " [" +
@@ -140,7 +136,7 @@ if len(mapping) > 0:
             mapSelect = mapping[int(data) - 1]
             break
 
-    ### abzufragende Relationen ermitteln
+    # abzufragende Relationen ermitteln
     listRel = []
     if options.relation != "":
         listRel = options.relation.split(',')
@@ -149,7 +145,7 @@ if len(mapping) > 0:
     if listRel == []:
         listRel = mapping[0]["Relations"]
 
-    ### Abfrageoptionen für den Wortvergleich erstellen
+    # Abfrageoptionen für den Wortvergleich erstellen
     mapParam = {}
     mapParam["LemmaId1"] = mapping[0]["LemmaId1"]
     mapParam["LemmaId2"] = mapping[0]["LemmaId2"]
@@ -164,10 +160,10 @@ if len(mapping) > 0:
         mapParam["NBest"] = int(options.nbest)
     mapParam["Operation"] = options.operation
 
-    ### Wortvergleich abfragen
+    # Wortvergleich abfragen
     RelList = s.get_diff(mapParam)
 
-    ### Durchgehen der Relationen
+    # Durchgehen der Relationen
     iRelCount = 1
     for k in RelList:
         listTuples = k['Tuples']
@@ -179,9 +175,9 @@ if len(mapping) > 0:
             strForm = "Form"
         else:
             strForm = "Lemma"
-        ### Durchgehen der Kookkurrenzvergleiche
+        # Durchgehen der Kookkurrenzvergleiche
         for j in listTuples:
-            ### Nur Wort 1
+            # Nur Wort 1
             if j['Position'] == "left":
                 listArg = []
                 listArg.append(yellow(j[strForm]))
@@ -193,7 +189,7 @@ if len(mapping) > 0:
                 listArg.append(yellow(j['Score']['Assoziation1']))
                 listArg.append(yellow(j['Score']['Assoziation2']))
                 listPrint.append(listArg)
-            ### Nur Wort 2
+            # Nur Wort 2
             elif j['Position'] == "right":
                 listArg = []
                 listArg.append(cyan(j[strForm]))
@@ -205,7 +201,7 @@ if len(mapping) > 0:
                 listArg.append(cyan(j['Score']['Assoziation1']))
                 listArg.append(cyan(j['Score']['Assoziation2']))
                 listPrint.append(listArg)
-            ### Beide Wörter
+            # Beide Wörter
             else:
                 listArg = []
                 listArg.append(red(j[strForm]))
@@ -218,7 +214,7 @@ if len(mapping) > 0:
                 listArg.append(red(j['Score']['Assoziation2']))
                 listPrint.append(listArg)
 
-        ### Ausgeben des Vergleiches als Tabelle
+        # Ausgeben des Vergleiches als Tabelle
         listHeader = [strForm, 'Score', 'Frequency1', 'Frequency2', 'Rank1', 'Rank2', 'Association1', 'Association2']
         print(calculate_table(listHeader, listPrint))
 

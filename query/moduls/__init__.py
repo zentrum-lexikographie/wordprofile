@@ -9,13 +9,10 @@ def deprecated(func):
     def fn(*args, **kwargs):
         warnings.warn("Call to deprecated function %s." % func.__name__,
                       category=DeprecationWarning)
+        print("-- Call to deprecated function {} with".format(func.__name__))
+        print("  Args: ({},{})".format(args, kwargs))
         res = func(*args, **kwargs)
-        print("-- Call to deprecated function {} with \n  Args: ({},{})\n  Return: {}".format(
-            func.__name__,
-            args,
-            kwargs,
-            res
-        ))
+        print("  Return: {}".format(res))
         return res
 
     fn.__name__ = func.__name__
