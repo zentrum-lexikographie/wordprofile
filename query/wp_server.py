@@ -383,7 +383,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         results = []
         for rel_id in ordered_relation_ids:
             cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, lemma2_id, pos_id, pos2_id, start, number,
-                                                              order_by, min_freq, min_stat, subcorpus, rel_id)
+                                                              order_by, min_freq, min_stat, rel_id)
             # IDs in den Kookkurenzlisten auf Strings abbilden
             cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, use_extended_surface_form)
             # Meta-Informationen
@@ -434,8 +434,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         # Informationen aus der komplexen ID extrahieren
         lemma_id, pos_id, rel_id = [int(i) for i in hit_id.split("#")[:3]]
-        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number,
-                                                          order_by, min_freq, min_stat, subcorpus, rel_id)
+        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number, order_by, min_freq,
+                                                          min_stat, rel_id)
         cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, False)
 
         return cooccs
@@ -635,12 +635,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         lemma2_id = params["LemmaId2"]
         pos_id = params["PosId"]
         cooccs = params["Relations"]
-        start = params.get("Start", 0)
+        # start = params.get("Start", 0)
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
-        subcorpus = params.get("Subcorpus", "")
+        # subcorpus = params.get("Subcorpus", "")
 
         operation = params.get("Operation", "adiff")
         use_intersection = params.get("Intersection", False)
@@ -649,7 +649,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         ordered_relation_ids = self.get_ordered_relation_ids(cooccs, self.wp_db.mapIdToPOS[pos_id])
         diffs = self.wp_db.get_relation_tuples_diff(lemma1_id, lemma2_id, pos_id, ordered_relation_ids, order_by,
-                                                    min_freq, min_stat, subcorpus)
+                                                    min_freq, min_stat)
         cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
 
         relations = []

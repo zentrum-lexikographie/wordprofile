@@ -108,6 +108,7 @@ class WpSeMySql:
                 db=self.dbname)
         self.__cursor = self.__conn.cursor()
         self.execute("SET NAMES 'latin1';")
+        self.init_data()
 
     def init_data(self):
         # informationen über die Tablellen
@@ -144,40 +145,11 @@ class WpSeMySql:
         self.__cursor.execute(query)
         return self.__cursor.fetchall()
 
-    def connect(self):
-        try:
-            if self.host is None:
-                self.__conn = MySQLdb.connect(
-                    unix_socket=self.socket,
-                    user=self.user,
-                    passwd=self.passwd,
-                    port=self.port,
-                    db=self.dbname)
-            else:
-                self.__conn = MySQLdb.connect(
-                    host=self.host,
-                    user=self.user,
-                    passwd=self.passwd,
-                    port=self.port,
-                    db=self.dbname)
-            self.__cursor = self.__conn.cursor()
-            self.execute("SET NAMES 'latin1';")
-            return True
-        except:
-            return False
-
-    @deprecated
-    def list_2_in(self, listRel):
+    def list_2_in(self, relation_ids):
         """
          Liste von Relation-Ids in das Arbument eines In-Statements umwandeln
         """
-        strRelId = ""
-        for i in listRel:
-            if strRelId != "":
-                strRelId += ","
-            strRelId += str(i)
-        strRelId = "( " + strRelId + " )"
-        return strRelId
+        return "( {} )".format(",".join(map(str, relation_ids)))
 
     def __calc_table_info(self):
         """
@@ -610,7 +582,7 @@ class WpSeMySql:
         return results
 
     def get_relation_tuples_mwe_check(self, lemma_id, lemma2_id, pos_id, pos2_id, start, number, order_by, min_freq,
-                                      min_stat, subcorpus, relation_id):
+                                      min_stat, relation_id):
         """
         Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
         Wortprofil-MySQL-Datenbank
@@ -637,9 +609,9 @@ class WpSeMySql:
                 -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, 
                 if(ConditionalCheck_1.id1!=CAST('None' as UNSIGNED) {} {} ,1,0) as MweId 
             FROM 
-                {}relations USE INDEX(I_{}) LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) 
+                relations LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) 
             """.format(
-                str_min_freq_mwe_check, str_min_stat_mwe_check, subcorpus, order_by
+                str_min_freq_mwe_check, str_min_stat_mwe_check,
             )
         else:
             select_from_sql = """
@@ -647,10 +619,8 @@ class WpSeMySql:
                 function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
                 -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, '0' 
             FROM 
-                {}relations USE INDEX(I_{})
-            """.format(
-                subcorpus, order_by
-            )
+                relations
+            """
 
         # evtl. auch das zweite Wort in der Kookkurrenz einschränken
         if pos2_id == -1 or lemma2_id == -1:
@@ -986,55 +956,24 @@ class WpSeMySql:
         listResult = self.fetchall(strSelect3 + strFrom3 + strWhere3)
         return listResult
 
-    @deprecated
-    def get_relation_tuples_diff(self, mapParam, listRelationId):
+    def get_relation_tuples_diff(self, lemma1_id, lemma2_id, pos_id, relation_ids,
+                                 order_by, min_freq, min_stat):
         """
         Ermitteln der Kookkurrenzen zu einer Liste von syntaktischen Relationen für die 'diff'-Abfrage
         """
-        mapParam1 = {}
-        mapParam2 = {}
-
-        strOrderBy = "logDice"
-        iMinFreq = -100000000
-        iMinStat = -100000000
-        strSubcorpus = ""
-        strRelIds = ""
-
-        # Parameter
-        iLemmaId1 = mapParam["LemmaId1"]
-        iLemmaId2 = mapParam["LemmaId2"]
-        iPosID = mapParam["PosId"]
-        if "OrderBy" in mapParam:
-            strOrderBy = mapParam["OrderBy"]
-        if "MinFreq" in mapParam:
-            iMinFreq = mapParam["MinFreq"]
-        if "MinStat" in mapParam:
-            iMinStat = mapParam["MinStat"]
-        if "Subcorpus" in mapParam:
-            strSubcorpus = mapParam["Subcorpus"]
-        if isinstance(strSubcorpus, type("")):
-            strSubcorpus.encode("utf8")
-
-        # Schwellwerte
-        strMinFreq = ""
-        if iMinFreq > 0:
-            strMinFreq = " and (-frequency)>=" + str(iMinFreq) + " "
-        strMinStat = ""
-        if iMinStat > -100000000:
-            strMinStat = " and (-" + strOrderBy + ")>=" + str(iMinStat) + " "
-
-        # MySQL-In-Liste aus den Relation-Ids bauen
-        strRelIds = self.list_2_in(listRelationId)
-
-        # rel,prep,lemma1,lemma2,surfacePrep,surface1,surface2,POS2,frequency,freqBelege,score,info
-        strSelect = "SELECT function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -frequency, -freqBelege, -" + strOrderBy + ", info  FROM " + strSubcorpus + "relations  USE INDEX(I_" + strOrderBy + ") WHERE lemma1 IN (\"" + str(
-            iLemmaId1) + "\",\"" + str(iLemmaId2) + "\") and POS1=\"" + str(
-            iPosID) + "\" and function IN " + strRelIds + " " + strMinFreq + " " + strMinStat + ";"
-        # strOrder = "ORDER BY "+strOrderBy+";"
-
-        # MySQL-Abfrage
-        listResult = self.fetchall(strSelect)  # + strOrder
-        return listResult
+        query = """
+        SELECT function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -frequency, -freqBelege, -{}, info
+        FROM relations
+        WHERE lemma1 IN ("{}","{}") and POS1="{}" and function IN ({}) {} {};
+        """.format(
+            order_by,
+            lemma1_id, lemma2_id, pos_id,
+            ",".join(map(str, relation_ids)),
+            " and (-frequency) >= {}".format(min_freq) if min_freq > 0 else "",
+            " and (-{}) >= {}".format(order_by, min_stat) if min_stat > -100000000 else ""
+        )
+        db_results = self.fetchall(query)
+        return db_results
 
     @deprecated
     def get_concordances_mwe_base(self, mapParam):
