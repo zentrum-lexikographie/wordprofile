@@ -45,14 +45,14 @@ logger.addHandler(fh)
 
 
 class CooccInfo:
-    def __init__(self, info_id, lemma_id_1=0, lemma_id_2=0, pos_id_1=0, pos_id_2=0, prep_id=0, rel_id=0):
-        self.iLemma1Id = lemma_id_1
-        self.iLemma2Id = lemma_id_2
-        self.iPos1Id = pos_id_1
-        self.iPos2Id = pos_id_2
-        self.iPrepId = prep_id
-        self.iRelId = rel_id
-        self.iInfoId = info_id
+    def __init__(self, match_id, lemma1="", lemma2="", pos1="", pos2="", prep="", rel=""):
+        self.lemma1 = lemma1
+        self.lemma2 = lemma2
+        self.pos1 = pos1
+        self.pos2 = pos2
+        self.prep = prep
+        self.rel = rel
+        self.match_id = match_id
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
@@ -64,7 +64,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         self.wp_spec = WpSeSpec(wp_spec_file)
         # MySQL-Seitigen Grundfunktionen
         self.wp_db = WpSeMySql(self.wp_spec)
-        self.wp_db.init_data()
         logger.info("MWE-Depth = %i" % self.wp_db.mwe_depth)
         if self.wp_db.mwe_depth > 0 and len(self.wp_spec.mapMweRelOrder) == 0:
             logger.warning("Missing MWE-Specification")
@@ -93,12 +92,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             return "Internal Server Error (get_lemma_and_pos)"
 
         # Parameter für die Kookkurrenzabfrage
-        params["LemmaId"] = selection["LemmaId"]
         params["Lemma"] = selection["Lemma"]
-        params["PosId"] = selection["PosId"]
+        params["Pos"] = selection["POS"]
         params["Start"] = 0
         params["Number"] = 10
-        params["OrderBy"] = "logDice"
+        params["OrderBy"] = "LogDice"
         params["Relations"] = selection["Relations"]
         params["ExtendedSurfaceForm"] = True
 
@@ -110,54 +108,37 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # Der Server läuft einwandfrei
         return "OK"
 
-    def get_info(self):
-        for i in self.wp_db.mapRelInfo:
-            if self.wp_db.mapRelInfo[i]['Name'] in self.wp_spec.mapRelDesc:
-                description = self.wp_spec.mapRelDesc[self.wp_db.mapRelInfo[i]['Name']]
-            else:
-                description = self.wp_spec.strRelDesc
-            self.wp_db.mapRelInfo[i]['Description'] = description
-
-        return {
-            "used_corpora": self.wp_db.corpus_names,
-            "lemma_size": self.wp_db.mapTypeToValue.get('lemmaSize', None),
-            "relation_size": self.wp_db.mapTypeToValue.get('relationSize', None),
-            "sentence_size": self.wp_db.mapTypeToValue.get('sentenceSize', None),
-            "info_size": self.wp_db.mapTypeToValue.get('infoSize', None),
-            "threshold": self.wp_db.mapThresholdInfo,
-            "mwe_depth": self.wp_db.mwe_depth,
-            "author": self.wp_db.mapProjectInfo.get('Author', None),
-            "creation_date": self.wp_db.mapProjectInfo.get('CreationDate', None),
-            "spec_file": self.wp_db.mapProjectInfo.get('SpecFile', None),
-            "spec_file_version": self.wp_db.mapProjectInfo.get('SpecFileVersion', None),
-            "lemma_cut": self.wp_db.mapProjectInfo.get('LemmaCut', None),
-            "cooccurrence_info": self.wp_db.mapRelInfo,
-        }
-
-    @deprecated
-    def gen_rel_ids_by_rel(self, listRel):
-        """
-        Ermitteln einer Liste von Relation-Ids
-        anhand einer Liste von Relationen (String)
-        """
-        setRes = set()
-        for i in listRel:
-            if i in self.wp_db.mapRelToId:
-                setRes.add(self.wp_db.mapRelToId[i])
-        return list(setRes)
+    # def get_info(self):
+    #     for i in self.wp_db.mapRelInfo:
+    #         if self.wp_db.mapRelInfo[i]['Name'] in self.wp_spec.mapRelDesc:
+    #             description = self.wp_spec.mapRelDesc[self.wp_db.mapRelInfo[i]['Name']]
+    #         else:
+    #             description = self.wp_spec.strRelDesc
+    #         self.wp_db.mapRelInfo[i]['Description'] = description
+    #
+    #     return {
+    #         "used_corpora": self.wp_db.corpus_names,
+    #         "lemma_size": self.wp_db.mapTypeToValue.get('lemmaSize', None),
+    #         "relation_size": self.wp_db.mapTypeToValue.get('relationSize', None),
+    #         "sentence_size": self.wp_db.mapTypeToValue.get('sentenceSize', None),
+    #         "info_size": self.wp_db.mapTypeToValue.get('infoSize', None),
+    #         "threshold": self.wp_db.mapThresholdInfo,
+    #         "mwe_depth": self.wp_db.mwe_depth,
+    #         "author": self.wp_db.mapProjectInfo.get('Author', None),
+    #         "creation_date": self.wp_db.mapProjectInfo.get('CreationDate', None),
+    #         "spec_file": self.wp_db.mapProjectInfo.get('SpecFile', None),
+    #         "spec_file_version": self.wp_db.mapProjectInfo.get('SpecFileVersion', None),
+    #         "lemma_cut": self.wp_db.mapProjectInfo.get('LemmaCut', None),
+    #         "cooccurrence_info": self.wp_db.mapRelInfo,
+    #     }
 
     def get_ordered_relation_ids(self, relations, pos):
         """
         Gets relation ids sorted by the specified ordering
         """
-        relation_to_id = {}
-        for r in relations:
-            if r in self.wp_db.mapRelToId:
-                relation_to_id[r] = self.wp_db.mapRelToId[r]
-
         relation_order = self.wp_spec.mapRelOrder.get(pos, self.wp_spec.listRelOrder)
-        ordered_ids = [relation_to_id[i] for i in relation_order if i in relations]
-        return ordered_ids
+        ordered_rels = [i for i in relation_order if i in relations]
+        return ordered_rels
 
     @deprecated
     def gen_mwe_rel_ids_by_pos(self, strPOS):
@@ -281,7 +262,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return results
 
     @deprecated
-    def get_lemma_and_pos_diff(self, mapParam):
+    def get_lemma_and_pos_diff(self, params):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
         mapParam = {'Word1':<string>, 'Word2':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=False>}
@@ -291,49 +272,48 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
         """
         # Parameter
-        mapParam1 = {}
-        mapParam2 = {}
-        mapParam1["Word"] = mapParam["Word1"]
-        mapParam2["Word"] = mapParam["Word2"]
+        params1 = {}
+        params2 = {}
+        params1["Word"] = params["Word1"]
+        params2["Word"] = params["Word2"]
         bUseExternalVariations = 1
-        if "UseVariations" in mapParam:
-            bUseExternalVariations = mapParam["UseVariations"]
-        if "Subcorpus" in mapParam:
-            mapParam1["Subcorpus"] = mapParam["Subcorpus"]
-            mapParam2["Subcorpus"] = mapParam["Subcorpus"]
-        if "CaseSensitive" in mapParam:
-            mapParam1["CaseSensitive"] = mapParam["CaseSensitive"]
-            mapParam2["CaseSensitive"] = mapParam["CaseSensitive"]
+        if "UseVariations" in params:
+            bUseExternalVariations = params["UseVariations"]
+        if "Subcorpus" in params:
+            params1["Subcorpus"] = params["Subcorpus"]
+            params2["Subcorpus"] = params["Subcorpus"]
+        if "CaseSensitive" in params:
+            params1["CaseSensitive"] = params["CaseSensitive"]
+            params2["CaseSensitive"] = params["CaseSensitive"]
 
         # Lemmainformationen zum ersten Lemma ermitteln
-        list1 = self.get_lemma_and_pos(mapParam1)
+        list1 = self.get_lemma_and_pos(params1)
         if list1 == [] and bool(bUseExternalVariations):
-            strLemma = mapParam1['Word']
+            strLemma = params1['Word']
             if strLemma in self.wp_spec.mapVariation:
-                mapParam1['Word'] = self.wp_spec.mapVariation[strLemma]
-                list1 = self.get_lemma_and_pos(mapParam1)
+                params1['Word'] = self.wp_spec.mapVariation[strLemma]
+                list1 = self.get_lemma_and_pos(params1)
 
         # Lemmainformationen zum zweiten Lemma ermitteln
-        list2 = self.get_lemma_and_pos(mapParam2)
+        list2 = self.get_lemma_and_pos(params2)
         if list2 == [] and bool(bUseExternalVariations):
-            strLemma = mapParam2['Word']
+            strLemma = params2['Word']
             if strLemma in self.wp_spec.mapVariation:
-                mapParam2['Word'] = self.wp_spec.mapVariation[strLemma]
-                list2 = self.get_lemma_and_pos(mapParam2)
+                params2['Word'] = self.wp_spec.mapVariation[strLemma]
+                list2 = self.get_lemma_and_pos(params2)
 
         # nur Lemmata mit der gleichen Wortart sind vergleichbar
-        listResult = []
+        results = []
         for i in list1:
             for j in list2:
-                if i['PosId'] == j['PosId']:
-                    listRelations = list(set(i['Relations']) | set(j['Relations']))
-                    listResult.append(
-                        {'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'LemmaId1': i['LemmaId'], 'LemmaId2': j['LemmaId'],
-                         'PosId': i['PosId'], 'POS': i['POS'], 'Frequency1': i['Frequency'],
-                         'Frequency2': j['Frequency'], 'Count1': i['Count'], 'Count2': j['Count'],
-                         'Relations': listRelations})
-
-        return listResult
+                if i['POS'] == j['POS']:
+                    relations = list(set(i['Relations']) | set(j['Relations']))
+                    results.append({
+                        'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'POS': i['POS'],
+                        'Frequency1': i['Frequency'], 'Frequency2': j['Frequency'],
+                        'Count1': i['Count'], 'Count2': j['Count'],
+                        'Relations': relations})
+        return results
 
     @deprecated
     def __gen_rel_cooccurrence_mapping(self, listData):
@@ -365,33 +345,30 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
         Wenn der Wert von 'ConcordNo' der 0 entspricht gibt es aus rechtlichen Gründen keine Texttreffer. Dann ist 'ConcordNoAccessible' auch 0.
         """
-        lemma_id = params["LemmaId"]
-        lemma2_id = params.get("Lemma2Id", -1)
-        pos_id = params["PosId"]
-        pos2_id = params.get("Pos2Id", -1)
+        lemma = params["Lemma"]
+        lemma2 = params.get("Lemma2", -1)
+        pos = params["Pos"]
+        pos2 = params.get("Pos2Id", -1)
         relations = params.get("Relations", [])
         use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
+        order_by = params.get("OrderBy", "LogDice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
-        subcorpus = params.get("Subcorpus", "")
 
-        ordered_relation_ids = self.get_ordered_relation_ids(relations, self.wp_db.mapIdToPOS[pos_id])
+        ordered_relations = self.get_ordered_relation_ids(relations, pos)
 
         results = []
-        for rel_id in ordered_relation_ids:
-            cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, lemma2_id, pos_id, pos2_id, start, number,
-                                                              order_by, min_freq, min_stat, rel_id)
+        for relation in ordered_relations:
+            cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma, lemma2, pos, pos2, start, number,
+                                                              order_by, min_freq, min_stat, relation)
             # IDs in den Kookkurenzlisten auf Strings abbilden
-            cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, use_extended_surface_form)
+            cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, use_extended_surface_form)
             # Meta-Informationen
-            relation = self.wp_db.mapIdToRel[rel_id]
             description = self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
-            hit_id = "{}#{}#{}".format(lemma_id, pos_id, rel_id)
-
+            hit_id = "{}#{}#{}".format(lemma, pos, relation)
             results.append({'Relation': relation, 'Description': description, 'Tuples': cooccs, 'RelId': hit_id})
 
         return results
@@ -423,7 +400,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         hit_id = params["RelId"]
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
+        order_by = params.get("OrderBy", "LogDice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
         subcorpus = params.get("Subcorpus", "")
@@ -433,10 +410,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             return self.get_mwe_cooccurrences(params)
 
         # Informationen aus der komplexen ID extrahieren
-        lemma_id, pos_id, rel_id = [int(i) for i in hit_id.split("#")[:3]]
-        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma_id, -1, pos_id, -1, start, number, order_by, min_freq,
-                                                          min_stat, rel_id)
-        cooccs = self.__relation_tuples_2_strings(lemma_id, pos_id, cooccs, False)
+        lemma, pos, rel = [int(i) for i in hit_id.split("#")[:3]]
+        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
+                                                          min_stat, rel)
+        cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, False)
 
         return cooccs
 
@@ -456,43 +433,41 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return strMweId
 
-    def __relation_tuples_2_strings(self, lemma_id, pos_id, coocc_tuples, use_extended_surface_form):
+    def __relation_tuples_2_strings(self, lemma1, pos1, coocc_tuples, use_extended_surface_form):
         """
         Methode, um IDs in den Kookkurenzlisten auf Strings abzubilden
         """
         results = []
         for coocc in coocc_tuples:
-            result = {}
-            result['Relation'] = self.wp_db.mapIdToRel[coocc.Rel]
-            result['POS'] = self.wp_db.mapIdToPOS[coocc.POS]
-            lemma = self.wp_db.mmapIdToLem.get(coocc.Lemma2)
-            prep = self.wp_db.mmapIdToLem.get(coocc.Prep)
-            surface = self.wp_db.mmapIdToSurf.get(coocc.Surface2)
+            lemma = coocc.Lemma2
+            prep = coocc.Prep
+            surface = coocc.Surface2
 
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            surface = surface_mapping(surface, self.wp_db.mapRelIdToType[coocc.Rel],
-                                      prep,
-                                      use_extended_surface_form)
+            surface = surface_mapping(surface, coocc.Rel, prep, use_extended_surface_form)
             # evt. Lemma Reparieren
-            lemma = self.wp_spec.mapLemmaRepair.get((result['POS'], lemma), lemma)
+            lemma = self.wp_spec.mapLemmaRepair.get((coocc.POS, lemma), lemma)
             # Lemma+Präposition formatieren
             if prep not in ["-", ""]:
-                if self.wp_db.mapRelIdToType[coocc.Rel] == 1:
+                if coocc.Rel.startswith("~"):
                     lemma = lemma + ' ' + prep
                 else:
                     lemma = prep + ' ' + lemma
 
             # Informationen in einer Map bündeln
-            result['Lemma'] = lemma
-            result['Form'] = surface
-            result['Score'] = {
-                'Frequency': coocc.Frequency,
-                'MiLogFreq': coocc.Score_MiLogFreq,
-                'logDice': coocc.Score_logDice,
-                'MI3': coocc.Score_MI3,
-            }
-            result["ConcordId"] = "{}#{}#{}#{}#{}#{}#{}".format(
-                lemma_id, pos_id, coocc.Lemma2, coocc.POS, coocc.Prep, coocc.Rel, coocc.Info)
+            result = {
+                'Relation': coocc.Rel,
+                'POS': coocc.POS,
+                'Lemma': lemma,
+                'Form': surface,
+                'Score': {
+                    'Frequency': coocc.Frequency,
+                    'MiLogFreq': coocc.Score_MiLogFreq,
+                    'logDice': coocc.Score_logDice,
+                    'MI3': coocc.Score_MI3,
+                },
+                "ConcordId": "{}#{}#{}#{}#{}#{}#{}".format(
+                    lemma1, pos1, coocc.Lemma2, coocc.POS, coocc.Prep, coocc.Rel, coocc.Info)}
 
             # MWE-Zugänglichkeit
             if int(coocc.ConditionalCheck) == 0:
@@ -503,7 +478,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             concord_no = coocc.Frequency
             support_no = coocc.FreqBelege
-            if self.wp_db.mapRelIdToType[coocc.Rel] == 2 and coocc.Lemma1 == coocc.Lemma2:
+            if coocc.Rel == "KON" and coocc.Lemma1 == coocc.Lemma2:
                 concord_no = concord_no / 2
                 support_no = support_no / 2
             result['ConcordNo'] = concord_no
@@ -631,13 +606,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
         """
-        lemma1_id = params["LemmaId1"]
-        lemma2_id = params["LemmaId2"]
-        pos_id = params["PosId"]
+        lemma1 = params["Lemma1"]
+        lemma2 = params["Lemma2"]
+        pos = params["Pos"]
         cooccs = params["Relations"]
         # start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
+        order_by = params.get("OrderBy", "LogDice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
         # subcorpus = params.get("Subcorpus", "")
@@ -647,19 +622,19 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         nbest = params.get("NBest", None)
         use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
 
-        ordered_relation_ids = self.get_ordered_relation_ids(cooccs, self.wp_db.mapIdToPOS[pos_id])
-        diffs = self.wp_db.get_relation_tuples_diff(lemma1_id, lemma2_id, pos_id, ordered_relation_ids, order_by,
+        ordered_relations = self.get_ordered_relation_ids(cooccs, pos)
+        diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, ordered_relations, order_by,
                                                     min_freq, min_stat)
         cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
 
         relations = []
-        for i in ordered_relation_ids:
-            if i in cooccs:
-                results = self.__calculate_diff(lemma1_id, lemma2_id, diffs, cooccs[i], number, nbest,
+        for rel in ordered_relations:
+            if rel in cooccs:
+                results = self.__calculate_diff(lemma1, lemma2, diffs, cooccs[rel], number, nbest,
                                                 use_intersection, operation)
                 results = self.__diff_relation_tuples_2_strings(diffs, results, use_extended_surface_form)
 
-                relation_name = self.wp_db.mapIdToRel[i]
+                relation_name = rel
                 description = self.wp_spec.strRelDesc
                 if relation_name in self.wp_spec.mapRelDesc:
                     description = self.wp_spec.mapRelDesc[relation_name]
@@ -682,7 +657,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         coocc_infos = []
         for hit_mwe_id in info_id.split('@'):
-            hit_mwe_id = [int(i) for i in hit_mwe_id.split('#')]
+            hit_mwe_id = hit_mwe_id.split('#')
             if len(hit_mwe_id) == 1:
                 coocc_info = CooccInfo(hit_mwe_id[0])
             else:
@@ -1300,7 +1275,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return iScore
 
     @deprecated
-    def __diff_relation_tuples_2_strings(self, listData, listRes, use_extended_surface_form):
+    def __diff_relation_tuples_2_strings(self, diffs, db_results, use_extended_surface_form):
         """
         Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
         """
@@ -1326,40 +1301,41 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         listMapRes = []
 
-        for i in listRes:
+        for i in db_results:
             localMap = {
                 "POS": None
             }
-            mapScore = {}
-            mapScore['AScomp'] = i[yScore]
-            mapScore['Rank1'] = i[yRank1]
-            mapScore['Rank2'] = i[yRank2]
+            score = {
+                'AScomp': i[yScore],
+                'Rank1': i[yRank1],
+                'Rank2': i[yRank2]
+            }
             if i[yRef1] != -1:
                 # Es gibt Kookkurenzen zum ersten Wort
 
-                mapScore['Frequency1'] = listData[i[yRef1]][xFrequency]
-                mapScore['Assoziation1'] = listData[i[yRef1]][xScore]
-                localMap['ConcordId1'] = listData[i[yRef1]][xInfo]
+                score['Frequency1'] = diffs[i[yRef1]][xFrequency]
+                score['Assoziation1'] = diffs[i[yRef1]][xScore]
+                localMap['ConcordId1'] = diffs[i[yRef1]][xInfo]
 
-                iConcordNo1 = listData[i[yRef1]][xFrequency]
-                iFreqBelege1 = listData[i[yRef1]][xFreqBelege]
-                if self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] == 2 and listData[i[yRef1]][xLemma1] == \
-                        listData[i[yRef1]][xLemma2]:
+                iConcordNo1 = diffs[i[yRef1]][xFrequency]
+                iFreqBelege1 = diffs[i[yRef1]][xFreqBelege]
+                if diffs[i[yRef1]][xRel] == "KON" and diffs[i[yRef1]][xLemma1] == \
+                        diffs[i[yRef1]][xLemma2]:
                     iConcordNo1 = iConcordNo1 / 2
                     iFreqBelege1 = iFreqBelege1 / 2
                 localMap['ConcordNo1'] = iConcordNo1
                 localMap['ConcordNoAccessible1'] = iFreqBelege1
 
-                localMap['Relation'] = self.wp_db.mapIdToRel[listData[i[yRef1]][xRel]]
+                localMap['Relation'] = diffs[i[yRef1]][xRel]
 
                 # Ids auf Strings mappen
-                strLemma = self.wp_db.mmapIdToLem.get(listData[i[yRef1]][xLemma2])
-                strSurface = self.wp_db.mmapIdToSurf.get(listData[i[yRef1]][xSurface2])
-                strPrep = self.wp_db.mmapIdToLem.get(listData[i[yRef1]][xPrep])
+                strLemma = diffs[i[yRef1]][xLemma2]
+                strSurface = diffs[i[yRef1]][xSurface2]
+                strPrep = diffs[i[yRef1]][xPrep]
                 strPrepSurface = strPrep
 
                 # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]],
+                strSurface = surface_mapping(strSurface, diffs[i[yRef1]][xRel],
                                              strPrepSurface, use_extended_surface_form)
 
                 # evt. Lemma Reparieren
@@ -1368,22 +1344,23 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     strLemma = strLemmaRepair.encode('utf8')
 
                 # Lemma+Präposition formatieren
-                if self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] == 1 and strPrep != "-":
-                    strLemma = strLemma + ' ' + strPrep
-                elif self.wp_db.mapRelIdToType[listData[i[yRef1]][xRel]] != 1 and strPrep != "-":
-                    strLemma = strPrep + ' ' + strLemma
+                if strPrep != "-":
+                    if diffs[i[yRef1]][xRel].startswith("~"):
+                        strLemma = strLemma + ' ' + strPrep
+                    else:
+                        strLemma = strPrep + ' ' + strLemma
 
                 localMap['Lemma'] = strLemma
                 localMap['Form'] = strSurface
-                localMap['POS'] = self.wp_db.mapIdToPOS[listData[i[yRef1]][xPOS]]
+                localMap['POS'] = diffs[i[yRef1]][xPOS]
 
                 if i[yRef2] == -1:
                     localMap['Position'] = 'left'
                 else:
                     localMap['Position'] = 'center'
             else:
-                mapScore['Frequency1'] = 0
-                mapScore['Assoziation1'] = 0.0
+                score['Frequency1'] = 0
+                score['Assoziation1'] = 0.0
                 localMap['ConcordId1'] = 0
                 localMap['ConcordNo1'] = 0
                 localMap['ConcordNoAccessible1'] = 0
@@ -1391,14 +1368,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if i[yRef2] != -1:
                 # Es gibt Kookkurenzen zum zweiten Wort
 
-                mapScore['Frequency2'] = listData[i[yRef2]][xFrequency]
-                mapScore['Assoziation2'] = listData[i[yRef2]][xScore]
-                localMap['ConcordId2'] = listData[i[yRef2]][xInfo]
+                score['Frequency2'] = diffs[i[yRef2]][xFrequency]
+                score['Assoziation2'] = diffs[i[yRef2]][xScore]
+                localMap['ConcordId2'] = diffs[i[yRef2]][xInfo]
 
-                iConcordNo2 = listData[i[yRef2]][xFrequency]
-                iFreqBelege2 = listData[i[yRef2]][xFreqBelege]
-                if self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] == 2 and listData[i[yRef2]][xLemma1] == \
-                        listData[i[yRef2]][xLemma2]:
+                iConcordNo2 = diffs[i[yRef2]][xFrequency]
+                iFreqBelege2 = diffs[i[yRef2]][xFreqBelege]
+                if diffs[i[yRef2]][xRel] == "KON" and diffs[i[yRef2]][xLemma1] == \
+                        diffs[i[yRef2]][xLemma2]:
                     iConcordNo2 = iConcordNo2 / 2
                     iFreqBelege2 = iFreqBelege2 / 2
                 localMap['ConcordNo2'] = iConcordNo2
@@ -1406,37 +1383,37 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                 if i[yRef1] == -1:
 
-                    localMap['Relation'] = self.wp_db.mapIdToRel[listData[i[yRef2]][xRel]]
+                    localMap['Relation'] = diffs[i[yRef2]][xRel]
 
                     # Ids auf Strings mappen
-                    strLemma = self.wp_db.mmapIdToLem.get(listData[i[yRef2]][xLemma2])
-                    strSurface = self.wp_db.mmapIdToSurf.get(listData[i[yRef2]][xSurface2])
-                    strPrep = self.wp_db.mmapIdToLem.get(listData[i[yRef2]][xPrep])
+                    strLemma = diffs[i[yRef2]][xLemma2]
+                    strSurface = diffs[i[yRef2]][xSurface2]
+                    strPrep = diffs[i[yRef2]][xPrep]
                     strPrepSurface = strPrep
 
                     # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                    strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]],
+                    strSurface = surface_mapping(strSurface, diffs[i[yRef2]][xRel],
                                                  strPrepSurface, use_extended_surface_form)
 
                     # Lemma+Präposition formatieren
-                    if self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] == 1 and strPrep != "-":
-                        strLemma = strLemma + ' ' + strPrep
-                    elif self.wp_db.mapRelIdToType[listData[i[yRef2]][xRel]] != 1 and strPrep != "-":
-                        strLemma = strPrep + ' ' + strLemma
+                    if strPrep != "-":
+                        if diffs[i[yRef2]][xRel].startswith("~"):
+                            strLemma = strLemma + ' ' + strPrep
+                        else:
+                            strLemma = strPrep + ' ' + strLemma
 
                     localMap['Lemma'] = strLemma
                     localMap['Form'] = strSurface
-                    localMap['POS'] = self.wp_db.mapIdToPOS[listData[i[yRef2]][xPOS]]
+                    localMap['POS'] = diffs[i[yRef2]][xPOS]
                     localMap['Position'] = 'right'
             else:
-                mapScore['Frequency2'] = 0
-                mapScore['Assoziation2'] = 0.0
+                score['Frequency2'] = 0
+                score['Assoziation2'] = 0.0
                 localMap['ConcordId2'] = 0
                 localMap['ConcordNo2'] = 0
                 localMap['ConcordNoAccessible2'] = 0
 
-            localMap['Score'] = mapScore
-
+            localMap['Score'] = score
             listMapRes.append(localMap)
 
         return listMapRes
@@ -1453,12 +1430,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         coocc_info = self.__extract_coocc_info(info_id)[-1]
 
         # Ids auf Strings mappen
-        lemma1 = self.wp_db.mmapIdToLem.get(coocc_info.iLemma1Id)
-        pos1 = self.wp_db.mapIdToPOS.get(coocc_info.iPos1Id)
-        lemma2 = self.wp_db.mmapIdToLem.get(coocc_info.iLemma2Id)
-        pos2 = self.wp_db.mapIdToPOS.get(coocc_info.iPos2Id)
-        relation = self.wp_db.mapIdToRel.get(coocc_info.iRelId)
-        prep = self.wp_db.mmapIdToLem.get(coocc_info.iPrepId)
+        lemma1 = coocc_info.lemma1
+        pos1 = coocc_info.pos1
+        lemma2 = coocc_info.lemma2
+        pos2 = coocc_info.pos2
+        relation = coocc_info.rel
+        prep = coocc_info.prep
 
         # Meta-Daten generieren
         if relation in self.wp_spec.mapRelDescDetail:
@@ -1495,7 +1472,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
       """
         info_id = params.get("InfoId")
         use_context = bool(params.get("UseContext", False))
-        subcorpus_id = self.wp_db.mapCorpusToId.get(params["Subcorpus"], -1)
+        subcorpus = params.get("Subcorpus", "")
         is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
@@ -1504,7 +1481,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         if len(coocc_infos) > 1:
             return self.wp_db.get_concordances_mwe_base(params)
         else:
-            return self.wp_db.get_concordances(coocc_infos[0].iInfoId, use_context, subcorpus_id,
+            return self.wp_db.get_concordances(coocc_infos[0].match_id, use_context, subcorpus,
                                                is_internal_user,
                                                start_index, result_number)
 

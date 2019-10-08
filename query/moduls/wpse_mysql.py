@@ -64,79 +64,18 @@ class WpSeMySql:
         self.passwd = wp_spec.passwd
         self.dbname = wp_spec.dbname
         self.port = wp_spec.port
-        self.table_path = wp_spec.table_path
         self.__cursor = None
 
         self.mwe_depth = 0
-        self.mapIdToCorpus = {}
-        self.mapCorpusToId = {}
-        self.mapIdToAvail = {}
-        self.mapAvailToId = {}
-        self.mapIdToTextclass = {}
-        self.mapTextclassToId = {}
-        self.mapRelIdToType = {}
-        self.mapRelToId = {}
-        self.mapIdToRel = {}
-        self.mapIdToPOS = {}
-        self.mapPosToId = {}
-        self.mapIdToDate = {}
-        self.mapTypeToValue = {}
-        self.mapProjectInfo = {}
-        self.mapRelInfo = {}
-        self.mapThresholdInfo = {}
 
-        self.corpus_names = []
-        self.table_path = ""
-        self.has_hit = False
-
-        self.mmapIdToLem = None
-        self.mmapIdToSurf = None
-
-        if self.host is None:
-            self.__conn = MySQLdb.connect(
-                unix_socket=self.socket,
-                user=self.user,
-                passwd=self.passwd,
-                port=self.port,
-                db=self.dbname)
-        else:
-            self.__conn = MySQLdb.connect(
-                host=self.host,
-                user=self.user,
-                passwd=self.passwd,
-                port=self.port,
-                db=self.dbname)
+        self.__conn = MySQLdb.connect(
+            host=self.host,
+            user=self.user,
+            passwd=self.passwd,
+            port=self.port,
+            db=self.dbname)
         self.__cursor = self.__conn.cursor()
         self.execute("SET NAMES 'latin1';")
-        self.init_data()
-
-    def init_data(self):
-        # informationen über die Tablellen
-        self.__calc_table_info()
-        # Kookkurrenzbezogene Mappings
-        self.__calc_corpus_mapping()
-        self.__calc_rel_mapping()
-        self.__calc_pos_mapping()
-        self.__calc_types_mapping()
-        # Projektinformationen
-        self.__calc_project_info()
-        self.__calc_rel_info()
-        self.__calc_threshold_info()
-        self.__calc_corpus_name()
-        # Mappings, die in mmap geladen werden
-        self.__calc_lemma_mapping()
-        self.__calc_surface_mapping()
-        # Texttrefferbezogene Mappings
-        if self.has_hit:
-            self.__calc_avail_mapping()
-            self.__calc_textclass_mapping()
-            self.__calc_date_mapping()
-            self.__calc_tei_types_mapping()
-        # Definieren von MySQL-Funktionen
-        if self.mwe_depth > 0:
-            self.__define_functions()
-        # Tabellen für den temporären Gebrauch erstellen
-        self.__create_tmp_tables()
 
     def execute(self, query):
         self.__cursor.execute(query)
@@ -150,268 +89,6 @@ class WpSeMySql:
          Liste von Relation-Ids in das Arbument eines In-Statements umwandeln
         """
         return "( {} )".format(",".join(map(str, relation_ids)))
-
-    def __calc_table_info(self):
-        """
-          Prüfen, welche Tiefe die MWE-Relationen haben und ob Texttrefferinformationen vorliegen
-        """
-        table_names = {entry[0] for entry in self.fetchall("show tables;")}
-        self.mwe_depth = 0
-        while True:
-            if "ConditionalCheck_" + str(self.mwe_depth + 1) in table_names:
-                self.mwe_depth += 1
-            else:
-                break
-        self.has_hit = "idToInfo" in table_names
-
-    def __calc_corpus_mapping(self):
-        """
-          Abfragen und ablegen des Korpus-Mapping
-        """
-        try:
-            self.mapIdToCorpus[None] = None
-            for i in self.fetchall("Select * From idToCorpus"):
-                self.mapCorpusToId[i[1]] = i[0]
-                self.mapIdToCorpus[i[0]] = i[1]
-        except:
-            logger.error("MySQL: corpus mapping failed")
-
-    def __calc_avail_mapping(self):
-        """
-        Abfragen und ablegen des Avail-Mapping
-        """
-        try:
-            for i in self.fetchall("Select * From idToAvail"):
-                self.mapAvailToId[i[1]] = i[0]
-                self.mapIdToAvail[i[0]] = i[1]
-        except:
-            logger.error("MySQL: avail mapping failed")
-            pass
-
-    def __calc_textclass_mapping(self):
-        """
-        Abfragen und ablegen des Textklassen-Mapping
-        """
-        try:
-            for i in self.fetchall("Select * From idToTextclass"):
-                self.mapTextclassToId[i[1]] = i[0]
-                self.mapIdToTextclass[i[0]] = i[1]
-        except:
-            logger.error("MySQL: textclass mapping failed")
-            pass
-
-    def __calc_rel_mapping(self):
-        """
-        Abfragen und ablegen des Relationen-Mapping
-        """
-        try:
-            self.mapIdToRel[None] = None
-            for i in self.fetchall("Select * From idToFunction"):
-                self.mapRelToId[i[1]] = i[0]
-                self.mapIdToRel[i[0]] = i[1]
-                self.mapRelIdToType[i[0]] = i[2]
-        except:
-            logger.error("MySQL: relation mapping failed")
-            pass
-
-    def __calc_pos_mapping(self):
-        """
-        Abfragen und ablegen des Wortarten-Mapping
-        """
-        try:
-            for i in self.fetchall("Select * From idToPOS"):
-                self.mapIdToPOS[i[0]] = i[1]
-                self.mapPosToId[i[1]] = i[0]
-        except:
-            logger.error("MySQL: pos mapping failed")
-            pass
-
-    def __calc_date_mapping(self):
-        """
-        Abfragen und ablegen des Datum-Mapping
-        """
-        try:
-            for i in self.fetchall("Select * From idToDate"):
-                self.mapIdToDate[i[0]] = i[1]
-        except:
-            logger.error("MySQL: date mapping failed")
-            pass
-
-    def __calc_types_mapping(self):
-        """
-          Abfragen und ablegen der Typ-Informationen
-        """
-        try:
-            for i in self.fetchall("Select * From types"):
-                self.mapTypeToValue[i[0]] = i[1]
-        except:
-            logger.error("MySQL: type mapping failed")
-            pass
-
-    def __calc_tei_types_mapping(self):
-        """
-        Abfragen und ablegen der TEI-Typ-Informationen
-        """
-        try:
-            for i in self.fetchall("Select * From teiTypes"):
-                self.mapTypeToValue[i[0]] = i[1]
-        except:
-            logger.error("MySQL: teiType mapping failed")
-            pass
-
-    def __calc_project_info(self):
-        """
-          Abfragen und ablegen der Projekt-Informationen
-        """
-        try:
-            for i in self.fetchall("Select * From Info"):
-                self.mapProjectInfo[i[0]] = i[1]
-        except:
-            logger.error("MySQL: project info failed")
-            pass
-
-    def __calc_rel_info(self):
-        """
-          Abfragen und ablegen der Projekt-Informationen
-        """
-        try:
-            for i in self.fetchall("Select * From relInfo"):
-                strRel = self.mapIdToRel[i[0]]
-                mapDummy = {}
-                mapDummy['Count'] = int(i[1])
-                mapDummy['Frequency'] = int(i[2])
-                mapDummy['ConcordNo'] = int(i[3])
-                mapDummy['Name'] = strRel
-                self.mapRelInfo[strRel] = mapDummy
-        except:
-            logger.error("MySQL: rel info failed")
-            pass
-
-    def __calc_threshold_info(self):
-        """
-          Abfragen und ablegen der Schwellwert-Informationen
-        """
-        try:
-            for i in self.fetchall("Select * From threshold"):
-                strRel = self.mapIdToRel[i[0]]
-                if strRel in self.mapThresholdInfo:
-                    self.mapThresholdInfo[strRel][i[1]] = float(i[2])
-                else:
-                    mapDummy = {}
-                    mapDummy[i[1]] = i[2]
-                    self.mapThresholdInfo[strRel] = mapDummy
-        except:
-            logger.error("MySQL: threshold info failed")
-            pass
-
-    def __calc_corpus_name(self):
-        """
-          Abfragen und ablegen verwendeten Korpusnamen
-        """
-        try:
-            for i in self.fetchall("Select * From CorpusName"):
-                self.corpus_names.append(i[1])
-            self.corpus_names.sort()
-        except:
-            logger.error("MySQL: corpus name failed")
-
-    def __calc_lemma_mapping(self):
-        """
-          Abfragen und ablegen (MMap) des Lemma-Mappings
-        """
-        if not self.mmapIdToLem:
-            logger.info("generate mmap")
-            self.mmapIdToLem = dict(self.fetchall("Select * From lemmaToRelation"))
-
-    def __calc_surface_mapping(self):
-        """
-          Abfragen und ablegen (MMap) des Oberflächenform-Mappings
-        """
-        if not self.mmapIdToSurf:
-            self.mmapIdToSurf = dict(self.fetchall("Select * From idToSurface"))
-
-    def __define_functions(self):
-        """
-          Einfache MySQL-Funktionen anlegen. Diese werden für die MWE-Abfragen benötigt, um die Treffer-Ids zu sortieren
-        """
-        # func_order_initial(2230519,1871983) , func_order_middle(2230519,1871983,2704698) , func_order_final(2230519,2704698)
-        self.execute("DROP FUNCTION IF EXISTS func_order_initial")
-        self.execute("""
-    CREATE FUNCTION func_order_initial(mate INT,id INT)
-      RETURNS INT
-      BEGIN
-
-        IF mate < id THEN
-          return mate;
-        ELSE
-          return id;
-        END IF;
-
-      END;""")
-
-        self.execute("DROP FUNCTION IF EXISTS func_order_final")
-        self.execute("""
-    CREATE FUNCTION func_order_final(mate INT,id INT)
-      RETURNS INT
-      BEGIN
-
-        IF mate < id THEN
-          return id;
-        ELSE
-          return mate;
-        END IF;
-
-      END;""")
-
-        self.execute("DROP FUNCTION IF EXISTS func_order_middle")
-        self.execute("""
-    CREATE FUNCTION func_order_middle(mate INT,id1 INT,id2 INT)
-      RETURNS INT
-      BEGIN
-
-        IF mate < id1 THEN
-          return id1;
-        ELSE
-          IF mate < id2 THEN
-            return mate;
-          ELSE
-            return id2;
-          END IF;
-        END IF;
-
-      END;""")
-
-    def __create_tmp_tables(self):
-        """
-          Temporäre Tabellen für einige komplexere Wortprofil-Abfragen erstellen
-        """
-        self.execute("SELECT type, value FROM types where type=\"highestFrequency\"")
-        typeFrequency = get_type_signed(self.__cursor.fetchone()[1])
-        self.execute("SELECT type, value FROM types where type=\"logDiceLength\"")
-        typelogDiceStr = str(self.__cursor.fetchone()[1] + 2)
-        self.execute("SELECT type, value FROM types where type=\"posSize\"")
-        typePOSId = get_type_unsigned(self.__cursor.fetchone()[1])
-        self.execute("SELECT type, value FROM types where type=\"lemmaSize\"")
-        typeLemmaId = get_type_unsigned(self.__cursor.fetchone()[1])
-        self.execute("SELECT type, value FROM types where type=\"highestFunction\"")
-        typeFunctionId = get_type_unsigned(self.__cursor.fetchone()[1])
-        self.execute("SELECT type, value FROM types where type=\"InfoSize\"")
-        typeInfoId = get_type_unsigned(self.__cursor.fetchone()[1])
-
-        strExecute = """
-    CREATE TABLE tmpMate
-    (
-       mate """ + typeInfoId + """,
-       frequency """ + typeFrequency + """,
-       freqBelege """ + typeFrequency + """,
-       logDice float(""" + typelogDiceStr + """,2),
-       function """ + typeFunctionId + """,
-       lemma """ + typeLemmaId + """,
-       POS """ + typePOSId + """
-    )
-    """
-        self.execute("DROP TABLE IF EXISTS tmpMate")
-        self.execute(strExecute)
 
     def get_prep_id(self, prep):
         """
@@ -428,52 +105,54 @@ class WpSeMySql:
         else:
             return -1
 
-    def get_concordances(self, info_id, use_context, subcorpus_id, is_internal_user, start_index, result_number):
-        internal_user_cond = " and idToInfo.avail=1 " if not is_internal_user else ""
-        subcorpus_cond = " and idToInfo.corpus='{}' ".format(subcorpus_id) if subcorpus_id >= 0 else ""
+    def get_concordances(self, match_id, use_context, subcorpus, is_internal_user, start_index, result_number):
+        internal_user_cond = " and rk_matches.Rights=1 " if not is_internal_user else ""
+        subcorpus_cond = " and rk_matches.Corpus='{}' ".format(subcorpus) if subcorpus else ""
 
         if use_context:
             query = """
             SELECT
-                s_center.Sentence, idToInfo.tokenPosition1, idToInfo.tokenPosition2, idToInfo.prepPosition, 
-                idToInfo.corpus, idToInfo.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, 
-                s_center.Page, idToTei.file, idToInfo.Score, s_left.Sentence, s_right.Sentence 
+                s_center.Sentence, rk_matches.Word1Position, rk_matches.Word2Position, rk_matches.PrepPosition, 
+                rk_matches.Corpus, rk_matches.Date, rk_tei.TextClass, rk_tei.Orig, rk_tei.Scan, rk_tei.Avail, 
+                s_center.Page, rk_tei.File, rk_matches.GdexScore, s_left.Sentence, s_right.Sentence 
             FROM
-                idToInfo
-            LEFT JOIN concordSentences as s_center ON
-                (s_center.corpus = idToInfo.corpus
-                and s_center.FileId = idToInfo.File
-                and s_center.SentenceId = idToInfo.sentence)
-            LEFT JOIN idToTei ON
-                (idToInfo.corpus = idToTei.corpus
-                and idToInfo.file = idToTei.file)
-            LEFT JOIN concordSentences as s_left ON
-                (s_left.corpus = idToInfo.corpus
-                and s_left.FileId = idToInfo.File
-                and s_left.SentenceId =(idToInfo.sentence-1))
-            LEFT JOIN concordSentences as s_right ON
-                (s_right.corpus = idToInfo.corpus
-                and s_right.FileId = idToInfo.File
-                and s_right.SentenceId =(idToInfo.sentence + 1))
-            WHERE idToInfo.id={} {} {}
-            LIMIT {},{}
-            """.format(info_id, subcorpus_cond, internal_user_cond, start_index, result_number)
+                rk_matches
+            LEFT JOIN rk_concord_sentences as s_center ON
+                (s_center.Corpus = rk_matches.Corpus
+                and s_center.File = rk_matches.File
+                and s_center.SentencePosition = rk_matches.SentenceId)
+            LEFT JOIN rk_tei ON
+                (rk_matches.Corpus = rk_tei.Corpus
+                and rk_matches.File = rk_tei.File)
+            LEFT JOIN rk_concord_sentences as s_left ON
+                (s_left.Corpus = rk_matches.Corpus
+                and s_left.File = rk_matches.File
+                and s_left.SentencePosition =(rk_matches.SentenceId-1))
+            LEFT JOIN rk_concord_sentences as s_right ON
+                (s_right.Corpus = rk_matches.Corpus
+                and s_right.File = rk_matches.File
+                and s_right.SentencePosition =(rk_matches.SentenceId + 1))
+            WHERE rk_matches.MatchId={} {} {}
+            LIMIT {},{};
+            """.format(match_id, subcorpus_cond, internal_user_cond, start_index, result_number)
         else:
             query = """
             SELECT
-                s_center.Sentence, idToInfo.tokenPosition1, idToInfo.tokenPosition2, idToInfo.prepPosition, 
-                idToInfo.corpus, idToInfo.Date, idToTei.Textclass, idToTei.Orig, idToTei.Scan, idToTei.Avail, 
-                s_center.Page, idToTei.file, idToInfo.Score
+                s_center.Sentence, rk_matches.Word1Position, rk_matches.Word2Position, rk_matches.PrepPosition, 
+                rk_matches.Corpus, rk_matches.Date, rk_tei.TextClass, rk_tei.Orig, rk_tei.Scan, rk_tei.Avail, 
+                s_center.Page, rk_tei.File, rk_matches.GdexScore
             FROM
-                idToInfo
-            LEFT JOIN concordSentences as s_center ON
-                (s_center.corpus = idToInfo.corpus
-                and s_center.FileId = idToInfo.File
-                and s_center.SentenceId = idToInfo.sentence)
-            LEFT JOIN idToTei ON (idToInfo.corpus=idToTei.corpus and idToInfo.file=idToTei.file)
-            WHERE idToInfo.id={} {} {}
-            LIMIT {},{}
-            """.format(info_id, subcorpus_cond, internal_user_cond, start_index, result_number)
+                rk_matches
+            LEFT JOIN rk_concord_sentences as s_center ON
+                (s_center.Corpus = rk_matches.Corpus
+                and s_center.File = rk_matches.File
+                and s_center.SentencePosition = rk_matches.SentenceId)
+            LEFT JOIN rk_tei ON 
+                (rk_matches.Corpus=rk_tei.Corpus 
+                and rk_matches.File=rk_tei.File)
+            WHERE rk_matches.MatchId={} {} {}
+            LIMIT {},{};
+            """.format(match_id, subcorpus_cond, internal_user_cond, start_index, result_number)
 
         db_results = self.fetchall(query)
 
@@ -481,8 +160,7 @@ class WpSeMySql:
         for item in db_results:
             if use_context:
                 (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
-                 avail,
-                 page, file, score, sentence_left, sentence_right) = item
+                 avail, page, file, score, sentence_left, sentence_right) = item
                 sentence_left = format_sentence(sentence_left)
                 sentence_right = format_sentence(sentence_right)
             else:
@@ -492,14 +170,13 @@ class WpSeMySql:
             if not sentence:
                 logger.info("skip line: None in table!")
                 continue
-
             bib_entry = {
-                "Corpus": self.mapIdToCorpus[corpus],
-                "Date": self.mapIdToDate[date],
-                "TextClass": self.mapIdToTextclass[textclass],
+                "Corpus": corpus,
+                "Date": date.strftime("%d-%m-%Y"),
+                "TextClass": textclass,
                 "Orig": orig.replace('#page#', page),
                 "Scan": scan.replace('#page#', page),
-                "Avail": self.mapIdToAvail[avail],
+                "Avail": avail,
                 "Page": page,
                 "File": file,
             }
@@ -522,12 +199,12 @@ class WpSeMySql:
             return []
 
         query = """
-            SELECT LemmaId, PosId, Frequency, Count, RelationId FROM head_pos_rel_freq_test  
-            WHERE head_pos_rel_freq_test.lemma LIKE '{}' {};
+            SELECT Lemma, Pos, Frequency, Count, Relation
+            FROM rk_head_pos_rel_freq
+            WHERE LOWER(Lemma) LIKE '{}' {};
         """.format(
             word.lower(),
-            " and POS='{}'".format(self.mapPosToId[pos]) if pos not in ["*", ""] else "")
-
+            " and POS='{}'".format(pos) if pos not in ["*", ""] else "")
         db_results = self.fetchall(query)
 
         return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
@@ -539,23 +216,21 @@ class WpSeMySql:
         eher Substantiv als Verb.
         """
         lemma_pos_mapping = defaultdict(list)
-        for lemma_id, pos_id, frequency, count, relation_id in head_pos_rel_freqs:
-            lemma_pos_mapping[(lemma_id, pos_id)].append((relation_id, frequency, count))
+        for lemma, pos, frequency, count, relation in head_pos_rel_freqs:
+            lemma_pos_mapping[(lemma, pos)].append((relation, frequency, count))
 
         # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
         most_frequent_lemma = {}
-        for (lemma_id, pos_id), relations in lemma_pos_mapping.items():
+        for (lemma, pos), relations in lemma_pos_mapping.items():
             frequency = sum(frequency for _, frequency, _ in relations)
             count = sum(count for _, _, count in relations)
-            if pos_id not in most_frequent_lemma or most_frequent_lemma[pos_id][1] < frequency:
-                most_frequent_lemma[pos_id] = (lemma_id, frequency, count, relations)
+            if pos not in most_frequent_lemma or most_frequent_lemma[pos][1] < frequency:
+                most_frequent_lemma[pos] = (lemma, frequency, count, relations)
         pos_sorted = sorted(most_frequent_lemma.items(), key=lambda x: x[1][1], reverse=True)
 
         results = []
-        for pos_id, (lemma_id, frequency, count, relations) in pos_sorted:
-            pos = self.mapIdToPOS[pos_id]
-            lemma = self.mmapIdToLem[lemma_id]
-            relations = [self.mapIdToRel[relation_id] for (relation_id, frequency, count) in relations]
+        for pos, (lemma, frequency, count, relations) in pos_sorted:
+            relations = [relation for (relation, frequency, count) in relations]
 
             # bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
             if is_case_sensitive:
@@ -576,13 +251,13 @@ class WpSeMySql:
                 score = 4
             else:
                 score = 5
-            results.append((score, {'LemmaId': lemma_id, 'PosId': pos_id, 'POS': pos, 'Lemma': lemma,
+            results.append((score, {'Lemma': lemma, 'POS': pos,
                                     'Frequency': frequency, 'Count': count, 'Relations': relations}))
         results = [r[1] for r in sorted(results, key=lambda x: x[0])]
         return results
 
-    def get_relation_tuples_mwe_check(self, lemma_id, lemma2_id, pos_id, pos2_id, start, number, order_by, min_freq,
-                                      min_stat, relation_id):
+    def get_relation_tuples_mwe_check(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
+                                      min_stat, relation):
         """
         Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
         Wortprofil-MySQL-Datenbank
@@ -591,47 +266,48 @@ class WpSeMySql:
         str_min_freq = ""
         str_min_freq_mwe_check = ""
         if min_freq > 0:
-            str_min_freq = " and (-relations.frequency)>=" + str(min_freq) + " "
-            str_min_freq_mwe_check = " and (-ConditionalCheck_1.frequency)>=" + str(min_freq) + " "
+            str_min_freq = " and (-rk_relations.Frequency) >= " + str(min_freq) + " "
+            str_min_freq_mwe_check = " and (-ConditionalCheck_1.frequency) >= " + str(min_freq) + " "
 
         # Minimalstatistikwerte behandeln (MWE-Kookkurenzen einbezogen)
         str_min_stat = ""
         str_min_stat_mwe_check = ""
         if min_stat > -100000000:
-            str_min_stat = " and (-relations." + order_by + ")>=" + str(min_stat) + " "
-            str_min_stat_mwe_check = " and (-ConditionalCheck_1.logDice)>=" + str(min_stat) + " "
+            str_min_stat = " and (-rk_relations." + order_by + ") >= " + str(min_stat) + " "
+            str_min_stat_mwe_check = " and (-ConditionalCheck_1.logDice) >= " + str(min_stat) + " "
 
         # wenn es allgemein MWE-Relationen gibt
         if self.mwe_depth > 0:
             select_from_sql = """
             SELECT  
-                function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
-                -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, 
+                Relation, Prep, Lemma1, Lemma2, PrepSurface, Surface1, Surface2, Pos2, 
+                -rk_relations.Frequency, -CountsWithRights, -MiLogFreq, -rk_relations.LogDice, -MI3, MatchId, 
                 if(ConditionalCheck_1.id1!=CAST('None' as UNSIGNED) {} {} ,1,0) as MweId 
             FROM 
-                relations LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) 
+                rk_relations 
+            LEFT JOIN ConditionalCheck_1 ON (relations.info=ConditionalCheck_1.id1) 
             """.format(
                 str_min_freq_mwe_check, str_min_stat_mwe_check,
             )
         else:
             select_from_sql = """
             SELECT  
-                function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -relations.frequency, 
-                -freqBelege, -MiLogFreq, -relations.logDice, -MI3, info, '0' 
+                Relation, Prep, Lemma1, Lemma2, PrepSurface, Surface1, Surface2, Pos2, 
+                -rk_relations.Frequency, -CountsWithRights, -MiLogFreq, -rk_relations.LogDice, -MI3, MatchId, '0' 
             FROM 
-                relations
+                rk_relations
             """
 
         # evtl. auch das zweite Wort in der Kookkurrenz einschränken
-        if pos2_id == -1 or lemma2_id == -1:
-            where_sql = "WHERE lemma1='{}' and POS1='{}' and function IN ({}) {} {} LIMIT {}, {};".format(
-                lemma_id, pos_id, relation_id, str_min_freq, str_min_stat, start, number
+        if pos2 == -1 or lemma2 == -1:
+            where_sql = "WHERE Lemma1='{}' and Pos1='{}' and Relation = '{}' {} {} LIMIT {}, {};".format(
+                lemma1, pos1, relation, str_min_freq, str_min_stat, start, number
             )
         else:
-            where_sql = """WHERE lemma1='{}' and POS1='{}' and 
-                                lemma2='{}' and POS2='{}' and 
-                                function IN ({}) {} {} ORDER BY frequency;""".format(
-                lemma_id, pos_id, lemma2_id, pos2_id, relation_id, str_min_freq, str_min_stat
+            where_sql = """WHERE Lemma1='{}' and Pos1='{}' and 
+                                Lemma2='{}' and Pos2='{}' and 
+                                Relation = '{}' {} {} ORDER BY Frequency;""".format(
+                lemma1, pos1, lemma2, pos2, relation, str_min_freq, str_min_stat
             )
 
         db_results = self.fetchall(select_from_sql + where_sql)
@@ -956,20 +632,21 @@ class WpSeMySql:
         listResult = self.fetchall(strSelect3 + strFrom3 + strWhere3)
         return listResult
 
-    def get_relation_tuples_diff(self, lemma1_id, lemma2_id, pos_id, relation_ids,
+    def get_relation_tuples_diff(self, lemma1, lemma2, pos, relations,
                                  order_by, min_freq, min_stat):
         """
         Ermitteln der Kookkurrenzen zu einer Liste von syntaktischen Relationen für die 'diff'-Abfrage
         """
         query = """
-        SELECT function, prep, lemma1, lemma2, surfacePrep, surface1, surface2, POS2, -frequency, -freqBelege, -{}, info
-        FROM relations
-        WHERE lemma1 IN ("{}","{}") and POS1="{}" and function IN ({}) {} {};
+        SELECT Relation, Prep, Lemma1, Lemma2, PrepSurface, Surface1, Surface2, Pos2, 
+               -Frequency, -CountsWithRights, -{}, MatchId
+        FROM rk_relations
+        WHERE Lemma1 IN ("{}","{}") and Pos1="{}" and Relation IN ({}) {} {};
         """.format(
             order_by,
-            lemma1_id, lemma2_id, pos_id,
-            ",".join(map(str, relation_ids)),
-            " and (-frequency) >= {}".format(min_freq) if min_freq > 0 else "",
+            lemma1, lemma2, pos,
+            ",".join(['"{}"'.format(r) for r in relations]),
+            " and (-Frequency) >= {}".format(min_freq) if min_freq > 0 else "",
             " and (-{}) >= {}".format(order_by, min_stat) if min_stat > -100000000 else ""
         )
         db_results = self.fetchall(query)

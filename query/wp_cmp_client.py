@@ -77,8 +77,8 @@ parser.add_option("-x", dest="host", default=None, help="Hostrechner (z.B. http:
 parser.add_option("-c", dest="corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
 parser.add_option("-r", dest="relation", default="",
                   help="Angabe der gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
-parser.add_option("-o", dest="order", default="logDice",
-                  help="Angabe der Ordnung (frequency,logDice,MiLogFreq,MI3) (default=logDice)")
+parser.add_option("-o", dest="order", default="LogDice",
+                  help="Angabe der Ordnung (frequency,LogDice,MiLogFreq,MI3) (default=logDice)")
 # parser.add_option("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
 parser.add_option("--op", dest="operation", default="adiff",
                   help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg
@@ -147,9 +147,9 @@ if len(mapping) > 0:
 
     # Abfrageoptionen für den Wortvergleich erstellen
     mapParam = {}
-    mapParam["LemmaId1"] = mapping[0]["LemmaId1"]
-    mapParam["LemmaId2"] = mapping[0]["LemmaId2"]
-    mapParam["PosId"] = mapping[0]["PosId"]
+    mapParam["Lemma1"] = mapping[0]["Lemma1"]
+    mapParam["Lemma2"] = mapping[0]["Lemma2"]
+    mapParam["Pos"] = mapping[0]["POS"]
     mapParam["Relations"] = listRel
     mapParam["Number"] = int(options.number)
     mapParam["OrderBy"] = options.order

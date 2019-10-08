@@ -1,137 +1,131 @@
 #!/usr/bin/python3
 
-"""
-
-  Das Programm erstellt anhand der Wortprofil-Statistik-Tabellen eine MySQL-Datenbank:
-    -mapping_POS.table
-    -mapping_function.table
-    -mapping_lemma.table
-    -mapping_lemma_lower.table
-    -mapping_surface.table
-    -relations.table
-    -head_pos_freq.table
-    -head_pos_rel_freq.table
-    -mapping_file.table
-    -mapping_corpus.table
-    -threshold_rel.table
-    -rel_info.table
-
-"""
-
 import os
 import sys
-from optparse import OptionParser
+from argparse import ArgumentParser
 
-import MySQLdb
 import pandas as pd
-from sqlalchemy import create_engine, INTEGER
+from sqlalchemy import create_engine, types
 
-
-# from sqlalchemy.dialects.mysql import INTEGER
 
 def read_table(path, columns=None, mapping=False):
     file_lines = open(path, 'rb').readlines()
-    df = pd.DataFrame(map(lambda b: b.decode().strip().split('\t'), file_lines), columns=columns)
+    df = pd.DataFrame(map(lambda b: b.decode().strip().split('\t'), file_lines), columns=list(columns.keys()))
+    df = df.astype(columns)
     if mapping:
-        # df.iloc[:, 0] = df.iloc[:, 0].apply(pd.to_numeric)
-        return df.set_index(keys=[0], drop=True).T.iloc[0]
+        return df.set_index(keys=['Id'], drop=True).T.iloc[0]
     else:
         return df
 
 
 tables_columns = {
-    # mappings
-    'mapping_function': ['Id', 'Relation', 'RandomType', 'Usage', 'Label', 'Example'],  # TODO what is random type?
-    'mapping_POS': ['Id', 'Pos'],
-    'mapping_lemma': ['Id', 'Lemma'],
-    'mapping_corpus': ['Id', 'CorpusName'],
-    'mapping_corpus_name': ['CorpusName', 'CorpusFullName'],
-    'mapping_surface': ['Id', 'Surface'],
-    'mapping_file': ['Id', 'FileName'],
-    # TEI mappings?
-    'mapping_TEI': ['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClassId', 'AvailId'],
-    'mapping_TEI_textclass': ['Id', 'TextClass'],
-    'mapping_TEI_sigle': ['Id', 'Sigle'],
-    'mapping_TEI_orig': ['Id', 'BiblString'],
-    'mapping_TEI_scan': ['Id', 'BiblString'],
-    'mapping_TEI_date': ['Id', 'Date'],
-    'mapping_TEI_avail': ['Id', 'Rights'],
-    # important tables!
-    'mapping_position_info_tei': ['MatchId', 'WortPosition1', 'WordPosition2', 'PrepPosition',
-                                  'SentencePosition', 'FileId', 'CorpusId', 'Rights', 'DatumId', 'NegDatumId',
-                                  'GdexScore'],
-    'head_pos_rel_freq': ['LemmaId', 'PosId', 'RelationId', 'Frequency', 'Count'],
-    'relations': ['RelationId', 'Lemma1Id', 'Lemma2Id', 'Lemma3Id',
-                  'Surface1Id', 'Surface2Id', 'Surface3Id',
-                  'Pos1Id', 'Pos2Id', 'Pos3Id',
-                  'MatchId', 'CountsWithRights',
-                  'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike'],
-    'concord_sentences': ['CorpusId', 'FileId', 'SentencePosition', 'Sentence', 'Page'],
+    'types': {
+        'Id': str,
+        'value': int
+    },
+    'mapping_function': {
+        'Id': int,
+        'Relation': str,
+        'RelationType': int,
+        'Usage': str,
+        'Label': str,
+        'Example': str
+    },
+    'mapping_POS': {
+        'Id': int,
+        'Pos': str
+    },
+    'mapping_lemma': {
+        'Id': int,
+        'Lemma': str
+    },
+    'mapping_corpus': {
+        'Id': int,
+        'CorpusName': str
+    },
+    'mapping_corpus_name': {
+        'CorpusName': str,
+        'CorpusFullName': str
+    },
+    'mapping_surface': {
+        'Id': int,
+        'Surface': str
+    },
+    'mapping_file': {
+        'Id': int,
+        'FileName': str
+    },
+    'mapping_TEI': {
+        'CorpusId': int,
+        'FileId': int,
+        'Orig': str,
+        'Scan': str,
+        'TextClassId': int,
+        'AvailId': int
+    },
+    'mapping_TEI_textclass': {
+        'Id': int,
+        'TextClass': str
+    },
+    'mapping_TEI_sigle': {
+        'Id': int,
+        'Sigle': str
+    },
+    'mapping_TEI_orig': {
+        'Id': int,
+        'BiblString': str
+    },
+    'mapping_TEI_scan': {
+        'Id': int,
+        'BiblString': str
+    },
+    'mapping_TEI_date': {
+        'Id': int,
+        'Date': "datetime64"
+    },
+    'mapping_TEI_avail': {
+        'Id': int,
+        'Rights': str
+    },
+    'mapping_position_info_tei': {
+        'MatchId': int,
+        'Word1Position': int, 'Word2Position': int, 'PrepPosition': int,
+        'SentenceId': int, 'FileId': int, 'CorpusId': int,
+        'Rights': int, 'DateId': int,
+        'NegDateId': int,
+        'GdexScore': int
+    },
+    'head_pos_rel_freq': {
+        'LemmaId': int,
+        'PosId': int,
+        'RelationId': int,
+        'Frequency': int, 'Count': int},
+    'relations': {
+        'RelationId': int,
+        'PrepId': int, 'Lemma1Id': int, 'Lemma2Id': int,
+        'PrepSurfaceId': int, 'Surface1Id': int, 'Surface2Id': int,
+        'PrepPosId': int, 'Pos1Id': int, 'Pos2Id': int,
+        'MatchId': int,
+        'CountsWithRights': int,
+        'Frequency': int,
+        'MI3': float,
+        'MiLogFreq': float,
+        'TScore': float,
+        'LogDice': float,
+        'LogLike': float
+    },
+    'concord_sentences': {
+        'CorpusId': int,
+        'FileId': int,
+        'SentencePosition': int,
+        'Sentence': str,
+        'Page': str
+    },
 }
-
-"""
-"""
-
-g_strLocal = ''
-g_bSubCorpus = False
-g_listCorpus = []
-
-"""
- für ein Integer den unsigned-MySQL-Typ ermitteln
-"""
-
-
-def get_type(iSize):
-    if iSize <= 255:
-        return "TINYINT unsigned NOT NULL"
-    elif iSize <= 65535:
-        return "SMALLINT unsigned NOT NULL"
-    elif iSize <= 16777215:
-        return "MEDIUMINT unsigned NOT NULL"
-    elif iSize <= 4294967295:
-        return "INT unsigned NOT NULL"
-    else:
-        return "BIGINT unsigned NOT NULL"
-
-
-"""
- für ein Integer den signed-MySQL-Typ ermitteln
-"""
-
-
-def get_type_signed(iSize):
-    if iSize <= 127:
-        return "TINYINT signed NOT NULL"
-    elif iSize <= 32767:
-        return "SMALLINT signed NOT NULL"
-    elif iSize <= 8388607:
-        return "MEDIUMINT signed NOT NULL"
-    elif iSize <= 2147483647:
-        return "INT signed NOT NULL"
-    else:
-        return "BIGINT signed NOT NULL"
-
-
-"""
- für einen String (anhand der Länge) den MySQL-Typ ermitteln
-"""
-
-
-def get_type_char(iLength):
-    if iLength > 4294967295:
-        print("text zu groß")
-        sys.exit(-1)
-    elif iLength > 16777215:
-        return "LONGTEXT BINARY NOT NULL"
-    elif iLength > 65535:
-        return "MEDIUMTEXT BINARY NOT NULL"
-    elif iLength > 255:
-        return "TEXT BINARY NOT NULL"
-    else:
-        return "CHAR(" + str(iLength) + ") BINARY NOT NULL"
 
 
 def create_new_tables(engine, directory):
+    print('(: get mappings')
     mapping_function = read_table(os.path.realpath(directory + '/mapping_function.table'),
                                   columns=tables_columns['mapping_function'])
     mapping_lemma = read_table(os.path.realpath(directory + '/mapping_lemma.table'),
@@ -139,701 +133,122 @@ def create_new_tables(engine, directory):
     mapping_surface = read_table(os.path.realpath(directory + '/mapping_surface.table'),
                                  columns=tables_columns['mapping_surface'])
     mapping_pos = read_table(os.path.realpath(directory + '/mapping_POS.table'), columns=tables_columns['mapping_POS'])
-
-    table_relations = read_table(os.path.realpath(directory + '/relations.table'), columns=tables_columns['relations'])
-    table_relations['Relation'] = pd.merge(
-        table_relations, mapping_function, left_on='RelationId', right_on='Id')['Relation']
-    table_relations['Lemma1'] = pd.merge(
-        table_relations, mapping_lemma, left_on='Lemma1Id', right_on='Id')['Lemma']
-    table_relations['Lemma2'] = pd.merge(
-        table_relations, mapping_lemma, left_on='Lemma2Id', right_on='Id')['Lemma']
-    table_relations['Lemma3'] = pd.merge(
-        table_relations, mapping_lemma, left_on='Lemma3Id', right_on='Id')['Lemma']
-    table_relations['Surface1'] = pd.merge(
-        table_relations, mapping_surface, left_on='Surface1Id', right_on='Id')['Surface']
-    table_relations['Surface2'] = pd.merge(
-        table_relations, mapping_surface, left_on='Surface2Id', right_on='Id')['Surface']
-    table_relations['Surface3'] = pd.merge(
-        table_relations, mapping_surface, left_on='Surface3Id', right_on='Id')['Surface']
-    table_relations['Pos1'] = pd.merge(
-        table_relations, mapping_pos, left_on='Pos1Id', right_on='Id')['Pos']
-    table_relations['Pos2'] = pd.merge(
-        table_relations, mapping_pos, left_on='Pos2Id', right_on='Id')['Pos']
-    table_relations['Pos3'] = pd.merge(
-        table_relations, mapping_pos, left_on='Pos3Id', right_on='Id')['Pos']
-    # table_relations = table_relations[
-    #     ['Relation', 'Lemma1', 'Lemma2', 'Lemma3', 'Surface1', 'Surface2', 'Surface3', 'Pos1', 'Pos2', 'Pos3',
-    #      'MatchId', 'CountsWithRights', 'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike']]
-    table_relations.to_sql('relations_test', con=engine, index=False, chunksize=16)
-
-    table_freqs = read_table(os.path.realpath(directory + '/head_pos_rel_freq.table'),
-                             columns=tables_columns['head_pos_rel_freq'])
-    table_freqs['Lemma'] = pd.merge(table_freqs, mapping_lemma, left_on='LemmaId', right_on='Id')['Lemma']
-    table_freqs['Pos'] = pd.merge(table_freqs, mapping_pos, left_on='PosId', right_on='Id')['Pos']
-    table_freqs['Relation'] = pd.merge(table_freqs, mapping_function, left_on='RelationId', right_on='Id')['Relation']
-    # table_freqs = table_freqs[['Lemma', 'Pos', 'Relation', 'Frequency', 'Count']]
-    table_freqs.to_sql('head_pos_rel_freq_test', con=engine, index=False, chunksize=16, if_exists='replace',
-                       dtype={'LemmaId': INTEGER, 'PosId': INTEGER, 'RelationId': INTEGER, 'Frequency': INTEGER,
-                              'Count': INTEGER})
-
-    mapping_textclass = read_table(os.path.realpath(directory + '/mapping_TEI_textclass.table'),
-                                   columns=tables_columns['mapping_TEI_textclass'])
-    table_tei = read_table(os.path.realpath(directory + '/mapping_TEI.table'),
-                           columns=tables_columns['mapping_TEI'])
-    mapping_avail = read_table(os.path.realpath(directory + '/mapping_TEI_avail.table'),
-                               columns=tables_columns['mapping_TEI_avail'])
+    mapping_file = read_table(os.path.realpath(directory + '/mapping_file.table'),
+                              columns=tables_columns['mapping_file'])
     mapping_corpus = read_table(os.path.realpath(directory + '/mapping_corpus.table'),
                                 columns=tables_columns['mapping_corpus'])
-    table_tei['TextClass'] = pd.merge(table_tei, mapping_textclass, left_on='TextClassId', right_on='Id')[
-        'TextClass']
-    table_tei['Avail'] = pd.merge(table_tei, mapping_avail, left_on='AvailId', right_on='Id')['Rights']
-    mapping_files = read_table(os.path.realpath(directory + '/mapping_file.table'),
-                               columns=tables_columns['mapping_file'])
-    table_tei['File'] = pd.merge(table_tei, mapping_files, left_on='FileId', right_on='Id')['FileName']
-    table_tei['Corpus'] = pd.merge(table_tei, mapping_corpus, left_on='CorpusId', right_on='Id')['CorpusName']
-    # table_tei = table_tei[['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClass', 'Avail']]
-    table_tei.to_sql('tei_test', con=engine, index=False, chunksize=16)
+    mapping_date = read_table(os.path.realpath(directory + '/mapping_TEI_date.table'),
+                              columns=tables_columns['mapping_TEI_date'])
+    mapping_avail = read_table(os.path.realpath(directory + '/mapping_TEI_avail.table'),
+                               columns=tables_columns['mapping_TEI_avail'])
+    mapping_textclass = read_table(os.path.realpath(directory + '/mapping_TEI_textclass.table'),
+                                   columns=tables_columns['mapping_TEI_textclass'])
 
+    map_function_name = dict(mapping_function[['Id', 'Relation']].values)
+    map_function_type = dict(mapping_function[['Id', 'RelationType']].values)
+    map_lemma = dict(mapping_lemma.values)
+    map_surface = dict(mapping_surface.values)
+    map_pos = dict(mapping_pos.values)
+    map_file = dict(mapping_file.values)
+    map_corpus = dict(mapping_corpus.values)
+    map_date = dict(mapping_date.values)
+    map_avail = dict(mapping_avail.values)
+    map_textclass = dict(mapping_textclass.values)
+
+    print('(: process relations')
+    table_relations = read_table(os.path.realpath(directory + '/relations.table'), columns=tables_columns['relations'])
+    table_relations['Relation'] = table_relations.RelationId.map(map_function_name)
+    table_relations['Prep'] = table_relations.PrepId.map(map_lemma)
+    table_relations['Lemma1'] = table_relations.Lemma1Id.map(map_lemma)
+    table_relations['Lemma2'] = table_relations.Lemma2Id.map(map_lemma)
+    table_relations['PrepSurface'] = table_relations.PrepSurfaceId.map(map_surface)
+    table_relations['Surface1'] = table_relations.Surface1Id.map(map_surface)
+    table_relations['Surface2'] = table_relations.Surface2Id.map(map_surface)
+    table_relations['PrepPos'] = table_relations.PrepPosId.map(map_pos)
+    table_relations['Pos1'] = table_relations.Pos1Id.map(map_pos)
+    table_relations['Pos2'] = table_relations.Pos2Id.map(map_pos)
+    table_relations = table_relations[
+        ['Relation', 'Prep', 'Lemma1', 'Lemma2', 'PrepSurface', 'Surface1', 'Surface2', 'PrepPos', 'Pos1', 'Pos2',
+         'MatchId', 'CountsWithRights', 'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike']]
+    table_relations.to_sql('rk_relations', con=engine, index=False, chunksize=256, if_exists='replace',
+                           dtype={'PrepPos': types.VARCHAR(20), 'Pos1': types.VARCHAR(20), "Pos2": types.VARCHAR(20),
+                                  'Relation': types.VARCHAR(10)})
+
+    print('(: process head_pos_rel_freq')
+    table_freqs = read_table(os.path.realpath(directory + '/head_pos_rel_freq.table'),
+                             columns=tables_columns['head_pos_rel_freq'])
+    table_freqs['Lemma'] = table_freqs.LemmaId.map(map_lemma)
+    table_freqs['Pos'] = table_freqs.PosId.map(map_pos)
+    table_freqs['Relation'] = table_freqs.RelationId.map(map_function_name)
+    table_freqs['RelationType'] = table_freqs.RelationId.map(map_function_type)
+    table_freqs = table_freqs[['Lemma', 'Pos', 'Relation', 'RelationType', 'Frequency', 'Count']]
+    table_freqs.to_sql('rk_head_pos_rel_freq', con=engine, index=False, chunksize=256, if_exists='replace')
+
+    print('(: process TEI infos')
+    table_tei = read_table(os.path.realpath(directory + '/mapping_TEI.table'),
+                           columns=tables_columns['mapping_TEI'])
+    table_tei['TextClass'] = table_tei.TextClassId.map(map_textclass)
+    table_tei['Avail'] = table_tei.AvailId.map(map_avail)
+    table_tei['File'] = table_tei.FileId.map(map_file)
+    table_tei['Corpus'] = table_tei.CorpusId.map(map_corpus)
+    table_tei = table_tei[['Corpus', 'File', 'Orig', 'Scan', 'TextClass', 'Avail']]
+    table_tei.to_sql('rk_tei', con=engine, index=False, chunksize=256, if_exists='replace',
+                     dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+
+    print('(: process concord sentences')
     concord_sentences = read_table(os.path.realpath(directory + '/concord_sentences.table'),
                                    columns=tables_columns['concord_sentences'])
-    concord_sentences['File'] = pd.merge(concord_sentences, mapping_files, left_on='FileId', right_on='Id')[
-        'FileName']
-    concord_sentences['Corpus'] = pd.merge(concord_sentences, mapping_corpus, left_on='CorpusId', right_on='Id')[
-        'CorpusName']
-    # concord_sentences = concord_sentences[['CorpusId', 'FileId', 'Orig', 'Scan', 'TextClass', 'Avail']]
-    concord_sentences.to_sql('concord_sentences_test', con=engine, index=False, chunksize=16)
-
-
-def create_tables(cursor, directory, g_bSubCorpus=False):
-    global g_listCorpus
-
-    print('(: get data types')
-    table_types = read_table(os.path.realpath(directory + '/types.table'), mapping=True)
-    cursor.execute("""
-    CREATE TABLE types
-    (
-     type     CHAR(30),
-     value int unsigned,
-     index (type)
-    )
-    """)
-    cursor.execute(
-        "LOAD DATA " + g_strLocal + " INFILE \"" + os.path.realpath(directory + "/types.table") + "\" INTO TABLE types")
-
-    ### Ermitteln der MySQL-Typen
-    typeMI3Str = str(int(table_types['MI3Length']) + 2)
-    typeMiLogFreqStr = str(int(table_types['MiLogFreqLength']) + 2)
-    typeTScoreStr = str(int(table_types['TScoreLength']) + 2)
-    typelogDiceStr = str(int(table_types['LogDiceLength']) + 2)
-    typelogLikeStr = str(int(table_types['LogLikeLength']) + 2)
-
-    typeLemmaId = get_type(int(table_types['lemmaSize']))
-    typeLemmaStrCaseInsensitive = "CHAR(" + str(int(table_types['lemmaLength'])) + ") BINARY"
-
-    typeSurfaceId = get_type(int(table_types['surfaceSize']))
-    typeSurfaceStr = "CHAR(" + str(int(table_types['surfaceLength'])) + ") BINARY"
-
-    typePOSId = get_type(int(table_types['POSSize']))
-    typePOSStr = "CHAR(" + str(int(table_types['POSLength'])) + ") BINARY"
-
-    typeCorpusId = get_type(int(table_types['corpusSize']))
-    typeCorpusStr = "CHAR(" + str(int(table_types['corpusLength'])) + ") BINARY"
-
-    typeInfoId = get_type(int(table_types['infoSize']))
-
-    typeFrequency = get_type_signed(int(table_types['highestFrequency']))
-    typeHeadPosFrequency = get_type(int(table_types['highestHeadPosFrequency']))
-
-    typeText = get_type(int(table_types['highestText']))
-
-    typeFunctionId = get_type(int(table_types['highestFunction']))
-    typeFunctionStr = "CHAR(" + str(int(table_types['functionLength'])) + ") BINARY"
-    typeSnippetStr = "CHAR(" + str(int(table_types['snippetLength'])) + ") BINARY"
-    typeDescriptionStr = "CHAR(" + str(int(table_types['descriptionLength'])) + ") BINARY"
-    typeExampleStr = "CHAR(" + str(int(table_types['exampleLength'])) + ") BINARY"
-
-    ### Erzeugen der MySQL-Tabellen
-    print('(: create tables')
-
-    ### mapping_corpus.table
-    cursor.execute("""
-  CREATE TABLE idToCorpus
-  (
-   id """ + typeCorpusId + """,
-   Corpus """ + typeCorpusStr + """,
-   primary key (id)
-  )
-  """)
-    ### Abfragen der verwendeten Korpusnamen
-    cursor.execute("LOAD DATA " + g_strLocal + " INFILE \"" + os.path.realpath(
-        directory + "/mapping_corpus.table") + "\" INTO TABLE idToCorpus")
-    cursor = conn.cursor()
-    cursor.execute("SELECT Corpus FROM idToCorpus")
-    g_listCorpus = cursor.fetchall()
-
-    ### mapping_corpus.table
-    cursor.execute("""
-  CREATE TABLE idToFile
-  (
-   id """ + typeText + """,
-   File     TEXT,
-   primary key (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE idToPOS
-  (
-   id """ + typePOSId + """,
-   POS     """ + typePOSStr + """,
-   primary key (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE headPosFreq
-  (
-   id """ + typeLemmaId + """,
-   POS     """ + typePOSId + """,
-   frequency """ + typeHeadPosFrequency + """,
-   count """ + typeHeadPosFrequency + """,
-   index (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE headPosRelFreq
-  (
-   id """ + typeLemmaId + """,
-   POS     """ + typePOSId + """,
-   relation  """ + typeFunctionId + """,
-   frequency """ + typeHeadPosFrequency + """,
-   count """ + typeHeadPosFrequency + """,
-   index (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE idToFunction
-  (
-   id """ + typeFunctionId + """,
-   Function """ + typeFunctionStr + """,
-   Type TINYINT unsigned,
-   Snippet """ + typeSnippetStr + """,
-   Description """ + typeDescriptionStr + """,
-   Example """ + typeExampleStr + """,
-   primary key (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE lemmaToRelation
-  (
-   id """ + typeLemmaId + """,
-   lemma """ + typeLemmaStrCaseInsensitive + """,
-   index (lemma),
-   index (id)
-  )
-  """)
-
-    #   cursor.execute("""
-    # CREATE TABLE lemmaToRelationLower
-    # (
-    #  id """ + typeLemmaId + """,
-    #  lemma """ + typeLemmaStrCaseInsensitive + """,
-    #  index (lemma),
-    #  index (id)
-    # )
-    # """)
-
-    cursor.execute("""
-  CREATE TABLE idToSurface
-  (
-   id """ + typeSurfaceId + """,
-   surface """ + typeSurfaceStr + """,
-   primary key (id)
-  )
-  """)
-
-    cursor.execute("""
-  CREATE TABLE relations
-  (
-   function """ + typeFunctionId + """,
-   prep """ + typeLemmaId + """,
-   lemma1 """ + typeLemmaId + """,
-   lemma2 """ + typeLemmaId + """,
-   surfacePrep """ + typeSurfaceId + """,
-   surface1 """ + typeSurfaceId + """,
-   surface2 """ + typeSurfaceId + """,
-   PrepPOS """ + typePOSId + """,
-   POS1 """ + typePOSId + """,
-   POS2 """ + typePOSId + """,
-   info """ + typeInfoId + """,
-   freqBelege """ + typeFrequency + """,
-   frequency """ + typeFrequency + """,
-   MI3 float(""" + typeMI3Str + """,2),
-   MiLogFreq float(""" + typeMiLogFreqStr + """,2),
-   TScore float(""" + typeTScoreStr + """,2),
-   logDice float(""" + typelogDiceStr + """,2),
-   logLike float(""" + typelogLikeStr + """,0),
-
-   index I_MiLogFreq (function,lemma1,POS1,MiLogFreq),
-   index I_frequency (function,lemma1,POS1,frequency),
-   index I_logDice (function,lemma1,POS1,logDice),
-
-   index I_info (info)
-  )
-  """)
-
-    #   cursor.execute("""
-    # CREATE TABLE relationsOhneIndex
-    # (
-    #  function """ + typeFunctionId + """,
-    #  prep """ + typeLemmaId + """,
-    #  lemma1 """ + typeLemmaId + """,
-    #  lemma2 """ + typeLemmaId + """,
-    #  surfacePrep """ + typeSurfaceId + """,
-    #  surface1 """ + typeSurfaceId + """,
-    #  surface2 """ + typeSurfaceId + """,
-    #  PrepPOS """ + typePOSId + """,
-    #  POS1 """ + typePOSId + """,
-    #  POS2 """ + typePOSId + """,
-    #  info """ + typeInfoId + """,
-    #  freqBelege """ + typeFrequency + """,
-    #  frequency """ + typeFrequency + """,
-    #  MI3 float(""" + typeMI3Str + """,2),
-    #  MiLogFreq float(""" + typeMiLogFreqStr + """,2),
-    #  TScore float(""" + typeTScoreStr + """,2),
-    #  logDice float(""" + typelogDiceStr + """,2),
-    #  logLike float(""" + typelogLikeStr + """,0)
-    # )
-    # """)
-
-    ### threshold_rel.table
-    cursor.execute("""
-  CREATE TABLE threshold
-  (
-   id """ + typeFunctionId + """,
-   type CHAR(20) BINARY NOT NULL,
-   value float,
-
-   index I_id (id)
-  )
-  """)
-
-    ### info.table
-    cursor.execute("""
-  CREATE TABLE Info
-  (
-   InfoKey VARCHAR(1000) NOT NULL,
-   InfoValue VARCHAR(1000) NOT NULL
-  )
-  """)
-
-    ### rel_info.table
-    cursor.execute("""
-  CREATE TABLE relInfo
-  (
-   id """ + typeFunctionId + """,
-
-   count INT unsigned NOT NULL,
-   frequency INT unsigned NOT NULL,
-   freqBelege INT unsigned NOT NULL,
-
-   primary key (id)
-  )
-  """)
-
-    ### mapping_corpus_name.table
-    cursor.execute("""
-  CREATE TABLE CorpusName
-  (
-   shortName VARCHAR(1000) NOT NULL,
-   fullName VARCHAR(1000) NOT NULL
-  )
-  """)
-
-    if g_bSubCorpus:
-        for i in g_listCorpus:
-            cursor.execute("""
-      CREATE TABLE """ + i[0] + """headPosFreq
-      (
-       id """ + typeLemmaId + """,
-       POS     """ + typePOSId + """,
-       frequency """ + typeHeadPosFrequency + """,
-       count """ + typeHeadPosFrequency + """,
-       index (id)
-      )
-      """)
-
-        for i in g_listCorpus:
-            cursor.execute("""
-      CREATE TABLE """ + i[0] + """headPosRelFreq
-      (
-       id """ + typeLemmaId + """,
-       POS     """ + typePOSId + """,
-       relation  """ + typeFunctionId + """,
-       frequency """ + typeHeadPosFrequency + """,
-       count """ + typeHeadPosFrequency + """,
-       index (id)
-      )
-      """)
-
-        for i in g_listCorpus:
-            cursor.execute("""
-      CREATE TABLE """ + i[0] + """relations
-      (
-       function """ + typeFunctionId + """,
-       prep """ + typeLemmaId + """,
-       lemma1 """ + typeLemmaId + """,
-       lemma2 """ + typeLemmaId + """,
-       surfacePrep """ + typeSurfaceId + """,
-       surface1 """ + typeSurfaceId + """,
-       surface2 """ + typeSurfaceId + """,
-       PrepPOS """ + typePOSId + """,
-       POS1 """ + typePOSId + """,
-       POS2 """ + typePOSId + """,
-       info """ + typeInfoId + """,
-       freqBelege """ + typeFrequency + """,
-       frequency """ + typeFrequency + """,
-       MI3 float(""" + typeMI3Str + """,2),
-       MiLogFreq float(""" + typeMiLogFreqStr + """,2),
-       AScore float(""" + typeTScoreStr + """,2),
-       logDice float(""" + typelogDiceStr + """,2),
-       LogLike float(""" + typelogLikeStr + """,0),
-
-       index I_MiLogFreq (lemma1,POS1,MiLogFreq),
-       index I_frequency (lemma1,POS1,frequency),
-       index I_MI3 (lemma1,POS1,MI3),
-       index I_AScore (lemma1,POS1,AScore),
-       index I_logDice (lemma1,POS1,logDice),
-
-       index I_info (info)
-      )
-      """)
-
-    return
-
-
-"""
- Laden der Wortprofiltabellen in die MySQL-Tabellen
-"""
-
-
-def load_into_tables(cursor, directory):
-    global g_bSubCorpus
-    global g_listCorpus
-
-    # print '(: load data: '+ os.path.realpath(directory +'/mapping_corpus.table')
-    # cursor.execute ("LOAD DATA " + g_strLocal + " INFILE \""+os.path.realpath(directory +"/mapping_corpus.table")+"\" INTO TABLE idToCorpus")
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_corpus_name.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_corpus_name.table') + '\" INTO TABLE CorpusName')
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_POS.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_POS.table') + '\" INTO TABLE idToPOS')
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_function.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_function.table') + '\" INTO TABLE idToFunction')
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_lemma.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_lemma.table') + '\" INTO TABLE lemmaToRelation')
-
-    # print('(: load data: ' + os.path.realpath(directory + '/mapping_lemma_lower.table'))
-    # cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-    #     directory + '/mapping_lemma_lower.table') + '\" INTO TABLE lemmaToRelationLower')
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_surface.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_surface.table') + '\" INTO TABLE idToSurface')
-
-    print('(: load data: ' + os.path.realpath(directory + '/relations.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/relations.table') + '\" INTO TABLE relations')
-
-    print('(: load data: ' + os.path.realpath(directory + '/head_pos_freq.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/head_pos_freq.table') + '\" INTO TABLE headPosFreq')
-
-    print('(: load data: ' + os.path.realpath(directory + '/head_pos_rel_freq.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/head_pos_rel_freq.table') + '\" INTO TABLE headPosRelFreq')
-
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_file.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_file.table') + '\" INTO TABLE idToFile')
-
-    print('(: load data: ' + os.path.realpath(directory + '/threshold_rel.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/threshold_rel.table') + '\" INTO TABLE threshold')
-
-    print('(: load data: ' + os.path.realpath(directory + '/info.table'))
-    cursor.execute(
-        'LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(directory + '/info.table') + '\" INTO TABLE Info')
-
-    print('(: load data: ' + os.path.realpath(directory + '/rel_info.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/rel_info.table') + '\" INTO TABLE relInfo')
-
-    if g_bSubCorpus:
-        if True:  # len(g_listCorpus)>1:
-            for i in g_listCorpus:
-                print('(: load data: ' + os.path.realpath(directory + '/relations.' + i[0] + '.table'))
-                cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-                    directory + '/relations.' + i[0] + '.table') + '\" INTO TABLE ' + i[0] + 'relations')
-                print('(: load data: ' + os.path.realpath(directory + '/head_pos_freq.' + i[0] + '.table'))
-                cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-                    directory + '/head_pos_freq.' + i[0] + '.table') + '\" INTO TABLE ' + i[0] + 'headPosFreq')
-                print('(: load data: ' + os.path.realpath(directory + '/head_pos_rel_freq.' + i[0] + '.table'))
-                cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-                    directory + '/head_pos_rel_freq.' + i[0] + '.table') + '\" INTO TABLE ' + i[0] + 'headPosRelFreq')
-
-
-def create_tables_hits(cursor, directory):
-    print('(: get data types')
-    table_types = read_table(os.path.realpath(directory + '/types.table')).set_index(keys=[0], drop=True).T.iloc[0]
-
-    ### Ermitteln der MySQL-Typen
-    typeCorpusId = get_type(int(table_types['corpusSize']))
-    typeInfoId = get_type(int(table_types['infoSize']))
-    typeText = get_type(int(table_types['highestText']))
-    typeTokenPositionW1 = get_type(int(table_types['highestTokenPositionW1']))
-    typeTokenPositionW2 = get_type(int(table_types['highestTokenPositionW2']))
-    typePrepPosition = get_type(int(table_types['highestPrepPosition']))
-    typeSentence = get_type(int(table_types['highestSentence']))
-
-    ### Ermitteln der MySQL-Typen für die TEI-Informationen
-    ### Einlesen der Typinformationen in eine Tabelle
-    table_tei_types = \
-        read_table(os.path.realpath(directory + '/TEI_types.table')).set_index(keys=[0], drop=True).T.iloc[0]
-
-    cursor.execute("""
-    CREATE TABLE teiTypes
-    (
-     type     CHAR(30),
-     value int unsigned,
-     index (type)
-    )
+    concord_sentences['File'] = concord_sentences.FileId.map(map_file)
+    concord_sentences['Corpus'] = concord_sentences.CorpusId.map(map_corpus)
+    concord_sentences = concord_sentences[['Corpus', 'File', 'SentencePosition', 'Sentence', 'Page']]
+    concord_sentences.to_sql('rk_concord_sentences', con=engine, index=False, chunksize=256, if_exists='replace',
+                             dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+    print('(: build concord sentences INDEX')
+    engine.execute("""
+    CREATE UNIQUE INDEX rk_concord_sentences_CorpusId_IDX 
+    USING BTREE 
+    ON rk_concord_sentences (Corpus,File,SentencePosition);
     """)
 
-    cursor.execute("LOAD DATA " + g_strLocal + " INFILE \"" + os.path.realpath(
-        directory + "/TEI_types.table") + "\" INTO TABLE teiTypes")
-
-    typeDateId = get_type(int(table_tei_types['DateSize']))
-    typeDateDescId = get_type_signed(int(table_tei_types['DateSize']))
-    typeTextclassId = get_type(int(table_tei_types['TextclassSize']))
-    typeOrigId = get_type(int(table_tei_types['OrigSize']))
-    typeScanId = get_type(int(table_tei_types['ScanSize']))
-    typeAvailId = get_type(int(table_tei_types['AvailSize']))
-    typeDateStr = get_type_char(int(table_tei_types['lengthDate']))
-    typeOrigStr = get_type_char(int(table_tei_types['lengthOrig']))
-    typeScanStr = get_type_char(int(table_tei_types['lengthScan']))
-    typeAvailStr = get_type_char(int(table_tei_types['lengthAvail']))
-    typeTextclassStr = get_type_char(int(table_tei_types['lengthTextclass']))
-
-    ###Erzeugen der MySQL-Tabellen
-    print('(: create tables')
-
-    ### concord_sentences.table
-    cursor.execute("""DROP TABLE IF EXISTS concordSentences""")
-    cursor.execute("""
-  CREATE TABLE concordSentences
-  (
-   corpus """ + typeCorpusId + """,
-   FileId """ + typeText + """,
-   SentenceId """ + typeSentence + """,
-   Sentence TEXT,
-   Page TEXT,
-   primary key (corpus,FileId,SentenceId)
-  )
-  """)
-
-    ### mapping_TEI_textclass.table
-    cursor.execute("""DROP TABLE IF EXISTS idToTextclass""")
-    cursor.execute("""
-  CREATE TABLE idToTextclass
-  (
-   id """ + typeTextclassId + """,
-   Textclass     """ + typeTextclassStr + """,
-   primary key (id)
-  )
-  """)
-
-    ### mapping_TEI_date.table
-    cursor.execute("""DROP TABLE IF EXISTS idToDate""")
-    cursor.execute("""
-  CREATE TABLE idToDate
-  (
-   id """ + typeDateId + """,
-   Date     """ + typeDateStr + """,
-   primary key (id)
-  )
-  """)
-
-    #   ### mapping_TEI_orig.table
-    #   cursor.execute("""DROP TABLE IF EXISTS idToOrig""")
-    #   cursor.execute("""
-    # CREATE TABLE idToOrig
-    # (
-    #  id """ + typeOrigId + """,
-    #  Orig     """ + typeOrigStr + """,
-    #  primary key (id)
-    # )
-    # """)
-
-    #   ### mapping_TEI_scan.table
-    #   cursor.execute("""DROP TABLE IF EXISTS idToScan""")
-    #   cursor.execute("""
-    # CREATE TABLE idToScan
-    # (
-    #  id """ + typeScanId + """,
-    #  Scan     """ + typeScanStr + """,
-    #  primary key (id)
-    # )
-    # """)
-
-    ### mapping_TEI_avail.table
-    cursor.execute("""DROP TABLE IF EXISTS idToAvail""")
-    cursor.execute("""
-  CREATE TABLE idToAvail
-  (
-   id """ + typeAvailId + """,
-   Avail     """ + typeAvailStr + """,
-   primary key (id),
-   index (Avail)
-  )
-  """)
-
-    ### mapping_TEI.table
-    cursor.execute("""DROP TABLE IF EXISTS idToTei""")
-    cursor.execute("""
-  CREATE TABLE idToTei
-  (
-   corpus """ + typeCorpusId + """,
-   file """ + typeText + """,
-   Orig     """ + typeOrigStr + """,
-   Scan     """ + typeScanStr + """,
-   Textclass """ + typeTextclassId + """,
-   Avail """ + typeAvailId + """,
-   primary key (corpus,file)
-  )
-  """)
-
-    ### mapping_position_info_tei.table
-    cursor.execute("""DROP TABLE IF EXISTS idToInfo""")
-    cursor.execute("""
-  CREATE TABLE idToInfo
-  (
-   id """ + typeInfoId + """,
-   tokenPosition1 """ + typeTokenPositionW1 + """,
-   tokenPosition2 """ + typeTokenPositionW2 + """,
-   prepPosition """ + typePrepPosition + """,
-   sentence """ + typeSentence + """,
-   file """ + typeText + """,
-   corpus """ + typeCorpusId + """,
-   avail BOOL,
-   Date """ + typeDateId + """,
-   DateDesc """ + typeDateDescId + """,
-   Score INT NOT NULL,
-
-   index I_date (id,Date,Avail,corpus),
-   index I_date_desc (id,DateDesc,Avail,corpus),
-
-   index I_score_date (id,Score,Date,Avail,corpus),
-   index I_score_date_desc (id,Score,DateDesc,Avail,corpus)
-
-  )
-  """)
-
-    ### Temporäre Tabelle für Berechnungen des Wortprofil-Servers
-    cursor.execute("""DROP TABLE IF EXISTS idToInfoTmp""")
-    cursor.execute("""
-  CREATE TABLE idToInfoTmp
-  (
-   id """ + typeInfoId + """,
-   tokenPosition1 """ + typeTokenPositionW1 + """,
-   tokenPosition2 """ + typeTokenPositionW2 + """,
-   prepPosition """ + typePrepPosition + """,
-   sentence """ + typeSentence + """,
-   file """ + typeText + """,
-   corpus """ + typeCorpusId + """,
-   avail BOOL,
-   Date """ + typeDateId + """,
-   DateDesc """ + typeDateDescId + """,
-   Score INT NOT NULL
-  )
-
-  """)
-
-
-def load_into_tables_hits(cursor, directory):
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI_date.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_TEI_date.table') + '\" INTO TABLE idToDate')
-    # print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI_orig.table'))
-    # cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-    #     directory + '/mapping_TEI_orig.table') + '\" INTO TABLE idToOrig')
-    # print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI_scan.table'))
-    # cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-    #     directory + '/mapping_TEI_scan.table') + '\" INTO TABLE idToScan')
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI_avail.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_TEI_avail.table') + '\" INTO TABLE idToAvail')
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI_textclass.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_TEI_textclass.table') + '\" INTO TABLE idToTextclass')
-    print('(: load data: ' + os.path.realpath(directory + '/concord_sentences.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/concord_sentences.table') + "\" INTO TABLE concordSentences FIELDS TERMINATED BY '\t' ENCLOSED BY '' ESCAPED BY ''")
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_position_info_tei.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_position_info_tei.table') + '\" INTO TABLE idToInfo')
-    print('(: load data: ' + os.path.realpath(directory + '/mapping_TEI.table'))
-    cursor.execute('LOAD DATA ' + g_strLocal + ' INFILE \"' + os.path.realpath(
-        directory + '/mapping_TEI.table') + '\" INTO TABLE idToTei')
+    print('(: process matches')
+    table_matches = read_table(os.path.realpath(directory + '/mapping_position_info_tei.table'),
+                               columns=tables_columns['mapping_position_info_tei'])
+    table_matches['File'] = table_matches.FileId.map(map_file)
+    table_matches['Corpus'] = table_matches.CorpusId.map(map_corpus)
+    table_matches['Date'] = table_matches.DateId.map(map_date)
+    table_matches = table_matches[['MatchId', 'Word1Position', 'Word2Position', 'PrepPosition', 'SentenceId',
+                                   'File', 'Corpus', 'Rights', 'Date', 'GdexScore']]
+    table_matches.to_sql('rk_matches', con=engine, index=False, chunksize=256, if_exists='replace',
+                         dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+    print('(: build matches INDEX')
+    engine.execute("""
+        CREATE INDEX rk_matches_IDX 
+        USING BTREE 
+        ON rk_matches (MatchId);
+        """)
+    print('(: build matches corpus-file-sentence INDEX')
+    engine.execute("""
+        CREATE INDEX rk_matches_corpus_file_sent_IDX 
+        USING BTREE 
+        ON rk_matches (Corpus, File, SentenceId);
+        """)
 
 
 print("|: CREATE MYSQL DATABASE")
+parser = ArgumentParser()
+parser.add_argument("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)", required=True)
 
-### Create option parser
-parser = OptionParser()
-parser.add_option("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)")
-parser.add_option("-l", action="store_true", dest="local", default=False,
-                  help="Ob MySQL die Tabellen 'local' einlesen sollen")
-parser.add_option("-c", action="store_true", dest="subcorpus", default=False,
-                  help="Ob die Subkorpora eingespielt werden sollen")
-(options, args) = parser.parse_args()
+args = parser.parse_args()
 
-if options.local:
-    g_strLocal = "LOCAL"
-
-g_bSubCorpus = options.subcorpus
-
-### Prüfen der Parameter
-if options.spec == None:
-    parser.error("missing settings file")
-    sys.exit(-1)
-
-try:
-    daten = open(options.spec, 'r')
-    daten.close()
-except:
-    parser.error("unknown settings file: " + options.spec)
-    sys.exit(-1)
-
-### read specifications
+# read specifications
 mapConfig = {}
-fileConfig = open(options.spec, 'r')
+fileConfig = open(args.spec, 'r')
 for i in fileConfig.readlines():
     setting = i.rstrip('\n').split('\t')
     if len(setting) == 2:
         mapConfig[setting[0]] = setting[1]
 
-### Parameter aus der Konfigurationsdatei prüfen
+# Parameter aus der Konfigurationsdatei prüfen
 if 'TablePath' not in mapConfig:
     parser.error("missing table path in settings file")
     sys.exit(-1)
@@ -858,51 +273,22 @@ if 'Host' not in mapConfig and 'Socket' not in mapConfig:
     parser.error("missing Host/Socket in config file")
     sys.exit(-1)
 
-if 'Host' in mapConfig:
-    print('|: host: ' + mapConfig['Host'])
-else:
-    print('|: socket: ' + mapConfig['Socket'])
+# if 'Host' in mapConfig:
+print('|: host: ' + mapConfig['Host'])
+# else:
+#     print('|: socket: ' + mapConfig['Socket'])
 print('|: user: ' + mapConfig['User'])
 print('|: db: ' + mapConfig['Database'])
 print('|: port: ' + mapConfig['Port'])
 
-conn = None
-if 'Host' in mapConfig:
-    conn = MySQLdb.connect(
-        host=mapConfig['Host'],
-        user=mapConfig['User'],
-        passwd=mapConfig['Passwd'],
-        local_infile=True,
-        port=int(mapConfig['Port']))
-else:
-    conn = MySQLdb.connect(
-        unix_socket=mapConfig['Socket'],
-        user=mapConfig['User'],
-        passwd=mapConfig['Passwd'],
-        local_infile=True,
-        port=int(mapConfig['Port']))
-
-### create database
-cursor = conn.cursor()
-cursor.execute("DROP DATABASE IF EXISTS " + mapConfig['Database'])
-cursor.execute("CREATE DATABASE " + mapConfig['Database'] + " CHARACTER SET utf8")
-cursor.execute("set autocommit=1")
-cursor.execute("USE " + mapConfig['Database'])
-
 engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(
     mapConfig['User'], mapConfig['Passwd'], mapConfig['Database']))
+engine.execute("DROP DATABASE IF EXISTS " + mapConfig['Database'])
+engine.execute("CREATE DATABASE " + mapConfig['Database'] + " CHARACTER SET utf8")
+engine.execute("set autocommit=1")
+engine.execute("USE " + mapConfig['Database'])
+
 create_new_tables(engine, mapConfig['TablePath'].rstrip('/'))
-### Erstellen der MySQL-Tabellen
-create_tables(cursor, mapConfig['TablePath'].rstrip('/'))
-### Laden in die MySQL-Tabellen
-load_into_tables(cursor, mapConfig['TablePath'].rstrip('/'))
-
-print("|: UPDATE DATABASE")
-
-### MySQL-Tabellen erstellen
-create_tables_hits(cursor, mapConfig['TablePath'].rstrip('/'))
-### Wortprofil-Texttreffer-Tabellen in die MySQL-Tabellen einspielen
-load_into_tables_hits(cursor, mapConfig['TablePath'].rstrip('/'))
 
 print()
 print("(: done")

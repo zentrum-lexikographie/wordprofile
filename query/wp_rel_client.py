@@ -118,8 +118,8 @@ if len(mapping) > 0:
 
     ### Abfrageoptionen für die Kookkurrenzinformationen erstellen
     mapParam = {}
-    mapParam["LemmaId"] = mapSelect["LemmaId"]
-    mapParam["PosId"] = mapSelect["PosId"]
+    mapParam["Lemma"] = mapSelect["Lemma"]
+    mapParam["Pos"] = mapSelect["POS"]
     mapParam["Start"] = int(options.start)
     mapParam["Number"] = int(options.number)
     mapParam["OrderBy"] = options.order

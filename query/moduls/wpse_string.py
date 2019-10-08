@@ -77,10 +77,16 @@ def format_sentence_center_mwe(strSent, listPosition):
 
 
 # TODO further refactoring necessary: cryptic surface example!?!
-def surface_mapping(surface, rel_type, prep, use_extended_surface_form):
+def surface_mapping(surface, rel, prep, use_extended_surface_form):
     """
     Mapping eines (kryptischen) Oberflächenstring auf einen lesbaren Oberflächenstring
     """
+    if rel == "KON":
+        rel_type = 2
+    elif rel.startswith("~"):
+        rel_type = 1
+    else:
+        rel_type = 0
     if use_extended_surface_form:
         if rel_type == 1 and prep != "-" and prep != "":
             i = surface.find('<')
