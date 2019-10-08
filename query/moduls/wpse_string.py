@@ -9,6 +9,8 @@ def format_sentence(sent: str):
     """
     Formatieren eines Hit
     """
+    if not sent:
+        return ""
     return sent.replace('\x02', ' ').replace('\x01', '')
 
 
@@ -16,6 +18,8 @@ def format_sentence_center(sent, pos1, pos2, pos3):
     """
     Formatieren eines Hit mit Highlighting der Keywords
     """
+    if not sent:
+        return ""
     tokens = RE_HIT_DELIMITER.findall(sent)
     for idx, token in enumerate(tokens):
         padding = ' ' if token[-1] == '\x02' else ''
