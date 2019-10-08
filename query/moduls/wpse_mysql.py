@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import logging
-import sys
 from collections import defaultdict, namedtuple
 
 import MySQLdb
@@ -12,59 +11,13 @@ from moduls.wpse_string import format_sentence, format_sentence_center, format_s
 logger = logging.getLogger('wordprofile.mysql')
 
 
-def get_type_unsigned(i):
-    if i <= 255:
-        return "TINYINT unsigned NOT NULL"
-    elif i <= 65535:
-        return "SMALLINT unsigned NOT NULL"
-    elif i <= 16777215:
-        return "MEDIUMINT unsigned NOT NULL"
-    elif i <= 4294967295:
-        return "INT unsigned NOT NULL"
-    else:
-        return "BIGINT unsigned NOT NULL"
-
-
-def get_type_signed(i):
-    if i <= 127:
-        return "TINYINT signed NOT NULL"
-    elif i <= 32767:
-        return "SMALLINT signed NOT NULL"
-    elif i <= 8388607:
-        return "MEDIUMINT signed NOT NULL"
-    elif i <= 2147483647:
-        return "INT signed NOT NULL"
-    else:
-        return "BIGINT signed NOT NULL"
-
-
-def get_type_char(c):
-    if c > 4294967295:
-        print("text zu groß")
-        sys.exit(-1)
-    elif c > 16777215:
-        return "LONGTEXT BINARY NOT NULL"
-    elif c > 65535:
-        return "MEDIUMTEXT BINARY NOT NULL"
-    elif c > 255:
-        return "TEXT BINARY NOT NULL"
-    else:
-        return "CHAR(" + str(c) + ") BINARY NOT NULL"
-
-
 class WpSeMySql:
-    """
-    Hilfsklasse für die Kommunikation mit MySQL und für die Bereitstellung bestimmter Mappings, die sich aus der Wortprofil-Datenbank ergeben
-    """
-
     def __init__(self, wp_spec: WpSeSpec):
         self.host = wp_spec.host
-        self.socket = wp_spec.socket
         self.user = wp_spec.user
         self.passwd = wp_spec.passwd
         self.dbname = wp_spec.dbname
         self.port = wp_spec.port
-        self.__cursor = None
 
         self.mwe_depth = 0
 
@@ -84,26 +37,12 @@ class WpSeMySql:
         self.__cursor.execute(query)
         return self.__cursor.fetchall()
 
+    @deprecated
     def list_2_in(self, relation_ids):
         """
          Liste von Relation-Ids in das Arbument eines In-Statements umwandeln
         """
         return "( {} )".format(",".join(map(str, relation_ids)))
-
-    def get_prep_id(self, prep):
-        """
-          Eine Präposition auf seine Id abbilden
-        """
-        if prep == "*" or prep == "" or prep == "-":
-            return -1
-        query = """SELECT id 
-                   FROM lemmaToRelation 
-                   WHERE lemma='%s'""".format(prep)
-        results = self.fetchall(query)
-        if results:
-            return results[0][0]
-        else:
-            return -1
 
     def get_concordances(self, match_id, use_context, subcorpus, is_internal_user, start_index, result_number):
         internal_user_cond = " and rk_matches.Rights=1 " if not is_internal_user else ""
@@ -209,14 +148,14 @@ class WpSeMySql:
 
         return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
 
-    def __get_valid_sorted_lemmas(self, head_pos_rel_freqs, word, is_case_sensitive):
+    def __get_valid_sorted_lemmas(self, db_results, word, is_case_sensitive):
         """
         Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
         Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
         eher Substantiv als Verb.
         """
         lemma_pos_mapping = defaultdict(list)
-        for lemma, pos, frequency, count, relation in head_pos_rel_freqs:
+        for lemma, pos, frequency, count, relation in db_results:
             lemma_pos_mapping[(lemma, pos)].append((relation, frequency, count))
 
         # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
@@ -650,7 +589,10 @@ class WpSeMySql:
             " and (-{}) >= {}".format(order_by, min_stat) if min_stat > -100000000 else ""
         )
         db_results = self.fetchall(query)
-        return db_results
+        Coocc = namedtuple("CooccDiff",
+                           ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "Pos2",
+                            "Frequency", "FreqBelege", "Score", "Info"])
+        return list(map(Coocc._make, db_results))
 
     @deprecated
     def get_concordances_mwe_base(self, mapParam):

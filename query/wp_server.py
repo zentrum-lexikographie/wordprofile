@@ -316,20 +316,19 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return results
 
     @deprecated
-    def __gen_rel_cooccurrence_mapping(self, listData):
+    def __gen_rel_cooccurrence_mapping(self, diffs):
         """
         Ermitteln eines Mapping von Relation-Id auf die Zeile innerhalb
         einer Liste von Kookkurenzinformationen (listData)
         """
         mapRelData = {}
         # Position der Relation-Information
-        xRel = 0
         iCounter = 0
-        for i in listData:
-            if i[xRel] in mapRelData:
-                mapRelData[i[xRel]].append(iCounter)
+        for i in diffs:
+            if i.Rel in mapRelData:
+                mapRelData[i.Rel].append(iCounter)
             else:
-                mapRelData[i[xRel]] = [iCounter]
+                mapRelData[i.Rel] = [iCounter]
             iCounter += 1
         return mapRelData
 
@@ -592,7 +591,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return listMapRes
 
-    @deprecated
     def get_diff(self, params):
         """
         Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2')
@@ -1077,7 +1075,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return listTuples
 
     @deprecated
-    def __calculate_diff(self, lemma1_id, lemma2_id, listData, listRelData, number, nbest, use_intersection, operation):
+    def __calculate_diff(self, lemma1_id, lemma2_id, diffs, cooccs_rel, number, nbest, use_intersection, operation):
         """
         Berechnung des Vergleiches zweier Wortprofile
         Über die Vergleichsfunktionen lassen sich zwei Wörter anhand ihrer Wortprofile vergleichen.
@@ -1115,12 +1113,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         xScore = 10
         xInfo = 11
 
-        yRef1 = 0
-        yRef2 = 1
-        yRank1 = 2
-        yRank2 = 3
-        yScore = 4
-
         mapData = {}
 
         mapCenter = {}
@@ -1128,21 +1120,21 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         # Prüfen, ob die Kookkurrenzpartner für beide Lemmata vorhanden sind
         iCountRank2 = 1
-        for k in listRelData:
-            i = listData[k]
-            if i[xLemma1] == lemma2_id:
+        for k in cooccs_rel:
+            i = diffs[k]
+            if i.Lemma1 == lemma2_id:
                 if nbest == None or iCountRank2 <= nbest:
-                    mapData[(i[xPrep], i[xLemma2])] = (k, i)
+                    mapData[(i.Prep, i.Lemma2)] = (k, i)
                     mapRank[k] = iCountRank2
                 iCountRank2 += 1
 
         iCountRank1 = 1
-        for k in listRelData:
-            i = listData[k]
-            if i[xLemma1] == lemma1_id:
+        for k in cooccs_rel:
+            i = diffs[k]
+            if i.Lemma1 == lemma1_id:
                 if nbest == None or iCountRank1 <= nbest:
-                    if (i[xPrep], i[xLemma2]) in mapData:
-                        (iPos, myTuple) = mapData[(i[xPrep], i[xLemma2])]
+                    if (i.Prep, i.Lemma2) in mapData:
+                        (iPos, myTuple) = mapData[(i.Prep, i.Lemma2)]
                         iRef1 = k
                         iRef2 = iPos
                         mapCenter[iRef1] = iRef2
@@ -1161,13 +1153,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     iRank1 = mapRank[iRef1]
                     iRank2 = mapRank[iRef2]
 
-                    iScore = self.__diff_operation(operation, listData[iRef1][xScore], listData[iRef2][xScore],
+                    iScore = self.__diff_operation(operation, diffs[iRef1].Score, diffs[iRef2].Score,
                                                    iRank1, iRank2)
                     results.append((iRef1, iRef2, iRank1, iRank2, iScore))
         else:
             results = []
-            for k in listRelData:
-                i = listData[k]
+            for k in cooccs_rel:
+                i = diffs[k]
                 # für Lemma1 und Lemma2
                 if k in mapCenter:
                     iRef = mapCenter[k]
@@ -1179,19 +1171,19 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         iRank1 = mapRank[iRef1]
                         iRank2 = mapRank[iRef2]
 
-                        iScore = self.__diff_operation(operation, i[xScore], listData[iRef2][xScore], iRank1, iRank2)
+                        iScore = self.__diff_operation(operation, i.Score, diffs[iRef2].Score, iRank1, iRank2)
 
                         results.append((iRef1, iRef2, iRank1, iRank2, iScore))
 
                 elif k in mapRank:
                     # für nur Lemma1
-                    if i[xLemma1] == lemma1_id:
+                    if i.Lemma1 == lemma1_id:
                         iRef1 = k
                         iRef2 = -1
                         iRank1 = mapRank[iRef1]
                         iRank2 = -1
 
-                        iScore = self.__diff_operation(operation, i[xScore], 0, iRank1, 0)
+                        iScore = self.__diff_operation(operation, i.Score, 0, iRank1, 0)
 
                     # für nur Lemma2
                     else:
@@ -1200,9 +1192,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                         iRank1 = -1
                         iRank2 = mapRank[iRef2]
 
-                        iScore = self.__diff_operation(operation, 0, listData[iRef2][xScore], 0, iRank2)
+                        iScore = self.__diff_operation(operation, 0, diffs[iRef2].Score, 0, iRank2)
 
                     results.append((iRef1, iRef2, iRank1, iRank2, iScore))
+
+        yScore = 4
 
         # Abschließendes Sortieren und Abschneiden
         lcmp = lambda idx: lambda i, j: (i[idx] > j[idx]) and -1 or (i[idx] < j[idx]) and 1 or 0
