@@ -35,13 +35,12 @@
 
 
 import sys
-sys.path.append('./moduls')
-sys.path.append('./xmlrpc/moduls')
+
+sys.path.append('./wpse')
+sys.path.append('./xmlrpc/wpse')
 
 import xmlrpclib
 from drawTable import *
-import getopt
-import codecs
 from optparse import OptionParser
 
 ### Komandozeilenoptionen einlesen

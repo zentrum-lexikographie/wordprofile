@@ -14,7 +14,7 @@ import sys
 import xmlrpc.client
 from optparse import OptionParser
 
-from moduls.drawConcord import draw_concord
+from wordprofile.pprint.drawConcord import draw_concord
 
 parser = OptionParser()
 parser.add_option("-i", dest="info", default=-1, help="die Texttreffer-ID")

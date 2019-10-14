@@ -13,7 +13,7 @@ import sys
 import xmlrpc.client
 from optparse import OptionParser
 
-from moduls.drawTable import calculate_table
+from wordprofile.pprint.drawTable import calculate_table
 
 
 def black(x):

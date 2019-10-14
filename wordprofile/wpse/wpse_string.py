@@ -1,6 +1,6 @@
 import re
 
-from moduls import deprecated
+from wordprofile.wpse import deprecated
 
 RE_HIT_DELIMITER = re.compile(r"[^\x01\x02]*[\x01\x02]")
 

@@ -10,13 +10,12 @@
 
 """
 
-import MySQLdb
-import time
-import sys
 import os
-import codecs
-#from read_settings import *
+import sys
+# from read_settings import *
 from optparse import OptionParser
+
+import MySQLdb
 
 ### globale Variablen
 g_strLocal=''
@@ -250,7 +249,7 @@ print "|: UPDATE DATABASE"
 
 # Create option parser
 parser = OptionParser()
-parser.add_option("-s", dest="spec", default="query-specification.xml", help=u"Angabe der Settings-Datei (*.xml)")
+parser.add_option("-s", dest="spec", default="wordprofile-specification.xml", help=u"Angabe der Settings-Datei (*.xml)")
 parser.add_option("-l", action="store_true", dest="local", default=False, help=u"Ob MySQL die Tabellen 'local' einlesen sollen")
 (options, args) = parser.parse_args()
 
@@ -295,7 +294,7 @@ if 'User' not in mapConfig:
   sys.exit(-1)
 
 if 'Database' not in mapConfig:
-  parser.error("missing database name in settings file")
+  parser.error("missing wpse name in settings file")
   sys.exit(-1)
 
 if 'Port' not in mapConfig:
@@ -333,7 +332,7 @@ else:
                      local_infile=True,
                      port = int(mapConfig['Port']))
 
-#create database
+# create wpse
 cursor = conn.cursor ()
 
 ### Datenbank öffnen

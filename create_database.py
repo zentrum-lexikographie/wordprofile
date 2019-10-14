@@ -262,7 +262,7 @@ if 'User' not in mapConfig:
     sys.exit(-1)
 
 if 'Database' not in mapConfig:
-    parser.error("missing database name in config file")
+    parser.error("missing wpse name in config file")
     sys.exit(-1)
 
 if 'Port' not in mapConfig:

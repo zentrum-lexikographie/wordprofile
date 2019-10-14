@@ -13,12 +13,12 @@ import xmlrpc.server
 from argparse import ArgumentParser
 from functools import cmp_to_key
 
-from moduls import deprecated
-from moduls.OrthVariations import generate_orth_variations
-from moduls.wpse_mysql import WpSeMySql
-from moduls.wpse_spec import WpSeSpec
-from moduls.wpse_string import surface_mapping
-from moduls.wpse_tree import WpSeTree
+from wordprofile.wpse import deprecated
+from wordprofile.wpse.OrthVariations import generate_orth_variations
+from wordprofile.wpse.wpse_mysql import WpSeMySql
+from wordprofile.wpse.wpse_spec import WpSeSpec
+from wordprofile.wpse.wpse_string import surface_mapping
+from wordprofile.wpse.wpse_tree import WpSeTree
 
 parser = ArgumentParser()
 parser.add_argument('-s', dest='spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")

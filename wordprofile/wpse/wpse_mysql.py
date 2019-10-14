@@ -4,9 +4,9 @@ from collections import defaultdict, namedtuple
 
 import MySQLdb
 
-from moduls import deprecated
-from moduls.wpse_spec import WpSeSpec
-from moduls.wpse_string import format_sentence, format_sentence_center, format_sentence_center_mwe
+from wordprofile.wpse import deprecated
+from wordprofile.wpse.wpse_spec import WpSeSpec
+from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center, format_sentence_center_mwe
 
 logger = logging.getLogger('wordprofile.mysql')
 

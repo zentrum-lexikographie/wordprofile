@@ -14,7 +14,8 @@ import codecs
 import sys
 import xmlrpc.client
 from optparse import OptionParser
-from moduls.drawTable import calculate_table
+
+from wordprofile.pprint.drawTable import calculate_table
 
 parser = OptionParser()
 parser.add_option("-l", dest="lemma", default=None, help="das Eingabelemma")

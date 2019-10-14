@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import sys
-
 """
   Hilfsklasse für das Parsen einer "freien" MWE-Abfrage.
 """
