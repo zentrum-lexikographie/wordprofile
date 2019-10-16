@@ -2,28 +2,10 @@
 ### Author: didakowski@bbaw.de
 ### Description: Spezifikationsdatei für das erstellen und Abfragen einer Wortprofil-MySQL-Datenbank
 
-###### MySQL ######
-#
-# Für die Verbindung und Kommunikation mit MySQL
-#
-### MySQL-Benutzername
-User	wpuser
-### MySQL-Hostname oder Socket
-Host	127.0.0.1
-#Socket	/var/run/mysqld/mysqld.sock
-### MySQL-Port
-Port	3306
-### MySQL-Passwort
-Passwd	wpuser
-### MySQL-Wortprofil-Datenbankname
-Database	wordprofile2
-
 ###### Daten ######
 #
-# Ort der Wortprofil-Tabellen und von Tabellen die Umschreibungen von Lemmaformen auf der Eingabe- und Ausgabeseite betreffen
+# Ort von Tabellen die Umschreibungen von Lemmaformen auf der Eingabe- und Ausgabeseite betreffen
 #
-### Pfad für die Wortprofil-Tabellen
-TablePath	../table/dradio
 ### Optionale Angabe von Lemmavariationen (TAB-separierte Datei mit 'LemmaVariation\tLemma')
 ### Falls mehrere solcher Dateien vorliegen, können diese untereinander über 'Variations' aufgeführt werden
 Variations	./spec/lex_variations.csv
@@ -32,10 +14,6 @@ Variations	./spec/lex_variations.csv
 LemmaRepair	Substantiv	./spec/lemma_repair_substantiv.csv
 LemmaRepair	Verb	./spec/lemma_repair_verb.csv
 LemmaRepair	Adjektiv	./spec/lemma_repair_adjektiv.csv
-
-###### Sonstige Parameter ######
-### Angabe der maximalen Tiefe der MWE-Relationen
-MweDepth	5
 
 ###### Ausgabeoptionen ######
 #
@@ -73,13 +51,3 @@ RelOrder	Adjektiv	META,~ATTR,~PRED,ADV,~ADV,KON,KOM
 RelOrder	Verb	META,ADV,OBJ,PP,KON,SUBJ,SUBJA,PRED,VZ,KOM,SUBJP
 RelOrder	Substantiv	META,ATTR,~OBJ,~PP,GMOD,KON,PRED,KOM,~SUBJ,~SUBJA,PP,~GMOD,~PRED,~KOM
 RelOrder	Personalpronomen	META,ATTR,~OBJ,~PP,GMOD,KON,PRED,KOM,~SUBJ,~SUBJA,PP,~GMOD,~PRED,~KOM
-### Default-Ausgabeordnung der MWE-Relationen
-MweRelOrderDefault	ATTR,~ATTR,OBJ,~OBJ,PP,~PP,GMOD,~GMOD,PRED,~PRED,KOM,~KOM,SUBJA,~SUBJA,SUBJ,~SUBJ,ADV,~ADV,SUBJP,~SUBJP
-### Ausgabeordnung der MWE-Relationen zu den einzelnen Wortarten
-MweRelOrder	Adjektiv	~ATTR,~PRED,ADV,~ADV,KOM
-MweRelOrder	Verb	ADV,OBJ,PP,SUBJ,SUBJA,PRED,KOM,SUBJP
-MweRelOrder	Substantiv	ATTR,~OBJ,~PP,GMOD,PRED,KOM,~SUBJ,~SUBJA,PP,~GMOD,~PRED,~KOM
-MweRelOrder	Personalpronomen	ATTR,~OBJ,~PP,GMOD,PRED,KOM,~SUBJ,~SUBJA,PP,~GMOD,~PRED,~KOM
-
-
-

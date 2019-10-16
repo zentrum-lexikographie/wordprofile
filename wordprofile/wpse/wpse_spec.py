@@ -10,21 +10,12 @@ class WpSeSpec:
     """
 
     def __init__(self, fname):
-        self.table_path = ""
         self.strRelDesc = ""
         self.strRelDescDetail = ""
         self.mapRelDesc = {}
         self.mapRelDescDetail = {}
         self.listRelOrder = []
         self.mapRelOrder = {}
-        self.listMweRelOrder = []
-        self.mapMweRelOrder = {}
-        self.user = ""
-        self.host = None
-        self.socket = ""
-        self.passwd = ""
-        self.dbname = ""
-        self.port = 3306
         self.mapVariation = {}
         self.mapLemmaRepair = {}
 
@@ -32,21 +23,7 @@ class WpSeSpec:
             for config_line in config:
                 setting = config_line.rstrip('\n').split('\t')
                 if len(setting) > 1:
-                    if setting[0] == 'TablePath':
-                        self.table_path = setting[1]
-                    if setting[0] == 'User':
-                        self.user = setting[1]
-                    elif setting[0] == 'Host':
-                        self.host = setting[1]
-                    elif setting[0] == 'Socket':
-                        self.socket = setting[1]
-                    elif setting[0] == 'Passwd':
-                        self.passwd = setting[1]
-                    elif setting[0] == 'Database':
-                        self.dbname = setting[1]
-                    elif setting[0] == 'Port':
-                        self.port = int(setting[1])
-                    elif setting[0] == 'RelDescDefault':
+                    if setting[0] == 'RelDescDefault':
                         self.strRelDesc = setting[1]
                         self.strRelDescDetail = setting[2]
                     elif setting[0] == 'RelDesc':
@@ -56,10 +33,6 @@ class WpSeSpec:
                         self.listRelOrder = setting[1].split(',')
                     elif setting[0] == 'RelOrder':
                         self.mapRelOrder[setting[1]] = setting[2].split(',')
-                    elif setting[0] == 'MweRelOrderDefault':
-                        self.listMweRelOrder = setting[1].split(',')
-                    elif setting[0] == 'MweRelOrder':
-                        self.mapMweRelOrder[setting[1]] = setting[2].split(',')
                     elif setting[0] == 'Variations':
                         try:
                             # Load VariationFile
@@ -83,6 +56,3 @@ class WpSeSpec:
                                         self.mapLemmaRepair[(setting[1], line[0])] = line[1]
                         except FileNotFoundError:
                             logger.error("unknown lemma repair file:" + line)
-
-        if self.table_path == "":
-            logger.error("missing table-path")

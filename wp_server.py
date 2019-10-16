@@ -1,11 +1,6 @@
 #!/usr/bin/python
 
-# Das Programm startet einen XMLRPC-Server und stellt bestimmte Funktionen bereit, die auf Daten
-# einer Wortprofil-MySQL-Datenbank zugreifen
-# *Es Können Kookkurrenzen abgefragt werden.
-# *Es können Texttreffer Abgefragt werden.
-# *Es können Wortprofile miteinander Verglichen werden.
-
+import getpass
 import logging
 import math
 import time
@@ -18,11 +13,13 @@ from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
 from wordprofile.wpse.wpse_string import surface_mapping
-from wordprofile.wpse.wpse_tree import WpSeTree
 
 parser = ArgumentParser()
-parser.add_argument('-s', dest='spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
-parser.add_argument('-p', dest='port', type=str, required=True, help="Angabe des Ports")
+parser.add_argument("--user", type=str, help="database username", required=True)
+parser.add_argument("--database", type=str, help="database name", required=True)
+parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
+parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
+parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
 parser.add_argument('--log', dest='logfile', type=str,
                     default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
                     help="Angabe der log-Datei (Default: log/wp_{date}.log)")
@@ -56,14 +53,10 @@ class CooccInfo:
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
-    def __init__(self, wp_spec_file):
+    def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
         logger.info("start init ...")
-        # Generierung eines Parsebaums (geordnete Liste aus Dependent-Kopf-Relationen) aus einer Lemmaliste
-        self.wp_tree = WpSeTree()
-        # Einlesen der Spezifikationsdatei
         self.wp_spec = WpSeSpec(wp_spec_file)
-        # MySQL-Seitigen Grundfunktionen
-        self.wp_db = WpSeMySql(self.wp_spec)
+        self.wp_db = WpSeMySql(db_host, db_user, db_passwd, db_name, db_port)
         logger.info("init complete")
 
     def status(self):
@@ -97,12 +90,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         params["Relations"] = selection["Relations"]
         params["ExtendedSurfaceForm"] = True
 
-        # Kookkurrenzen abfragen
         relations = self.get_relations(params)
         if len(relations) == 0:
             return "Internal Server Error (get_relations)"
 
-        # Der Server läuft einwandfrei
         return "OK"
 
     def get_ordered_relation_ids(self, relations, pos):
@@ -800,26 +791,17 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         info_id = params.get("InfoId")
         coocc_info = self.__extract_coocc_info(info_id)
-
-        # Ids auf Strings mappen
-        lemma1 = coocc_info.lemma1
-        pos1 = coocc_info.pos1
-        lemma2 = coocc_info.lemma2
-        pos2 = coocc_info.pos2
-        relation = coocc_info.rel
-        prep = coocc_info.prep
-
-        # Meta-Daten generieren
-        if relation in self.wp_spec.mapRelDescDetail:
-            description = self.wp_spec.mapRelDescDetail[relation]
-            description = description.replace('$1', lemma1)
-            description = description.replace('$2', lemma2)
-            description = description.replace('$3', prep)
+        if coocc_info.rel in self.wp_spec.mapRelDescDetail:
+            description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
+            description = description.replace('$1', coocc_info.lemma1)
+            description = description.replace('$2', coocc_info.lemma2)
+            description = description.replace('$3', coocc_info.prep)
         else:
             description = ""
 
-        return {'Description': description, 'Relation': relation, 'Lemma1': lemma1, 'Lemma2': lemma2, 'POS1': pos1,
-                'POS2': pos2}
+        return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma1,
+                'Lemma2': coocc_info.lemma2, 'POS1': coocc_info.pos1,
+                'POS2': coocc_info.pos2}
 
     def get_concordances_and_relation(self, params):
         """
@@ -889,13 +871,18 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
 
 def main():
+    logger.info('user: ' + args.user)
+    logger.info('db: ' + args.database)
+    db_password = getpass.getpass("db password: ")
+
     # Create server
     server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(args.port)),
                                               requestHandler=RequestHandler, logRequests=False, allow_none=True)
     # register function information
     server.register_introspection_functions()
     # register wortprofil
-    server.register_instance(WortprofilQuery(args.spec))
+    server.register_instance(
+        WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 

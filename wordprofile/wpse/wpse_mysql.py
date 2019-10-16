@@ -3,19 +3,18 @@ import logging
 from collections import defaultdict, namedtuple
 
 import MySQLdb
-from wordprofile.wpse.wpse_spec import WpSeSpec
 from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
 
 logger = logging.getLogger('wordprofile.mysql')
 
 
 class WpSeMySql:
-    def __init__(self, wp_spec: WpSeSpec):
-        self.host = wp_spec.host
-        self.user = wp_spec.user
-        self.passwd = wp_spec.passwd
-        self.dbname = wp_spec.dbname
-        self.port = wp_spec.port
+    def __init__(self, host, user, passwd, dbname, port):
+        self.host = host
+        self.user = user
+        self.passwd = passwd
+        self.dbname = dbname
+        self.port = port
 
         self.__conn = MySQLdb.connect(
             host=self.host,
@@ -137,7 +136,8 @@ class WpSeMySql:
 
         return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
 
-    def __get_valid_sorted_lemmas(self, db_results, word, is_case_sensitive):
+    @staticmethod
+    def __get_valid_sorted_lemmas(db_results, word, is_case_sensitive):
         """
         Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
         Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
@@ -190,35 +190,32 @@ class WpSeMySql:
         Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
         Wortprofil-MySQL-Datenbank
         """
-        # Minimalfrequenz behandeln
-        str_min_freq = " and (-relations.frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        # Minimalstatistikwerte behandeln
-        str_min_stat = " and (-relations.{}) >= {} ".format(order_by, min_stat) if min_stat > -100000000 else ""
+        min_freq_sql = " and (-relations.frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
+        min_stat_sql = " and (-relations.{}) >= {} ".format(order_by, min_stat) if min_stat > -100000000 else ""
 
         select_from_sql = """
         SELECT  
             relation, prep_lemma, head_lemma, dep_lemma, prep_surface, head_surface, dep_surface, dep_pos, 
-            -relations.frequency, -counts_with_rights, -mi_log_freq, -relations.log_dice, -mi3, match_id, '0' 
+            -relations.frequency, -counts_with_rights, -mi_log_freq, -relations.log_dice, -mi3, match_id
         FROM 
             relations
         """
 
-        # evtl. auch das zweite Wort in der Kookkurrenz einschränken
         if pos2 == -1 or lemma2 == -1:
             where_sql = "WHERE head_lemma='{}' and head_pos='{}' and relation = '{}' {} {} LIMIT {}, {};".format(
-                lemma1, pos1, relation, str_min_freq, str_min_stat, start, number
+                lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
             )
         else:
             where_sql = """WHERE head_lemma='{}' and head_pos='{}' and 
                                 dep_lemma='{}' and dep_pos='{}' and 
                                 relation = '{}' {} {} ORDER BY frequency;""".format(
-                lemma1, pos1, lemma2, pos2, relation, str_min_freq, str_min_stat
+                lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql
             )
 
         db_results = self.fetchall(select_from_sql + where_sql)
         Coocc = namedtuple("Coocc", ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "POS",
-                                     "Frequency", "FreqBelege", "Score_MiLogFreq", "Score_logDice", "Score_MI3", "Info",
-                                     "ConditionalCheck"])
+                                     "Frequency", "FreqBelege", "Score_MiLogFreq", "Score_logDice", "Score_MI3",
+                                     "Info"])
         return map(Coocc._make, db_results)
 
     def get_relation_tuples_diff(self, lemma1, lemma2, pos, relations,
