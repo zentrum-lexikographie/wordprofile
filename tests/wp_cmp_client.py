@@ -77,8 +77,8 @@ parser.add_option("-x", dest="host", default=None, help="Hostrechner (z.B. http:
 parser.add_option("-c", dest="corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
 parser.add_option("-r", dest="relation", default="",
                   help="Angabe der gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
-parser.add_option("-o", dest="order", default="LogDice",
-                  help="Angabe der Ordnung (frequency,LogDice,MiLogFreq,MI3) (default=logDice)")
+parser.add_option("-o", dest="order", default="log_dice",
+                  help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 # parser.add_option("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
 parser.add_option("--op", dest="operation", default="adiff",
                   help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg

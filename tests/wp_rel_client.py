@@ -10,7 +10,6 @@
 
 """
 
-import codecs
 import sys
 import xmlrpc.client
 from optparse import OptionParser
@@ -28,8 +27,8 @@ parser.add_option("-c", dest="corpus", default="", help="Angabe des korpusnamen 
 parser.add_option("-x", dest="host", default=None, help="Hostrechner (z.B. http://localhost:8080)")
 parser.add_option("-r", dest="relation", default="",
                   help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
-parser.add_option("-o", dest="order", default="logDice",
-                  help="Angabe der Ordnung (MiLogFreq,logDice,MI3,logLike,TScore) (default=logDice)")
+parser.add_option("-o", dest="order", default="log_dice",
+                  help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 parser.add_option("--cs", action="store_true", dest="case_sensitive", default=False, help="Case-sensitive Abfrage")
 parser.add_option("--sf", action="store_true", dest="surface", default=False,
                   help="Verwenden der Oberflächenform statt der Lemmaform")
@@ -56,8 +55,6 @@ strFile = options.file
 
 ### XMLRPC-Client erstellen
 s = xmlrpc.client.ServerProxy(options.host)
-# Print list of available methods
-# print "methods:", s.system.listMethods()
 
 ### Abfrageoptionen für die Lemmainformationen erstellen
 mapParam = {}
@@ -142,72 +139,31 @@ if len(mapping) > 0:
 
     ### wenn daas Ergebnis nicht in eine Datei geschrieben werden soll
     iCounter = 1
-    if strFile == "":
+    ### Durchgehen der Relationen
+    iRelCount = 1
+    for k in RelList:
+        listTuples = k['Tuples']
+        print()
+        if 'RelId' in k:
+            print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + " (" + k['RelId'] + "): " + "\033[m" + k[
+                'Description'])
+        else:
+            print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + ": " + "\033[m" + k['Description'])
 
-        ### Durchgehen der Relationen
-        iRelCount = 1
-        for k in RelList:
-            listTuples = k['Tuples']
-            print()
-            if 'RelId' in k:
-                print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + " (" + k['RelId'] + "): " + "\033[m" + k['Description'])
-            else:
-                print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + ": " + "\033[m" + k['Description'])
+        listPrint = []
 
-            listPrint = []
+        ### Aufsammeln der Kookkurrrenzen
+        iCounter = 1
+        for i in listTuples:
+            listPrint.append(
+                [str(iCounter), i['POS'], i[strForm], i['Score']['Frequency'], i['Score'][strOrder],
+                 i['ConcordId'], i['ConcordNo'], i['ConcordNoAccessible']])
 
-            ### Aufsammeln der Kookkurrrenzen
-            iCounter = 1
-            bMWE = False
-            for i in listTuples:
+            iCounter += 1
 
-                if 'HasMwe' in i:
-                    bMWE = True
-                    listPrint.append(
-                        [str(iCounter), i['POS'], i[strForm], i['Score']['Frequency'], i['Score'][strOrder],
-                         i['ConcordId'], i['ConcordNo'], i['ConcordNoAccessible'], i['HasMwe']])
-                else:
-                    listPrint.append(
-                        [str(iCounter), i['POS'], i[strForm], i['Score']['Frequency'], i['Score'][strOrder],
-                         i['ConcordId'], i['ConcordNo'], i['ConcordNoAccessible']])
-
-                iCounter += 1
-
-            ### Ausgeben der Kookkurrenzen als Tabelle
-            if bMWE:
-                listHeader = ['Rank', 'POS', strForm, 'Frequency', strOrder, 'Hit/MWE-ID', 'No', '*No', 'HasMwe']
-            else:
-                listHeader = ['Rank', 'POS', strForm, 'Frequency', strOrder, 'Hit/MWE-ID', 'No', '*No']
-            print(calculate_table(listHeader, listPrint))
-            iRelCount += 1
-
-    else:
-
-        ### Schreiben der Kookkurrenzen in eine Datei
-        myOut = codecs.open(strFile, 'w', 'utf8')
-        myOut.write('Rang\tLemma\tFrequenz\tLogDice\tMiLogFreq\tTrefferId\n')
-        for k in RelList:
-            listTuples = k['Tuples']
-            iCounter = 1
-            for i in listTuples:
-                myOut.write(str(iCounter))
-                myOut.write('\t')
-                myOut.write(i[strForm])
-                myOut.write('\t')
-                myOut.write(i['POS'])
-                myOut.write('\t')
-                myOut.write(str(i['Score']['Frequency']))
-                myOut.write('\t')
-                myOut.write(str(i['Score']['logDice']))
-                myOut.write('\t')
-                myOut.write(str(i['Score']['MiLogFreq']))
-                myOut.write('\t')
-                myOut.write(str(i['ConcordId']))
-                myOut.write('\n')
-
-                iCounter += 1
-
-        myOut.close()
-
+        ### Ausgeben der Kookkurrenzen als Tabelle
+        listHeader = ['Rank', 'POS', strForm, 'Frequency', strOrder, 'Hit/MWE-ID', 'No', '*No']
+        print(calculate_table(listHeader, listPrint))
+        iRelCount += 1
 else:
     print("): Lemma nicht enthalten")

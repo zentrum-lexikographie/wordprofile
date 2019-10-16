@@ -2,7 +2,7 @@
 
 # Das Programm startet einen XMLRPC-Server und stellt bestimmte Funktionen bereit, die auf Daten
 # einer Wortprofil-MySQL-Datenbank zugreifen
-# *Es Können (MWE-)Kookkurrenzen abgefragt werden.
+# *Es Können Kookkurrenzen abgefragt werden.
 # *Es können Texttreffer Abgefragt werden.
 # *Es können Wortprofile miteinander Verglichen werden.
 
@@ -64,9 +64,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         self.wp_spec = WpSeSpec(wp_spec_file)
         # MySQL-Seitigen Grundfunktionen
         self.wp_db = WpSeMySql(self.wp_spec)
-        logger.info("MWE-Depth = %i" % self.wp_db.mwe_depth)
-        if self.wp_db.mwe_depth > 0 and len(self.wp_spec.mapMweRelOrder) == 0:
-            logger.warning("Missing MWE-Specification")
         logger.info("init complete")
 
     def status(self):
@@ -96,7 +93,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         params["Pos"] = selection["POS"]
         params["Start"] = 0
         params["Number"] = 10
-        params["OrderBy"] = "LogDice"
+        params["OrderBy"] = "log_dice"
         params["Relations"] = selection["Relations"]
         params["ExtendedSurfaceForm"] = True
 
@@ -108,30 +105,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         # Der Server läuft einwandfrei
         return "OK"
 
-    # def get_info(self):
-    #     for i in self.wp_db.mapRelInfo:
-    #         if self.wp_db.mapRelInfo[i]['Name'] in self.wp_spec.mapRelDesc:
-    #             description = self.wp_spec.mapRelDesc[self.wp_db.mapRelInfo[i]['Name']]
-    #         else:
-    #             description = self.wp_spec.strRelDesc
-    #         self.wp_db.mapRelInfo[i]['Description'] = description
-    #
-    #     return {
-    #         "used_corpora": self.wp_db.corpus_names,
-    #         "lemma_size": self.wp_db.mapTypeToValue.get('lemmaSize', None),
-    #         "relation_size": self.wp_db.mapTypeToValue.get('relationSize', None),
-    #         "sentence_size": self.wp_db.mapTypeToValue.get('sentenceSize', None),
-    #         "info_size": self.wp_db.mapTypeToValue.get('infoSize', None),
-    #         "threshold": self.wp_db.mapThresholdInfo,
-    #         "mwe_depth": self.wp_db.mwe_depth,
-    #         "author": self.wp_db.mapProjectInfo.get('Author', None),
-    #         "creation_date": self.wp_db.mapProjectInfo.get('CreationDate', None),
-    #         "spec_file": self.wp_db.mapProjectInfo.get('SpecFile', None),
-    #         "spec_file_version": self.wp_db.mapProjectInfo.get('SpecFileVersion', None),
-    #         "lemma_cut": self.wp_db.mapProjectInfo.get('LemmaCut', None),
-    #         "cooccurrence_info": self.wp_db.mapRelInfo,
-    #     }
-
     def get_ordered_relation_ids(self, relations, pos):
         """
         Gets relation ids sorted by the specified ordering
@@ -139,55 +112,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         relation_order = self.wp_spec.mapRelOrder.get(pos, self.wp_spec.listRelOrder)
         ordered_rels = [i for i in relation_order if i in relations]
         return ordered_rels
-
-    @deprecated
-    def gen_mwe_rel_ids_by_pos(self, strPOS):
-        """
-        Ermitteln einer Liste von Sortierten Relations-Ids
-        anhand einer Wortkategorie
-        """
-        mapRelations = {}
-        for i in self.wp_db.mapRelToId:
-            mapRelations[i] = self.wp_db.mapRelToId[i]
-
-        if strPOS in self.wp_spec.mapMweRelOrder:
-            listSort = self.wp_spec.mapMweRelOrder[strPOS]
-        else:
-            listSort = self.wp_spec.listMweRelOrder
-
-        listSortId = []
-        for i in listSort:
-            if i in mapRelations:
-                listSortId.append(mapRelations[i])
-        return listSortId
-
-    @deprecated
-    def __gen_rel_pos_cooccurrence_mapping(self, listData):
-        """
-        Ermitteln eines Mapping von Relation-Id und Wortkategorie-Id auf die Zeile innerhalb
-        einer Liste von Kookkurenzinformationen (listData)
-        """
-        mapRes = {}
-
-        # Positionen von Relation, Lemmaform und Wortkategorie
-        xRel = 0
-        xLemma1 = 2
-        xPos1 = 14
-
-        iCounter = 0
-        for i in listData:
-            if (i[xLemma1], i[xPos1]) in mapRes:
-                if i[xRel] in mapRes[(i[xLemma1], i[xPos1])]:
-                    mapRes[(i[xLemma1], i[xPos1])][i[xRel]].append(iCounter)
-                else:
-                    mapRes[(i[xLemma1], i[xPos1])][i[xRel]] = [iCounter]
-            else:
-                mapDummy = {}
-                mapDummy[i[xRel]] = [iCounter]
-                mapRes[(i[xLemma1], i[xPos1])] = mapDummy
-
-            iCounter += 1
-        return mapRes
 
     @deprecated
     def get_lemma_and_pos_by_list(self, mapParam):
@@ -352,7 +276,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "LogDice")
+        order_by = params.get("OrderBy", "log_dice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
 
@@ -360,8 +284,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         results = []
         for relation in ordered_relations:
-            cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma, lemma2, pos, pos2, start, number,
-                                                              order_by, min_freq, min_stat, relation)
+            cooccs = self.wp_db.get_relation_tuples_check(lemma, lemma2, pos, pos2, start, number,
+                                                          order_by, min_freq, min_stat, relation)
             # IDs in den Kookkurenzlisten auf Strings abbilden
             cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, use_extended_surface_form)
             # Meta-Informationen
@@ -399,38 +323,18 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         hit_id = params["RelId"]
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "LogDice")
+        order_by = params.get("OrderBy", "log_dice")
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
         subcorpus = params.get("Subcorpus", "")
 
-        # Prüfen, ob es sich um eine ID einer MWE-Relation handelt
-        if hit_id.find('@') != -1:
-            return self.get_mwe_cooccurrences(params)
-
         # Informationen aus der komplexen ID extrahieren
         lemma, pos, rel = [int(i) for i in hit_id.split("#")[:3]]
-        cooccs = self.wp_db.get_relation_tuples_mwe_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
-                                                          min_stat, rel)
+        cooccs = self.wp_db.get_relation_tuples_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
+                                                      min_stat, rel)
         cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, False)
 
         return cooccs
-
-    @deprecated
-    def __mwe_id_prefix(self, listRelData, listCooccRef):
-        """
-        Methode, um die MWE-Id aus den Kookkurrenzinformationen einer Relation zu extrahieren
-        """
-        xStrInfo = 16
-        strMweId = ""
-        for k in listCooccRef:
-            i = listRelData[k]
-            if strMweId == "":
-                strMweId = i[xStrInfo]
-            elif strMweId != i[xStrInfo]:
-                return ""
-
-        return strMweId
 
     def __relation_tuples_2_strings(self, lemma1, pos1, coocc_tuples, use_extended_surface_form):
         """
@@ -462,17 +366,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                 'Score': {
                     'Frequency': coocc.Frequency,
                     'MiLogFreq': coocc.Score_MiLogFreq,
-                    'logDice': coocc.Score_logDice,
+                    'log_dice': coocc.Score_logDice,
                     'MI3': coocc.Score_MI3,
                 },
                 "ConcordId": "{}#{}#{}#{}#{}#{}#{}".format(
                     lemma1, pos1, coocc.Lemma2, coocc.POS, coocc.Prep, coocc.Rel, coocc.Info)}
-
-            # MWE-Zugänglichkeit
-            if int(coocc.ConditionalCheck) == 0:
-                result["HasMwe"] = 0
-            else:
-                result["HasMwe"] = 1
 
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             concord_no = coocc.Frequency
@@ -484,112 +382,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             result['ConcordNoAccessible'] = support_no
             results.append(result)
         return results
-
-    @deprecated
-    def __mwe_relation_tuples_2_strings(self, listData, listCooccRef, mapParam, strInfoId):
-        """
-        Methode, um IDs in den MWE-Kookkurenzlisten auf Strings abzubilden
-        hier wird im gegensatz zu '__relation_tuples_2_strings' mit einer
-        Positionsliste (listCooccRef) für die Kookkurrenztupel (listData) gearbeitet
-        """
-        # Basis der neuen MWE-ID ist die alte MWE-ID (bzw. Treffer-ID)
-        strMweId = mapParam["ConcordIdRemember"]
-
-        # Parameter
-        strOrder = "logDice"
-        if "OrderBy" in mapParam:
-            strOrder = mapParam["OrderBy"]
-        bExtendedSurfaceForm = False
-        if "ExtendedSurfaceForm" in mapParam:
-            bExtendedSurfaceForm = bool(mapParam["ExtendedSurfaceForm"])
-
-        # Positionen in den Kookkurrenztupeln
-        # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score_MiLogFrweq(11)score_logDice,(12)score_MI3,(13)info
-        xRel = 0
-        xPrep = 1
-        xLemma1 = 2
-        xLemma2 = 3
-        xSurfacePrep = 4
-        xSurface1 = 5
-        xSurface2 = 6
-        xPOS2 = 7
-        xFrequency = 8
-        xFreqBelege = 9
-        xScore_MiLogFreq = 10
-        xScore_logDice = 11
-        xScore_MI3 = 12
-        xInfo = 13
-        xPOS1 = 14
-        xConditionalCheck = 15
-
-        xStrInfo = 16
-
-        listMapRes = []
-
-        # Durchgehen der Liste von Positionen der relevanten Daten
-        for k in listCooccRef:
-            i = listData[k]
-
-            # Wenn eine MWE-ID gegeben ist (bei der MWE-free-Abfrage), ist diese die Basis der neuen MWE-ID
-            if len(i) > 16:
-                strMweId = i[xStrInfo]
-
-            localMap = {}
-            mapScore = {}
-
-            # Ids auf Strings mappen
-            localMap['Relation'] = self.wp_db.mapIdToRel[i[xRel]]
-            localMap['POS'] = self.wp_db.mapIdToPOS[i[xPOS2]]
-            strLemma = self.wp_db.mmapIdToLem.get(i[xLemma2])
-            strPrep = self.wp_db.mmapIdToLem.get(i[xPrep])
-            strSurface = self.wp_db.mmapIdToSurf.get(i[xSurface2])
-            strPrepSurface = strPrep
-
-            # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            strSurface = surface_mapping(strSurface, self.wp_db.mapRelIdToType[i[xRel]], strPrepSurface,
-                                         bExtendedSurfaceForm)
-
-            # evt. Lemma Reparieren
-            strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
-            if strLemmaRepair != None:
-                strLemma = strLemmaRepair.encode('utf8')
-
-            # Lemma+Präposition formatieren
-            if self.wp_db.mapRelIdToType[i[xRel]] == 1 and strPrep != "-" and strPrep != "":
-                strLemma = strLemma + ' ' + strPrep
-            elif self.wp_db.mapRelIdToType[i[xRel]] != 1 and strPrep != "-" and strPrep != "":
-                strLemma = strPrep + ' ' + strLemma
-
-            # Informationen in einer Map bündeln
-            localMap['Lemma'] = strLemma
-            localMap['Form'] = strSurface
-            mapScore['Frequency'] = i[xFrequency]
-            mapScore['MiLogFreq'] = i[xScore_MiLogFreq]
-            mapScore['logDice'] = i[xScore_logDice]
-            mapScore['MI3'] = i[xScore_MI3]
-            localMap['Score'] = mapScore
-            localMap["ConcordId"] = strMweId + "@" + str(i[xLemma1]) + "#" + str(i[xPOS1]) + "#" + str(
-                i[xLemma2]) + "#" + str(i[xPOS2]) + "#" + str(i[xPrep]) + "#" + str(i[xRel]) + '#' + str(i[xInfo])
-
-            # MWE-Zugänglichkeit
-            if int(i[xConditionalCheck]) == 0:
-                localMap["HasMwe"] = 0
-            else:
-                localMap["HasMwe"] = 1
-
-            # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
-            iConcordNo = i[xFrequency]
-            iFreqBelege = i[xFreqBelege]
-            if self.wp_db.mapRelIdToType[i[xRel]] == 2 and i[xLemma1] == i[xLemma2]:
-                iConcordNo = iConcordNo / 2
-                iFreqBelege = iFreqBelege / 2
-            localMap['ConcordNo'] = iConcordNo
-            localMap['ConcordNoAccessible'] = iFreqBelege
-
-            # Zur Ergebnisliste hinzufügen
-            listMapRes.append(localMap)
-
-        return listMapRes
 
     def get_diff(self, params):
         """
@@ -651,428 +443,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
     def __extract_coocc_info(self, info_id):
         """
-        Extrahieren der Bestandteile einer Komplexen Treffer-Id bzw. Mwe-Id
+        Extrahieren der Bestandteile einer Komplexen Treffer-Id
         """
-        coocc_infos = []
-        for hit_mwe_id in info_id.split('@'):
-            hit_mwe_id = hit_mwe_id.split('#')
-            if len(hit_mwe_id) == 1:
-                coocc_info = CooccInfo(hit_mwe_id[0])
-            else:
-                coocc_info = CooccInfo(*(hit_mwe_id[-1:] + hit_mwe_id[:-1]))
-            coocc_infos.append(coocc_info)
-        return coocc_infos
-
-    @deprecated
-    def __extract_mwe_parts(self, strObj):
-        """
-        Extrahieren der Namens Bestandteile aus einer komplexen Treffer-Id bzw. MWE-Id
-        """
-        # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
-        strBaseId = strObj
-        # grobes aufspalten in die MWE-Bestandteile
-        listMweId = strBaseId.split('@')
-        iCount = 1
-        vInfo = []
-        for i in listMweId:
-            listMweIdLocal = i.split('#')
-            if iCount == 1:
-
-                mapInfo = {}
-                mapInfo['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[0]))
-                mapInfo['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[1])]
-                vInfo.append(mapInfo)
-
-                mapInfo2 = {}
-                mapInfo2['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo2['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[3])]
-                vInfo.append(mapInfo2)
-
-            else:
-
-                mapInfo = {}
-                mapInfo['Lemma'] = self.wp_db.mmapIdToLem.get(int(listMweIdLocal[2]))
-                mapInfo['POS'] = self.wp_db.mapIdToPOS[int(listMweIdLocal[3])]
-                vInfo.append(mapInfo)
-
-            iCount += 1
-
-        return vInfo
-
-    @deprecated
-    def __extract_mwe_info(self, strObj):
-        """
-        Extrahieren bestimmter Informationen aus einer komplexen Treffer-Id bzw. Mwe-Id:
-        *Menge von Treffer-Ids
-        *Abbildung von zweiter Lemmaform+Wortkategorie auf die möglichen Relation-Ids
-        *Ein Treffer-Id-String durch '#' getrennt
-        """
-        # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
-        strBaseId = strObj
-
-        # grobes aufspalten in die MWE-Bestandteile
-        listMweId = strBaseId.split('@')
-        setId = set()
-        mapLemCat = {}
-        strInfoId = ""
-        iCount = 1
-
-        for i in listMweId:
-            listMweIdLocal = i.split('#')
-            if iCount == 1:
-                setId.add(int(listMweIdLocal[6]))
-
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[1])])
-                mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = listRelId
-
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[3])])
-                mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
-            else:
-                setId.add(int(listMweIdLocal[6]))
-
-                listRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[int(listMweIdLocal[3])])
-                mapLemCat[(int(listMweIdLocal[2]), int(listMweIdLocal[3]))] = listRelId
-
-            iCount += 1
-
-        # Treffer-Id-String durch '#' getrennt
-        for i in setId:
-            if strInfoId != "":
-                strInfoId += "#"
-            strInfoId += str(i)
-
-        return (setId, mapLemCat, strInfoId)
-
-    @deprecated
-    def __extract_mwe_relation_info(self, strObj):
-        """
-        Extrahieren der Bestandteile einer Komplexen Relation-Id
-        *Menge von Treffer-Ids
-        *Abbildung von zweiter Lemmaform+Wortkategorie auf die möglichen Relation-Ids
-        *Ein Treffer-Id-String durch '#' getrennt
-        *Prefix der komplexen Treffer-Id bzw Mwe-Id
-        """
-        setId = set()
-        mapLemCat = {}
-        strInfoId = ""
-
-        # grobes aufspalten in die MWE-Bestandteile
-        listMweId = strObj.split('@')
-
-        strMweId = strObj[0:strObj.rfind('@')]
-
-        for i in range(0, len(listMweId)):
-            listMweIdLocal = listMweId[i].split('#')
-            if i == len(listMweId) - 1:
-                # (0)lemma1, (1)POS1, (3)Rel
-                mapLemCat[(int(listMweIdLocal[0]), int(listMweIdLocal[1]))] = [int(listMweIdLocal[2])]
-            else:
-                # (0)lemma1, (1)POS1, (2)lemma2, (3)POS2, (4)Prep, (5)Rel, (6)Info
-                setId.add(int(listMweIdLocal[6]))
-
-        # Treffer-Id-String durch '#' getrennt
-        for i in setId:
-            if strInfoId != "":
-                strInfoId += "#"
-            strInfoId += str(i)
-
-        return (setId, mapLemCat, strInfoId, strMweId)
-
-    @deprecated
-    def get_mwe_relations_by_list(self, mapParam):
-        """
-        Die Methode ermöglicht es, anhand einer liste von Lemma-und-Pos-Informationen
-        MWE-Wortprofilrelationen abzufragen.
-
-        Eingabe ist ein Dictionary aus Parametern. Zu den Lemma-und-Pos-Informationen (Parts (Rückgabe von 'get_lemma_and_pos_by_list')) sind wetere Parameter: ab dem wievielten Eintrag die Tupel zu den einzelnen Relationen zurückgegeben werden sollen ( 'Start'), wie viele Einträge zurückgegeben werden sollen ( 'Number'), nach welcher Statistik ( 'Frequency','logDice') sortiert werden soll ( 'OrderBy'), die minimal erlaubte Frequenz ( 'MinFreq') und der minimal erlaubte Statistikwert ( 'MinStat').
-
-        mapParam = {'Parts':<list>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,'MinFreq':<int=-inf>,'MinStat':<float=-inf>}
-
-        hiervon sind obligatorisch: 'Parts'
-
-        *Die Rückgabe enthält einerseits die Information über die MWE-Bestandteile und andererseits je ein Wortprofil für die Wörter, die in dem MWE involviert sind, falls ein solches existiert. Konkret ist die Rückgabe ein Dictionary mit den Attributen 'parts', für die MWE-Bestandteile und 'data' für die Wortprofile zu den einzelnen Lemmaformen:
-
-        {'parts':X,'data':Y }
-
-        Die Informationen zu den MWE-Berstandteilen sind als Liste abgelegt. Die Reihenfolge der einzelnen Listenelemente entspricht hierbei der Abfragereihenfolge der MWE-Bestandteile. Die einzelnen Informationen sind als Dictionary angelegt und umfassen die Lemmaform 'Lemma' und die Wortkategorie 'POS':
-
-        X = [{'Lemma':<string>,POS:<string>},'Lemma':<string>,POS:<string>}, ...]
-
-        Einer Lemmaformen wird über ein Dictionary ein entsprechendes Wortprofil zugeordnet. Die Wortprofile haben hierbei die gleiche Gestallt wie in der Rückgabe von 'get_relations'. Hier ist ein Beispiel für einen MWE mit den Lemmaformen 'Hund' und 'lieben' gegeben:
-
-        Y = {'Hund':[ {'Relation':<string>,'RelId':<string>,'Description':<string>,'Tuples'<list>}, ... ], 'lieben':[ {'Relation':<string>,'RelId':<string>,'Description':<string>,'Tuples'<list>}, ... ], ... }
-
-        """
-        mapParam["ConcordIdRemember"] = ""
-
-        # eine Menge von binären Dependenzrelationen mit einer Sortierung, die die MWE-Wortprofilabfrage ermöglicht
-        listInfo = self.wp_tree.lemma_and_pos_list_to_tree(mapParam['Parts'], self.wp_db.mapRelToId,
-                                                           self.wp_db.mapRelIdToType)
-        if len(listInfo) == 0:
-            return {'data': [], 'parts': {}}
-
-        # Abfragen der Kookkurrenzen
-        listData = self.wp_db.get_mwe_relations_by_list_base(mapParam, listInfo)
-
-        # Mapping von den Relationen auf die Kookkurenzen erstellen
-        mapRelDataRef = self.__gen_rel_pos_cooccurrence_mapping(listData)
-
-        listResult = []
-        vInfoVector = []
-
-        # durchgehen der Relationen des Mapping
-        mapResultPerLemma = {}
-        strInfoPrefix = ""
-        for j in mapRelDataRef:
-
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
-            for i in listLocalRelId:
-                if i in mapRelDataRef[j]:
-
-                    # Ids innerhalb der Kookkurrenzinformatinen auf Strings abbilden
-                    listTuples = self.__mwe_relation_tuples_2_strings(listData, mapRelDataRef[j][i], mapParam, "")
-
-                    # Relation-Id zusammenbauen
-                    strInfoPrefix = self.__mwe_id_prefix(listData, mapRelDataRef[j][i])
-                    if strInfoPrefix != "":
-                        strRelId = strInfoPrefix + "@" + str(j[0]) + '#' + str(j[1]) + '#' + str(i)
-                    else:
-                        strRelId = "undef"
-
-                    strRel = self.wp_db.mapIdToRel[i]
-                    strDesc = self.wp_spec.strRelDesc
-                    if strRel in self.wp_spec.mapRelDesc:
-                        strDesc = self.wp_spec.mapRelDesc[strRel]
-
-                    strLem = self.wp_db.mmapIdToLem.get(j[0])
-
-                    if strLem in mapResultPerLemma:
-                        mapResultPerLemma[strLem].append(
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId})
-                    else:
-                        mapResultPerLemma[strLem] = [
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId}]
-
-        # Lemmabestandteile der Treffer-Id bzw. Mwe-Id ermitteln
-        if strInfoPrefix != "":
-            vParts = self.__extract_mwe_parts(strInfoPrefix)
+        hit_id = info_id.split('#')
+        if len(hit_id) == 1:
+            coocc_info = CooccInfo(hit_id[0])
         else:
-            vParts = []
-
-        mapKomplResult = {}
-        mapKomplResult['data'] = mapResultPerLemma
-        mapKomplResult['parts'] = vParts
-        return mapKomplResult
-
-    @deprecated
-    def get_mwe_relations_by_list_parametric(self, mapParam):
-        """
-        Die Methode ermöglicht es, anhand einer liste von Lemma-und-Pos-Relation-Tupeln (Parts) MWE-Wortprofilrelationen abzufragen.
-
-        Der Parameter 'Parts' kann hier beispielsweise so belegt werden: [{'Lemma2': 'Mann', 'Lemma1': 'lieben', 'Relation': 'SUBJA', 'POS2': 'Substantiv', 'Prep': '-', 'POS1': 'Verb'}, {'Lemma2': 'Frau', 'Lemma1': 'lieben', 'Relation': 'OBJ', 'POS2': 'Substantiv', 'Prep': '-', 'POS1': 'Verb'}]
-
-        Hier steht '-' für nicht vorhanden.
-
-        Ein anderes Beispiel mit Präposition ist:
-
-        [{'Lemma2': 'Haus', 'Lemma1': 'wohnen', 'Relation': 'PP', 'POS2': 'Substantiv', 'Prep': 'in', 'POS1': 'Verb'}, {'Lemma2': 'sch\xc3\xb6n', 'Lemma1': 'Haus', 'Relation': 'ATTR', 'POS2': 'Adjektiv', 'Prep': '-', 'POS1': 'Substantiv'}]
-
-        Wenn eine Relation unbestimmt sein soll, kann '*' verwendet werden:
-
-        [{'Lemma2': 'Mann', 'Lemma1': 'sehen', 'Relation': '*', 'POS2': 'Substantiv', 'Prep': '-', 'POS1': 'Verb'}]
-
-        Die Abfolge der Tupelelemente muss der Abfolge einer Sukzessiven sequenziellen Wortprofil-Mwe-Abfrage entsprechen.
-        """
-        listInfo = []
-        listLemma = mapParam['Parts']
-        if len(listLemma) < 1:
-            return None
-
-        # durch gehen der eingabeliste und extrahieren der Informationen
-        for i in listLemma:
-            mapParam["Word"] = i['Lemma1']
-            mapParam["POS"] = i['POS1']
-            # lemmainformationen für das erste Lemma ermitteln
-            mapping1 = self.get_lemma_and_pos(mapParam)
-            if mapping1 == []:
-                return {'data': [], 'parts': {}}
-            # lemmainformationen für das zweite Lemma ermitteln
-            mapParam["Word"] = i['Lemma2']
-            mapParam["POS"] = i['POS2']
-            mapping2 = self.get_lemma_and_pos(mapParam)
-            if mapping2 == []:
-                return {'data': [], 'parts': {}}
-            # id der Präposition ermitteln
-            if 'Prep' in i:
-                idPRep = self.wp_db.get_prep_id(i['Prep'])
-            else:
-                idPRep = -1
-
-            if i['Relation'] == "*":
-                # unbestimmte Relation
-                vRel = self.wp_tree.rellist_to_idlist_directed(mapping1[0]['Relations'], self.wp_db.mapRelToId,
-                                                               self.wp_db.mapRelIdToType)
-            else:
-                # bestimmte Relation
-                vRel = [self.wp_db.mapRelToId[i['Relation']]]
-
-            if len(mapping1) > 0 and len(mapping2) > 0:
-                listInfo.append((mapping1[0], mapping2[0], vRel, idPRep))
-
-        mapParam["ConcordIdRemember"] = ""
-
-        if len(listInfo) < 1:
-            return None
-
-        # Mwe-Kookkurrenzen ermitteln
-        listData = self.wp_db.get_mwe_relations_by_list_base(mapParam, listInfo)
-
-        # Mapping von den Relationen auf die Kookkurenzen erstellen
-        mapRelDataRef = self.__gen_rel_pos_cooccurrence_mapping(listData)
-
-        listResult = []
-        vInfoVector = []
-
-        mapResultPerLemma = {}
-
-        # durchgehen der Relationen des Mapping
-        for j in mapRelDataRef:
-
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
-            for i in listLocalRelId:
-                if i in mapRelDataRef[j]:
-
-                    # Ids innerhalb der Kookkurrenzinformatinen auf Strings abbilden
-                    listTuples = self.__mwe_relation_tuples_2_strings(listData, mapRelDataRef[j][i], mapParam, "")
-
-                    # Relation-Id zusammenbauen
-                    strInfoPrefix = self.__mwe_id_prefix(listData, mapRelDataRef[j][i])
-                    if strInfoPrefix != "":
-                        strRelId = strInfoPrefix + "@" + str(j[0]) + '#' + str(j[1]) + '#' + str(i)  # strInfoId
-                    else:
-                        strRelId = "undef"
-
-                    strRel = self.wp_db.mapIdToRel[i]
-                    strDesc = self.wp_spec.strRelDesc
-                    if strRel in self.wp_spec.mapRelDesc:
-                        strDesc = self.wp_spec.mapRelDesc[strRel]
-
-                    strLem = self.wp_db.mmapIdToLem.get(j[0])
-
-                    if strLem in mapResultPerLemma:
-                        mapResultPerLemma[strLem].append(
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId})
-                    else:
-                        mapResultPerLemma[strLem] = [
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId}]
-
-        mapKomplResult = {}
-        mapKomplResult['data'] = mapResultPerLemma
-        mapKomplResult['parts'] = vInfoVector
-        return mapKomplResult
-
-    @deprecated
-    def get_mwe_relations(self, mapParam):
-        """
-        Die Methode ermöglicht es, anhand einer Concordanz-ID MWE-Wortprofilrelationen abzufragen.
-
-        *Eingabe ist ein Dictionary aus Parametern. Zu der Concordanz-ID ( 'ConcordId') sind wetere Parameter: ab dem wievielten Eintrag die Tupel zu den einzelnen Relationen zurückgegeben werden sollen ( 'Start'), wie viele Einträge zurückgegeben werden sollen ( 'Number'), nach welcher Statistik ( 'Frequency','logDice') sortiert werden soll ( 'OrderBy'), die minimal erlaubte Frequenz ( 'MinFreq') und der minimal erlaubte Statistikwert ( 'MinStat'):
-            mapParam = {'ConcordId':<string>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,'MinFreq':<int=-inf>,'MinStat':<float=-inf>}
-
-        hiervon sind obligatorisch: 'MweId'
-        *Die Rückgabe enthält einerseits die Information über die MWE-Bestandteile und andererseits je ein Wortprofil für die Wörter, die in dem MWE involviert sind, falls ein solches existiert. Konkret ist die Rückgabe ein Dictionary mit den Attributen 'parts', für die MWE-Bestandteile und 'data' für die Wortprofile zu den einzelnen Lemmaformen:
-        {'parts':X,'data':Y }
-        Die Informationen zu den MWE-Berstandteilen sind als Liste abgelegt. Die Reihenfolge der einzelnen Listenelemente entspricht hierbei der Abfragereihenfolge der MWE-Bestandteile. Die einzelnen Informationen sind als Dictionary angelegt und umfassen die Lemmaform 'Lemma' und die Wortkategorie 'POS':
-        X = [{'Lemma':<string>,POS:<string>},'Lemma':<string>,POS:<string>}, ...]
-        Einer Lemmaformen wird über ein Dictionary ein entsprechendes Wortprofil zugeordnet. Die Wortprofile haben hierbei die gleiche Gestallt wie in der Rückgabe von 'get_relations'. Hier ist ein Beispiel für einen MWE mit den Lemmaformen 'Hund' und 'lieben' gegeben:
-        Y = {'Hund':[ {'Relation':<string>,'RelId':<string>,'Description':<string>,'Tuples'<list>}, ... ], 'lieben':[ {'Relation':<string>,'RelId':<string>,'Description':<string>,'Tuples'<list>}, ... ], ... }
-        """
-        (setInfoId, mapLemCat, strInfoId) = self.__extract_mwe_info(mapParam["ConcordId"])
-
-        # Komplexe Mwe-Id bzw. Treffer-Id in seine Bestandteile aufsplitten
-        vInfoVector = self.__extract_mwe_parts(mapParam["ConcordId"])
-
-        mapParam['ConcordIdRemember'] = mapParam['ConcordId']
-        mapParam['ConcordId'] = strInfoId
-
-        listRelations = []
-        if 'Relations' in mapParam:
-            listRelations = self.gen_rel_ids_by_rel(mapParam['Relations'])
-
-        # Ermitteln Kookkurrenzen für alle syntaktischen Relationen
-        listData = self.wp_db.get_relation_tuples_mwe(mapParam, listRelations, setInfoId)
-
-        # Erstellen einer Map, die den Relationen die Kookkurrenzen zuordnet
-        mapRelData = self.__gen_rel_pos_cooccurrence_mapping(listData)
-
-        listResult = []
-
-        # Durchgehen der Relationen
-        mapResultPerLemma = {}
-        for j in mapRelData:
-
-            # Prüfen, ob zu der Wortkategorie die syntaktische Relation behandelt werden soll
-            listLocalRelId = self.gen_mwe_rel_ids_by_pos(self.wp_db.mapIdToPOS[j[1]])
-            for i in listLocalRelId:
-                if i in mapRelData[j]:
-                    # IDs in den Kookkurrenz-Informationen auf Strings abbilden
-                    listTuples = self.__mwe_relation_tuples_2_strings(listData, mapRelData[j][i], mapParam, strInfoId)
-
-                    # komplexe Relation-Id zusammenbauen
-                    strRelId = mapParam['ConcordIdRemember'] + "@" + str(j[0]) + '#' + str(j[1]) + '#' + str(
-                        i)  # strInfoId
-
-                    # Metainformationen
-                    strRel = self.wp_db.mapIdToRel[i]
-                    strDesc = self.wp_spec.strRelDesc
-                    if strRel in self.wp_spec.mapRelDesc:
-                        strDesc = self.wp_spec.mapRelDesc[strRel]
-
-                    # Lemmaform ermitteln
-                    strLem = self.wp_db.mmapIdToLem.get(j[0])
-
-                    # zum Ergebnis hinzufügen
-                    if strLem in mapResultPerLemma:
-                        mapResultPerLemma[strLem].append(
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId})
-                    else:
-                        mapResultPerLemma[strLem] = [
-                            {'Relation': strRel, 'Description': strDesc, 'Tuples': listTuples, 'RelId': strRelId}]
-
-        mapKomplResult = {}
-        mapKomplResult['data'] = mapResultPerLemma
-        mapKomplResult['parts'] = vInfoVector
-        return mapKomplResult
-
-    @deprecated
-    def get_mwe_cooccurrences(self, mapParam):
-        """
-        Ermitteln der Kookkurrenzen zu einer komplexen MWE-Relation-Id
-        """
-        # Extrahieren der Bestandteile einer Komplexen Relation-Id
-        strRelId = mapParam["RelId"]
-        (setInfoId, mapLemCat, strInfoId, strMweId) = self.__extract_mwe_relation_info(strRelId)
-
-        # ermitteln der Kookkurenzen
-        mapParam['ConcordIdRemember'] = mapParam['RelId']
-        mapParam['ConcordId'] = strMweId
-        listData = self.wp_db.get_relation_tuples_mwe_single(mapParam, setInfoId, mapLemCat)
-
-        # Mapping von den Relationen auf die Kookkurenzen erstellen
-        mapRelData = self.__gen_rel_pos_cooccurrence_mapping(listData)
-
-        listResult = []
-
-        mapResultPerLemma = {}
-
-        # Durchgehen der Relationen
-        for j in mapRelData:
-            # Durchgehen der entsprechenden Kookkurrenzen
-            for i in mapRelData[j]:
-                # IDs in den Kookkurrenz-Informationen auf Strings abbilden
-                listTuples = self.__mwe_relation_tuples_2_strings(listData, mapRelData[j][i], mapParam, strInfoId)
-
-        return listTuples
+            coocc_info = CooccInfo(*(hit_id[-1:] + hit_id[:-1]))
+        return coocc_info
 
     @deprecated
     def __calculate_diff(self, lemma1_id, lemma2_id, diffs, cooccs_rel, number, nbest, use_intersection, operation):
@@ -1421,7 +799,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         {'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>}
         """
         info_id = params.get("InfoId")
-        coocc_info = self.__extract_coocc_info(info_id)[-1]
+        coocc_info = self.__extract_coocc_info(info_id)
 
         # Ids auf Strings mappen
         lemma1 = coocc_info.lemma1
@@ -1470,14 +848,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        coocc_infos = self.__extract_coocc_info(info_id)
-
-        if len(coocc_infos) > 1:
-            return self.wp_db.get_concordances_mwe_base(params)
-        else:
-            return self.wp_db.get_concordances(coocc_infos[0].match_id, use_context, subcorpus,
-                                               is_internal_user,
-                                               start_index, result_number)
+        coocc_info = self.__extract_coocc_info(info_id)
+        return self.wp_db.get_concordances(coocc_info.match_id, use_context, subcorpus,
+                                           is_internal_user,
+                                           start_index, result_number)
 
 
 class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):

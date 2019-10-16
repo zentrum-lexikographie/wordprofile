@@ -12,113 +12,113 @@ def read_table(path, columns=None, mapping=False):
     df = pd.DataFrame(map(lambda b: b.decode().strip().split('\t'), file_lines), columns=list(columns.keys()))
     df = df.astype(columns)
     if mapping:
-        return df.set_index(keys=['Id'], drop=True).T.iloc[0]
+        return df.set_index(keys=['id'], drop=True).T.iloc[0]
     else:
         return df
 
 
 tables_columns = {
     'types': {
-        'Id': str,
+        'id': str,
         'value': int
     },
     'mapping_function': {
-        'Id': int,
-        'Relation': str,
-        'RelationType': int,
-        'Usage': str,
-        'Label': str,
-        'Example': str
+        'id': int,
+        'relation': str,
+        'relation_type': int,
+        'usage': str,
+        'label': str,
+        'example': str
     },
     'mapping_POS': {
-        'Id': int,
-        'Pos': str
+        'id': int,
+        'pos': str
     },
     'mapping_lemma': {
-        'Id': int,
-        'Lemma': str
+        'id': int,
+        'lemma': str
     },
     'mapping_corpus': {
-        'Id': int,
-        'CorpusName': str
+        'id': int,
+        'corpus_name': str
     },
     'mapping_corpus_name': {
-        'CorpusName': str,
-        'CorpusFullName': str
+        'corpus_name': str,
+        'corpus_fullname': str
     },
     'mapping_surface': {
-        'Id': int,
-        'Surface': str
+        'id': int,
+        'surface': str
     },
     'mapping_file': {
-        'Id': int,
-        'FileName': str
+        'id': int,
+        'file_name': str
     },
     'mapping_TEI': {
-        'CorpusId': int,
-        'FileId': int,
-        'Orig': str,
-        'Scan': str,
-        'TextClassId': int,
-        'AvailId': int
+        'corpus_id': int,
+        'file_id': int,
+        'orig': str,
+        'scan': str,
+        'text_class_id': int,
+        'avail_id': int
     },
     'mapping_TEI_textclass': {
-        'Id': int,
-        'TextClass': str
+        'id': int,
+        'text_class': str
     },
     'mapping_TEI_sigle': {
-        'Id': int,
-        'Sigle': str
+        'id': int,
+        'sigle': str
     },
     'mapping_TEI_orig': {
-        'Id': int,
-        'BiblString': str
+        'id': int,
+        'bibl_string': str
     },
     'mapping_TEI_scan': {
-        'Id': int,
-        'BiblString': str
+        'id': int,
+        'bibl_string': str
     },
     'mapping_TEI_date': {
-        'Id': int,
-        'Date': "datetime64"
+        'id': int,
+        'date': "datetime64"
     },
     'mapping_TEI_avail': {
-        'Id': int,
-        'Rights': str
+        'id': int,
+        'rights': str
     },
     'mapping_position_info_tei': {
-        'MatchId': int,
-        'Word1Position': int, 'Word2Position': int, 'PrepPosition': int,
-        'SentenceId': int, 'FileId': int, 'CorpusId': int,
-        'Rights': int, 'DateId': int,
-        'NegDateId': int,
-        'GdexScore': int
+        'match_id': int,
+        'head_position': int, 'dep_position': int, 'prep_position': int,
+        'sentence_id': int, 'file_id': int, 'corpus_id': int,
+        'rights': int, 'date_id': int,
+        'neg_date_id': int,
+        'gdex_score': int
     },
     'head_pos_rel_freq': {
-        'LemmaId': int,
-        'PosId': int,
-        'RelationId': int,
-        'Frequency': int, 'Count': int},
+        'lemma_id': int,
+        'pos_id': int,
+        'relation_id': int,
+        'frequency': int, 'count': int},
     'relations': {
-        'RelationId': int,
-        'PrepId': int, 'Lemma1Id': int, 'Lemma2Id': int,
-        'PrepSurfaceId': int, 'Surface1Id': int, 'Surface2Id': int,
-        'PrepPosId': int, 'Pos1Id': int, 'Pos2Id': int,
-        'MatchId': int,
-        'CountsWithRights': int,
-        'Frequency': int,
-        'MI3': float,
-        'MiLogFreq': float,
-        'TScore': float,
-        'LogDice': float,
-        'LogLike': float
+        'relation_id': int,
+        'prep_id': int, 'head_lemma': int, 'dep_lemma': int,
+        'prep_surface_id': int, 'head_surface_id': int, 'dep_surface_id': int,
+        'prep_pos_id': int, 'head_pos_id': int, 'dep_pos_id': int,
+        'match_id': int,
+        'counts_with_rights': int,
+        'frequency': int,
+        'mi3': float,
+        'mi_log_freq': float,
+        't_score': float,
+        'log_dice': float,
+        'log_like': float
     },
     'concord_sentences': {
-        'CorpusId': int,
-        'FileId': int,
-        'SentencePosition': int,
-        'Sentence': str,
-        'Page': str
+        'corpus_id': int,
+        'file_id': int,
+        'sentence_id': int,
+        'sentence': str,
+        'page': str
     },
 }
 
@@ -143,8 +143,8 @@ def create_new_tables(engine, directory):
     mapping_textclass = read_table(os.path.realpath(directory + '/mapping_TEI_textclass.table'),
                                    columns=tables_columns['mapping_TEI_textclass'])
 
-    map_function_name = dict(mapping_function[['Id', 'Relation']].values)
-    map_function_type = dict(mapping_function[['Id', 'RelationType']].values)
+    map_function_name = dict(mapping_function[['id', 'relation']].values)
+    map_function_type = dict(mapping_function[['id', 'relation_type']].values)
     map_lemma = dict(mapping_lemma.values)
     map_surface = dict(mapping_surface.values)
     map_pos = dict(mapping_pos.values)
@@ -156,80 +156,82 @@ def create_new_tables(engine, directory):
 
     print('(: process relations')
     table_relations = read_table(os.path.realpath(directory + '/relations.table'), columns=tables_columns['relations'])
-    table_relations['Relation'] = table_relations.RelationId.map(map_function_name)
-    table_relations['Prep'] = table_relations.PrepId.map(map_lemma)
-    table_relations['Lemma1'] = table_relations.Lemma1Id.map(map_lemma)
-    table_relations['Lemma2'] = table_relations.Lemma2Id.map(map_lemma)
-    table_relations['PrepSurface'] = table_relations.PrepSurfaceId.map(map_surface)
-    table_relations['Surface1'] = table_relations.Surface1Id.map(map_surface)
-    table_relations['Surface2'] = table_relations.Surface2Id.map(map_surface)
-    table_relations['PrepPos'] = table_relations.PrepPosId.map(map_pos)
-    table_relations['Pos1'] = table_relations.Pos1Id.map(map_pos)
-    table_relations['Pos2'] = table_relations.Pos2Id.map(map_pos)
+    table_relations['relation'] = table_relations.relation_id.map(map_function_name)
+    table_relations['prep_lemma'] = table_relations.prep_id.map(map_lemma)
+    table_relations['head_lemma'] = table_relations.head_lemma.map(map_lemma)
+    table_relations['dep_lemma'] = table_relations.dep_lemma.map(map_lemma)
+    table_relations['prep_surface'] = table_relations.prep_surface_id.map(map_surface)
+    table_relations['head_surface'] = table_relations.head_surface_id.map(map_surface)
+    table_relations['dep_surface'] = table_relations.dep_surface_id.map(map_surface)
+    table_relations['prep_surface'] = table_relations.prep_pos_id.map(map_pos)
+    table_relations['head_pos'] = table_relations.head_pos_id.map(map_pos)
+    table_relations['dep_pos'] = table_relations.dep_pos_id.map(map_pos)
     table_relations = table_relations[
-        ['Relation', 'Prep', 'Lemma1', 'Lemma2', 'PrepSurface', 'Surface1', 'Surface2', 'PrepPos', 'Pos1', 'Pos2',
-         'MatchId', 'CountsWithRights', 'Frequency', 'MI3', 'MiLogFreq', 'TScore', 'LogDice', 'LogLike']]
-    table_relations.to_sql('rk_relations', con=engine, index=False, chunksize=256, if_exists='replace',
-                           dtype={'PrepPos': types.VARCHAR(20), 'Pos1': types.VARCHAR(20), "Pos2": types.VARCHAR(20),
-                                  'Relation': types.VARCHAR(10)})
+        ['relation', 'prep_lemma', 'head_lemma', 'dep_lemma', 'prep_surface', 'head_surface', 'dep_surface',
+         'prep_surface', 'head_pos', 'dep_pos',
+         'match_id', 'counts_with_rights', 'frequency', 'mi3', 'mi_log_freq', 't_score', 'log_dice', 'log_like']]
+    table_relations.to_sql('relations', con=engine, index=False, chunksize=256, if_exists='replace',
+                           dtype={'prep_surface': types.VARCHAR(20), 'head_pos': types.VARCHAR(20),
+                                  'dep_pos': types.VARCHAR(20),
+                                  'relation': types.VARCHAR(10)})
 
     print('(: process head_pos_rel_freq')
     table_freqs = read_table(os.path.realpath(directory + '/head_pos_rel_freq.table'),
                              columns=tables_columns['head_pos_rel_freq'])
-    table_freqs['Lemma'] = table_freqs.LemmaId.map(map_lemma)
-    table_freqs['Pos'] = table_freqs.PosId.map(map_pos)
-    table_freqs['Relation'] = table_freqs.RelationId.map(map_function_name)
-    table_freqs['RelationType'] = table_freqs.RelationId.map(map_function_type)
-    table_freqs = table_freqs[['Lemma', 'Pos', 'Relation', 'RelationType', 'Frequency', 'Count']]
-    table_freqs.to_sql('rk_head_pos_rel_freq', con=engine, index=False, chunksize=256, if_exists='replace')
+    table_freqs['lemma'] = table_freqs.lemma_id.map(map_lemma)
+    table_freqs['pos'] = table_freqs.pos_id.map(map_pos)
+    table_freqs['relation'] = table_freqs.relation_id.map(map_function_name)
+    table_freqs['relation_type'] = table_freqs.relation_id.map(map_function_type)
+    table_freqs = table_freqs[['lemma', 'pos', 'relation', 'relation_type', 'frequency', 'count']]
+    table_freqs.to_sql('head_pos_rel_freq', con=engine, index=False, chunksize=256, if_exists='replace')
 
     print('(: process TEI infos')
     table_tei = read_table(os.path.realpath(directory + '/mapping_TEI.table'),
                            columns=tables_columns['mapping_TEI'])
-    table_tei['TextClass'] = table_tei.TextClassId.map(map_textclass)
-    table_tei['Avail'] = table_tei.AvailId.map(map_avail)
-    table_tei['File'] = table_tei.FileId.map(map_file)
-    table_tei['Corpus'] = table_tei.CorpusId.map(map_corpus)
-    table_tei = table_tei[['Corpus', 'File', 'Orig', 'Scan', 'TextClass', 'Avail']]
-    table_tei.to_sql('rk_tei', con=engine, index=False, chunksize=256, if_exists='replace',
-                     dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+    table_tei['text_class'] = table_tei.text_class_id.map(map_textclass)
+    table_tei['available'] = table_tei.avail_id.map(map_avail)
+    table_tei['file'] = table_tei.file_id.map(map_file)
+    table_tei['corpus'] = table_tei.corpus_id.map(map_corpus)
+    table_tei = table_tei[['corpus', 'file', 'orig', 'scan', 'text_class', 'available']]
+    table_tei.to_sql('corpus_files', con=engine, index=False, chunksize=256, if_exists='replace',
+                     dtype={'corpus': types.VARCHAR(20), 'file': types.VARCHAR(100)})
 
     print('(: process concord sentences')
     concord_sentences = read_table(os.path.realpath(directory + '/concord_sentences.table'),
                                    columns=tables_columns['concord_sentences'])
-    concord_sentences['File'] = concord_sentences.FileId.map(map_file)
-    concord_sentences['Corpus'] = concord_sentences.CorpusId.map(map_corpus)
-    concord_sentences = concord_sentences[['Corpus', 'File', 'SentencePosition', 'Sentence', 'Page']]
-    concord_sentences.to_sql('rk_concord_sentences', con=engine, index=False, chunksize=256, if_exists='replace',
-                             dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+    concord_sentences['file'] = concord_sentences.file_id.map(map_file)
+    concord_sentences['corpus'] = concord_sentences.corpus_id.map(map_corpus)
+    concord_sentences = concord_sentences[['corpus', 'file', 'sentence_id', 'sentence', 'page']]
+    concord_sentences.to_sql('concord_sentences', con=engine, index=False, chunksize=256, if_exists='replace',
+                             dtype={'corpus': types.VARCHAR(20), 'file': types.VARCHAR(100)})
     print('(: build concord sentences INDEX')
     engine.execute("""
-    CREATE UNIQUE INDEX rk_concord_sentences_CorpusId_IDX 
+    CREATE UNIQUE INDEX concord_sentences_corpus_IDX 
     USING BTREE 
-    ON rk_concord_sentences (Corpus,File,SentencePosition);
+    ON concord_sentences (corpus, file, sentence_id);
     """)
 
     print('(: process matches')
     table_matches = read_table(os.path.realpath(directory + '/mapping_position_info_tei.table'),
                                columns=tables_columns['mapping_position_info_tei'])
-    table_matches['File'] = table_matches.FileId.map(map_file)
-    table_matches['Corpus'] = table_matches.CorpusId.map(map_corpus)
-    table_matches['Date'] = table_matches.DateId.map(map_date)
-    table_matches = table_matches[['MatchId', 'Word1Position', 'Word2Position', 'PrepPosition', 'SentenceId',
-                                   'File', 'Corpus', 'Rights', 'Date', 'GdexScore']]
-    table_matches.to_sql('rk_matches', con=engine, index=False, chunksize=256, if_exists='replace',
-                         dtype={'Corpus': types.VARCHAR(20), 'File': types.VARCHAR(100)})
+    table_matches['file'] = table_matches.file_id.map(map_file)
+    table_matches['corpus'] = table_matches.corpus_id.map(map_corpus)
+    table_matches['date'] = table_matches.date_id.map(map_date)
+    table_matches = table_matches[['match_id', 'head_position', 'dep_position', 'prep_position', 'sentence_id',
+                                   'file', 'corpus', 'rights', 'date', 'gdex_score']]
+    table_matches.to_sql('matches', con=engine, index=False, chunksize=256, if_exists='replace',
+                         dtype={'corpus': types.VARCHAR(20), 'file': types.VARCHAR(100)})
     print('(: build matches INDEX')
     engine.execute("""
-        CREATE INDEX rk_matches_IDX 
+        CREATE INDEX matches_IDX 
         USING BTREE 
-        ON rk_matches (MatchId);
+        ON matches (match_id);
         """)
     print('(: build matches corpus-file-sentence INDEX')
     engine.execute("""
-        CREATE INDEX rk_matches_corpus_file_sent_IDX 
+        CREATE INDEX matches_corpus_file_sent_IDX 
         USING BTREE 
-        ON rk_matches (Corpus, File, SentenceId);
+        ON matches (corpus, file, sentence_id);
         """)
 
 
