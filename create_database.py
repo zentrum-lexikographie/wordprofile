@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-
+import getpass
 import os
-import sys
 from argparse import ArgumentParser
 
 import pandas as pd
@@ -234,61 +233,32 @@ def create_new_tables(engine, directory):
         """)
 
 
-print("|: CREATE MYSQL DATABASE")
-parser = ArgumentParser()
-parser.add_argument("-s", dest="spec", default=None, help="Angabe der Settings-Datei (*.xml)", required=True)
+def main():
+    print("|: CREATE MYSQL DATABASE")
+    parser = ArgumentParser()
+    parser.add_argument("--user", type=str, help="database username", required=True)
+    parser.add_argument("--database", type=str, help="database name", required=True)
+    parser.add_argument("--table-path", type=str, help="path for tables", required=True)
 
-args = parser.parse_args()
+    args = parser.parse_args()
 
-# read specifications
-mapConfig = {}
-fileConfig = open(args.spec, 'r')
-for i in fileConfig.readlines():
-    setting = i.rstrip('\n').split('\t')
-    if len(setting) == 2:
-        mapConfig[setting[0]] = setting[1]
+    print('|: user: ' + args.user)
+    print('|: db: ' + args.database)
+    db_password = getpass.getpass("db password: ")
 
-# Parameter aus der Konfigurationsdatei prüfen
-if 'TablePath' not in mapConfig:
-    parser.error("missing table path in settings file")
-    sys.exit(-1)
+    engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(
+        args.user, db_password))
 
-if not os.path.exists(mapConfig['TablePath']):
-    parser.error("directory does not exist: " + mapConfig['TablePath'])
-    sys.exit(-1)
+    engine.execute("DROP DATABASE IF EXISTS " + args.database)
+    engine.execute("CREATE DATABASE " + args.database + " CHARACTER SET utf8")
+    engine.execute("set autocommit=1")
+    engine.execute("USE " + args.database)
 
-if 'User' not in mapConfig:
-    parser.error("missing user name in config file")
-    sys.exit(-1)
+    create_new_tables(engine, args.table_path.rstrip('/'))
 
-if 'Database' not in mapConfig:
-    parser.error("missing wpse name in config file")
-    sys.exit(-1)
+    print()
+    print("(: done")
 
-if 'Port' not in mapConfig:
-    parser.error("missing port in config file")
-    sys.exit(-1)
 
-if 'Host' not in mapConfig and 'Socket' not in mapConfig:
-    parser.error("missing Host/Socket in config file")
-    sys.exit(-1)
-
-# if 'Host' in mapConfig:
-print('|: host: ' + mapConfig['Host'])
-# else:
-#     print('|: socket: ' + mapConfig['Socket'])
-print('|: user: ' + mapConfig['User'])
-print('|: db: ' + mapConfig['Database'])
-print('|: port: ' + mapConfig['Port'])
-
-engine = create_engine('mysql+pymysql://{}:{}@localhost/{}'.format(
-    mapConfig['User'], mapConfig['Passwd'], mapConfig['Database']))
-engine.execute("DROP DATABASE IF EXISTS " + mapConfig['Database'])
-engine.execute("CREATE DATABASE " + mapConfig['Database'] + " CHARACTER SET utf8")
-engine.execute("set autocommit=1")
-engine.execute("USE " + mapConfig['Database'])
-
-create_new_tables(engine, mapConfig['TablePath'].rstrip('/'))
-
-print()
-print("(: done")
+if __name__ == '__main__':
+    main()
