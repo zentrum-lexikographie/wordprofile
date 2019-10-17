@@ -3,6 +3,7 @@ import logging
 from collections import defaultdict, namedtuple
 
 import MySQLdb
+
 from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
 
 logger = logging.getLogger('wordprofile.mysql')
@@ -126,12 +127,15 @@ class WpSeMySql:
             return []
 
         query = """
-            SELECT lemma, pos, frequency, count, relation
-            FROM head_pos_rel_freq
-            WHERE LOWER(lemma) LIKE '{}' {};
+            SELECT head_lemma lemma, head_pos pos, 
+                   CAST(SUM(-frequency) AS SIGNED) frequency, CAST(COUNT(match_id) AS SIGNED) counts, relation
+            FROM relations
+            WHERE LOWER(head_lemma) LIKE '{}' {}
+            GROUP BY lemma, pos, relation;
         """.format(
             word.lower(),
-            " and pos='{}'".format(pos) if pos not in ["*", ""] else "")
+            # TODO determine for default POS value
+            "and pos='{}'".format(pos) if pos not in ["*", ""] else "")
         db_results = self.fetchall(query)
 
         return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
