@@ -121,8 +121,3 @@ def surface_mapping(surface, rel, prep, use_extended_surface_form):
             return prep + ' ' + surface
         else:
             return surface
-
-
-@deprecated
-def intersect(wp1, wp2):
-    raise NotImplementedError()

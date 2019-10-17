@@ -7,5 +7,16 @@ setup(name='wordprofile',
       description='DWDS Wordprofile Server',
       author='René Knaebel',
       author_email='rene.knaebel@bbaw.de',
-      packages=[],
+      packages=['wordprofile'],
+      install_requires=[
+          'sqlalchemy',
+          'imsnpars',
+      ],
+      entry_points={
+          'console_scripts': [
+              'wp-init = init_database:main',
+              'wp-create = create_database:main',
+              'wp-parse = parse_doc:main'
+          ],
+      }
       )
