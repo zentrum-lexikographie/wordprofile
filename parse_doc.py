@@ -11,7 +11,9 @@ from imsnpars.nparser import builder
 from imsnpars.nparser import options
 from imsnpars.tools import utils
 from sqlalchemy import create_engine
-from wordprofile.wpse.db_tables import get_corpus_file_id, insert_concord_sentences, get_relation_id, insert_matches
+
+from wordprofile.wpse.db_tables import insert_concord_sentences, get_relation_id, insert_matches, \
+    insert_corpus_file
 from wordprofile.zdl import read_tabs_format, tokenized_sentence_to_conll_token, conll_token_to_tokenized_sentence, \
     extract_matches_from_document
 
@@ -25,6 +27,7 @@ def build_parser_from_args(cmd_args=None):
     db_args = argParser.add_argument_group('database')
     db_args.add_argument("--user", type=str, help="database username", required=True)
     db_args.add_argument("--database", type=str, help="database name", required=True)
+    db_args.add_argument("--passwd", action="store_true", help="ask for database password")
 
     parserArgs = argParser.add_argument_group('parser')
     parserArgs.add_argument("--parser", help="which parser to use", choices=["GRAPH", "TRANS"], required=True)
@@ -78,9 +81,10 @@ def parse_file(parser, src, use_normalizer=False):
 def process_files_parallel(db_engine_key, src, args, options):
     parser = get_parser(args, options)
     engine = create_engine(db_engine_key)
+    # mongo_engine = pymongo.MongoClient("mongodb://localhost:27017/")["zdl"]["documents"]
     meta_data, parses = parse_file(parser, src, options.normalize)
     print("({}) - parsed document".format(meta_data['basename']))
-    corpus_file_id = get_corpus_file_id(engine, meta_data)
+    corpus_file_id = insert_corpus_file(engine, meta_data)
     insert_concord_sentences(engine, corpus_file_id, parses)
     matches = extract_matches_from_document(parses)
     print("({}) - extracted matches".format(meta_data['basename']))
@@ -111,7 +115,10 @@ def main():
 
     print('|: user: ' + args.user)
     print('|: db: ' + args.database)
-    db_password = getpass.getpass("db password: ")
+    if args.passwd:
+        db_password = getpass.getpass("db password: ")
+    else:
+        db_password = args.user
     db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.database)
 
     src_files = glob(args.src)
@@ -126,7 +133,9 @@ def main():
         parser = builder.buildParser(options)
         parser.load(args.model)
         meta_data, parses = parse_file(parser, args.src, options.normalize)
-        corpus_file_id = get_corpus_file_id(engine, meta_data)
+        # corpus_file_id = get_corpus_file_id(engine, meta_data)
+        # if corpus_file_id:
+        corpus_file_id = insert_corpus_file(engine, meta_data)
         insert_concord_sentences(engine, corpus_file_id, parses)
         matches = extract_matches_from_document(parses)
         matches = {get_relation_id(engine, ms[0]): ms for _, ms in matches.items() if ms}

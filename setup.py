@@ -16,7 +16,8 @@ setup(name='wordprofile',
           'console_scripts': [
               'wp-init = init_database:main',
               'wp-create = create_database:main',
-              'wp-parse = parse_doc:main'
+              'wp-parse = parse_doc:main',
+              'wp-run = run_server:main'
           ],
       }
       )

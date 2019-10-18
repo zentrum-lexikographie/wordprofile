@@ -16,7 +16,6 @@ simplified_pos = {
     'ADJA': 'ADJ',
     'ADJD': 'ADJ',
     'ADJC': 'ADJ',
-    'KOKOM': 'KON',
     'PTKANT': 'PTKA',
     'VVFIN': 'VV',
     'VVINF': 'VV',
@@ -24,6 +23,7 @@ simplified_pos = {
     'VVPP': 'VV',
     'VVPP1': 'VV',
     'VVPP2': 'VV',
+    'VVIMP': 'VV',
     'VAFIN': 'VA',
     'VAIMP': 'VA',
     'VAINF': 'VA',
@@ -33,35 +33,136 @@ simplified_pos = {
     'VMPP': 'VM',
 }
 
+relations = {
+    "KON": [("CJ", "NN", "NN"),
+            ("CJ", "PPER", "NN"),
+            ("CJ", "NN", "PPER"),
+            ("CJ", "PPER", "PPER"),
+            ("CJ", "ADJ", "ADJ"),
+            ("CJ", "VV", "VV"),
+            ],
+    "GMOD": [("GMOD", "NN", "NN"),
+             ],
+    "SUBJA": [("SUBJA", "VV", "NN"),
+              ("SUBJA", "VV", "PPER"),
+              ],
+    "SUBJP": [("SUBJP", "VV", "NN"),
+              ("SUBJP", "VV", "PPER"),
+              ],
+    "OBJ": [("OBJA", "VV", "NN"),
+            ("OBJA", "VV", "PPER"),
+            ("OBJD", "VV", "NN"),
+            ("OBJD", "VV", "PPER"),
+            ],
+    "PRED": [("PRED", "NN", "NN"),
+             ("PRED", "NN", "ADJ"),
+             ("PRED", "PPER", "NN"),
+             ("PRED", "NN", "PPER"),
+             ("PRED", "PPER", "PPER"),
+             ("PRED", "PPER", "ADJ"),
+             ("SUBJ", "NN", "NN"),
+             ("SUBJ", "NN", "ADJ"),
+             ("SUBJ", "PPER", "NN"),
+             ("SUBJ", "NN", "PPER"),
+             ("SUBJ", "PPER", "PPER"),
+             ("SUBJ", "PPER", "ADJ"),
+             ],
+    "ADV": [("ADV", "VV", "ADJ"),
+            ("ADV", "VV", "ADV"),
+            ("ADV", "VV", "PTKNEG"),
+            ("ADV", "ADJ", "ADJ"),
+            ("ADV", "ADJ", "ADV"),
+            ("ADV", "ADJ", "PTKNEG"),
+            ],
+    "ATTR": [("ATTR", "NN", "ADJ"),
+             ],
+    # "KOM": [("KOM", "CJ", "NN", "NN", "KOKOM"),
+    #         ("KOM", "CJ", "NN", "PPER", "KOKOM"),
+    #         ("KOM", "CJ", "PPER", "NN", "KOKOM"),
+    #         ("KOM", "CJ", "PPER", "PPER", "KOKOM"),
+    #         ("KOM", "CJ", "VV", "NN", "KOKOM"),
+    #         ("KOM", "CJ", "VV", "PPER", "KOKOM"),
+    #         ],
+    # "PP": [("PP", "PN", "NN", "NN", "APPR"),
+    #        ("PP", "PN", "NN", "PPER", "APPR"),
+    #        ("PP", "PN", "PPER", "NN", "APPR"),
+    #        ("PP", "PN", "PPER", "PPER", "APPR"),
+    #        ("PP", "PN", "VV", "NN", "APPR"),
+    #        ("PP", "PN", "VV", "PPER", "APPR"),
+    #        ],
+    "VZ": [("VZ", "VV", "VV"),
+           ("AVZ", "VV", "VV"),
+           ],
+}
+
+relations_inv = defaultdict(lambda: defaultdict(str))
+for relation_dest, relation_patters in relations.items():
+    for relation_src, head_pos, dep_pos in relation_patters:
+        relations_inv[relation_src][(head_pos, dep_pos)] = relation_dest
+relations_inv = {k: dict(vd) for k, vd in relations_inv.items()}
+
+wp_pos_of_interest = {
+    "ADJ": "Adjektiv",
+    "ADJD": "Adjektiv",
+    "ADJC": "Adjektiv",
+    "ADV": "Adverb",
+    "PPER": "Personalpronomen",
+    "APPR": "Präposition",
+    "APPO": "Postposition",
+    "APZR": "Zirkumposition",
+    "ART": "Artikel",
+    "ITJ": "Interjektion",
+    "KOUI": "Konjunktion",
+    "KON": "Konjunktion",
+    "KOM": "Konjunktion",
+    "PTKNEG": "Negationspartikel",
+    "PTKVZ": "Verbpartikel",
+    "NN": "Substantiv",
+    "XY": "Substantiv",
+    "CARD": "Kardinalzahl",
+    "VV": "Verb",
+    "VA": "Auxiliar",
+    "VM": "Modalverb",
+}
+
 
 def extract_binary_relations(tokens, sid):
     relations = []
-    for token in tokens:
-        if token.head == '0' or token.rel in ('--', '_', '-') or token.xpos.startswith('$'):
+    for dependent in tokens:
+        if dependent.head == '0' or dependent.rel in ('--', '_', '-') or dependent.xpos.startswith('$'):
             continue
-        thead = tokens[int(token.head) - 1]
-        if thead.xpos.startswith('$'):
+        head = tokens[int(dependent.head) - 1]
+        if head.xpos.startswith('$'):
             continue
-        relation_type = token.rel
-        if relation_type:
-            if relation_type == "ATTR" and token.xpos != "ADJA":
-                continue
-            if relation_type in ['PP-PN', 'KOM-CJ', 'SUBJ-PRED']:
+        relation_type = dependent.rel
+        if relation_type in relations_inv:
+            if (head.xpos, dependent.xpos) in relations_inv[relation_type]:
                 relations.append(Match(
-                    thead,
-                    token,
+                    head,
+                    dependent,
                     None,
-                    relation_type,
+                    relations_inv[relation_type][(head.xpos, dependent.xpos)],
                     sid,
                 ))
-            else:
-                relations.append(Match(
-                    thead,
-                    token,
-                    None,
-                    relation_type,
-                    sid,
-                ))
+
+        # if relation_type == "ATTR" and dependent.xpos != "ADJA":
+        #     continue
+        # if relation_type in ['PP-PN', 'KOM-CJ', 'SUBJ-PRED']:
+        #     relations.append(Match(
+        #         head,
+        #         dependent,
+        #         None,
+        #         relation_type,
+        #         sid,
+        #     ))
+        # else:
+        #     relations.append(Match(
+        #         head,
+        #         dependent,
+        #         None,
+        #         relation_type,
+        #         sid,
+        #     ))
     return relations
 
 
@@ -73,7 +174,9 @@ def extract_matches_from_document(parses):
         for r in relations:
             # TODO filter inconsistent relations
             #  - 0 is marked by parser
-            if r.relation == "0":
+            if (r.relation == "0"
+                    or len(r.head.surface) < 2 or len(r.dep.surface) < 2
+                    or r.head.xpos == "-" or r.dep.xpos == "-"):
                 continue
             rel_dict[(r.relation, r.head.surface, r.dep.surface, r.head.xpos, r.dep.xpos)].append(r)
         sid += 1
@@ -103,9 +206,7 @@ def process_tj(src, fout):
                 idx += 1
 
 
-def read_tabs_format(tabs_file_path):
-    sentences = []
-    sentence = []
+def read_meta_tabs_format(tabs_file_path):
     meta = {}
     index = {}
     tabs_file = open(tabs_file_path, "r")
@@ -117,6 +218,21 @@ def read_tabs_format(tabs_file_path):
             name, shortname = line[line.find("=") + 1:].split(" ")
             index[name] = int(line[line.find("[") + 1:line.find("]")])
         elif line.startswith("%%$DDC:BREAK.s"):
+            break
+    return meta, index
+
+
+def read_text_tabs_format(index, tabs_file_path):
+    sentences = []
+    sentence = []
+    tabs_file = open(tabs_file_path, "r")
+    for line in tabs_file:
+        line = line.strip()
+        if line.startswith("%%$DDC:meta"):
+            continue
+        elif line.startswith("%%$DDC:index"):
+            continue
+        elif line.startswith("%%$DDC:BREAK.s"):
             if sentence:
                 sentences.append(sentence)
                 sentence = []
@@ -125,7 +241,13 @@ def read_tabs_format(tabs_file_path):
             sentence.append(
                 TabsToken(items[index["Token"]], items[index["Lemma"]], items[index["Pos"]],
                           int(items[index["WordSep"]])))
-    return meta, sentences
+    return sentences
+
+
+def read_tabs_format(tabs_file_path):
+    meta_data, index = read_meta_tabs_format(tabs_file_path)
+    sentences = read_text_tabs_format(index, tabs_file_path)
+    return meta_data, sentences
 
 
 def tokenized_sentence_to_conll_token(sentence, normalizer=None):
@@ -147,7 +269,8 @@ def tokenized_sentence_to_conll_token(sentence, normalizer=None):
 def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: List[ConLLToken]):
     sentence_conll = []
     for token_i, (tabs_token, pars_token) in enumerate(zip(sentence_orig, sentence)):
-        sentence_conll.append(ConllToken(pars_token.tokId, pars_token.orth, pars_token.lemma, pars_token.pos,
-                                         pars_token.langPos, pars_token.morph, pars_token.headId, pars_token.dep, '',
+        pos = simplified_pos.get(pars_token.pos, pars_token.pos)
+        sentence_conll.append(ConllToken(pars_token.tokId, pars_token.orth, pars_token.lemma, pos,
+                                         pos, pars_token.morph, pars_token.headId, pars_token.dep, '',
                                          tabs_token.word_sep))
     return sentence_conll

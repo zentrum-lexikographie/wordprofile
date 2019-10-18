@@ -1,0 +1,185 @@
+{
+  "Variations": ",./spec/lex_variations.csv",
+  "LemmaRepair": {
+    "Substantiv": "./spec/lemma_repair_substantiv.csv",
+    "Verb": "./spec/lemma_repair_verb.csv",
+    "Adjektiv": "./spec/lemma_repair_adjektiv.csv"
+  },
+  "RelDescDefault": [
+    "tritt auf mit",
+    "$1 tritt auf mit $2"
+  ],
+  "RelDesc": {
+    "ADV": [
+      "hat Adverbialbestimmung",
+      "$1 hat Adverbialbestimmung $2"
+    ],
+    "~ADV": [
+      "ist Adverbialbestimmung von",
+      "$1 ist Adverbialbestimmung von $2"
+    ],
+    "OBJ": [
+      "hat Akkusativ/Dativ-Objekt",
+      "$1 hat Akkusativ/Dativ-Objekt $2"
+    ],
+    "~OBJ": [
+      "ist Akkusativ/Dativ-Objekt von",
+      "$1 ist Akkusativ/Dativ-Objekt von $2"
+    ],
+    "PP": [
+      "hat Präpositionalgruppe",
+      "$1 hat Präpositionalgruppe $3 $2"
+    ],
+    "~PP": [
+      "ist in Präpositionalgruppe",
+      "$3 $1 ist Präpositionalgruppe von $2"
+    ],
+    "PRED": [
+      "hat Prädikativ",
+      "$1 hat Prädikativ $2"
+    ],
+    "~PRED": [
+      "ist Prädikativ von",
+      "$1 ist Prädikativ von $2"
+    ],
+    "VZ": [
+      "hat Verbzusatz",
+      "$1 hat Verbzusatz $2"
+    ],
+    "~VZ": [
+      "ist Verbzusatz von",
+      "$1 ist Verbzusatz von $2"
+    ],
+    "KOM": [
+      "hat vergleichende",
+      " Wortgruppe    $1 hat vergleichende Wortgruppe $2"
+    ],
+    "~KOM": [
+      "ist in vergleichender Wortgruppe",
+      "$1 ist in vergleichender Wortgruppe von $2"
+    ],
+    "ATTR": [
+      "hat Adjektivattribut",
+      "$1 hat Adjektivattribut $2"
+    ],
+    "~ATTR": [
+      "ist Adjektivattribut von",
+      "$1 ist Adjektivattribut von $2"
+    ],
+    "SUBJA": [
+      "hat Subjekt",
+      "$1 hat Subjekt $2"
+    ],
+    "~SUBJA": [
+      "ist Subjekt von",
+      "$1 ist Subjekt von $2"
+    ],
+    "SUBJP": [
+      "hat Passivsubjekt",
+      "$1 hat Passivsubjekt $2,"
+    ],
+    "~SUBJP": [
+      "ist Passivsubjekt von",
+      "$1 ist Passivsubjekt von $2"
+    ],
+    "GMOD": [
+      "hat Genitivattribut",
+      "$1 hat Genitivattribut $2"
+    ],
+    "~GMOD": [
+      "ist Genitivattribut von",
+      "$1 ist Genitivattribut von $2"
+    ],
+    "KON": [
+      "hat in Koordination mit",
+      "$1 ist in Koordination mit $2"
+    ],
+    "META": [
+      "Überblick",
+      "$1 tritt auf mit $2"
+    ]
+  },
+  "RelOrderDefault": [
+    "META",
+    "ATTR",
+    "~ATTR",
+    "OBJ",
+    "~OBJ",
+    "PP",
+    "~PP",
+    "GMOD",
+    "~GMOD",
+    "KON",
+    "PRED",
+    "~PRED",
+    "KOM",
+    "~KOM",
+    "SUBJA",
+    "~SUBJA",
+    "SUBJ",
+    "~SUBJ",
+    "VZ",
+    "~VZ",
+    "ADV",
+    "~ADV",
+    "SUBJP",
+    "~SUBJP"
+  ],
+  "RelOrder": {
+    "Adjektiv": [
+      "META",
+      "~ATTR",
+      "~PRED",
+      "ADV",
+      "~ADV",
+      "KON",
+      "KOM"
+    ],
+    "Verb": [
+      "META",
+      "ADV",
+      "OBJ",
+      "PP",
+      "KON",
+      "SUBJ",
+      "SUBJA",
+      "PRED",
+      "VZ",
+      "KOM",
+      "SUBJP"
+    ],
+    "Substantiv": [
+      "META",
+      "ATTR",
+      "~OBJ",
+      "~PP",
+      "GMOD",
+      "KON",
+      "PRED",
+      "KOM",
+      "~SUBJ",
+      "~SUBJA",
+      "PP",
+      "~GMOD",
+      "~PRED",
+      "~KOM"
+    ],
+    "Personalpronomen": [
+      "META",
+      "ATTR",
+      "~OBJ",
+      "~PP",
+      "GMOD",
+      "KON",
+      "PRED",
+      "KOM",
+      "~SUBJ",
+      "~SUBJA",
+      "PP",
+      "~GMOD",
+      "~PRED",
+      "~KOM"
+    ]
+  }
+}
+

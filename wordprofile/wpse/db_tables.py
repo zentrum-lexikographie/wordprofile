@@ -34,6 +34,9 @@ def get_table_matches(meta):
         'matches', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
         Column('relation_id', types.Integer, ForeignKey('relations.id')),
+        Column('head_surface', types.Text),
+        Column('dep_surface', types.Text),
+        Column('prep_surface', types.Text),
         Column('head_position', types.Integer),
         Column('dep_position', types.Integer),
         Column('prep_position', types.Integer),
@@ -50,9 +53,6 @@ def get_table_relations(meta):
         'relations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
         Column('label', types.VARCHAR(10)),
-        Column('head_surface', types.Text),
-        Column('dep_surface', types.Text),
-        Column('prep_surface', types.Text),
         Column('head_lemma', types.Text),
         Column('dep_lemma', types.Text),
         Column('prep_lemma', types.Text),
@@ -64,8 +64,10 @@ def get_table_relations(meta):
 
 def get_table_statistics(meta):
     return Table(
-        'statistics', meta,
+        'wp_stats', meta,
+        Column('wp_id', types.Integer),
         Column('relation_id', types.Integer, ForeignKey('relations.id')),
+        Column('inverse_relation_id', types.Integer, ForeignKey('relations.id')),
         Column('date', types.Integer),
         Column('frequency', types.Integer),
         Column('mi', types.Float),
@@ -73,7 +75,7 @@ def get_table_statistics(meta):
         Column('t_score', types.Float),
         Column('log_dice', types.Float),
         Column('log_like', types.Float),
-        Index('wp_index', 'date', 'relation_id', unique=True)
+        # Index('wp_index', 'date', 'relation_id', unique=True)
     )
 
 
@@ -88,16 +90,32 @@ def get_corpus_file_id(engine, meta_data):
     result = conn.execute(query)
     for row in result:
         return row['id']
-    query = corpus_file_tb.insert().values(
-        corpus=meta_data['collection'],
-        file=meta_data['basename'],
-        orig=meta_data['bibl'],
-        scan=meta_data['biblLex'],
-        text_class=meta_data['textClass'],
-        available=meta_data['collection'],
-    )
-    result = conn.execute(query)
-    return result.inserted_primary_key[0]
+    else:
+        return None
+
+
+def delete_matches(engine, corpus_file):
+    pass
+
+
+def insert_corpus_file(engine, meta_data):
+    corpus_file_id = get_corpus_file_id(engine, meta_data)
+    if corpus_file_id:
+        return corpus_file_id
+    else:
+        meta = MetaData()
+        corpus_file_tb = get_table_corpus_files(meta)
+        query = corpus_file_tb.insert().values(
+            corpus=meta_data['collection'],
+            file=meta_data['basename'],
+            orig=meta_data['bibl'],
+            scan=meta_data['biblLex'],
+            text_class=meta_data['textClass'],
+            available=meta_data['collection'],
+        )
+        conn = engine.connect()
+        result = conn.execute(query)
+        return result.inserted_primary_key[0]
 
 
 def insert_concord_sentences(engine, corpus_file_id, parses):
@@ -120,9 +138,9 @@ def get_relation_id(engine, match):
     relations_tb = get_table_relations(meta)
     query = relations_tb.select().where(
         and_(
-            relations_tb.c.head_surface == match.head.surface,
-            relations_tb.c.dep_surface == match.dep.surface,
-            relations_tb.c.prep_surface == (match.prep.surface if match.prep else '-'),
+            relations_tb.c.head_lemma == match.head.lemma,
+            relations_tb.c.dep_lemma == match.dep.lemma,
+            relations_tb.c.prep_lemma == (match.prep.lemma if match.prep else '-'),
             relations_tb.c.head_pos == match.head.xpos,
             relations_tb.c.dep_pos == match.dep.xpos,
         ))
@@ -132,9 +150,6 @@ def get_relation_id(engine, match):
         return row['id']
     query = relations_tb.insert().values(
         label=match.relation,
-        head_surface=match.head.surface,
-        dep_surface=match.dep.surface,
-        prep_surface=(match.prep.surface if match.prep else '-'),
         head_lemma=match.head.lemma,
         dep_lemma=match.dep.lemma,
         prep_lemma=(match.prep.lemma if match.prep else '-'),
@@ -155,6 +170,9 @@ def insert_matches(engine, corpus_file_id, relation_id, matches):
     result = conn.execute(query, [
         {
             'relation_id': relation_id,
+            'head_surface': match.head.surface,
+            'dep_surface': match.dep.surface,
+            'prep_surface': match.prep.surface if match.prep else '-',
             'head_position': match.head.idx,
             'dep_position': match.dep.idx,
             'prep_position': match.prep.idx if match.prep else 0,

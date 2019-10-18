@@ -1,7 +1,5 @@
 import re
 
-from wordprofile.wpse import deprecated
-
 RE_HIT_DELIMITER = re.compile(r"[^\x01\x02]*[\x01\x02]")
 
 
@@ -11,7 +9,7 @@ def format_sentence(sent: str):
     """
     if not sent:
         return ""
-    return sent.replace('\x02', ' ').replace('\x01', '')
+    return sent.replace('\x02', ' ').replace('\x01', '').strip()
 
 
 def format_sentence_center(sent, pos1, pos2, pos3):
@@ -20,6 +18,9 @@ def format_sentence_center(sent, pos1, pos2, pos3):
     """
     if not sent:
         return ""
+    # TODO: remove hack for leading delimiter from data
+    if sent.startswith('\x02'):
+        sent = sent[1:]
     tokens = RE_HIT_DELIMITER.findall(sent)
     for idx, token in enumerate(tokens):
         padding = ' ' if token[-1] == '\x02' else ''
@@ -30,50 +31,6 @@ def format_sentence_center(sent, pos1, pos2, pos3):
         else:
             tokens[idx] = "{}{}".format(token[:-1], padding)
     return ''.join(tokens)
-
-
-@deprecated
-def format_sentence_center_mwe(strSent, listPosition):
-    strWord = ""
-    listWords = []
-    iTokCount = 1
-    for i in strSent:
-        if i == '\x01' or i == '\x02':
-
-            iCount = 0
-            bSuccess = False
-            for j in listPosition:
-                if iTokCount == j:
-                    if iCount == 0:
-                        listWords.append('&&')
-                        listWords.append(strWord)
-                        listWords.append('&&')
-                        bSuccess = True
-                        break
-                    else:
-                        listWords.append('_&')
-                        listWords.append(strWord)
-                        listWords.append('&_')
-                        bSuccess = True
-                        break
-                iCount += 1
-
-            if not bSuccess:
-                listWords.append(strWord)
-
-            if i == '\x01':
-                listWords.append('')
-            if i == '\x02':
-                listWords.append(' ')
-
-            iTokCount += 1
-            strWord = ""
-        else:
-            strWord += i
-
-    listWords.append(strWord)
-
-    return ''.join(listWords)
 
 
 # TODO further refactoring necessary: cryptic surface example!?!

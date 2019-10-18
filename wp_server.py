@@ -1,11 +1,8 @@
 #!/usr/bin/python
 
-import getpass
 import logging
 import math
-import time
 import xmlrpc.server
-from argparse import ArgumentParser
 from functools import cmp_to_key
 
 from wordprofile.wpse import deprecated
@@ -14,31 +11,7 @@ from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
 from wordprofile.wpse.wpse_string import surface_mapping
 
-parser = ArgumentParser()
-parser.add_argument("--user", type=str, help="database username", required=True)
-parser.add_argument("--database", type=str, help="database name", required=True)
-parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
-parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
-parser.add_argument('--log', dest='logfile', type=str,
-                    default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
-                    help="Angabe der log-Datei (Default: log/wp_{date}.log)")
-args = parser.parse_args()
-
 logger = logging.getLogger('wordprofile')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-fh = logging.FileHandler(args.logfile)
-ch.setLevel(logging.DEBUG)
-fh.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(ch)
-logger.addHandler(fh)
 
 
 class CooccInfo:
@@ -55,7 +28,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
     def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
-        self.wp_db = WpSeMySql(db_host, db_user, db_passwd, db_name, db_port)
+        self.wp_db = WpSeMySql(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
 
     def status(self):
@@ -328,40 +301,49 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         results = []
         for coocc in cooccs:
-            # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            surface2 = surface_mapping(coocc.Surface2, coocc.Rel, coocc.Prep)
             # evt. Lemma Reparieren
-            lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
+            if coocc.inverse:
+                lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
+                lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
+                pos1 = coocc.Pos2
+                pos2 = coocc.Pos1
+            else:
+                lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
+                lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
+                pos1 = coocc.Pos1
+                pos2 = coocc.Pos2
+
             # Lemma+Präposition formatieren
             if coocc.Prep not in ["-", ""]:
-                if coocc.Rel.startswith("~"):
+                if coocc.inverse:
                     lemma2 = lemma2 + ' ' + coocc.Prep
                 else:
                     lemma2 = coocc.Prep + ' ' + lemma2
 
             # Informationen in einer Map bündeln
             result = {
-                'Relation': coocc.Rel,
-                'POS': coocc.Pos2,
+                'Relation': "~" if coocc.inverse else "" + coocc.Rel,
+                'POS': pos2,
                 'Lemma': lemma2,
-                'Form': surface2,
                 'Score': {
                     'Frequency': coocc.Frequency,
-                    'MiLogFreq': coocc.Score_MiLogFreq,
-                    'log_dice': coocc.Score_logDice,
-                    'MI3': coocc.Score_MI3,
+                    #     'MiLogFreq': coocc.Score_MiLogFreq,
+                    #     'log_dice': coocc.Score_logDice,
+                    'log_dice': 0,
+                    #     'MI3': coocc.Score_MI3,
                 },
-                "ConcordId": "{}#{}#{}#{}#{}#{}#{}".format(
-                    coocc.Lemma1, coocc.Pos1, coocc.Lemma2, coocc.Pos2, coocc.Prep, coocc.Rel, coocc.Info)}
+                "ConcordId": coocc.RelId
+            }
 
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             concord_no = coocc.Frequency
-            support_no = coocc.FreqBelege
+            # support_no = coocc.FreqBelege
             if coocc.Rel == "KON" and coocc.Lemma1 == coocc.Lemma2:
                 concord_no = concord_no / 2
-                support_no = support_no / 2
+                # support_no = support_no / 2
             result['ConcordNo'] = concord_no
-            result['ConcordNoAccessible'] = support_no
+            # result['ConcordNoAccessible'] = support_no
+            result['ConcordNoAccessible'] = 0
             results.append(result)
         return results
 
@@ -396,6 +378,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ordered_relations = self.get_ordered_relation_ids(cooccs, pos)
         diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, ordered_relations, order_by,
                                                     min_freq, min_stat)
+        print(diffs)
         cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
 
         relations = []
@@ -421,12 +404,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         mapParam['Operation'] = 'rmax'
         return self.get_diff(mapParam)
-
-    def __extract_coocc_info(self, info_id):
-        """
-        Extrahieren der Bestandteile einer Komplexen Treffer-Id
-        """
-        return CooccInfo(*info_id.split('#')[:6])
 
     @deprecated
     def __calculate_diff(self, lemma1_id, lemma2_id, diffs, cooccs_rel, number, nbest, use_intersection, operation):
@@ -648,8 +625,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         yScore = 4
 
         listMapRes = []
+        print(diffs)
 
         for i in db_results:
+            print(i)
             localMap = {
                 "POS": None
             }
@@ -774,8 +753,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         *Rückgabe ist ein Dictionary aus: syntaktischer Relation ('Relation'), Lemmaform von W1 ('Lemma1'), Lemmaform von W2 ('Lemma2'), POS-Tag von W1 ('POS1'), POS-Tag von W2 ('POS2'), Oberflächenform von W1 ('Form1'), Oberflächenform von W2 ('Form2'):
         {'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>}
         """
-        info_id = params.get("InfoId")
-        coocc_info = self.__extract_coocc_info(info_id)
+        relation_id = int(params.get("InfoId"))
+        coocc_info = self.wp_db.get_relation_by_id(relation_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -809,68 +788,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
         [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]
       """
-        info_id = params.get("InfoId")
+        relation_id = params.get("InfoId")
         use_context = bool(params.get("UseContext", False))
         subcorpus = params.get("Subcorpus", "")
         is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        coocc_info = self.__extract_coocc_info(info_id)
-        return self.wp_db.get_concordances(coocc_info, use_context, subcorpus,
+        return self.wp_db.get_concordances(relation_id, use_context, subcorpus,
                                            is_internal_user,
                                            start_index, result_number)
-
-
-class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
-    # Restrict to a particular path.
-    rpc_paths = ('/RPC2',)
-
-    def do_POST(self):
-        client_ip, port = self.client_address
-        # Log client IP and Port
-        logger.info('Client IP: %s - Port: %s' % (client_ip, port))
-        try:
-            # get arguments
-            data = self.rfile.read(int(self.headers["content-length"]))
-            # Log client request
-            logger.info('Client request: \n  %s\n' % data)
-
-            response = self.server._marshaled_dispatch(
-                data, getattr(self, '_dispatch', None)
-            )
-        except:  # This should only happen if the module is buggy
-            # internal error, report as HTTP server error
-            self.send_response(500)
-            self.end_headers()
-        else:
-            # got a valid XML RPC response
-            self.send_response(200)
-            self.send_header("Content-type", "text/xml")
-            self.send_header("Content-length", str(len(response)))
-            self.end_headers()
-            self.wfile.write(response)
-
-            # shut down the connection
-            self.wfile.flush()
-            self.connection.shutdown(1)
-
-
-def main():
-    logger.info('user: ' + args.user)
-    logger.info('db: ' + args.database)
-    db_password = getpass.getpass("db password: ")
-
-    # Create server
-    server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(args.port)),
-                                              requestHandler=RequestHandler, logRequests=False, allow_none=True)
-    # register function information
-    server.register_introspection_functions()
-    # register wortprofil
-    server.register_instance(
-        WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec))
-    # Run the server's main loop
-    server.serve_forever()
-
-
-if __name__ == '__main__':
-    main()
