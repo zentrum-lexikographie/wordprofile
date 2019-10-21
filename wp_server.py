@@ -88,7 +88,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         params["Number"] = 10
         params["OrderBy"] = "log_dice"
         params["Relations"] = selection["Relations"]
-        params["ExtendedSurfaceForm"] = True
 
         relations = self.get_relations(params)
         if len(relations) == 0:
@@ -264,7 +263,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         pos = params["Pos"]
         pos2 = params.get("Pos2Id", -1)
         relations = params.get("Relations", [])
-        use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
         start = params.get("Start", 0)
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "log_dice")
@@ -278,7 +276,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             cooccs = self.wp_db.get_relation_tuples_check(lemma, lemma2, pos, pos2, start, number,
                                                           order_by, min_freq, min_stat, relation)
             # IDs in den Kookkurenzlisten auf Strings abbilden
-            cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, use_extended_surface_form)
+            cooccs = self.__relation_tuples_2_strings(cooccs)
             # Meta-Informationen
             description = self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
@@ -323,37 +321,32 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         lemma, pos, rel = [int(i) for i in hit_id.split("#")[:3]]
         cooccs = self.wp_db.get_relation_tuples_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
                                                       min_stat, rel)
-        cooccs = self.__relation_tuples_2_strings(lemma, pos, cooccs, False)
-
+        cooccs = self.__relation_tuples_2_strings(cooccs)
         return cooccs
 
-    def __relation_tuples_2_strings(self, lemma1, pos1, coocc_tuples, use_extended_surface_form):
+    def __relation_tuples_2_strings(self, cooccs):
         """
         Methode, um IDs in den Kookkurenzlisten auf Strings abzubilden
         """
         results = []
-        for coocc in coocc_tuples:
-            lemma = coocc.Lemma2
-            prep = coocc.Prep
-            surface = coocc.Surface2
-
+        for coocc in cooccs:
             # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-            surface = surface_mapping(surface, coocc.Rel, prep, use_extended_surface_form)
+            surface2 = surface_mapping(coocc.Surface2, coocc.Rel, coocc.Prep)
             # evt. Lemma Reparieren
-            lemma = self.wp_spec.mapLemmaRepair.get((coocc.POS, lemma), lemma)
+            lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
             # Lemma+Präposition formatieren
-            if prep not in ["-", ""]:
+            if coocc.Prep not in ["-", ""]:
                 if coocc.Rel.startswith("~"):
-                    lemma = lemma + ' ' + prep
+                    lemma2 = lemma2 + ' ' + coocc.Prep
                 else:
-                    lemma = prep + ' ' + lemma
+                    lemma2 = coocc.Prep + ' ' + lemma2
 
             # Informationen in einer Map bündeln
             result = {
                 'Relation': coocc.Rel,
-                'POS': coocc.POS,
-                'Lemma': lemma,
-                'Form': surface,
+                'POS': coocc.Pos2,
+                'Lemma': lemma2,
+                'Form': surface2,
                 'Score': {
                     'Frequency': coocc.Frequency,
                     'MiLogFreq': coocc.Score_MiLogFreq,
@@ -361,7 +354,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     'MI3': coocc.Score_MI3,
                 },
                 "ConcordId": "{}#{}#{}#{}#{}#{}#{}".format(
-                    lemma1, pos1, coocc.Lemma2, coocc.POS, coocc.Prep, coocc.Rel, coocc.Info)}
+                    coocc.Lemma1, coocc.Pos1, coocc.Lemma2, coocc.Pos2, coocc.Prep, coocc.Rel, coocc.Info)}
 
             # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
             concord_no = coocc.Frequency
@@ -401,7 +394,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         operation = params.get("Operation", "adiff")
         use_intersection = params.get("Intersection", False)
         nbest = params.get("NBest", None)
-        use_extended_surface_form = bool(params.get("ExtendedSurfaceForm", False))
 
         ordered_relations = self.get_ordered_relation_ids(cooccs, pos)
         diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, ordered_relations, order_by,
@@ -413,7 +405,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if rel in cooccs:
                 results = self.__calculate_diff(lemma1, lemma2, diffs, cooccs[rel], number, nbest,
                                                 use_intersection, operation)
-                results = self.__diff_relation_tuples_2_strings(diffs, results, use_extended_surface_form)
+                results = self.__diff_relation_tuples_2_strings(diffs, results)
 
                 relation_name = rel
                 description = self.wp_spec.strRelDesc
@@ -638,7 +630,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         return iScore
 
     @deprecated
-    def __diff_relation_tuples_2_strings(self, diffs, db_results, use_extended_surface_form):
+    def __diff_relation_tuples_2_strings(self, diffs, db_results):
         """
         Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
         """
@@ -699,7 +691,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                 # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
                 strSurface = surface_mapping(strSurface, diffs[i[yRef1]][xRel],
-                                             strPrepSurface, use_extended_surface_form)
+                                             strPrepSurface)
 
                 # evt. Lemma Reparieren
                 strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
@@ -756,7 +748,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
                     # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
                     strSurface = surface_mapping(strSurface, diffs[i[yRef2]][xRel],
-                                                 strPrepSurface, use_extended_surface_form)
+                                                 strPrepSurface)
 
                     # Lemma+Präposition formatieren
                     if strPrep != "-":

@@ -77,7 +77,7 @@ def format_sentence_center_mwe(strSent, listPosition):
 
 
 # TODO further refactoring necessary: cryptic surface example!?!
-def surface_mapping(surface, rel, prep, use_extended_surface_form):
+def surface_mapping(surface, rel, prep, use_extended_surface_form=False):
     """
     Mapping eines (kryptischen) Oberflächenstring auf einen lesbaren Oberflächenstring
     """

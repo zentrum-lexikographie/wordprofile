@@ -32,8 +32,6 @@ parser.add_option("-o", dest="order", default="log_dice",
 parser.add_option("--cs", action="store_true", dest="case_sensitive", default=False, help="Case-sensitive Abfrage")
 parser.add_option("--sf", action="store_true", dest="surface", default=False,
                   help="Verwenden der Oberflächenform statt der Lemmaform")
-parser.add_option("--esf", action="store_true", dest="extended_surface_form", default=False,
-                  help="Verwenden der erweiterten Oberflächenform")
 parser.add_option("-v", action="store_true", dest="variations", default=False,
                   help="Einbeziehung von alternativen Schreibungen zu einem Eingabelemma")
 parser.add_option("--out", dest="file", default="", help="Ausgabedatei")
@@ -125,17 +123,11 @@ if len(mapping) > 0:
     mapParam["MinStat"] = int(options.min_stat)
     mapParam["Subcorpus"] = options.corpus
     mapParam["Relations"] = listRel
-    mapParam["ExtendedSurfaceForm"] = int(options.extended_surface_form)
 
     ### Kookkurrenzinformationen vom Wortprofilserver abfragen
     RelList = s.get_relations(mapParam)
 
     strOrder = options.order
-
-    if options.surface or options.extended_surface_form:
-        strForm = "Form"
-    else:
-        strForm = "Lemma"
 
     ### wenn daas Ergebnis nicht in eine Datei geschrieben werden soll
     iCounter = 1
@@ -156,13 +148,13 @@ if len(mapping) > 0:
         iCounter = 1
         for i in listTuples:
             listPrint.append(
-                [str(iCounter), i['POS'], i[strForm], i['Score']['Frequency'], i['Score'][strOrder],
+                [str(iCounter), i['POS'], i["Lemma"], i['Score']['Frequency'], i['Score'][strOrder],
                  i['ConcordId'], i['ConcordNo'], i['ConcordNoAccessible']])
 
             iCounter += 1
 
         ### Ausgeben der Kookkurrenzen als Tabelle
-        listHeader = ['Rank', 'POS', strForm, 'Frequency', strOrder, 'Hit/MWE-ID', 'No', '*No']
+        listHeader = ['Rank', 'POS', "Lemma", 'Frequency', strOrder, 'Hit/MWE-ID', 'No', '*No']
         print(calculate_table(listHeader, listPrint))
         iRelCount += 1
 else:

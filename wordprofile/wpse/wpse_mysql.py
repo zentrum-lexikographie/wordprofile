@@ -199,7 +199,7 @@ class WpSeMySql:
 
         select_from_sql = """
         SELECT  
-            relation, prep_lemma, head_lemma, dep_lemma, prep_surface, head_surface, dep_surface, dep_pos, 
+            relation, prep_lemma, head_lemma, dep_lemma, prep_surface, head_surface, dep_surface, head_pos, dep_pos, 
             -relations.frequency, -counts_with_rights, -mi_log_freq, -relations.log_dice, -mi3, match_id
         FROM 
             relations
@@ -217,7 +217,8 @@ class WpSeMySql:
             )
 
         db_results = self.fetchall(select_from_sql + where_sql)
-        Coocc = namedtuple("Coocc", ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "POS",
+        Coocc = namedtuple("Coocc",
+                           ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "Pos1", "Pos2",
                                      "Frequency", "FreqBelege", "Score_MiLogFreq", "Score_logDice", "Score_MI3",
                                      "Info"])
         return map(Coocc._make, db_results)
