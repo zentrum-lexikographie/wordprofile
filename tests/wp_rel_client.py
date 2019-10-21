@@ -100,7 +100,6 @@ if len(mapping) > 0:
 
     ### Ausgeben von Meta-Informationen
     print("\033[32;1m" + "Anzahl an Relationen mit Doppelten:" + "\033[m", mapSelect["Frequency"])
-    print("\033[32;1m" + "Anzahl an Relationen ohne Doppelte:" + "\033[m", mapSelect["Count"])
     print("\033[32;1m" + "mögliche Relationen :" + "\033[m", mapSelect["Relations"])
 
     ### abzufragende Relationen ermitteln

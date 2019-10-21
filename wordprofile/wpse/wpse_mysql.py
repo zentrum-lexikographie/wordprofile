@@ -33,7 +33,21 @@ class WpSeMySql:
         self.__cursor.execute(query)
         return self.__cursor.fetchall()
 
-    def get_concordances(self, match_id, use_context, subcorpus, is_internal_user, start_index, result_number):
+    def get_match_id(self, coocc_info):
+        query = """
+        SELECT  
+            match_id
+        FROM 
+            relations
+        WHERE head_lemma='{}' and head_pos='{}' and 
+              dep_lemma='{}' and dep_pos='{}' and 
+              relation = '{}'
+        """.format(coocc_info.lemma1, coocc_info.pos1, coocc_info.lemma2, coocc_info.pos2, coocc_info.rel)
+        db_results = self.fetchall(query)
+        return db_results[0][0]
+
+    def get_concordances(self, coocc_info, use_context, subcorpus, is_internal_user, start_index, result_number):
+        match_id = self.get_match_id(coocc_info)
         internal_user_cond = " and matches.rights=1 " if not is_internal_user else ""
         subcorpus_cond = " and matches.corpus='{}' ".format(subcorpus) if subcorpus else ""
 
@@ -128,7 +142,7 @@ class WpSeMySql:
 
         query = """
             SELECT head_lemma lemma, head_pos pos, 
-                   CAST(SUM(-frequency) AS SIGNED) frequency, CAST(COUNT(match_id) AS SIGNED) counts, relation
+                   CAST(SUM(-frequency) AS SIGNED) frequency, relation
             FROM relations
             WHERE LOWER(head_lemma) LIKE '{}' {}
             GROUP BY lemma, pos, relation;
@@ -148,21 +162,20 @@ class WpSeMySql:
         eher Substantiv als Verb.
         """
         lemma_pos_mapping = defaultdict(list)
-        for lemma, pos, frequency, count, relation in db_results:
-            lemma_pos_mapping[(lemma, pos)].append((relation, frequency, count))
+        for lemma, pos, frequency, relation in db_results:
+            lemma_pos_mapping[(lemma, pos)].append((relation, frequency))
 
         # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
         most_frequent_lemma = {}
         for (lemma, pos), relations in lemma_pos_mapping.items():
-            frequency = sum(frequency for _, frequency, _ in relations)
-            count = sum(count for _, _, count in relations)
+            frequency = sum(frequency for _, frequency in relations)
             if pos not in most_frequent_lemma or most_frequent_lemma[pos][1] < frequency:
-                most_frequent_lemma[pos] = (lemma, frequency, count, relations)
+                most_frequent_lemma[pos] = (lemma, frequency, relations)
         pos_sorted = sorted(most_frequent_lemma.items(), key=lambda x: x[1][1], reverse=True)
 
         results = []
-        for pos, (lemma, frequency, count, relations) in pos_sorted:
-            relations = [relation for (relation, frequency, count) in relations]
+        for pos, (lemma, frequency, relations) in pos_sorted:
+            relations = [relation for (relation, frequency) in relations]
 
             # bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
             if is_case_sensitive:
@@ -184,7 +197,7 @@ class WpSeMySql:
             else:
                 score = 5
             results.append((score, {'Lemma': lemma, 'POS': pos,
-                                    'Frequency': frequency, 'Count': count, 'Relations': relations}))
+                                    'Frequency': frequency, 'Relations': relations}))
         results = [r[1] for r in sorted(results, key=lambda x: x[0])]
         return results
 

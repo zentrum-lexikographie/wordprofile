@@ -42,14 +42,13 @@ logger.addHandler(fh)
 
 
 class CooccInfo:
-    def __init__(self, match_id, lemma1="", lemma2="", pos1="", pos2="", prep="", rel=""):
+    def __init__(self, lemma1, pos1, lemma2, pos2, prep, rel):
         self.lemma1 = lemma1
         self.lemma2 = lemma2
         self.pos1 = pos1
         self.pos2 = pos2
         self.prep = prep
         self.rel = rel
-        self.match_id = match_id
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
@@ -225,7 +224,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     results.append({
                         'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'POS': i['POS'],
                         'Frequency1': i['Frequency'], 'Frequency2': j['Frequency'],
-                        'Count1': i['Count'], 'Count2': j['Count'],
                         'Relations': relations})
         return results
 
@@ -428,12 +426,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         Extrahieren der Bestandteile einer Komplexen Treffer-Id
         """
-        hit_id = info_id.split('#')
-        if len(hit_id) == 1:
-            coocc_info = CooccInfo(hit_id[0])
-        else:
-            coocc_info = CooccInfo(*(hit_id[-1:] + hit_id[:-1]))
-        return coocc_info
+        return CooccInfo(*info_id.split('#')[:6])
 
     @deprecated
     def __calculate_diff(self, lemma1_id, lemma2_id, diffs, cooccs_rel, number, nbest, use_intersection, operation):
@@ -823,7 +816,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
         coocc_info = self.__extract_coocc_info(info_id)
-        return self.wp_db.get_concordances(coocc_info.match_id, use_context, subcorpus,
+        return self.wp_db.get_concordances(coocc_info, use_context, subcorpus,
                                            is_internal_user,
                                            start_index, result_number)
 
