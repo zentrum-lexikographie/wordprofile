@@ -1,13 +1,10 @@
 #!/usr/bin/python
-# -*- coding: utf-8 -*-
+# Das Client-Programm fragt eine Wortprofil-MySQL-Datenbank über einen XMLRPC-Server ab und vergleicht zwei Eingabelemmata.
+# Das Vergleichsergebnis wird in Tabellenform und farblich gekennzeichnet ausgegeben.
+#
+# Beispielaufruf:
+# python wp_cmp.py  --l1 Mann --l2 Frau
 
-"""
-  Das Client-Programm fragt eine Wortprofil-MySQL-Datenbank über einen XMLRPC-Server ab und vergleicht zwei Eingabelemmata. 
-  Das Vergleichsergebnis wird in Tabellenform und farblich gekennzeichnet ausgegeben.
-
-  Beispielaufruf:
-  python wp_cmp_client.py  --l1 Mann --l2 Frau
-"""
 import getpass
 import logging
 import sys
@@ -17,31 +14,35 @@ from wordprofile.pprint.drawTable import calculate_table
 from wp_server import WortprofilQuery
 
 parser = ArgumentParser()
-parser.add_argument("--user", type=str, help="database username", required=True)
-parser.add_argument("--database", type=str, help="database name", required=True)
-parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
-parser.add_argument("--passwd", action="store_true", help="ask for database password")
-parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
-parser.add_argument("--l1", dest="lemma1", type=str, required=True, help="das Eingabewort")
-parser.add_argument("--l2", dest="lemma2", type=str, required=True, help="das Eingabewort")
-parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
-parser.add_argument("-b", dest="nbest", default=-1,
-                    help="Die Anzahl der zu vergleichenden Relationstupel beider Wörter von vornherein einschränken")
-parser.add_argument("-f", dest="min_freq", default=-9999, help="Minimaler Frequenzwert (default=-9999)")
-parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
-parser.add_argument("-x", dest="host", default=None, help="Hostrechner (z.B. http://services.dwds.de:8049)")
-parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
-parser.add_argument("-r", dest="relation", default="",
-                    help="Angabe der gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
-parser.add_argument("-o", dest="order", default="log_dice",
-                    help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
+
+db_parser = parser.add_argument_group("server arguments")
+db_parser.add_argument("--user", type=str, help="database username", required=True)
+db_parser.add_argument("--database", type=str, help="database name", required=True)
+db_parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
+db_parser.add_argument("--passwd", action="store_true", help="ask for database password")
+db_parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
+db_parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+
+tool_parser = parser.add_argument_group("tool arguments")
+tool_parser.add_argument("--lemma1", type=str, required=True, help="das Eingabewort")
+tool_parser.add_argument("--lemma2", type=str, required=True, help="das Eingabewort")
+tool_parser.add_argument("-n", "--number", default=20, help="Anzahl der Relationstupel (default=20)")
+tool_parser.add_argument("-b", "--nbest", default=-1,
+                         help="Die Anzahl der zu vergleichenden Relationstupel beider Wörter von vornherein einschränken")
+tool_parser.add_argument("-f", "--min_freq", default=-9999, help="Minimaler Frequenzwert (default=-9999)")
+tool_parser.add_argument("-m", "--min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
+tool_parser.add_argument("-x", "--host", default=None, help="Hostrechner (z.B. http://services.dwds.de:8049)")
+tool_parser.add_argument("-c", "--corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
+tool_parser.add_argument("-r", "--relation", default="",
+                         help="Angabe der gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
+tool_parser.add_argument("-o", "--order", default="log_dice",
+                         help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 # parser.add_argument("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
-parser.add_argument("--op", dest="operation", default="adiff",
-                    help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg
-parser.add_argument("--cs", action="store_true", dest="case_sensitive", default=False, help="Case-sensitive Abfrage")
-parser.add_argument("--sf", action="store_true", dest="surface", default=False,
-                    help="Verwenden der Oberflächenform statt der Lemmaform")
+tool_parser.add_argument("--op", "--operation", default="adiff",
+                         help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg
+tool_parser.add_argument("--cs", "--case_sensitive", action="store_true", default=False, help="Case-sensitive Abfrage")
+tool_parser.add_argument("--sf", "--surface", action="store_true", default=False,
+                         help="Verwenden der Oberflächenform statt der Lemmaform")
 
 args = parser.parse_args()
 
@@ -62,7 +63,7 @@ if args.passwd:
     db_password = getpass.getpass("db password: ")
 else:
     db_password = args.user
-s = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 
 def black(x):
@@ -121,7 +122,7 @@ mapParam["Subcorpus"] = args.corpus
 mapParam["CaseSensitive"] = args.case_sensitive
 
 # Lemmainformationen vom Wortprofilserver abfragen
-mapping = s.get_lemma_and_pos_diff(mapParam)
+mapping = wp.get_lemma_and_pos_diff(mapParam)
 
 # Wenn die Lemmata enthalten sind
 if len(mapping) > 0:
@@ -173,7 +174,7 @@ if len(mapping) > 0:
     mapParam["Operation"] = args.operation
 
     # Wortvergleich abfragen
-    RelList = s.get_diff(mapParam)
+    RelList = wp.get_diff(mapParam)
 
     # Durchgehen der Relationen
     iRelCount = 1
