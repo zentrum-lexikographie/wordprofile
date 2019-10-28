@@ -41,7 +41,6 @@ tool_parser.add_argument("--sf", action="store_true", dest="surface", default=Fa
                          help="Verwenden der Oberflächenform statt der Lemmaform")
 tool_parser.add_argument("-v", action="store_true", dest="variations", default=False,
                          help="Einbeziehung von alternativen Schreibungen zu einem Eingabelemma")
-tool_parser.add_argument("--out", dest="file", default="", help="Ausgabedatei")
 
 args = parser.parse_args()
 
@@ -64,20 +63,14 @@ else:
     db_password = args.user
 wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
-### Abfrageoptionen für die Lemmainformationen erstellen
-mapParam = {}
-mapParam["Word"] = args.lemma
-mapParam["Subcorpus"] = args.corpus
-mapParam["CaseSensitive"] = args.case_sensitive
-mapParam["UseVariations"] = args.variations
-
-### Lemmainformationen vom Wortprofilserver abfragen
-mapping = wp.get_lemma_and_pos(mapParam)
+mapping = wp.get_lemma_and_pos({
+    "Word": args.lemma,
+    "Subcorpus": args.corpus,
+    "CaseSensitive": args.case_sensitive,
+    "UseVariations": args.variations
+})
 print("mapping", mapping)
-
-### Wenn das Lemma enthalten ist
 if len(mapping) > 0:
-
     mapSelect = {}
     if args.pos_tag == "":
         ### Ermitteln der Wortart (evtl. über Tastatureingabe)
@@ -89,8 +82,9 @@ if len(mapping) > 0:
             data = "999"
             while True:
                 iCounter = 1
-                for i in mapping:
-                    print("\033[32;1m" + "(" + str(iCounter) + ") " + "\033[m" + i["Lemma"] + " [" + i["POS"] + "]")
+                for coocc in mapping:
+                    print("\033[32;1m" + "(" + str(iCounter) + ") " + "\033[m" + coocc["Lemma"] + " [" + coocc[
+                        "POS"] + "]")
                     iCounter = iCounter + 1
                 data = sys.stdin.readline()
 
@@ -100,9 +94,9 @@ if len(mapping) > 0:
                 mapSelect = mapping[int(data) - 1]
                 break
     else:
-        for i in mapping:
-            if i["POS"] == args.pos_tag:
-                mapSelect = i
+        for coocc in mapping:
+            if coocc["POS"] == args.pos_tag:
+                mapSelect = coocc
 
     if mapSelect == {}:
         print("): keine Kookkurrenzen für die Wortart vorhanden")
@@ -121,48 +115,37 @@ if len(mapping) > 0:
     if listRel == []:
         listRel = mapSelect['Relations']
 
-    ### Abfrageoptionen für die Kookkurrenzinformationen erstellen
-    mapParam = {}
-    mapParam["Lemma"] = mapSelect["Lemma"]
-    mapParam["Pos"] = mapSelect["POS"]
-    mapParam["Start"] = args.start
-    mapParam["Number"] = args.number
-    mapParam["OrderBy"] = args.order
-    mapParam["MinFreq"] = args.min_freq
-    mapParam["MinStat"] = args.min_stat
-    mapParam["Subcorpus"] = args.corpus
-    mapParam["Relations"] = listRel
+    relations = wp.get_relations({
+        "Lemma": mapSelect["Lemma"],
+        "Pos": mapSelect["POS"],
+        "Start": args.start,
+        "Number": args.number,
+        "OrderBy": args.order,
+        "MinFreq": args.min_freq,
+        "MinStat": args.min_stat,
+        "Subcorpus": args.corpus,
+        "Relations": listRel
+    })
 
-    ### Kookkurrenzinformationen vom Wortprofilserver abfragen
-    RelList = wp.get_relations(mapParam)
-
-    ### wenn daas Ergebnis nicht in eine Datei geschrieben werden soll
-    iCounter = 1
-    ### Durchgehen der Relationen
-    iRelCount = 1
-    for k in RelList:
-        listTuples = k['Tuples']
+    for rel_ctr, relation in enumerate(relations):
         print()
-        if 'RelId' in k:
-            print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + " (" + k['RelId'] + "): " + "\033[m" + k[
-                'Description'])
+        if 'RelId' in relation:
+            print("\033[32;1m " + str(rel_ctr + 1) + ". " + relation['Relation'] + " (" + relation[
+                'RelId'] + "): " + "\033[m" + relation[
+                      'Description'])
         else:
-            print("\033[32;1m " + str(iRelCount) + ". " + k['Relation'] + ": " + "\033[m" + k['Description'])
+            print("\033[32;1m " + str(rel_ctr + 1) + ". " + relation['Relation'] + ": " + "\033[m" + relation[
+                'Description'])
 
-        listPrint = []
+        table_items = []
 
         ### Aufsammeln der Kookkurrrenzen
-        iCounter = 1
-        for i in listTuples:
-            listPrint.append(
-                [str(iCounter), i['POS'], i["Lemma"], i['Score']['Frequency'], i['Score'][args.order],
-                 i['ConcordId'], i['ConcordNo'], i['ConcordNoAccessible']])
-
-            iCounter += 1
-
-        ### Ausgeben der Kookkurrenzen als Tabelle
-        listHeader = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit/MWE-ID', 'No', '*No']
-        print(calculate_table(listHeader, listPrint))
-        iRelCount += 1
+        for coocc_ctr, coocc in enumerate(relation['Tuples']):
+            table_items.append([
+                str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
+                coocc['Score'][args.order], coocc['ConcordId']
+            ])
+        listHeader = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit/MWE-ID']
+        print(calculate_table(listHeader, table_items))
 else:
     print("): Lemma nicht enthalten")

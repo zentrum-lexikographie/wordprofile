@@ -18,15 +18,13 @@ def init_word_profile_tables(engine):
     meta.create_all(engine)
 
     engine.execute("""
-    CREATE VIEW relation_lemma_freq AS
-    SELECT r.label label, r.head_lemma lemma, r.head_pos pos, COUNT(m.id) freq
-    FROM wordprofile_test.relations r
-    LEFT JOIN wordprofile_test.matches m ON (r.id = m.relation_id)
-    GROUP BY label, lemma, pos
-    HAVING freq > 10
-    ORDER BY freq DESC
+    CREATE VIEW collocations AS
+    SELECT id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, head_pos as lemma1_pos, dep_pos as lemma2_pos, prep_pos
+    FROM relations
+    UNION ALL
+    SELECT id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, dep_pos as lemma1_pos, head_pos as lemma2_pos, prep_pos
+    FROM relations
     """)
-
 
 
 def main():

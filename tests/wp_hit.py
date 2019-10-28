@@ -36,7 +36,6 @@ tool_parser.add_argument("--sc", action="store_true", dest="score", default=Fals
                          help="primär nach dem Sentence-Score sortieren")
 tool_parser.add_argument("-a", action="store_false", dest="dateDesc", default=True, help="Datum aufsteigend")
 tool_parser.add_argument("-c", dest="corpus", default="", help="einzelner Korpus, in dem gesucht werden soll")
-tool_parser.add_argument("--out", dest="file", default="", help="Ausgabedatei")
 
 args = parser.parse_args()
 
@@ -59,35 +58,27 @@ else:
     db_password = args.user
 wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
-### Parametermap erstellen
-mapParam = {}
-mapParam["InfoId"] = args.info
-mapParam["Start"] = args.start
-mapParam["Number"] = args.number
-mapParam["Subcorpus"] = args.corpus
-mapParam["DateDesc"] = args.dateDesc
-mapParam["UseScore"] = args.score
-mapParam["UseContext"] = args.context
-mapParam["InternalUser"] = args.internal_user
-iConcordId = mapParam["InfoId"]
+mapRelInfo = wp.get_concordances_and_relation({
+    "InfoId": args.info,
+    "Start": args.start,
+    "Number": args.number,
+    "Subcorpus": args.corpus,
+    "DateDesc": args.dateDesc,
+    "UseScore": args.score,
+    "UseContext": args.context,
+    "InternalUser": args.internal_user
+})
 
-### Abfrage der Texttreffer zusammen mit groben Relationsinformationen
-mapRelInfo = wp.get_concordances_and_relation(mapParam)
-
-listConcord = []
-iCounter = 1
-
-### für jeden Texttreffer
-for i in mapRelInfo['Tuples']:
-
+concords = []
+for ctr, i in enumerate(mapRelInfo['Tuples']):
     ### Metainformationen
-    strBiblCorpus = i['Bibl']['Corpus'].encode('utf8')
-    strBiblDate = i['Bibl']['Date'].encode('utf8')
-    strBiblTextclass = i['Bibl']['TextClass'].encode('utf8')
-    strBiblOrig = i['Bibl']['Orig'].encode('utf8')
-    strBiblScan = i['Bibl']['Scan'].encode('utf8')
+    strBiblCorpus = i['Bibl']['Corpus']
+    strBiblDate = i['Bibl']['Date']
+    strBiblTextclass = i['Bibl']['TextClass']
+    strBiblOrig = i['Bibl']['Orig']
+    strBiblScan = i['Bibl']['Scan']
     strBiblAvail = str(i['Bibl']['Avail'])
-    strBiblPage = i['Bibl']['Page'].encode('utf8')
+    strBiblPage = i['Bibl']['Page']
     strScore = str(i['Score'])
 
     ### Satzinformation
@@ -101,16 +92,13 @@ for i in mapRelInfo['Tuples']:
 
     ### wenn die Informationen direkt ausgegeben werden sollen
     strMeta = "%i) %s | %s | %s | %s | %s | %s | %s | %s" % (
-        iCounter, strBiblCorpus, strBiblDate, strBiblTextclass, strBiblOrig, strBiblScan, strBiblAvail, strBiblPage,
+        ctr + 1, strBiblCorpus, strBiblDate, strBiblTextclass, strBiblOrig, strBiblScan, strBiblAvail, strBiblPage,
         strScore)
-    listConcord.append((strLeft + strSentence + strRight, strMeta))
-    iCounter = iCounter + 1
+    concords.append((strLeft + strSentence + strRight, strMeta))
 
 ### Ausgeben der groben Relationsinformationen
 print("\033[32;1m" + "Relation: " + "\033[m" + mapRelInfo['Relation'])
 print("\033[32;1m" + "Lemma1: " + "\033[m" + mapRelInfo['Lemma1'])
 print("\033[32;1m" + "Lemma2: " + "\033[m" + mapRelInfo['Lemma2'])
 print("\033[32;1m" + "Description: " + "\033[m" + mapRelInfo['Description'])
-
-### Ausgeben der Texttreffertabelle
-draw_concord(listConcord, False, args.width)
+draw_concord(concords, False, args.width)

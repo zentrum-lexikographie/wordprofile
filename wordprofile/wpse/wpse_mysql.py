@@ -114,26 +114,16 @@ class WpSeMySql:
             return []
 
         query = """
-            SELECT head_lemma lemma, head_pos pos, label, CAST(COUNT(m.id) AS SIGNED) frequency, 0 as inverse
-            FROM wordprofile_test.relations
-            LEFT JOIN wordprofile_test.matches m on relations.id = m.relation_id
-            WHERE LOWER(head_lemma) = '{}' {}
-            GROUP BY head_lemma, head_pos, label
-            HAVING frequency > 5 
-            UNION ALL
-            SELECT dep_lemma lemma, dep_pos pos, label, CAST(COUNT(m.id) AS SIGNED) frequency, 1 as inverse
-            FROM wordprofile_test.relations
-            LEFT JOIN wordprofile_test.matches m on relations.id = m.relation_id
-            WHERE LOWER(dep_lemma) = '{}'
-            GROUP BY dep_lemma, dep_pos, label
+            SELECT lemma1, lemma1_pos, label, CAST(COUNT(m.id) AS SIGNED) frequency, (r.label LIKE "~%")
+            FROM collocations r
+            LEFT JOIN matches m on r.id = m.relation_id
+            WHERE LOWER(lemma1) = '{}' {}
+            GROUP BY lemma1, lemma1_pos, label
             HAVING frequency > 5 
         """.format(
             word.lower(),
             # TODO determine for default POS value
-            "and pos='{}'".format(pos) if pos not in ["*", ""] else "",
-            word.lower(),
-            # TODO determine for default POS value
-            "and pos='{}'".format(pos) if pos not in ["*", ""] else ""
+            "and lemma1_pos='{}'".format(pos) if pos not in ["*", ""] else "",
         )
         db_results = self.fetchall(query)
 
@@ -148,10 +138,7 @@ class WpSeMySql:
         """
         lemma_pos_mapping = defaultdict(list)
         for lemma, pos, relation, frequency, inv in db_results:
-            if inv == 0:
-                lemma_pos_mapping[(lemma, pos)].append((relation, frequency))
-            else:
-                lemma_pos_mapping[(lemma, pos)].append(('~' + relation, frequency))
+            lemma_pos_mapping[(lemma, pos)].append((relation, frequency))
 
         # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
         most_frequent_lemma = {}
@@ -193,10 +180,10 @@ class WpSeMySql:
     def get_relation_by_id(self, relation_id):
         query = """
         SELECT
-            r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos
+            c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
         FROM 
-            relations r
-        WHERE r.id = {}
+            collocations c
+        WHERE c.id = {}
         """.format(abs(relation_id))
         db_results = self.fetchall(query)
         Coocc = namedtuple("CooccInfo", ["rel", "prep", "lemma1", "lemma2", "pos1", "pos2"])
@@ -211,56 +198,29 @@ class WpSeMySql:
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
         # min_stat_sql = " and (-r.{}) >= {} ".format(order_by, min_stat) if min_stat > -100000000 else ""
         min_stat_sql = ""
-        inv = relation.startswith('~')
-        if inv:
-            relation = relation[1:]
-
-        if inv:
-            select_from_sql = """
-            SELECT
-                r.id, r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos, 
-                COUNT(m.id) frequency, 1 as inverse
-            FROM 
-                relations r
-                LEFT JOIN matches m on r.id = m.relation_id
-            """
-            if pos2 == "" or lemma2 == "":
-                where_sql = """
-                    WHERE (dep_lemma='{}' and dep_pos='{}') and label = '{}' {} {} 
-                    GROUP BY r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos 
-                    ORDER BY frequency DESC LIMIT {},{};""".format(
-                    lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
-                )
-            else:
-                where_sql = """WHERE (dep_lemma='{}' and dep_pos='{}' and 
-                                      head_lemma='{}' and head_pos='{}') and 
-                                      label = '{}' {} {} 
-                                      GROUP BY r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos 
-                                      ORDER BY frequency DESC LIMIT {},{};""".format(
-                    lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
-                )
-        else:
-            select_from_sql = """
-            SELECT
-                r.id, r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos, 
-                COUNT(m.id) frequency, 0 as inverse
-            FROM 
-                relations r
-                LEFT JOIN matches m on r.id = m.relation_id
-            """
-
-            if pos2 == "" or lemma2 == "-1":
-                where_sql = """WHERE (head_lemma='{}' and head_pos='{}') and label = '{}' {} {} 
-                GROUP BY r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos 
+        select_from_sql = """
+        SELECT
+            c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos, 
+            COUNT(m.id) frequency, (c.label LIKE "~%")
+        FROM 
+            collocations c
+            LEFT JOIN matches m on c.id = m.relation_id
+        """
+        if not pos2 or not lemma2:
+            where_sql = """
+                WHERE (lemma1='{}' and lemma1_pos='{}') and label = '{}' {} {} 
+                GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos 
                 ORDER BY frequency DESC LIMIT {},{};""".format(
                     lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
                 )
-            else:
-                where_sql = """WHERE (head_lemma='{}' and head_pos='{}' and 
-                                      dep_lemma='{}' and dep_pos='{}') and 
-                                      label = '{}' {} {} 
-                                      GROUP BY r.label, r.prep_lemma, r.head_lemma, r.dep_lemma, r.head_pos, r.dep_pos 
-                                      ORDER BY frequency DESC LIMIT {},{};""".format(
+        else:
+            where_sql = """
+                WHERE 
+                    (lemma1='{}' and lemma1_pos='{}' and 
+                     lemma2='{}' and lemma2_pos='{}') and 
+                     label = '{}' {} {} 
+                GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
+                ORDER BY frequency DESC LIMIT {},{};""".format(
                     lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
                 )
         db_results = self.fetchall(select_from_sql + where_sql)
@@ -275,21 +235,19 @@ class WpSeMySql:
         Ermitteln der Kookkurrenzen zu einer Liste von syntaktischen Relationen für die 'diff'-Abfrage
         """
         query = """
-        SELECT label, prep_lemma, head_lemma, dep_lemma, prep_surface, head_surface, dep_surface, dep_pos, 
+        SELECT c.id, label, prep_lemma, lemma1, lemma2, lemma1_pos, lemma2_pos, 
                COUNT(m.id) frequency, 1 as score
-        FROM relations r
-        LEFT JOIN matches m on r.id = m.relation_id
-        WHERE head_lemma IN ("{}","{}") and head_pos="{}" and label IN ({})
-        GROUP BY label, prep_lemma, head_lemma, dep_lemma, prep_surface, head_surface, dep_surface, dep_pos 
+        FROM collocations c
+        LEFT JOIN matches m on c.id = m.relation_id
+        WHERE lemma1 IN ("{}","{}") and lemma1_pos="{}" and label IN ({})
+        GROUP BY c.id, label, prep_lemma, lemma1, lemma2, lemma1_pos, lemma2_pos
         {}
         """.format(
             lemma1, lemma2, pos,
             ",".join(['"{}"'.format(r) for r in relations]),
             "HAVING frequency >= {}".format(min_freq) if min_freq > 0 else ""
         )
-        print(query)
         db_results = self.fetchall(query)
         Coocc = namedtuple("CooccDiff",
-                           ["Rel", "Prep", "Lemma1", "Lemma2", "SurfacePrep", "Surface1", "Surface2", "Pos2",
-                            "Frequency", "Score"])
+                           ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2", "Frequency", "Score"])
         return list(map(Coocc._make, db_results))

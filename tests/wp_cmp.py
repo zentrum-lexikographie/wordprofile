@@ -26,22 +26,21 @@ db_parser.add_argument('--spec', type=str, required=True, help="Angabe der Setti
 tool_parser = parser.add_argument_group("tool arguments")
 tool_parser.add_argument("--lemma1", type=str, required=True, help="das Eingabewort")
 tool_parser.add_argument("--lemma2", type=str, required=True, help="das Eingabewort")
-tool_parser.add_argument("-n", "--number", default=20, help="Anzahl der Relationstupel (default=20)")
-tool_parser.add_argument("-b", "--nbest", default=-1,
+tool_parser.add_argument("--number", default=20, help="Anzahl der Relationstupel (default=20)")
+tool_parser.add_argument("--nbest", default=-1,
                          help="Die Anzahl der zu vergleichenden Relationstupel beider Wörter von vornherein einschränken")
-tool_parser.add_argument("-f", "--min_freq", default=-9999, help="Minimaler Frequenzwert (default=-9999)")
-tool_parser.add_argument("-m", "--min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
-tool_parser.add_argument("-x", "--host", default=None, help="Hostrechner (z.B. http://services.dwds.de:8049)")
+tool_parser.add_argument("--min_freq", type=int, default=0, help="Minimaler Frequenzwert")
+tool_parser.add_argument("--min_stat", type=float, default=0, help="Minimaler Statistikwert")
 tool_parser.add_argument("-c", "--corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
 tool_parser.add_argument("-r", "--relation", default="",
                          help="Angabe der gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
 tool_parser.add_argument("-o", "--order", default="log_dice",
                          help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 # parser.add_argument("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
-tool_parser.add_argument("--op", "--operation", default="adiff",
+tool_parser.add_argument("--operation", default="adiff",
                          help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg
-tool_parser.add_argument("--cs", "--case_sensitive", action="store_true", default=False, help="Case-sensitive Abfrage")
-tool_parser.add_argument("--sf", "--surface", action="store_true", default=False,
+tool_parser.add_argument("--case-sensitive", action="store_true", default=False, help="Case-sensitive Abfrage")
+tool_parser.add_argument("-sf", "--surface", action="store_true", default=False,
                          help="Verwenden der Oberflächenform statt der Lemmaform")
 
 args = parser.parse_args()
@@ -164,13 +163,13 @@ if len(mapping) > 0:
     mapParam["Lemma2"] = mapping[0]["Lemma2"]
     mapParam["Pos"] = mapping[0]["POS"]
     mapParam["Relations"] = listRel
-    mapParam["Number"] = int(args.number)
+    mapParam["Number"] = args.number
     mapParam["OrderBy"] = args.order
-    mapParam["MinFreq"] = 5
-    mapParam["MinStat"] = 0
+    mapParam["MinFreq"] = args.min_freq
+    mapParam["MinStat"] = args.min_stat
     mapParam["Subcorpus"] = ""
     if args.nbest != -1:
-        mapParam["NBest"] = int(args.nbest)
+        mapParam["NBest"] = args.nbest
     mapParam["Operation"] = args.operation
 
     # Wortvergleich abfragen

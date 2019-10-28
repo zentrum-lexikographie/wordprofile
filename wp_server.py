@@ -9,19 +9,8 @@ from wordprofile.wpse import deprecated
 from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
-from wordprofile.wpse.wpse_string import surface_mapping
 
 logger = logging.getLogger('wordprofile')
-
-
-class CooccInfo:
-    def __init__(self, lemma1, pos1, lemma2, pos2, prep, rel):
-        self.lemma1 = lemma1
-        self.lemma2 = lemma2
-        self.pos1 = pos1
-        self.pos2 = pos2
-        self.prep = prep
-        self.rel = rel
 
 
 class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
@@ -230,9 +219,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         Wenn der Wert von 'ConcordNo' der 0 entspricht gibt es aus rechtlichen Gründen keine Texttreffer. Dann ist 'ConcordNoAccessible' auch 0.
         """
         lemma = params["Lemma"]
-        lemma2 = params.get("Lemma2", -1)
+        lemma2 = params.get("Lemma2", "")
         pos = params["Pos"]
-        pos2 = params.get("Pos2Id", -1)
+        pos2 = params.get("Pos2Id", "")
         relations = params.get("Relations", [])
         start = params.get("Start", 0)
         number = params.get("Number", 20)
@@ -302,16 +291,10 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         results = []
         for coocc in cooccs:
             # evt. Lemma Reparieren
-            if coocc.inverse:
-                lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
-                lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
-                pos1 = coocc.Pos2
-                pos2 = coocc.Pos1
-            else:
-                lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
-                lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
-                pos1 = coocc.Pos1
-                pos2 = coocc.Pos2
+            lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
+            lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
+            pos1 = coocc.Pos1
+            pos2 = coocc.Pos2
 
             # Lemma+Präposition formatieren
             if coocc.Prep not in ["-", ""]:
@@ -430,22 +413,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             rmax(K) = max(r₁(K),r₂(K))
             Danach werden diese Kookkurrenzpartner anhand der Maximalränge absteigend sortiert und nach dem Wert L abgeschnitten.
         """
-        # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score,(11)info
-        xRel = 0
-        xPrep = 1
-        xLemma1 = 2
-        xLemma2 = 3
-        xSurfacePrep = 4
-        xSurface1 = 5
-        xSurface2 = 6
-        xPOS = 7
-        xFrequency = 8
-        xFreqBelege = 9
-        xScore = 10
-        xInfo = 11
-
         mapData = {}
-
         mapCenter = {}
         mapRank = {}
 
@@ -604,20 +572,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
         """
-        # (0)rel,(1)prep,(2)lemma1,(3)lemma2,(4)surfacePrep,(5)surface1,(6)surface2,(7)POS2,(8)frequency,(9)freqBelege,(10)score,(11)info
-        xRel = 0
-        xPrep = 1
-        xLemma1 = 2
-        xLemma2 = 3
-        xSurfacePrep = 4
-        xSurface1 = 5
-        xSurface2 = 6
-        xPOS = 7
-        xFrequency = 8
-        xFreqBelege = 9
-        xScore = 10
-        xInfo = 11
-
         yRef1 = 0
         yRef2 = 1
         yRank1 = 2
@@ -640,46 +594,35 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if i[yRef1] != -1:
                 # Es gibt Kookkurenzen zum ersten Wort
 
-                score['Frequency1'] = diffs[i[yRef1]][xFrequency]
-                score['Assoziation1'] = diffs[i[yRef1]][xScore]
-                localMap['ConcordId1'] = diffs[i[yRef1]][xInfo]
+                score['Frequency1'] = diffs[i[yRef1]].Frequency
+                score['Assoziation1'] = diffs[i[yRef1]].Score
+                localMap['ConcordId1'] = diffs[i[yRef1]].RelId
 
-                iConcordNo1 = diffs[i[yRef1]][xFrequency]
-                iFreqBelege1 = diffs[i[yRef1]][xFreqBelege]
-                if diffs[i[yRef1]][xRel] == "KON" and diffs[i[yRef1]][xLemma1] == \
-                        diffs[i[yRef1]][xLemma2]:
+                iConcordNo1 = diffs[i[yRef1]].Frequency
+                if diffs[i[yRef1]].Rel == "KON" and diffs[i[yRef1]].Lemma1 == \
+                        diffs[i[yRef1]].Lemma2:
                     iConcordNo1 = iConcordNo1 / 2
-                    iFreqBelege1 = iFreqBelege1 / 2
                 localMap['ConcordNo1'] = iConcordNo1
-                localMap['ConcordNoAccessible1'] = iFreqBelege1
-
-                localMap['Relation'] = diffs[i[yRef1]][xRel]
+                localMap['Relation'] = diffs[i[yRef1]].Rel
 
                 # Ids auf Strings mappen
-                strLemma = diffs[i[yRef1]][xLemma2]
-                strSurface = diffs[i[yRef1]][xSurface2]
-                strPrep = diffs[i[yRef1]][xPrep]
-                strPrepSurface = strPrep
-
-                # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                strSurface = surface_mapping(strSurface, diffs[i[yRef1]][xRel],
-                                             strPrepSurface)
+                strLemma = diffs[i[yRef1]].Lemma2
+                strPrep = diffs[i[yRef1]].Prep
 
                 # evt. Lemma Reparieren
                 strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
-                if strLemmaRepair != None:
-                    strLemma = strLemmaRepair.encode('utf8')
+                if strLemmaRepair:
+                    strLemma = strLemmaRepair
 
                 # Lemma+Präposition formatieren
                 if strPrep != "-":
-                    if diffs[i[yRef1]][xRel].startswith("~"):
+                    if diffs[i[yRef1]].Rel.startswith("~"):
                         strLemma = strLemma + ' ' + strPrep
                     else:
                         strLemma = strPrep + ' ' + strLemma
 
                 localMap['Lemma'] = strLemma
-                localMap['Form'] = strSurface
-                localMap['POS'] = diffs[i[yRef1]][xPOS]
+                localMap['POS'] = diffs[i[yRef1]].Pos2
 
                 if i[yRef2] == -1:
                     localMap['Position'] = 'left'
@@ -695,43 +638,31 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             if i[yRef2] != -1:
                 # Es gibt Kookkurenzen zum zweiten Wort
 
-                score['Frequency2'] = diffs[i[yRef2]][xFrequency]
-                score['Assoziation2'] = diffs[i[yRef2]][xScore]
-                localMap['ConcordId2'] = diffs[i[yRef2]][xInfo]
+                score['Frequency2'] = diffs[i[yRef2]].Frequency
+                score['Assoziation2'] = diffs[i[yRef2]].Score
+                localMap['ConcordId2'] = diffs[i[yRef2]].RelId
 
-                iConcordNo2 = diffs[i[yRef2]][xFrequency]
-                iFreqBelege2 = diffs[i[yRef2]][xFreqBelege]
-                if diffs[i[yRef2]][xRel] == "KON" and diffs[i[yRef2]][xLemma1] == \
-                        diffs[i[yRef2]][xLemma2]:
+                iConcordNo2 = diffs[i[yRef2]].Frequency
+                if diffs[i[yRef2]].Rel == "KON" and diffs[i[yRef2]].Lemma1 == \
+                        diffs[i[yRef2]].Lemma2:
                     iConcordNo2 = iConcordNo2 / 2
-                    iFreqBelege2 = iFreqBelege2 / 2
                 localMap['ConcordNo2'] = iConcordNo2
-                localMap['ConcordNoAccessible2'] = iFreqBelege2
 
                 if i[yRef1] == -1:
-
-                    localMap['Relation'] = diffs[i[yRef2]][xRel]
-
+                    localMap['Relation'] = diffs[i[yRef2]].Rel
                     # Ids auf Strings mappen
-                    strLemma = diffs[i[yRef2]][xLemma2]
-                    strSurface = diffs[i[yRef2]][xSurface2]
-                    strPrep = diffs[i[yRef2]][xPrep]
-                    strPrepSurface = strPrep
-
-                    # Oberflächenform formatieren (z.B. bei erweiterten Oberflächenformen mit Kontext)
-                    strSurface = surface_mapping(strSurface, diffs[i[yRef2]][xRel],
-                                                 strPrepSurface)
+                    strLemma = diffs[i[yRef2]].Lemma2
+                    strPrep = diffs[i[yRef2]].Prep
 
                     # Lemma+Präposition formatieren
                     if strPrep != "-":
-                        if diffs[i[yRef2]][xRel].startswith("~"):
+                        if diffs[i[yRef2]].Rel.startswith("~"):
                             strLemma = strLemma + ' ' + strPrep
                         else:
                             strLemma = strPrep + ' ' + strLemma
 
                     localMap['Lemma'] = strLemma
-                    localMap['Form'] = strSurface
-                    localMap['POS'] = diffs[i[yRef2]][xPOS]
+                    localMap['POS'] = diffs[i[yRef2]].Pos2
                     localMap['Position'] = 'right'
             else:
                 score['Frequency2'] = 0
@@ -762,8 +693,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             description = description.replace('$3', coocc_info.prep)
         else:
             description = ""
-
-        return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma1,
+        if coocc_info.rel.startswith("~"):
+            return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma2,
+                    'Lemma2': coocc_info.lemma1, 'POS1': coocc_info.pos2,
+                    'POS2': coocc_info.pos1}
+        else:
+            return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma1,
                 'Lemma2': coocc_info.lemma2, 'POS1': coocc_info.pos1,
                 'POS2': coocc_info.pos2}
 
