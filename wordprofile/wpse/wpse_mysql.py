@@ -114,9 +114,9 @@ class WpSeMySql:
             return []
 
         query = """
-            SELECT lemma1, lemma1_pos, label, CAST(COUNT(m.id) AS SIGNED) frequency, (r.label LIKE "~%")
-            FROM collocations r
-            LEFT JOIN matches m on r.id = m.relation_id
+            SELECT lemma1, lemma1_pos, label, CAST(COUNT(m.id) AS SIGNED) frequency, (c.label LIKE "~%")
+            FROM collocations c
+            LEFT JOIN matches m on c.relation_id = m.relation_id
             WHERE LOWER(lemma1) = '{}' {}
             GROUP BY lemma1, lemma1_pos, label
             HAVING frequency > 5
@@ -201,15 +201,14 @@ class WpSeMySql:
         select_from_sql = """
         SELECT
             c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos, 
-            COUNT(m.id) frequency, (c.label LIKE "~%")
+            IFNULL(s.frequency, 0), IFNULL(s.log_dice, 0.0), (c.label LIKE "~%")
         FROM 
             collocations c
-            LEFT JOIN matches m on c.id = m.relation_id
+        LEFT JOIN wp_stats s on c.id = s.collocation_id
         """
         if not pos2 or not lemma2:
             where_sql = """
                 WHERE (lemma1='{}' and lemma1_pos='{}') and label = '{}' {} {} 
-                GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos 
                 ORDER BY frequency DESC LIMIT {},{};""".format(
                 lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
             )
@@ -219,14 +218,13 @@ class WpSeMySql:
                     (lemma1='{}' and lemma1_pos='{}' and 
                      lemma2='{}' and lemma2_pos='{}') and 
                      label = '{}' {} {} 
-                GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
                 ORDER BY frequency DESC LIMIT {},{};""".format(
                 lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
             )
         db_results = self.fetchall(select_from_sql + where_sql)
         Coocc = namedtuple("Coocc",
                            ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2",
-                            "Frequency", "inverse"])
+                            "Frequency", "LogDice", "inverse"])
         return map(Coocc._make, db_results)
 
     def get_relation_tuples_diff(self, lemma1, lemma2, pos, relations,
@@ -295,4 +293,12 @@ class WpSeMySql:
         INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
         INNER JOIN corpus_freqs cf ON (cf.label = c.label)
         SET s.mi=LOG2((IFNULL(s.frequency, 1) * cf.freq) / (IFNULL(t1.freq, 1) * IFNULL(t2.freq, 1)));
+        """)
+        print("insert log dice scores")
+        self.execute("""
+        UPDATE wp_stats s
+        INNER JOIN collocations c ON (c.id = s.collocation_id)
+        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_pos = t1.pos)
+        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
+        SET s.log_dice=(14 + LOG2((IFNULL(s.frequency, 1) * 2) / (IFNULL(t1.freq, 0) + IFNULL(t2.freq, 0) + 0.001)));
         """)

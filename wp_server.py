@@ -312,7 +312,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
                     'Frequency': coocc.Frequency,
                     #     'MiLogFreq': coocc.Score_MiLogFreq,
                     #     'log_dice': coocc.Score_logDice,
-                    'log_dice': 0,
+                    'log_dice': coocc.LogDice,
                     #     'MI3': coocc.Score_MI3,
                 },
                 "ConcordId": coocc.RelId
