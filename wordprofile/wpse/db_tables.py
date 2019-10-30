@@ -53,29 +53,46 @@ def get_table_relations(meta):
         'relations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
         Column('label', types.VARCHAR(10)),
-        Column('head_lemma', types.Text),
-        Column('dep_lemma', types.Text),
-        Column('prep_lemma', types.Text),
-        Column('head_pos', types.Text),
-        Column('dep_pos', types.Text),
-        Column('prep_pos', types.Text),
+        Column('head_lemma', types.VARCHAR(100)),
+        Column('dep_lemma', types.VARCHAR(100)),
+        Column('prep_lemma', types.VARCHAR(100)),
+        Column('head_pos', types.VARCHAR(10)),
+        Column('dep_pos', types.VARCHAR(10)),
+        Column('prep_pos', types.VARCHAR(10)),
+    )
+
+
+def get_table_collocations(meta):
+    return Table(
+        'collocations', meta,
+        Column('id', types.Integer, primary_key=True, autoincrement=True),
+        Column('relation_id', types.Integer, ForeignKey('relations.id')),
+        Column('label', types.VARCHAR(10)),
+        Column('lemma1', types.VARCHAR(100)),
+        Column('lemma2', types.VARCHAR(100)),
+        Column('prep_lemma', types.VARCHAR(100)),
+        Column('lemma1_pos', types.VARCHAR(10)),
+        Column('lemma2_pos', types.VARCHAR(10)),
+        Column('prep_pos', types.VARCHAR(10)),
+        Index('relation_index', 'relation_id'),
+        Index('lemma1_index', 'lemma1', ),
+        Index('lemma1_pos_index', 'lemma1', 'lemma1_pos'),
+        Index('lemma2_pos_index', 'lemma2', 'lemma2_pos'),
+        Index('lemma_index', 'lemma1', 'lemma2'),
     )
 
 
 def get_table_statistics(meta):
     return Table(
         'wp_stats', meta,
-        Column('wp_id', types.Integer),
-        Column('relation_id', types.Integer, ForeignKey('relations.id')),
-        Column('inverse_relation_id', types.Integer, ForeignKey('relations.id')),
-        Column('date', types.Integer),
-        Column('frequency', types.Integer),
-        Column('mi', types.Float),
+        Column('collocation_id', types.Integer, ForeignKey('collocations.id')),
+        Column('frequency', types.Integer, default=1),
+        Column('mi', types.Float, default=0),
         Column('mi_log_freq', types.Float),
         Column('t_score', types.Float),
         Column('log_dice', types.Float),
         Column('log_like', types.Float),
-        # Index('wp_index', 'date', 'relation_id', unique=True)
+        Index('stats_index', 'collocation_id'),
     )
 
 
@@ -84,8 +101,8 @@ def get_corpus_file_id(engine, meta_data):
     corpus_file_tb = get_table_corpus_files(meta)
     query = corpus_file_tb.select().where(
         and_(
-            corpus_file_tb.c.corpus == meta_data['collection'],
-            corpus_file_tb.c.file == meta_data['basename']))
+            corpus_file_tb.columns.corpus == meta_data['collection'],
+            corpus_file_tb.columns.file == meta_data['basename']))
     conn = engine.connect()
     result = conn.execute(query)
     for row in result:
@@ -138,11 +155,11 @@ def get_relation_id(engine, match):
     relations_tb = get_table_relations(meta)
     query = relations_tb.select().where(
         and_(
-            relations_tb.c.head_lemma == match.head.lemma,
-            relations_tb.c.dep_lemma == match.dep.lemma,
-            relations_tb.c.prep_lemma == (match.prep.lemma if match.prep else '-'),
-            relations_tb.c.head_pos == match.head.xpos,
-            relations_tb.c.dep_pos == match.dep.xpos,
+            relations_tb.columns.head_lemma == match.head.lemma,
+            relations_tb.columns.dep_lemma == match.dep.lemma,
+            relations_tb.columns.prep_lemma == (match.prep.lemma if match.prep else '-'),
+            relations_tb.columns.head_pos == match.head.xpos,
+            relations_tb.columns.dep_pos == match.dep.xpos,
         ))
     conn = engine.connect()
     result = conn.execute(query)

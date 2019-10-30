@@ -120,17 +120,17 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         word = params.get("Word")
         pos = params.get("POS", "")
 
-        results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+        results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
 
         # evtl. Variationen in der Schreibweise berücksichtigen
         if not results and use_external_variations and word in self.wp_spec.mapVariation:
             word = self.wp_spec.mapVariation[word]
-            results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+            results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
 
         # evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
         if not results and use_external_variations:
             for word in generate_orth_variations(word):
-                results = self.wp_db.get_lemma_and_pos_base(word, pos, is_case_sensitive)
+                results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
                 if results:
                     break
 
@@ -579,7 +579,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         yScore = 4
 
         listMapRes = []
-        print(diffs)
 
         for i in db_results:
             print(i)
@@ -593,7 +592,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             }
             if i[yRef1] != -1:
                 # Es gibt Kookkurenzen zum ersten Wort
-
                 score['Frequency1'] = diffs[i[yRef1]].Frequency
                 score['Assoziation1'] = diffs[i[yRef1]].Score
                 localMap['ConcordId1'] = diffs[i[yRef1]].RelId
@@ -637,7 +635,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
             if i[yRef2] != -1:
                 # Es gibt Kookkurenzen zum zweiten Wort
-
                 score['Frequency2'] = diffs[i[yRef2]].Frequency
                 score['Assoziation2'] = diffs[i[yRef2]].Score
                 localMap['ConcordId2'] = diffs[i[yRef2]].RelId
@@ -722,8 +719,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
         [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]
-      """
-        relation_id = params.get("InfoId")
+        """
+        relation_id = int(params.get("InfoId"))
         use_context = bool(params.get("UseContext", False))
         subcorpus = params.get("Subcorpus", "")
         is_internal_user = bool(params.get("InternalUser", False))

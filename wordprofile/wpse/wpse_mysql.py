@@ -22,7 +22,7 @@ class WpSeMySql:
             passwd=self.passwd,
             db=self.dbname)
         self.__cursor = self.__conn.cursor()
-        self.execute("SET NAMES 'latin1';")
+        self.execute("SET autocommit=1;")
 
     def execute(self, query):
         self.__cursor.execute(query)
@@ -52,7 +52,7 @@ class WpSeMySql:
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE matches.relation_id = {}
             LIMIT {},{};
-            """.format(relation_id, start_index, result_number)
+            """.format(abs(relation_id), start_index, result_number)
         else:
             query = """
             SELECT
@@ -67,8 +67,8 @@ class WpSeMySql:
                 and s_center.sentence_id = matches.sentence_id)
             WHERE matches.relation_id = {}
             LIMIT {},{};
-            """.format(relation_id, start_index, result_number)
-
+            """.format(abs(relation_id), start_index, result_number)
+        print(query)
         db_results = self.fetchall(query)
 
         results = []
@@ -106,7 +106,7 @@ class WpSeMySql:
             })
         return results
 
-    def get_lemma_and_pos_base(self, word, pos, is_case_sensitive):
+    def get_lemma_and_pos(self, word, pos, is_case_sensitive):
         """
         Basismethode zur Abfrage von Lemmainformationen
         """
@@ -119,7 +119,7 @@ class WpSeMySql:
             LEFT JOIN matches m on r.id = m.relation_id
             WHERE LOWER(lemma1) = '{}' {}
             GROUP BY lemma1, lemma1_pos, label
-            HAVING frequency > 5 
+            HAVING frequency > 5
         """.format(
             word.lower(),
             # TODO determine for default POS value
@@ -211,8 +211,8 @@ class WpSeMySql:
                 WHERE (lemma1='{}' and lemma1_pos='{}') and label = '{}' {} {} 
                 GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos 
                 ORDER BY frequency DESC LIMIT {},{};""".format(
-                    lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
-                )
+                lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
+            )
         else:
             where_sql = """
                 WHERE 
@@ -221,8 +221,8 @@ class WpSeMySql:
                      label = '{}' {} {} 
                 GROUP BY c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
                 ORDER BY frequency DESC LIMIT {},{};""".format(
-                    lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
-                )
+                lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
+            )
         db_results = self.fetchall(select_from_sql + where_sql)
         Coocc = namedtuple("Coocc",
                            ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2",
@@ -251,3 +251,48 @@ class WpSeMySql:
         Coocc = namedtuple("CooccDiff",
                            ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2", "Frequency", "Score"])
         return list(map(Coocc._make, db_results))
+
+    def create_wordprofile(self):
+        print("truncate table")
+        self.execute("""
+        DELETE FROM collocations;
+        """)
+        print("alter index")
+        self.execute("""
+        ALTER TABLE collocations AUTO_INCREMENT = 1;
+        """)
+        print("insert collocations")
+        self.execute("""
+        INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
+        SELECT 
+            id as relation_id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, 
+            head_pos as lemma1_pos, dep_pos as lemma2_pos, prep_pos
+        FROM relations;
+        INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
+        SELECT 
+            id as relation_id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, 
+            dep_pos as lemma1_pos, head_pos as lemma2_pos, prep_pos
+        FROM relations;
+        """)
+        print("insert collocation frequencies")
+        self.execute("""
+        INSERT INTO wp_stats 
+            (collocation_id, frequency)
+        SELECT c.id, tf.freq 
+        FROM collocations c	
+        LEFT JOIN (
+            SELECT c.relation_id, COUNT(c.id) freq 
+            FROM collocations c
+            LEFT JOIN matches m ON c.relation_id = m.relation_id
+            GROUP BY relation_id
+        ) as tf ON (c.relation_id = tf.relation_id);
+        """)
+        print("insert mi scores")
+        self.execute("""
+        UPDATE wp_stats s
+        INNER JOIN collocations c ON (c.id = s.collocation_id)
+        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_pos = t1.pos)
+        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
+        INNER JOIN corpus_freqs cf ON (cf.label = c.label)
+        SET s.mi=LOG2((IFNULL(s.frequency, 1) * cf.freq) / (IFNULL(t1.freq, 1) * IFNULL(t2.freq, 1)));
+        """)

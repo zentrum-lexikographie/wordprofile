@@ -14,16 +14,27 @@ def init_word_profile_tables(engine):
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)
     wordprofile.wpse.db_tables.get_table_matches(meta)
     wordprofile.wpse.db_tables.get_table_relations(meta)
+    wordprofile.wpse.db_tables.get_table_collocations(meta)
     wordprofile.wpse.db_tables.get_table_statistics(meta)
     meta.create_all(engine)
 
     engine.execute("""
-    CREATE VIEW collocations AS
-    SELECT id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, head_pos as lemma1_pos, dep_pos as lemma2_pos, prep_pos
-    FROM relations
-    UNION ALL
-    SELECT id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, dep_pos as lemma1_pos, head_pos as lemma2_pos, prep_pos
-    FROM relations
+        CREATE OR REPLACE
+        VIEW corpus_freqs
+        AS
+        SELECT label, COUNT(relation_id) as freq
+        FROM collocations c
+        GROUP BY label
+    """)
+    engine.execute("""
+        CREATE OR REPLACE
+        VIEW token_freqs
+        AS 
+        SELECT c.lemma1 as lemma, c.lemma1_pos as pos, SUM(s.frequency) freq
+        FROM collocations c
+        LEFT JOIN wp_stats s ON (c.id = s.collocation_id)
+        GROUP BY c.lemma1, c.lemma1_pos
+        HAVING freq > 5
     """)
 
 
