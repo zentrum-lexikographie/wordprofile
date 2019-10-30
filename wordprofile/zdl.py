@@ -103,8 +103,6 @@ relations_inv = {k: dict(vd) for k, vd in relations_inv.items()}
 
 wp_pos_of_interest = {
     "ADJ": "Adjektiv",
-    "ADJD": "Adjektiv",
-    "ADJC": "Adjektiv",
     "ADV": "Adverb",
     "PPER": "Personalpronomen",
     "APPR": "Präposition",

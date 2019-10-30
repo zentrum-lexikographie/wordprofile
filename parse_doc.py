@@ -12,12 +12,10 @@ from imsnpars.nparser import options
 from imsnpars.tools import utils
 from sqlalchemy import create_engine
 
+from wordprofile.parsing import parse_file, get_parser
 from wordprofile.wpse.db_tables import insert_concord_sentences, get_relation_id, insert_matches, \
     insert_corpus_file
-from wordprofile.zdl import read_tabs_format, tokenized_sentence_to_conll_token, conll_token_to_tokenized_sentence, \
-    extract_matches_from_document
-
-parsers = {}
+from wordprofile.zdl import extract_matches_from_document
 
 
 # TODO refactor parser generation - too complicated right now
@@ -59,29 +57,9 @@ def build_parser_from_args(cmd_args=None):
     return args, opts
 
 
-def get_parser_prediction(parser, sentence):
-    parser._NDependencyParser__renewNetwork()
-    instance = parser._NDependencyParser__reprBuilder.buildInstance(sentence)
-    tree = parser._NDependencyParser__predict_tree(instance)
-    for pos, tok in enumerate(sentence):
-        tok.setHeadPos(tree.getHead(pos))
-        tok.dep = tree.getLabel(pos)
-    return sentence
-
-
-def parse_file(parser, src, use_normalizer=False):
-    normalizer = builder.buildNormalizer(use_normalizer)
-    meta_data, test_data = read_tabs_format(src)
-    parser_data = map(lambda s: tokenized_sentence_to_conll_token(s, normalizer), test_data)
-    parses = map(lambda s: get_parser_prediction(parser, s), parser_data)
-    parses_converted = list(map(lambda xs: conll_token_to_tokenized_sentence(*xs), zip(test_data, parses)))
-    return meta_data, parses_converted
-
-
 def process_files_parallel(db_engine_key, src, args, options):
     parser = get_parser(args, options)
     engine = create_engine(db_engine_key)
-    # mongo_engine = pymongo.MongoClient("mongodb://localhost:27017/")["zdl"]["documents"]
     meta_data, parses = parse_file(parser, src, options.normalize)
     print("({}) - parsed document".format(meta_data['basename']))
     corpus_file_id = insert_corpus_file(engine, meta_data)
@@ -92,20 +70,6 @@ def process_files_parallel(db_engine_key, src, args, options):
     for relation_id, relation_matches in matches.items():
         insert_matches(engine, corpus_file_id, relation_id, relation_matches)
     print("({}) - inserted matches".format(meta_data['basename']))
-
-
-def get_parser(args, options):
-    global parsers
-    pid = multiprocessing.current_process().name
-    if pid in parsers:
-        print("load parser from memory", pid)
-        return parsers[pid]
-    else:
-        print("build and load new parser", pid)
-        parser = builder.buildParser(options)
-        parser.load(args.model)
-        parsers[pid] = parser
-        return parser
 
 
 def main():
@@ -133,8 +97,6 @@ def main():
         parser = builder.buildParser(options)
         parser.load(args.model)
         meta_data, parses = parse_file(parser, args.src, options.normalize)
-        # corpus_file_id = get_corpus_file_id(engine, meta_data)
-        # if corpus_file_id:
         corpus_file_id = insert_corpus_file(engine, meta_data)
         insert_concord_sentences(engine, corpus_file_id, parses)
         matches = extract_matches_from_document(parses)
