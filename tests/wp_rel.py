@@ -2,11 +2,12 @@
 # Das Client-Programm fragt eine Wortprofil-MySQL-Datenbank über einen XMLRPC-Server ab und liefert Kookkurrenzen zu 
 # einem Eingabelemma.
 # Beispielaufruf:
-# python wp_rel_client.py -x http://localhost:8080 -l Mann -o MiLogFreq -n 20
+# python wp_rel.py -x http://localhost:8080 -l Mann -o MiLogFreq -n 20
 
 import getpass
 import logging
 import sys
+import xmlrpc.client
 from argparse import ArgumentParser
 
 from wordprofile.pprint.drawTable import calculate_table
@@ -15,12 +16,13 @@ from wp_server import WortprofilQuery
 parser = ArgumentParser()
 
 db_parser = parser.add_argument_group("server arguments")
-db_parser.add_argument("--user", type=str, help="database username", required=True)
-db_parser.add_argument("--database", type=str, help="database name", required=True)
+db_parser.add_argument("--user", type=str, help="database username")
+db_parser.add_argument("--database", type=str, help="database name")
 db_parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
 db_parser.add_argument("--passwd", action="store_true", help="ask for database password")
 db_parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-db_parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--spec', type=str, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--xmlrpc', action="store_true", help="Angabe der Settings-Datei (*.xml)")
 
 tool_parser = parser.add_argument_group("tool arguments")
 tool_parser.add_argument("-l", dest="lemma", default=None, help="das Eingabelemma")
@@ -30,7 +32,6 @@ tool_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relat
 tool_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
 tool_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
 tool_parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
-tool_parser.add_argument("-x", dest="host", default="", help="Hostrechner (z.B. http://localhost:8080)")
 tool_parser.add_argument("-r", dest="relation", default="",
                          help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
 tool_parser.add_argument("-o", dest="order", default="log_dice",
@@ -55,13 +56,16 @@ ch.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(ch)
 
-print('user: ' + args.user)
-print('db: ' + args.database)
-if args.passwd:
-    db_password = getpass.getpass("db password: ")
+if args.xmlrpc:
+    wp = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
-    db_password = args.user
-wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    print('user: ' + args.user)
+    print('db: ' + args.database)
+    if args.passwd:
+        db_password = getpass.getpass("db password: ")
+    else:
+        db_password = args.user
+    wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 mapping = wp.get_lemma_and_pos({
     "Word": args.lemma,
@@ -73,7 +77,7 @@ print("mapping", mapping)
 if len(mapping) > 0:
     mapSelect = {}
     if args.pos_tag == "":
-        ### Ermitteln der Wortart (evtl. über Tastatureingabe)
+        # Ermitteln der Wortart (evtl. über Tastatureingabe)
         if len(mapping) == 1:
             mapSelect = mapping[0]
             print("\033[32;1m" + "(1) " + "\033[m" + mapSelect["Lemma"] + " [" + mapSelect["POS"] + "]")

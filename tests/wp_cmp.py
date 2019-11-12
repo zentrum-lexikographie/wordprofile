@@ -8,6 +8,7 @@
 import getpass
 import logging
 import sys
+import xmlrpc.client
 from argparse import ArgumentParser
 
 from wordprofile.pprint.drawTable import calculate_table
@@ -16,12 +17,13 @@ from wp_server import WortprofilQuery
 parser = ArgumentParser()
 
 db_parser = parser.add_argument_group("server arguments")
-db_parser.add_argument("--user", type=str, help="database username", required=True)
-db_parser.add_argument("--database", type=str, help="database name", required=True)
+db_parser.add_argument("--user", type=str, help="database username")
+db_parser.add_argument("--database", type=str, help="database name")
 db_parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
 db_parser.add_argument("--passwd", action="store_true", help="ask for database password")
 db_parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-db_parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--spec', type=str, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--xmlrpc', action="store_true", help="Angabe der Settings-Datei (*.xml)")
 
 tool_parser = parser.add_argument_group("tool arguments")
 tool_parser.add_argument("--lemma1", type=str, required=True, help="das Eingabewort")
@@ -56,13 +58,16 @@ ch.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(ch)
 
-print('user: ' + args.user)
-print('db: ' + args.database)
-if args.passwd:
-    db_password = getpass.getpass("db password: ")
+if args.xmlrpc:
+    wp = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
-    db_password = args.user
-wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    print('user: ' + args.user)
+    print('db: ' + args.database)
+    if args.passwd:
+        db_password = getpass.getpass("db password: ")
+    else:
+        db_password = args.user
+    wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 
 def black(x):

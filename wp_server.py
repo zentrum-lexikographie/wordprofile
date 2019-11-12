@@ -56,6 +56,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         return "OK"
 
+    def get_info(self):
+        raise NotImplementedError()
+
     def get_ordered_relation_ids(self, relations, pos):
         """
         Gets relation ids sorted by the specified ordering

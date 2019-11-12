@@ -2,6 +2,9 @@
 import logging
 from collections import defaultdict, namedtuple, Counter
 
+import pymysql
+
+pymysql.install_as_MySQLdb()
 import MySQLdb
 
 from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center

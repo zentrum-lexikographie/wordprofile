@@ -242,10 +242,13 @@ def read_text_tabs_format(index, tabs_file_path):
     return sentences
 
 
-def read_tabs_format(tabs_file_path):
+def read_tabs_format(tabs_file_path, meta_only=False):
     meta_data, index = read_meta_tabs_format(tabs_file_path)
-    sentences = read_text_tabs_format(index, tabs_file_path)
-    return meta_data, sentences
+    if meta_only:
+        return meta_data, []
+    else:
+        sentences = read_text_tabs_format(index, tabs_file_path)
+        return meta_data, sentences
 
 
 def tokenized_sentence_to_conll_token(sentence, normalizer=None):

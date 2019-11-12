@@ -2,10 +2,11 @@
 # Das Client-Programm fragt eine Wortprofil-MySQL-Datenbank über einen XMLRPC-Server ab und liefert Texttreffer
 # zu einer Texttreffer-Id.
 # Beispielaufruf:
-# python wp_con_client.py -x http://localhost:8080 -i 1671#2#428#4#11112#15#207136 -n 20
+# python wp_hit.py -x http://localhost:8080 -i 76575 -n 20
 
 import getpass
 import logging
+import xmlrpc.client
 from argparse import ArgumentParser
 
 from wordprofile.pprint.drawConcord import draw_concord
@@ -14,12 +15,13 @@ from wp_server import WortprofilQuery
 parser = ArgumentParser()
 
 db_parser = parser.add_argument_group("server arguments")
-db_parser.add_argument("--user", type=str, help="database username", required=True)
-db_parser.add_argument("--database", type=str, help="database name", required=True)
+db_parser.add_argument("--user", type=str, help="database username")
+db_parser.add_argument("--database", type=str, help="database name")
 db_parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
 db_parser.add_argument("--passwd", action="store_true", help="ask for database password")
 db_parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-db_parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--spec', type=str, help="Angabe der Settings-Datei (*.xml)")
+db_parser.add_argument('--xmlrpc', action="store_true", help="Angabe der Settings-Datei (*.xml)")
 
 tool_parser = parser.add_argument_group("tool arguments")
 tool_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
@@ -50,13 +52,16 @@ ch.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(ch)
 
-print('user: ' + args.user)
-print('db: ' + args.database)
-if args.passwd:
-    db_password = getpass.getpass("db password: ")
+if args.xmlrpc:
+    wp = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
-    db_password = args.user
-wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    print('user: ' + args.user)
+    print('db: ' + args.database)
+    if args.passwd:
+        db_password = getpass.getpass("db password: ")
+    else:
+        db_password = args.user
+    wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 mapRelInfo = wp.get_concordances_and_relation({
     "InfoId": args.info,
@@ -71,7 +76,6 @@ mapRelInfo = wp.get_concordances_and_relation({
 
 concords = []
 for ctr, i in enumerate(mapRelInfo['Tuples']):
-    ### Metainformationen
     strBiblCorpus = i['Bibl']['Corpus']
     strBiblDate = i['Bibl']['Date']
     strBiblTextclass = i['Bibl']['TextClass']
@@ -81,7 +85,6 @@ for ctr, i in enumerate(mapRelInfo['Tuples']):
     strBiblPage = i['Bibl']['Page']
     strScore = str(i['Score'])
 
-    ### Satzinformation
     strSentence = i['ConcordLine']
     strLeft = ""
     strRight = ""
@@ -90,13 +93,11 @@ for ctr, i in enumerate(mapRelInfo['Tuples']):
     if i['ConcordRight'] != "":
         strRight = ' \033[0;34m' + i['ConcordRight'] + '\033[0m '
 
-    ### wenn die Informationen direkt ausgegeben werden sollen
     strMeta = "%i) %s | %s | %s | %s | %s | %s | %s | %s" % (
         ctr + 1, strBiblCorpus, strBiblDate, strBiblTextclass, strBiblOrig, strBiblScan, strBiblAvail, strBiblPage,
         strScore)
     concords.append((strLeft + strSentence + strRight, strMeta))
 
-### Ausgeben der groben Relationsinformationen
 print("\033[32;1m" + "Relation: " + "\033[m" + mapRelInfo['Relation'])
 print("\033[32;1m" + "Lemma1: " + "\033[m" + mapRelInfo['Lemma1'])
 print("\033[32;1m" + "Lemma2: " + "\033[m" + mapRelInfo['Lemma2'])

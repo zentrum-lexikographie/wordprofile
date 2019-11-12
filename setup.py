@@ -9,6 +9,7 @@ setup(name='wordprofile',
       author_email='rene.knaebel@bbaw.de',
       packages=['wordprofile'],
       install_requires=[
+          'pymysql',
           'sqlalchemy',
           'imsnpars',
       ],

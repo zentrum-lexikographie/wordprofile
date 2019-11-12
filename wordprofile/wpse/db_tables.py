@@ -105,6 +105,7 @@ def get_corpus_file_id(engine, meta_data):
             corpus_file_tb.columns.file == meta_data['basename']))
     conn = engine.connect()
     result = conn.execute(query)
+    conn.close()
     for row in result:
         return row['id']
     else:
@@ -132,6 +133,7 @@ def insert_corpus_file(engine, meta_data):
         )
         conn = engine.connect()
         result = conn.execute(query)
+        conn.close()
         return result.inserted_primary_key[0]
 
 
@@ -144,10 +146,12 @@ def insert_concord_sentences(engine, corpus_file_id, parses):
         {
             'corpus_file_id': corpus_file_id,
             'sentence_id': sent_i + 1,
-            'sentence': ''.join('{}{}'.format('\x01' if tok.misc == 0 else '\x02', tok.surface) for tok in parse),
+            'sentence': ''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
+                                for tok_i, tok in enumerate(parse)),
             'page': '-'
         } for sent_i, parse in enumerate(parses)
     ])
+    conn.close()
 
 
 def get_relation_id(engine, match):
@@ -176,6 +180,7 @@ def get_relation_id(engine, match):
 
     )
     result = conn.execute(query)
+    conn.close()
     return result.inserted_primary_key[0]
 
 
@@ -199,3 +204,4 @@ def insert_matches(engine, corpus_file_id, relation_id, matches):
             'creation_date': datetime.datetime.now(),
         } for match in matches
     ])
+    conn.close()

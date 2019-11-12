@@ -11,9 +11,9 @@
 Variations	./spec/lex_variations.csv
 ### Optionale Angabe von Lemma-Reparaturen für die Lemmausgabe für verschiedene Wortarten 
 ### (TAB-separierte Dateien mit 'OriginalLemma\tRepariertesLemma' )
-LemmaRepair	Substantiv	./spec/lemma_repair_substantiv.csv
-LemmaRepair	Verb	./spec/lemma_repair_verb.csv
-LemmaRepair	Adjektiv	./spec/lemma_repair_adjektiv.csv
+LemmaRepair	NN	./spec/lemma_repair_substantiv.csv
+LemmaRepair	VV	./spec/lemma_repair_verb.csv
+LemmaRepair	ADJ	./spec/lemma_repair_adjektiv.csv
 
 ###### Ausgabeoptionen ######
 #
