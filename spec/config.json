@@ -1,5 +1,5 @@
 {
-  "Variations": ",./spec/lex_variations.csv",
+  "Variations": "./spec/lex_variations.csv",
   "LemmaRepair": {
     "Substantiv": "./spec/lemma_repair_substantiv.csv",
     "Verb": "./spec/lemma_repair_verb.csv",
@@ -51,8 +51,8 @@
       "$1 ist Verbzusatz von $2"
     ],
     "KOM": [
-      "hat vergleichende",
-      " Wortgruppe    $1 hat vergleichende Wortgruppe $2"
+      "hat vergleichende Wortgruppe",
+      "$1 hat vergleichende Wortgruppe $2"
     ],
     "~KOM": [
       "ist in vergleichender Wortgruppe",

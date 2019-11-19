@@ -71,7 +71,6 @@ class WpSeMySql:
             WHERE matches.relation_id = {}
             LIMIT {},{};
             """.format(abs(relation_id), start_index, result_number)
-        print(query)
         db_results = self.fetchall(query)
 
         results = []
