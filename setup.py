@@ -12,6 +12,8 @@ setup(name='wordprofile',
           'pymysql',
           'sqlalchemy',
           'imsnpars',
+          'termcolor',
+          'tabulate'
       ],
       entry_points={
           'console_scripts': [
