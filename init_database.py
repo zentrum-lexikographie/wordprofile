@@ -6,9 +6,15 @@ from argparse import ArgumentParser
 from sqlalchemy import create_engine, MetaData
 
 import wordprofile.wpse.db_tables
+from wp_server import WortprofilQuery
 
 
-def init_word_profile_tables(engine):
+def init_word_profile_tables(engine, database):
+    engine.execute("DROP DATABASE IF EXISTS " + database)
+    engine.execute("CREATE DATABASE " + database + " CHARACTER SET utf8")
+    engine.execute("set autocommit=1")
+    engine.execute("USE " + database)
+
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_corpus_files(meta)
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)
@@ -34,8 +40,12 @@ def init_word_profile_tables(engine):
         FROM collocations c
         LEFT JOIN wp_stats s ON (c.id = s.collocation_id)
         GROUP BY c.lemma1, c.lemma1_pos
-        HAVING freq > 5
     """)
+
+
+def create_wordprofile(user, passwd, database):
+    wp = WortprofilQuery("localhost", user, passwd, database, 8086, "spec/config.json")
+    wp.wp_db.create_wordprofile()
 
 
 def main():
@@ -44,6 +54,8 @@ def main():
     parser.add_argument("--user", type=str, help="database username", required=True)
     parser.add_argument("--database", type=str, help="database name", required=True)
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
+    parser.add_argument("--init-db", action="store_true", help="ask for database init")
+    parser.add_argument("--wp-db", action="store_true", help="ask for wordprofile creation")
 
     args = parser.parse_args()
 
@@ -54,15 +66,16 @@ def main():
     else:
         db_password = args.user
 
-    engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(
-        args.user, db_password))
-    engine.execute("DROP DATABASE IF EXISTS " + args.database)
-    engine.execute("CREATE DATABASE " + args.database + " CHARACTER SET utf8")
-    engine.execute("set autocommit=1")
-    engine.execute("USE " + args.database)
-
-    init_word_profile_tables(engine)
-
+    if args.init_db:
+        print("init database")
+        engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(
+            args.user, db_password))
+        init_word_profile_tables(engine, args.database)
+    elif args.wp_db:
+        print("create word profile stats")
+        create_wordprofile(args.user, db_password, args.database)
+    else:
+        print("nothing happened...")
     print()
     print("(: done")
 
