@@ -34,7 +34,8 @@ class WpSeMySql:
         self.__cursor.execute(query)
         return self.__cursor.fetchall()
 
-    def get_concordances(self, relation_id, use_context, subcorpus, is_internal_user, start_index, result_number):
+    def get_concordances(self, coocc_id, use_context, subcorpus, is_internal_user, start_index, result_number):
+        coocc_info = self.get_relation_by_id(coocc_id)
         if use_context:
             query = """
             SELECT
@@ -55,7 +56,7 @@ class WpSeMySql:
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE matches.relation_id = {}
             LIMIT {},{};
-            """.format(abs(relation_id), start_index, result_number)
+            """.format(coocc_info.rel_id, start_index, result_number)
         else:
             query = """
             SELECT
@@ -70,7 +71,7 @@ class WpSeMySql:
                 and s_center.sentence_id = matches.sentence_id)
             WHERE matches.relation_id = {}
             LIMIT {},{};
-            """.format(abs(relation_id), start_index, result_number)
+            """.format(coocc_info.rel_id, start_index, result_number)
         db_results = self.fetchall(query)
 
         results = []
@@ -179,17 +180,17 @@ class WpSeMySql:
         results = [r[1] for r in sorted(results, key=lambda x: x[0])]
         return results
 
-    def get_relation_by_id(self, relation_id):
+    def get_relation_by_id(self, coocc_id):
         query = """
         SELECT
-            c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
+            c.relation_id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos
         FROM 
             collocations c
         WHERE c.id = {}
-        """.format(abs(relation_id))
-        db_results = self.fetchall(query)
-        Coocc = namedtuple("CooccInfo", ["rel", "prep", "lemma1", "lemma2", "pos1", "pos2"])
-        return Coocc(*[("~" if relation_id < 0 else "") + db_results[0][0]] + list(db_results[0][1:]))
+        """.format(coocc_id)
+        db_results = self.fetchall(query)[0]
+        Coocc = namedtuple("CooccInfo", ["rel_id", "rel", "prep", "lemma1", "lemma2", "pos1", "pos2"])
+        return Coocc(*db_results)
 
     def get_relation_tuples_check(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
                                   min_stat, relation):
@@ -247,6 +248,7 @@ class WpSeMySql:
             ",".join(['"{}"'.format(r) for r in relations]),
             "HAVING frequency >= {}".format(min_freq) if min_freq > 0 else ""
         )
+        print(query)
         db_results = self.fetchall(query)
         Coocc = namedtuple("CooccDiff",
                            ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2", "Frequency", "Score"])
@@ -254,6 +256,9 @@ class WpSeMySql:
 
     def create_wordprofile(self):
         print("truncate table")
+        self.execute("""
+        DELETE FROM wp_stats;
+        """)
         self.execute("""
         DELETE FROM collocations;
         """)
@@ -265,14 +270,22 @@ class WpSeMySql:
         self.execute("""
         INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
         SELECT 
-            id as relation_id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, 
+            r.id as relation_id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, 
             head_pos as lemma1_pos, dep_pos as lemma2_pos, prep_pos
-        FROM relations;
+        FROM relations r
+        LEFT JOIN matches m ON r.id = m.relation_id
+        GROUP BY r.id
+        HAVING COUNT(m.id) > 2
+        """)
+        self.execute("""
         INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
         SELECT 
-            id as relation_id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, 
+            r.id as relation_id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, 
             dep_pos as lemma1_pos, head_pos as lemma2_pos, prep_pos
-        FROM relations;
+        FROM relations r
+        LEFT JOIN matches m ON r.id = m.relation_id
+        GROUP BY r.id
+        HAVING COUNT(m.id) > 2
         """)
         print("insert collocation frequencies")
         self.execute("""
@@ -302,5 +315,5 @@ class WpSeMySql:
         INNER JOIN collocations c ON (c.id = s.collocation_id)
         INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_pos = t1.pos)
         INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
-        SET s.log_dice=(14 + LOG2((IFNULL(s.frequency, 1) * 2) / (IFNULL(t1.freq, 0) + IFNULL(t2.freq, 0) + 0.001)));
+        SET s.log_dice=(14 + LOG2((IFNULL(s.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))));
         """)

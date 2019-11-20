@@ -364,7 +364,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         ordered_relations = self.get_ordered_relation_ids(cooccs, pos)
         diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, ordered_relations, order_by,
                                                     min_freq, min_stat)
-        print(diffs)
         cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
 
         relations = []
@@ -584,7 +583,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         listMapRes = []
 
         for i in db_results:
-            print(i)
             localMap = {
                 "POS": None
             }
@@ -684,8 +682,8 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         *Rückgabe ist ein Dictionary aus: syntaktischer Relation ('Relation'), Lemmaform von W1 ('Lemma1'), Lemmaform von W2 ('Lemma2'), POS-Tag von W1 ('POS1'), POS-Tag von W2 ('POS2'), Oberflächenform von W1 ('Form1'), Oberflächenform von W2 ('Form2'):
         {'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>}
         """
-        relation_id = int(params.get("InfoId"))
-        coocc_info = self.wp_db.get_relation_by_id(relation_id)
+        coocc_id = int(params.get("InfoId"))
+        coocc_info = self.wp_db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -693,14 +691,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             description = description.replace('$3', coocc_info.prep)
         else:
             description = ""
-        if coocc_info.rel.startswith("~"):
-            return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma2,
-                    'Lemma2': coocc_info.lemma1, 'POS1': coocc_info.pos2,
-                    'POS2': coocc_info.pos1}
-        else:
-            return {'Description': description, 'Relation': coocc_info.rel, 'Lemma1': coocc_info.lemma1,
-                'Lemma2': coocc_info.lemma2, 'POS1': coocc_info.pos1,
-                'POS2': coocc_info.pos2}
+        return {'RelationId': coocc_info.rel_id, 'Description': description, 'Relation': coocc_info.rel,
+                'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
+                'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
     def get_concordances_and_relation(self, params):
         """
@@ -723,12 +716,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
         [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]
         """
-        relation_id = int(params.get("InfoId"))
+        coocc_id = int(params.get("InfoId"))
         use_context = bool(params.get("UseContext", False))
         subcorpus = params.get("Subcorpus", "")
         is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        return self.wp_db.get_concordances(relation_id, use_context, subcorpus,
+        return self.wp_db.get_concordances(coocc_id, use_context, subcorpus,
                                            is_internal_user,
                                            start_index, result_number)
