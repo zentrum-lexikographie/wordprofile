@@ -18,21 +18,30 @@ class WpSeMySql:
         self.user = user
         self.passwd = passwd
         self.dbname = dbname
+        self.__conn = None
+        self.__cursor = None
 
+    def init_connection(self):
         self.__conn = MySQLdb.connect(
             host=self.host,
             user=self.user,
             passwd=self.passwd,
             db=self.dbname)
         self.__cursor = self.__conn.cursor()
-        self.execute("SET autocommit=1;")
+
+    def close_connection(self):
+        self.__cursor.close()
+        self.__conn.close()
 
     def execute(self, query):
         self.__cursor.execute(query)
 
     def fetchall(self, query):
+        self.init_connection()
         self.__cursor.execute(query)
-        return self.__cursor.fetchall()
+        res = self.__cursor.fetchall()
+        self.close_connection()
+        return res
 
     def get_concordances(self, coocc_id, use_context, subcorpus, is_internal_user, start_index, result_number):
         coocc_info = self.get_relation_by_id(coocc_id)
@@ -129,8 +138,7 @@ class WpSeMySql:
             "and lemma1_pos='{}'".format(pos) if pos not in ["*", ""] else "",
         )
         db_results = self.fetchall(query)
-
-        return self.__get_valid_sorted_lemmas(db_results, word, is_case_sensitive)
+        return self.__get_valid_sorted_lemmas(db_results, word, False)
 
     @staticmethod
     def __get_valid_sorted_lemmas(db_results, word, is_case_sensitive):
@@ -175,7 +183,7 @@ class WpSeMySql:
                 score = 4
             else:
                 score = 5
-            results.append((score, {'Lemma': lemma, 'POS': pos,
+            results.append((score, {'Lemma': lemma, 'POS': pos, 'PosId': pos,
                                     'Frequency': frequency, 'Relations': relations}))
         results = [r[1] for r in sorted(results, key=lambda x: x[0])]
         return results
@@ -199,8 +207,7 @@ class WpSeMySql:
         Wortprofil-MySQL-Datenbank
         """
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        # min_stat_sql = " and (-r.{}) >= {} ".format(order_by, min_stat) if min_stat > -100000000 else ""
-        min_stat_sql = ""
+        min_stat_sql = " and (log_dice) >= {} ".format(min_stat) if min_stat > -100000000 else ""
         select_from_sql = """
         SELECT
             c.id, c.label, c.prep_lemma, c.lemma1, c.lemma2, c.lemma1_pos, c.lemma2_pos, 
@@ -212,8 +219,8 @@ class WpSeMySql:
         if not pos2 or not lemma2:
             where_sql = """
                 WHERE (lemma1='{}' and lemma1_pos='{}') and label = '{}' {} {} 
-                ORDER BY frequency DESC LIMIT {},{};""".format(
-                lemma1, pos1, relation, min_freq_sql, min_stat_sql, start, number
+                ORDER BY {} DESC LIMIT {},{};""".format(
+                lemma1, pos1, relation, min_freq_sql, min_stat_sql, order_by, start, number
             )
         else:
             where_sql = """
@@ -221,8 +228,8 @@ class WpSeMySql:
                     (lemma1='{}' and lemma1_pos='{}' and 
                      lemma2='{}' and lemma2_pos='{}') and 
                      label = '{}' {} {} 
-                ORDER BY frequency DESC LIMIT {},{};""".format(
-                lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, start, number
+                ORDER BY {} DESC LIMIT {},{};""".format(
+                lemma1, pos1, lemma2, pos2, relation, min_freq_sql, min_stat_sql, order_by, start, number
             )
         db_results = self.fetchall(select_from_sql + where_sql)
         Coocc = namedtuple("Coocc",
@@ -248,13 +255,13 @@ class WpSeMySql:
             ",".join(['"{}"'.format(r) for r in relations]),
             "HAVING frequency >= {}".format(min_freq) if min_freq > 0 else ""
         )
-        print(query)
         db_results = self.fetchall(query)
         Coocc = namedtuple("CooccDiff",
                            ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2", "Frequency", "Score"])
         return list(map(Coocc._make, db_results))
 
     def create_wordprofile(self):
+        self.init_connection()
         print("truncate table")
         self.execute("""
         DELETE FROM wp_stats;
@@ -317,3 +324,4 @@ class WpSeMySql:
         INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
         SET s.log_dice=(14 + LOG2((IFNULL(s.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))));
         """)
+        self.close_connection()

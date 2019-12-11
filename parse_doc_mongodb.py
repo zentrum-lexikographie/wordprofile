@@ -10,6 +10,7 @@ import pymongo
 from imsnpars.nparser import options
 from imsnpars.tools import utils
 from pymongo.errors import DocumentTooLarge, WriteError
+
 from wordprofile.parsing import get_parser, parse_file
 from wordprofile.zdl import read_tabs_format
 
@@ -22,7 +23,7 @@ def build_parser_from_args(cmd_args=None):
 
     db_args = argParser.add_argument_group('database')
     db_args.add_argument("--database", type=str, help="database name", required=True)
-    db_args.add_argument("--drop", action="store_true", help="ask for database password")
+    db_args.add_argument("--drop", action="store_true", help="clears document database")
     db_args.add_argument("--skip", action="store_true", help="skips documents already inserted in db")
 
     parserArgs = argParser.add_argument_group('parser')
@@ -93,6 +94,9 @@ def main():
     if args.drop:
         drop_documents(mongo_db_keys)
     src_files = glob(args.src)
+
+    if len(src_files) == 0:
+        raise FileNotFoundError("No files found for parsing!")
 
     files = [(mongo_db_keys, src, args, options) for src in src_files]
     print("Create MPPool with #njobs:", args.jobs)

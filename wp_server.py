@@ -33,10 +33,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             "UseVariations": 1
         }
         mapping = self.get_lemma_and_pos(params)
-
         selection = {}
         for i in mapping:
-            if i["POS"] == "Substantiv":
+            if i["POS"] == "NN":
                 selection = i
 
         if selection == {}:
@@ -44,12 +43,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
         # Parameter für die Kookkurrenzabfrage
         params["Lemma"] = selection["Lemma"]
-        params["Pos"] = selection["POS"]
+        params["POS"] = selection["POS"]
         params["Start"] = 0
         params["Number"] = 10
-        params["OrderBy"] = "log_dice"
+        params["OrderBy"] = "logDice"
         params["Relations"] = selection["Relations"]
-
         relations = self.get_relations(params)
         if len(relations) == 0:
             return "Internal Server Error (get_relations)"
@@ -223,12 +221,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         lemma = params["Lemma"]
         lemma2 = params.get("Lemma2", "")
-        pos = params["Pos"]
+        pos = params["POS"]
         pos2 = params.get("Pos2Id", "")
         relations = params.get("Relations", [])
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "log_dice")
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
 
@@ -275,13 +274,14 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         hit_id = params["RelId"]
         start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "log_dice")
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
         subcorpus = params.get("Subcorpus", "")
 
         # Informationen aus der komplexen ID extrahieren
-        lemma, pos, rel = [int(i) for i in hit_id.split("#")[:3]]
+        lemma, pos, rel = hit_id.split("#")[:3]
         cooccs = self.wp_db.get_relation_tuples_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
                                                       min_stat, rel)
         cooccs = self.__relation_tuples_2_strings(cooccs)
@@ -310,12 +310,13 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             result = {
                 'Relation': "~" if coocc.inverse else "" + coocc.Rel,
                 'POS': pos2,
+                'PosId': pos2,
                 'Lemma': lemma2,
                 'Score': {
-                    'Frequency': coocc.Frequency,
+                    'Frequency': coocc.Frequency // 2,
                     #     'MiLogFreq': coocc.Score_MiLogFreq,
                     #     'log_dice': coocc.Score_logDice,
-                    'log_dice': coocc.LogDice,
+                    'logDice': coocc.LogDice,
                     #     'MI3': coocc.Score_MI3,
                 },
                 "ConcordId": coocc.RelId
@@ -325,11 +326,11 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             concord_no = coocc.Frequency
             # support_no = coocc.FreqBelege
             if coocc.Rel == "KON" and coocc.Lemma1 == coocc.Lemma2:
-                concord_no = concord_no / 2
+                concord_no = concord_no // 2
                 # support_no = support_no / 2
             result['ConcordNo'] = concord_no
             # result['ConcordNoAccessible'] = support_no
-            result['ConcordNoAccessible'] = 0
+            result['ConcordNoAccessible'] = concord_no
             results.append(result)
         return results
 
@@ -348,11 +349,12 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         lemma1 = params["Lemma1"]
         lemma2 = params["Lemma2"]
-        pos = params["Pos"]
+        pos = params["POS"]
         cooccs = params["Relations"]
         # start = params.get("Start", 0)
         number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "LogDice")
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
         # subcorpus = params.get("Subcorpus", "")

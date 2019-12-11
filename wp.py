@@ -33,7 +33,7 @@ rel_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler St
 rel_parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
 rel_parser.add_argument("-r", dest="relations", nargs="*",
                         help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
-rel_parser.add_argument("-o", dest="order", default="log_dice",
+rel_parser.add_argument("-o", dest="order", default="logDice",
                         help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 rel_parser.add_argument("--cs", action="store_true", dest="case_sensitive", default=False,
                         help="Case-sensitive Abfrage")
@@ -72,7 +72,7 @@ cmp_parser.add_argument("--min_stat", type=float, default=0, help="Minimaler Sta
 cmp_parser.add_argument("-c", "--corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
 cmp_parser.add_argument("-r", "--relations", nargs="*",
                         help="Angabe der gewünschten Relationen (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
-cmp_parser.add_argument("-o", "--order", default="log_dice",
+cmp_parser.add_argument("-o", "--order", default="logDice",
                         help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 # parser.add_argument("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
 cmp_parser.add_argument("--operation", default="adiff",

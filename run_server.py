@@ -12,6 +12,7 @@ parser = ArgumentParser()
 parser.add_argument("--user", type=str, help="database username", required=True)
 parser.add_argument("--database", type=str, help="database name", required=True)
 parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
+parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
 parser.add_argument("--passwd", action="store_true", help="ask for database password")
 parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
 parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
@@ -79,13 +80,13 @@ def main():
         db_password = args.user
 
     # Create server
-    server = xmlrpc.server.SimpleXMLRPCServer(("localhost", int(args.port)),
+    server = xmlrpc.server.SimpleXMLRPCServer((args.hostname, int(args.port)),
                                               requestHandler=RequestHandler, logRequests=False, allow_none=True)
     # register function information
     server.register_introspection_functions()
     # register wortprofil
     server.register_instance(
-        WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec))
+        WortprofilQuery(args.db_hostname, args.user, db_password, args.database, args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 

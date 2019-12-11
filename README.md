@@ -1,15 +1,10 @@
-WORTPROFILDATENBANK UND ABFRAGE
+# DWDS Wortprofil (wordprofile)
 
+Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
+Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
 Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation. 
-Diese solten unter './spec/' liegen.
-Eine Beispielspezifikation, die den Grundaufbau solch einer Spezifikation darlegt, 
-ist in './Spec/dradio.kira.spec' gegeben. Diese Spezifikation kann als Muster 
-verwendet werden.
-
-Einige Python Programme benötigen Module. Diese sind in './moduls/' zu finden.
-
-Einige Python Programme schreiben Log-Dateien. Diese werden standardmäßig in das
-Verzeichnis './log/' geschrieben.
+Diverse Konfigurationen und zusätzliche Daten liegen unter './spec/'.
+Im Ordner './log/' werden Server-Logfiles hinterlegt.
 
 
 *Erstellen einer Wortprofil-MySQL-Datenbank
@@ -104,16 +99,4 @@ Verzeichnis './log/' geschrieben.
 
    Mit diesem Client-Programm kann geprüft werden, ob der Wortprofil-XMLRPC-Server ordnungsgemäß 
    funktioniert. Über 'wp_status_client.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
-
-
-
-
-
-
-
-
-
-
-
 
