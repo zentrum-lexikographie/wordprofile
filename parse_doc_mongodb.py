@@ -9,12 +9,15 @@ from glob import glob
 import pymongo
 from imsnpars.nparser import options
 from imsnpars.tools import utils
-from pymongo.errors import DocumentTooLarge, WriteError
-
 from wordprofile.parsing import get_parser, parse_file
 from wordprofile.zdl import read_tabs_format
 
+sys.setrecursionlimit(200)
+
 parsers = {}
+
+lformat = '[%(levelname)s] %(asctime)s %(name)s# %(message)s'
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat)
 
 
 # TODO refactor parser generation - too complicated right now
@@ -54,24 +57,29 @@ def build_parser_from_args(cmd_args=None):
     return args, opts
 
 
-def process_files_parallel(mongo_db_keys, src, args, options):
+def process_files_parallel(mongo_db_keys, srcs, args, options, basenames):
     parser = get_parser(args, options)
     mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
     mongo_db = mongo_db_client[mongo_db_keys[1]]
-    meta_data, _ = read_tabs_format(src, meta_only=True)
-    if args.skip and mongo_db["documents"].find_one({"basename": meta_data['basename']}, {"basename": 1}):
-        print("({}) - SKIP - document already in db".format(meta_data['basename']))
-    else:
-        meta_data, parses = parse_file(parser, src, options.normalize)
-        parses = [[dict(token._asdict()) for token in sentence] for sentence in parses]
-        print("({}) - parsed document".format(meta_data['basename']))
-        meta_data["sentences"] = parses
-        try:
-            mongo_db["documents"].insert_one(meta_data)
-        except DocumentTooLarge:
-            print("({}) - SKIP - document too large".format(meta_data['basename']))
-        except WriteError:
-            print("({}) - SKIP - object to insert too large".format(meta_data['basename']))
+    result = []
+    for src_i, src in enumerate(srcs):
+        meta_data, _ = read_tabs_format(src, meta_only=True)
+        if args.skip and meta_data['basename'] in basenames:
+            logging.info("({}) - SKIP - document already in db".format(meta_data['basename']))
+        else:
+            try:
+                meta_data, parses = parse_file(parser, src, options.normalize)
+                parses = [[dict(token._asdict()) for token in sentence] for sentence in parses]
+                logging.info("({}) - parsed document".format(meta_data['basename']))
+                meta_data["sentences"] = parses
+                result.append(meta_data)
+            except RecursionError:
+                logging.warning("Skip parse: maximum recursion depth exceeded")
+    try:
+        mongo_db["documents"].insert_many(result)
+        logging.info("Inserted documents: {}".format(len(result)))
+    except Exception as e:
+        logging.warning(e)
     mongo_db_client.close()
 
 
@@ -84,12 +92,22 @@ def drop_documents(mongo_db_keys):
     mongo_db_client.close()
 
 
+def get_basenames(mongo_db_keys):
+    mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
+    mongo_db = mongo_db_client[mongo_db_keys[1]]
+    return set(mongo_db["documents"].find().distinct('basename'))
+
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
+
+
 def main():
-    lformat = '[%(levelname)s] %(asctime)s %(name)s# %(message)s'
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat)
     args, options = build_parser_from_args()
 
-    print('|: db: ' + args.database)
+    logging.info('|: db: ' + args.database)
     mongo_db_keys = ("mongodb://localhost:27017/", args.database)
     if args.drop:
         drop_documents(mongo_db_keys)
@@ -98,10 +116,11 @@ def main():
     if len(src_files) == 0:
         raise FileNotFoundError("No files found for parsing!")
 
-    files = [(mongo_db_keys, src, args, options) for src in src_files]
-    print("Create MPPool with #njobs:", args.jobs)
+    basenames = get_basenames(mongo_db_keys)
+    files = [(mongo_db_keys, src, args, options, basenames) for src in chunks(src_files, 25)]
+    logging.info("Create MPPool with #njobs:", args.jobs)
     with multiprocessing.Pool(args.jobs) as pool:
-        pool.starmap(process_files_parallel, files, chunksize=100)
+        pool.starmap(process_files_parallel, files, chunksize=10)
 
 
 if __name__ == '__main__':
