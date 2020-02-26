@@ -3,23 +3,20 @@
 import getpass
 from argparse import ArgumentParser
 
-from sqlalchemy import create_engine, MetaData
-
 import wordprofile.wpse.db_tables
+from sqlalchemy import create_engine, MetaData
 from wp_server import WortprofilQuery
 
 
 def init_word_profile_tables(engine, database):
     engine.execute("DROP DATABASE IF EXISTS " + database)
     engine.execute("CREATE DATABASE " + database + " CHARACTER SET utf8")
-    engine.execute("set autocommit=1")
     engine.execute("USE " + database)
 
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_corpus_files(meta)
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)
     wordprofile.wpse.db_tables.get_table_matches(meta)
-    wordprofile.wpse.db_tables.get_table_relations(meta)
     wordprofile.wpse.db_tables.get_table_collocations(meta)
     wordprofile.wpse.db_tables.get_table_statistics(meta)
     meta.create_all(engine)
@@ -28,18 +25,17 @@ def init_word_profile_tables(engine, database):
         CREATE OR REPLACE
         VIEW corpus_freqs
         AS
-        SELECT label, COUNT(relation_id) as freq
+        SELECT label, COUNT(id) as freq
         FROM collocations c
         GROUP BY label
     """)
     engine.execute("""
         CREATE OR REPLACE
         VIEW token_freqs
-        AS 
-        SELECT c.lemma1 as lemma, c.lemma1_pos as pos, SUM(s.frequency) freq
+        AS
+        SELECT c.lemma1 as lemma, c.lemma1_tag as tag, SUM(c.frequency) freq
         FROM collocations c
-        LEFT JOIN wp_stats s ON (c.id = s.collocation_id)
-        GROUP BY c.lemma1, c.lemma1_pos
+        GROUP BY c.lemma1, c.lemma1_tag 
     """)
 
 

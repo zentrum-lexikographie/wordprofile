@@ -1,64 +1,48 @@
 import datetime
+from collections import namedtuple
 
-from sqlalchemy import Table, Column, types, Index, ForeignKey, MetaData, and_
+from sqlalchemy import Table, Column, types, Index, ForeignKey, MetaData
 
 
 def get_table_corpus_files(meta):
     return Table(
         'corpus_files', meta,
-        Column('id', types.Integer, primary_key=True, autoincrement=True),
+        Column('id', types.VARCHAR(24)),
         Column('corpus', types.VARCHAR(100)),
         Column('file', types.VARCHAR(200)),
         Column('orig', types.Text),
         Column('scan', types.Text),
         Column('text_class', types.Text),
         Column('available', types.Text),
-        Index('corpus_file_index', 'corpus', 'file', unique=True)
     )
 
 
 def get_table_concord_sentences(meta):
     return Table(
         'concord_sentences', meta,
-        Column('id', types.Integer, primary_key=True, autoincrement=True),
         Column('sentence_id', types.Integer),
-        Column('corpus_file_id', types.Integer, ForeignKey('corpus_files.id')),
+        Column('corpus_file_id', types.VARCHAR(24)),
         Column('sentence', types.Text),
         Column('page', types.VARCHAR(10)),
-        Index('corpus_file_sentence_index', 'corpus_file_id', 'sentence_id', unique=True)
     )
 
 
 def get_table_matches(meta):
     return Table(
         'matches', meta,
-        Column('id', types.Integer, primary_key=True, autoincrement=True),
-        Column('relation_id', types.Integer, ForeignKey('relations.id')),
-        Column('head_surface', types.Text),
-        Column('dep_surface', types.Text),
-        Column('prep_surface', types.Text),
-        Column('head_position', types.Integer),
-        Column('dep_position', types.Integer),
-        Column('prep_position', types.Integer),
-        Column('corpus_file_id', types.Integer, ForeignKey('corpus_files.id')),
-        Column('sentence_id', types.Integer),
-        Column('gdex_score', types.Integer),
-        Column('creation_date', types.DateTime),
-        Index('corpus_file_sentence_index', 'corpus_file_id', 'sentence_id')
-    )
-
-
-def get_table_relations(meta):
-    return Table(
-        'relations', meta,
-        Column('id', types.Integer, primary_key=True, autoincrement=True),
-        Column('label', types.VARCHAR(10)),
+        Column('id', types.Integer, autoincrement=True),
+        Column('relation_label', types.VARCHAR(10)),
         Column('head_lemma', types.VARCHAR(100)),
         Column('dep_lemma', types.VARCHAR(100)),
-        Column('prep_lemma', types.VARCHAR(100)),
-        Column('head_pos', types.VARCHAR(10)),
-        Column('dep_pos', types.VARCHAR(10)),
-        Column('prep_pos', types.VARCHAR(10)),
+        Column('head_tag', types.VARCHAR(10)),
+        Column('dep_tag', types.VARCHAR(10)),
+        Column('head_surface', types.VARCHAR(100)),
+        Column('dep_surface', types.VARCHAR(100)),
+        Column('head_position', types.Integer),
+        Column('dep_position', types.Integer),
+        Column('corpus_file_id', types.VARCHAR(24)),
+        Column('sentence_id', types.Integer),
+        Column('creation_date', types.DateTime),
     )
 
 
@@ -66,18 +50,16 @@ def get_table_collocations(meta):
     return Table(
         'collocations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
-        Column('relation_id', types.Integer, ForeignKey('relations.id')),
         Column('label', types.VARCHAR(10)),
         Column('lemma1', types.VARCHAR(100)),
         Column('lemma2', types.VARCHAR(100)),
-        Column('prep_lemma', types.VARCHAR(100)),
-        Column('lemma1_pos', types.VARCHAR(10)),
-        Column('lemma2_pos', types.VARCHAR(10)),
-        Column('prep_pos', types.VARCHAR(10)),
-        Index('relation_index', 'relation_id'),
+        Column('lemma1_tag', types.VARCHAR(10)),
+        Column('lemma2_tag', types.VARCHAR(10)),
+        Column('inv', types.Boolean, default=0),
+        Column('frequency', types.Integer, default=1),
         Index('lemma1_index', 'lemma1', ),
-        Index('lemma1_pos_index', 'lemma1', 'lemma1_pos'),
-        Index('lemma2_pos_index', 'lemma2', 'lemma2_pos'),
+        Index('lemma1_tag_index', 'lemma1', 'lemma1_tag'),
+        Index('lemma2_tag_index', 'lemma2', 'lemma2_tag'),
         Index('lemma_index', 'lemma1', 'lemma2'),
     )
 
@@ -86,7 +68,6 @@ def get_table_statistics(meta):
     return Table(
         'wp_stats', meta,
         Column('collocation_id', types.Integer, ForeignKey('collocations.id')),
-        Column('frequency', types.Integer, default=1),
         Column('mi', types.Float, default=0),
         Column('mi_log_freq', types.Float),
         Column('t_score', types.Float),
@@ -96,112 +77,75 @@ def get_table_statistics(meta):
     )
 
 
-def get_corpus_file_id(engine, meta_data):
+def insert_bulk_corpus_file(engine, corpus_files):
     meta = MetaData()
     corpus_file_tb = get_table_corpus_files(meta)
-    query = corpus_file_tb.select().where(
-        and_(
-            corpus_file_tb.columns.corpus == meta_data['collection'],
-            corpus_file_tb.columns.file == meta_data['basename']))
+    query = corpus_file_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query)
+    result = conn.execute(query, corpus_files)
     conn.close()
-    for row in result:
-        return row['id']
-    else:
-        return None
 
 
-def delete_matches(engine, corpus_file):
-    pass
+def prepare_corpus_file(doc):
+    CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
+    return CorpusFile(
+        id=str(doc['_id']),
+        corpus=doc['collection'],
+        file=doc['basename'],
+        orig=doc['bibl'],
+        scan=doc['biblLex'],
+        text_class=doc['textClass'],
+        available=doc['collection'],
+    )
 
 
-def insert_corpus_file(engine, meta_data):
-    corpus_file_id = get_corpus_file_id(engine, meta_data)
-    if corpus_file_id:
-        return corpus_file_id
-    else:
-        meta = MetaData()
-        corpus_file_tb = get_table_corpus_files(meta)
-        query = corpus_file_tb.insert().values(
-            corpus=meta_data['collection'],
-            file=meta_data['basename'],
-            orig=meta_data['bibl'],
-            scan=meta_data['biblLex'],
-            text_class=meta_data['textClass'],
-            available=meta_data['collection'],
-        )
-        conn = engine.connect()
-        result = conn.execute(query)
-        conn.close()
-        return result.inserted_primary_key[0]
-
-
-def insert_concord_sentences(engine, corpus_file_id, parses):
+def insert_bulk_concord_sentences(engine, concord_sentences):
     meta = MetaData()
     concord_sentences_tb = get_table_concord_sentences(meta)
     query = concord_sentences_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query, [
-        {
-            'corpus_file_id': corpus_file_id,
-            'sentence_id': sent_i + 1,
-            'sentence': ''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
-                                for tok_i, tok in enumerate(parse)),
-            'page': '-'
-        } for sent_i, parse in enumerate(parses)
-    ])
+    result = conn.execute(query, concord_sentences)
     conn.close()
 
 
-def get_relation_id(engine, match):
-    meta = MetaData()
-    relations_tb = get_table_relations(meta)
-    query = relations_tb.select().where(
-        and_(
-            relations_tb.columns.head_lemma == match.head.lemma,
-            relations_tb.columns.dep_lemma == match.dep.lemma,
-            relations_tb.columns.prep_lemma == (match.prep.lemma if match.prep else '-'),
-            relations_tb.columns.head_pos == match.head.xpos,
-            relations_tb.columns.dep_pos == match.dep.xpos,
-        ))
-    conn = engine.connect()
-    result = conn.execute(query)
-    for row in result:
-        return row['id']
-    query = relations_tb.insert().values(
-        label=match.relation,
-        head_lemma=match.head.lemma,
-        dep_lemma=match.dep.lemma,
-        prep_lemma=(match.prep.lemma if match.prep else '-'),
-        head_pos=match.head.xpos,
-        dep_pos=match.dep.xpos,
-        prep_pos=(match.prep.xpos if match.prep else '-'),
-
-    )
-    result = conn.execute(query)
-    conn.close()
-    return result.inserted_primary_key[0]
+def prepare_concord_sentences(doc_id, parses):
+    ConcordSentence = namedtuple('ConcardSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
+    return [ConcordSentence(
+        corpus_file_id=doc_id,
+        sentence_id=sent_i + 1,
+        sentence=''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
+                         for tok_i, tok in enumerate(parse)),
+        page='-'
+    ) for sent_i, parse in enumerate(parses)]
 
 
-def insert_matches(engine, corpus_file_id, relation_id, matches):
+def insert_bulk_matches(engine, matches):
     meta = MetaData()
     matches_tb = get_table_matches(meta)
     query = matches_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query, [
-        {
-            'relation_id': relation_id,
-            'head_surface': match.head.surface,
-            'dep_surface': match.dep.surface,
-            'prep_surface': match.prep.surface if match.prep else '-',
-            'head_position': match.head.idx,
-            'dep_position': match.dep.idx,
-            'prep_position': match.prep.idx if match.prep else 0,
-            'corpus_file_id': corpus_file_id,
-            'sentence_id': match.sid,
-            'gdex_score': 0,
-            'creation_date': datetime.datetime.now(),
-        } for match in matches
-    ])
+    result = conn.execute(query, matches)
     conn.close()
+
+
+def prepare_matches(doc_id, matches):
+    Match = namedtuple('Match',
+                       ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
+                        'head_surface', 'dep_surface', 'prep_surface', 'head_position', 'dep_position',
+                        'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
+    return [Match(
+        relation_label=m.relation,
+        head_lemma=m.head.lemma,
+        dep_lemma=m.dep.lemma,
+        head_tag=m.head.upos,
+        dep_tag=m.dep.upos,
+        head_surface=m.head.surface,
+        dep_surface=m.dep.surface,
+        prep_surface=m.prep.surface if m.prep else '-',
+        head_position=m.head.idx,
+        dep_position=m.dep.idx,
+        prep_position=m.prep.idx if m.prep else 0,
+        corpus_file_id=doc_id,
+        sentence_id=m.sid,
+        creation_date=datetime.datetime.now()
+    ) for m in matches]

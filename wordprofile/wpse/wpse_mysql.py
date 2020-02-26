@@ -30,6 +30,7 @@ class WpSeMySql:
         self.__cursor = self.__conn.cursor()
 
     def close_connection(self):
+        self.__conn.commit()
         self.__cursor.close()
         self.__conn.close()
 
@@ -275,53 +276,45 @@ class WpSeMySql:
         """)
         print("insert collocations")
         self.execute("""
-        INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
+        INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
         SELECT 
-            r.id as relation_id, label, head_lemma as lemma1, dep_lemma as lemma2, prep_lemma, 
-            head_pos as lemma1_pos, dep_pos as lemma2_pos, prep_pos
-        FROM relations r
-        LEFT JOIN matches m ON r.id = m.relation_id
-        GROUP BY r.id
-        HAVING COUNT(m.id) > 2
+            relation_label, head_lemma as lemma1, dep_lemma as lemma2, head_tag as lemma1_tag, dep_tag as lemma2_tag, 
+            0, COUNT(m.relation_label)
+        FROM matches m
+        GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+        HAVING COUNT(m.relation_label) > 2;
         """)
         self.execute("""
-        INSERT INTO collocations (relation_id, label, lemma1, lemma2, prep_lemma, lemma1_pos, lemma2_pos, prep_pos)
+        INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
         SELECT 
-            r.id as relation_id, CONCAT("~", label), dep_lemma as lemma1, head_lemma as lemma2, prep_lemma, 
-            dep_pos as lemma1_pos, head_pos as lemma2_pos, prep_pos
-        FROM relations r
-        LEFT JOIN matches m ON r.id = m.relation_id
-        GROUP BY r.id
-        HAVING COUNT(m.id) > 2
+            relation_label, dep_lemma as lemma1, head_lemma as lemma2, dep_tag as lemma1_tag, head_tag as lemma2_tag, 
+            1, COUNT(m.relation_label)
+        FROM matches m
+        GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+        HAVING COUNT(m.relation_label) > 2;
         """)
         print("insert collocation frequencies")
         self.execute("""
-        INSERT INTO wp_stats 
-            (collocation_id, frequency)
-        SELECT c.id, tf.freq 
-        FROM collocations c	
-        LEFT JOIN (
-            SELECT c.relation_id, COUNT(c.id) freq 
-            FROM collocations c
-            LEFT JOIN matches m ON c.relation_id = m.relation_id
-            GROUP BY relation_id
-        ) as tf ON (c.relation_id = tf.relation_id);
+        INSERT INTO wp_stats
+            (collocation_id)
+        SELECT c.id
+        FROM collocations c;
         """)
         print("insert mi scores")
         self.execute("""
         UPDATE wp_stats s
         INNER JOIN collocations c ON (c.id = s.collocation_id)
-        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_pos = t1.pos)
-        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
+        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_tag = t1.tag)
+        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
         INNER JOIN corpus_freqs cf ON (cf.label = c.label)
-        SET s.mi=LOG2((IFNULL(s.frequency, 1) * cf.freq) / (IFNULL(t1.freq, 1) * IFNULL(t2.freq, 1)));
+        SET s.mi=LOG2((IFNULL(c.frequency, 1) * cf.freq) / (IFNULL(t1.freq, 1) * IFNULL(t2.freq, 1)));
         """)
         print("insert log dice scores")
         self.execute("""
         UPDATE wp_stats s
         INNER JOIN collocations c ON (c.id = s.collocation_id)
-        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_pos = t1.pos)
-        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_pos = t2.pos)
-        SET s.log_dice=(14 + LOG2((IFNULL(s.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))));
+        INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_tag = t1.tag)
+        INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
+        SET s.log_dice=(14 + LOG2((IFNULL(c.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))));
         """)
         self.close_connection()

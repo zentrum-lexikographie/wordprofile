@@ -3,84 +3,81 @@
 import argparse
 import getpass
 import logging
-import multiprocessing
 import sys
-import time
-from functools import wraps
 
 import pymongo
-from sqlalchemy import create_engine
-
-from wordprofile.wpse.db_tables import insert_concord_sentences, get_relation_id, insert_matches, \
-    insert_corpus_file, get_corpus_file_id
-from wordprofile.zdl import extract_matches_from_document, ConllToken
-
-
-def retry(ExceptionToCheck, tries=4, delay=3, backoff=2, logger=None):
-    """Retry calling the decorated function using an exponential backoff.
-
-    http://www.saltycrane.com/blog/2009/11/trying-out-retry-decorator-python/
-    original from: http://wiki.python.org/moin/PythonDecoratorLibrary#Retry
-
-    :param ExceptionToCheck: the exception to check. may be a tuple of
-        exceptions to check
-    :type ExceptionToCheck: Exception or tuple
-    :param tries: number of times to try (not retry) before giving up
-    :type tries: int
-    :param delay: initial delay between retries in seconds
-    :type delay: int
-    :param backoff: backoff multiplier e.g. value of 2 will double the delay
-        each retry
-    :type backoff: int
-    :param logger: logger to use. If None, print
-    :type logger: logging.Logger instance
-    """
-
-    def deco_retry(f):
-
-        @wraps(f)
-        def f_retry(*args, **kwargs):
-            mtries, mdelay = tries, delay
-            while mtries > 1:
-                try:
-                    return f(*args, **kwargs)
-                except ExceptionToCheck as e:
-                    msg = "%s, Retrying in %d seconds..." % (str(e), mdelay)
-                    if logger:
-                        logger.warning(msg)
-                    else:
-                        print(msg)
-                    time.sleep(mdelay)
-                    mtries -= 1
-                    mdelay *= backoff
-            return f(*args, **kwargs)
-
-        return f_retry  # true decorator
-
-    return deco_retry
+from sqlalchemy import create_engine, MetaData, Index
+from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
+    insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, get_table_matches, \
+    get_table_corpus_files, get_table_concord_sentences
+from wordprofile.zdl import ConllToken, extract_matches_from_doc
 
 
-@retry(Exception, tries=3, delay=7)
-def process_files_parallel(mongo_db_keys, db_engine_key, doc_id):
+def sent_filter_length(sentence):
+    return 3 <= len(sentence) <= 100
+
+
+def sent_filter_endings(sentence):
+    return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
+
+
+def sent_filter_lower_start(sentence):
+    return not sentence[0].surface.islower() or sentence[0].xpos == 'PPER'
+
+
+def sent_filter_tags(sentence):
+    return any(t.xpos in ["NN", "VV", "VM", "VA"] for t in sentence)
+
+
+def sentence_is_valid(s):
+    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)
+
+
+def process_files(mongo_db_keys, db_engine_key):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]]
-    engine = create_engine(db_engine_key,
-                           pool_size=16, max_overflow=32)
+    engine = create_engine(db_engine_key, pool_size=16, max_overflow=32)
 
-    doc = mongo_db["documents"].find_one({'_id': doc_id})
-    if get_corpus_file_id(engine, doc):
-        print("({}) - SKIP document already in db".format(doc['basename']))
-    else:
+    db_corpus_files = []
+    db_concord_sentences = []
+    db_matches = []
+
+    document_ids = mongo_db["documents"].find({}).distinct('_id')
+    print("Found documents:", len(document_ids))
+
+    for doc_i, doc_id in enumerate(document_ids):
+        if (doc_i + 1) % 1000 == 0:
+            print(doc_i, len(db_corpus_files), len(db_concord_sentences), len(db_matches))
+            db_corpus_files = list(map(lambda x: x._asdict(), db_corpus_files))
+            db_concord_sentences = list(map(lambda x: x._asdict(), db_concord_sentences))
+            db_matches = list(map(lambda x: x._asdict(), db_matches))
+            insert_bulk_corpus_file(engine, db_corpus_files)
+            insert_bulk_concord_sentences(engine, db_concord_sentences)
+            insert_bulk_matches(engine, db_matches)
+            db_corpus_files = []
+            db_concord_sentences = []
+            db_matches = []
+
+        doc = mongo_db["documents"].find_one({'_id': doc_id})
+        db_corpus_files.append(prepare_corpus_file(doc))
         parses = [[ConllToken(*[token[f] for f in ConllToken._fields]) for token in sentence]
                   for sentence in doc["sentences"]]
-        print("({}) - load document".format(doc['basename']))
-        corpus_file_id = insert_corpus_file(engine, doc)
-        insert_concord_sentences(engine, corpus_file_id, parses)
-        matches = extract_matches_from_document(parses)
-        print("({}) - extracted matches".format(doc['basename']))
-        matches = {get_relation_id(engine, ms[0]): ms for _, ms in matches.items() if ms}
-        for relation_id, relation_matches in matches.items():
-            insert_matches(engine, corpus_file_id, relation_id, relation_matches)
-        print("({}) - inserted matches".format(doc['basename']))
+        parses = [s for s in parses if sentence_is_valid(s)]
+        db_concord_sentences.extend(prepare_concord_sentences(str(doc_id), parses))
+        matches = extract_matches_from_doc(parses)
+        db_matches.extend(prepare_matches(str(doc_id), matches))
+
+    meta = MetaData()
+    corpus_files_tb = get_table_corpus_files(meta)
+    concord_sentences_tb = get_table_concord_sentences(meta)
+    matches_tb = get_table_matches(meta)
+    Index('corpus_index', corpus_files_tb.c.id, unique=True).create(engine)
+    Index('concord_corpus_index', concord_sentences_tb.c.corpus_file_id).create(engine)
+    Index('concord_corpus_sentence_index', concord_sentences_tb.c.corpus_file_id,
+          concord_sentences_tb.c.sentence_id).create(engine)
+    Index('matches_corpus_index', matches_tb.c.corpus_file_id).create(engine)
+    Index('matches_corpus_sentence_index', matches_tb.c.corpus_file_id, matches_tb.c.sentence_id).create(engine)
+    Index('matches_relation_label_index', matches_tb.c.relation_label, matches_tb.c.head_lemma, matches_tb.c.dep_lemma,
+          matches_tb.c.head_tag, matches_tb.c.dep_tag).create(engine)
 
 
 def main():
@@ -91,7 +88,6 @@ def main():
     parser.add_argument("--mariadb", type=str, help="database name", required=True)
     parser.add_argument("--mongodb", type=str, help="database name", required=True)
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
-    parser.add_argument("--jobs", help="", type=int, default=1)
     args = parser.parse_args()
 
     print('|: user: ' + args.user)
@@ -103,14 +99,7 @@ def main():
     db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.mariadb)
 
     mongo_db_keys = ("mongodb://localhost:27017/", args.mongodb)
-    mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]]
-
-    document_ids = mongo_db["documents"].find().distinct('_id')
-    print("Found documents:", len(document_ids))
-    files = [(mongo_db_keys, db_engine_key, doc_id) for doc_id in document_ids]
-    print("Create MPPool with #njobs:", args.jobs)
-    with multiprocessing.Pool(args.jobs) as pool:
-        pool.starmap(process_files_parallel, files, chunksize=10)
+    process_files(mongo_db_keys, db_engine_key)
 
 
 if __name__ == '__main__':
