@@ -2,7 +2,6 @@
 
 import logging
 import math
-import xmlrpc.server
 from functools import cmp_to_key
 
 from wordprofile.wpse import deprecated
@@ -13,7 +12,7 @@ from wordprofile.wpse.wpse_spec import WpSeSpec
 logger = logging.getLogger('wordprofile')
 
 
-class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
+class WortprofilQuery:
     def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
@@ -232,7 +231,6 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         min_stat = params.get("MinStat", -100000000)
 
         ordered_relations = self.get_ordered_relation_ids(relations, pos)
-
         results = []
         for relation in ordered_relations:
             cooccs = self.wp_db.get_relation_tuples_check(lemma, lemma2, pos, pos2, start, number,
@@ -349,7 +347,7 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
         """
         lemma1 = params["Lemma1"]
         lemma2 = params["Lemma2"]
-        pos = params["POS"]
+        pos = params["Pos"]
         cooccs = params["Relations"]
         # start = params.get("Start", 0)
         number = params.get("Number", 20)
@@ -690,10 +688,9 @@ class WortprofilQuery(xmlrpc.server.SimpleXMLRPCRequestHandler):
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
             description = description.replace('$2', coocc_info.lemma2)
-            description = description.replace('$3', coocc_info.prep)
         else:
             description = ""
-        return {'RelationId': coocc_info.rel_id, 'Description': description, 'Relation': coocc_info.rel,
+        return {'Description': description, 'Relation': coocc_info.rel,
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
                 'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
