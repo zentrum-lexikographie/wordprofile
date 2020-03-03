@@ -12,7 +12,7 @@ def format_sentence(sent: str):
     return sent.replace('\x02', ' ').replace('\x01', '').strip()
 
 
-def format_sentence_center(sent, pos1, pos2, pos3):
+def format_sentence_center(sent, pos1, pos2):
     """
     Formatieren eines Hit mit Highlighting der Keywords
     """
@@ -26,7 +26,7 @@ def format_sentence_center(sent, pos1, pos2, pos3):
         padding = ' ' if token[-1] == '\x02' else ''
         if idx == (pos1 - 1):
             tokens[idx] = "&&{}&&{}".format(token[:-1], padding)
-        elif idx in [pos2 - 1, pos3 - 1]:
+        elif idx == (pos2 - 1):
             tokens[idx] = "_&{}&_{}".format(token[:-1], padding)
         else:
             tokens[idx] = "{}{}".format(token[:-1], padding)
