@@ -1,7 +1,10 @@
 import datetime
 from collections import namedtuple
 
-from sqlalchemy import Table, Column, types, Index, ForeignKey, MetaData
+from sqlalchemy import Table, Column, types, MetaData
+
+LEMMA_TYPE = types.VARCHAR(100)
+SURFACE_TYPE = types.VARCHAR(100)
 
 
 def get_table_corpus_files(meta):
@@ -30,14 +33,13 @@ def get_table_concord_sentences(meta):
 def get_table_matches(meta):
     return Table(
         'matches', meta,
-        Column('id', types.Integer, autoincrement=True),
         Column('relation_label', types.VARCHAR(10)),
-        Column('head_lemma', types.VARCHAR(100)),
-        Column('dep_lemma', types.VARCHAR(100)),
+        Column('head_lemma', LEMMA_TYPE),
+        Column('dep_lemma', LEMMA_TYPE),
         Column('head_tag', types.VARCHAR(10)),
         Column('dep_tag', types.VARCHAR(10)),
-        Column('head_surface', types.VARCHAR(100)),
-        Column('dep_surface', types.VARCHAR(100)),
+        Column('head_surface', SURFACE_TYPE),
+        Column('dep_surface', SURFACE_TYPE),
         Column('head_position', types.Integer),
         Column('dep_position', types.Integer),
         Column('corpus_file_id', types.VARCHAR(24)),
@@ -51,29 +53,24 @@ def get_table_collocations(meta):
         'collocations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
         Column('label', types.VARCHAR(10)),
-        Column('lemma1', types.VARCHAR(100)),
-        Column('lemma2', types.VARCHAR(100)),
+        Column('lemma1', LEMMA_TYPE),
+        Column('lemma2', LEMMA_TYPE),
         Column('lemma1_tag', types.VARCHAR(10)),
         Column('lemma2_tag', types.VARCHAR(10)),
         Column('inv', types.Boolean, default=0),
         Column('frequency', types.Integer, default=1),
-        Index('lemma1_index', 'lemma1', ),
-        Index('lemma1_tag_index', 'lemma1', 'lemma1_tag'),
-        Index('lemma2_tag_index', 'lemma2', 'lemma2_tag'),
-        Index('lemma_index', 'lemma1', 'lemma2'),
     )
 
 
 def get_table_statistics(meta):
     return Table(
         'wp_stats', meta,
-        Column('collocation_id', types.Integer, ForeignKey('collocations.id')),
+        Column('collocation_id', types.Integer),
         Column('mi', types.Float, default=0),
         Column('mi_log_freq', types.Float),
         Column('t_score', types.Float),
         Column('log_dice', types.Float),
         Column('log_like', types.Float),
-        Index('stats_index', 'collocation_id'),
     )
 
 
@@ -82,7 +79,7 @@ def insert_bulk_corpus_file(engine, corpus_files):
     corpus_file_tb = get_table_corpus_files(meta)
     query = corpus_file_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query, corpus_files)
+    conn.execute(query, corpus_files)
     conn.close()
 
 
@@ -104,12 +101,12 @@ def insert_bulk_concord_sentences(engine, concord_sentences):
     concord_sentences_tb = get_table_concord_sentences(meta)
     query = concord_sentences_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query, concord_sentences)
+    conn.execute(query, concord_sentences)
     conn.close()
 
 
 def prepare_concord_sentences(doc_id, parses):
-    ConcordSentence = namedtuple('ConcardSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
+    ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
     return [ConcordSentence(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
@@ -124,7 +121,7 @@ def insert_bulk_matches(engine, matches):
     matches_tb = get_table_matches(meta)
     query = matches_tb.insert()
     conn = engine.connect()
-    result = conn.execute(query, matches)
+    conn.execute(query, matches)
     conn.close()
 
 
