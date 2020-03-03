@@ -7,6 +7,7 @@ import sys
 
 import pymongo
 from sqlalchemy import create_engine, MetaData, Index
+
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, get_table_matches, \
     get_table_corpus_files, get_table_concord_sentences
@@ -34,30 +35,33 @@ def sentence_is_valid(s):
 
 
 def process_files(mongo_db_keys, db_engine_key):
-    mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]]
+    mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
     engine = create_engine(db_engine_key, pool_size=16, max_overflow=32)
 
     db_corpus_files = []
     db_concord_sentences = []
     db_matches = []
 
-    document_ids = mongo_db["documents"].find({}).distinct('_id')
+    document_ids = mongo_db.find({}).distinct('_id')
     print("Found documents:", len(document_ids))
 
     for doc_i, doc_id in enumerate(document_ids):
-        if (doc_i + 1) % 1000 == 0:
+        if (doc_i + 1) % 5000 == 0:
             print(doc_i, len(db_corpus_files), len(db_concord_sentences), len(db_matches))
             db_corpus_files = list(map(lambda x: x._asdict(), db_corpus_files))
             db_concord_sentences = list(map(lambda x: x._asdict(), db_concord_sentences))
             db_matches = list(map(lambda x: x._asdict(), db_matches))
-            insert_bulk_corpus_file(engine, db_corpus_files)
-            insert_bulk_concord_sentences(engine, db_concord_sentences)
-            insert_bulk_matches(engine, db_matches)
+            try:
+                insert_bulk_corpus_file(engine, db_corpus_files)
+                insert_bulk_concord_sentences(engine, db_concord_sentences)
+                insert_bulk_matches(engine, db_matches)
+            except Exception as e:
+                print(e)
             db_corpus_files = []
             db_concord_sentences = []
             db_matches = []
 
-        doc = mongo_db["documents"].find_one({'_id': doc_id})
+        doc = mongo_db.find_one({'_id': doc_id})
         db_corpus_files.append(prepare_corpus_file(doc))
         parses = [[ConllToken(*[token[f] for f in ConllToken._fields]) for token in sentence]
                   for sentence in doc["sentences"]]
@@ -65,6 +69,16 @@ def process_files(mongo_db_keys, db_engine_key):
         db_concord_sentences.extend(prepare_concord_sentences(str(doc_id), parses))
         matches = extract_matches_from_doc(parses)
         db_matches.extend(prepare_matches(str(doc_id), matches))
+
+    db_corpus_files = list(map(lambda x: x._asdict(), db_corpus_files))
+    db_concord_sentences = list(map(lambda x: x._asdict(), db_concord_sentences))
+    db_matches = list(map(lambda x: x._asdict(), db_matches))
+    try:
+        insert_bulk_corpus_file(engine, db_corpus_files)
+        insert_bulk_concord_sentences(engine, db_concord_sentences)
+        insert_bulk_matches(engine, db_matches)
+    except Exception as e:
+        print(e)
 
     meta = MetaData()
     corpus_files_tb = get_table_corpus_files(meta)
@@ -85,8 +99,9 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat)
     parser = argparse.ArgumentParser()
     parser.add_argument("--user", type=str, help="database username", required=True)
-    parser.add_argument("--mariadb", type=str, help="database name", required=True)
-    parser.add_argument("--mongodb", type=str, help="database name", required=True)
+    parser.add_argument("--maria-db", type=str, help="database name", required=True)
+    parser.add_argument("--mongo-db", type=str, help="database name", required=True)
+    parser.add_argument("--mongo-index", type=str, help="database index", required=True)
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
     args = parser.parse_args()
 
@@ -98,7 +113,7 @@ def main():
         db_password = args.user
     db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.mariadb)
 
-    mongo_db_keys = ("mongodb://localhost:27017/", args.mongodb)
+    mongo_db_keys = ("mongodb://localhost:27017/", args.mongo_db, args.mongo_index)
     process_files(mongo_db_keys, db_engine_key)
 
 
