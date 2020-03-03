@@ -9,6 +9,7 @@ from glob import glob
 import pymongo
 from imsnpars.nparser import options
 from imsnpars.tools import utils
+
 from wordprofile.parsing import get_parser, parse_file
 from wordprofile.zdl import read_tabs_format
 
@@ -26,6 +27,7 @@ def build_parser_from_args(cmd_args=None):
 
     db_args = argParser.add_argument_group('database')
     db_args.add_argument("--database", type=str, help="database name", required=True)
+    db_args.add_argument("--index", type=str, help="database name", required=True)
     db_args.add_argument("--drop", action="store_true", help="clears document database")
     db_args.add_argument("--skip", action="store_true", help="skips documents already inserted in db")
 
@@ -60,7 +62,7 @@ def build_parser_from_args(cmd_args=None):
 def process_files_parallel(mongo_db_keys, srcs, args, options, basenames):
     parser = get_parser(args, options)
     mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
-    mongo_db = mongo_db_client[mongo_db_keys[1]]
+    mongo_db = mongo_db_client[mongo_db_keys[1]][mongo_db_keys[2]]
     result = []
     for src_i, src in enumerate(srcs):
         meta_data, _ = read_tabs_format(src, meta_only=True)
@@ -76,7 +78,7 @@ def process_files_parallel(mongo_db_keys, srcs, args, options, basenames):
             except RecursionError:
                 logging.warning("Skip parse: maximum recursion depth exceeded")
     try:
-        mongo_db["documents"].insert_many(result)
+        mongo_db.insert_many(result)
         logging.info("Inserted documents: {}".format(len(result)))
     except Exception as e:
         logging.warning(e)
@@ -85,17 +87,17 @@ def process_files_parallel(mongo_db_keys, srcs, args, options, basenames):
 
 def drop_documents(mongo_db_keys):
     mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
-    mongo_db = mongo_db_client[mongo_db_keys[1]]
-    mongo_db["documents"].drop()
-    mongo_db["documents"].drop_indexes()
-    mongo_db["documents"].create_index([("basename", pymongo.HASHED)])
+    mongo_db = mongo_db_client[mongo_db_keys[1]][mongo_db_keys[2]]
+    mongo_db.drop()
+    mongo_db.drop_indexes()
+    mongo_db.create_index([("basename", pymongo.HASHED)])
     mongo_db_client.close()
 
 
 def get_basenames(mongo_db_keys):
     mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
     mongo_db = mongo_db_client[mongo_db_keys[1]]
-    return set(mongo_db["documents"].find().distinct('basename'))
+    return set(mongo_db[mongo_db_keys[2]].find().distinct('basename'))
 
 
 def chunks(lst, n):
@@ -108,10 +110,10 @@ def main():
     args, options = build_parser_from_args()
 
     logging.info('|: db: ' + args.database)
-    mongo_db_keys = ("mongodb://localhost:27017/", args.database)
+    mongo_db_keys = ("mongodb://localhost:27017/", args.database, args.index)
     if args.drop:
         drop_documents(mongo_db_keys)
-    src_files = glob(args.src)
+    src_files = glob("{}/**/*.tabs".format(args.src), recursive=True)
 
     if len(src_files) == 0:
         raise FileNotFoundError("No files found for parsing!")
