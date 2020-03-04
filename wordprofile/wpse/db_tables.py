@@ -5,6 +5,12 @@ from sqlalchemy import Table, Column, types, MetaData
 
 LEMMA_TYPE = types.VARCHAR(100)
 SURFACE_TYPE = types.VARCHAR(100)
+CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
+ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
+Match = namedtuple('Match',
+                   ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
+                    'head_surface', 'dep_surface', 'prep_surface', 'head_position', 'dep_position',
+                    'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
 
 
 def get_table_corpus_files(meta):
@@ -84,7 +90,6 @@ def insert_bulk_corpus_file(engine, corpus_files):
 
 
 def prepare_corpus_file(doc):
-    CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
     return CorpusFile(
         id=str(doc['_id']),
         corpus=doc['collection'],
@@ -106,7 +111,6 @@ def insert_bulk_concord_sentences(engine, concord_sentences):
 
 
 def prepare_concord_sentences(doc_id, parses):
-    ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
     return [ConcordSentence(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
@@ -126,10 +130,6 @@ def insert_bulk_matches(engine, matches):
 
 
 def prepare_matches(doc_id, matches):
-    Match = namedtuple('Match',
-                       ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
-                        'head_surface', 'dep_surface', 'prep_surface', 'head_position', 'dep_position',
-                        'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
     return [Match(
         relation_label=m.relation,
         head_lemma=m.head.lemma,

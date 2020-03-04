@@ -12,11 +12,14 @@ NoneToken = ConllToken(-1, "-", "-", "-", "-", "-", -1, "-", '', 0)
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 
 simplified_pos = {
-    'APPRART': 'APPR',
+    'APPR': 'APP',
+    'APPO': 'APP',
+    'APPRART': 'APP',
     'ADJA': 'ADJ',
     'ADJD': 'ADJ',
-    'ADJC': 'ADJ',
-    'PTKANT': 'PTKA',
+    # 'ADJC': 'ADJ',
+    'NN': 'NN',
+    # 'PPER': 'PP',
     'VVFIN': 'VV',
     'VVINF': 'VV',
     'VVIZU': 'VV',
@@ -33,46 +36,47 @@ simplified_pos = {
     'VMPP': 'VM',
 }
 
+# rel_map : (rel, head_pos, dep_pos)
 relations = {
     "KON": [("CJ", "NN", "NN"),
-            ("CJ", "PPER", "NN"),
-            ("CJ", "NN", "PPER"),
-            ("CJ", "PPER", "PPER"),
+            # ("CJ", "PP", "NN"),
+            # ("CJ", "NN", "PP"),
+            # ("CJ", "PP", "PP"),
             ("CJ", "ADJ", "ADJ"),
             ("CJ", "VV", "VV"),
             ],
     "GMOD": [("GMOD", "NN", "NN"),
              ],
-    "SUBJA": [("SUBJA", "VV", "NN"),
-              ("SUBJA", "VV", "PPER"),
-              ],
-    "SUBJP": [("SUBJP", "VV", "NN"),
-              ("SUBJP", "VV", "PPER"),
-              ],
+    # "SUBJA": [("SUBJA", "VV", "NN"),
+    #           ("SUBJA", "VV", "PP"),
+    #           ],
+    # "SUBJP": [("SUBJP", "VV", "NN"),
+    #           ("SUBJP", "VV", "PP"),
+    #           ],
     "OBJ": [("OBJA", "VV", "NN"),
-            ("OBJA", "VV", "PPER"),
+            # ("OBJA", "VV", "PP"),
             ("OBJD", "VV", "NN"),
-            ("OBJD", "VV", "PPER"),
+            # ("OBJD", "VV", "PP"),
             ],
     "PRED": [("PRED", "NN", "NN"),
              ("PRED", "NN", "ADJ"),
-             ("PRED", "PPER", "NN"),
-             ("PRED", "NN", "PPER"),
-             ("PRED", "PPER", "PPER"),
-             ("PRED", "PPER", "ADJ"),
+             # ("PRED", "PP", "NN"),
+             # ("PRED", "NN", "PP"),
+             # ("PRED", "PP", "PP"),
+             # ("PRED", "PP", "ADJ"),
              ("SUBJ", "NN", "NN"),
              ("SUBJ", "NN", "ADJ"),
-             ("SUBJ", "PPER", "NN"),
-             ("SUBJ", "NN", "PPER"),
-             ("SUBJ", "PPER", "PPER"),
-             ("SUBJ", "PPER", "ADJ"),
+             # ("SUBJ", "PP", "NN"),
+             # ("SUBJ", "NN", "PP"),
+             # ("SUBJ", "PP", "PP"),
+             # ("SUBJ", "PP", "ADJ"),
              ],
     "ADV": [("ADV", "VV", "ADJ"),
             ("ADV", "VV", "ADV"),
-            ("ADV", "VV", "PTKNEG"),
+            # ("ADV", "VV", "PTKNEG"),
             ("ADV", "ADJ", "ADJ"),
             ("ADV", "ADJ", "ADV"),
-            ("ADV", "ADJ", "PTKNEG"),
+            # ("ADV", "ADJ", "PTKNEG"),
             ],
     "ATTR": [("ATTR", "NN", "ADJ"),
              ],
@@ -134,12 +138,14 @@ def extract_binary_relations(tokens, sid):
             continue
         relation_type = dependent.rel
         if relation_type in relations_inv:
-            if (head.xpos, dependent.xpos) in relations_inv[relation_type]:
+            pos_head = simplified_pos.get(head.xpos, head.xpos)
+            pos_dep = simplified_pos.get(dependent.xpos, dependent.xpos)
+            if (pos_head, pos_dep) in relations_inv[relation_type]:
                 relations.append(Match(
                     head,
                     dependent,
                     None,
-                    relations_inv[relation_type][(head.xpos, dependent.xpos)],
+                    relations_inv[relation_type][(pos_head, pos_dep)],
                     sid,
                 ))
 
@@ -164,6 +170,26 @@ def extract_binary_relations(tokens, sid):
     return relations
 
 
+def extract_all_binary_relations(tokens, sid):
+    relations = []
+    for dependent in tokens:
+        if (dependent.head == '0'
+                or dependent.rel in {'--', '_', '-'}
+                or dependent.xpos.startswith('$')):
+            continue
+        head = tokens[int(dependent.head) - 1]
+        if head.xpos.startswith('$'):
+            continue
+        relations.append(Match(
+            head,
+            dependent,
+            None,
+            dependent.rel,
+            sid,
+        ))
+    return relations
+
+
 def extract_matches_from_document(parses):
     rel_dict = defaultdict(list)
     sid = 1
@@ -174,11 +200,32 @@ def extract_matches_from_document(parses):
             #  - 0 is marked by parser
             if (r.relation == "0"
                     or len(r.head.surface) < 2 or len(r.dep.surface) < 2
+                    or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
                     or r.head.xpos == "-" or r.dep.xpos == "-"):
                 continue
-            rel_dict[(r.relation, r.head.surface, r.dep.surface, r.head.xpos, r.dep.xpos)].append(r)
+            rel_dict[(r.relation, r.head.lemma, r.dep.lemma, r.head.upos, r.dep.upos)].append(r)
         sid += 1
     return rel_dict
+
+
+def extract_matches_from_doc(parses):
+    matches = []
+    sid = 1
+    for sentence in parses:
+        relations = extract_binary_relations(sentence, sid)
+        for r in relations:
+            # TODO filter inconsistent relations
+            #  - 0 is marked by parser
+            if (r.relation == "0"
+                    or len(r.head.surface) < 2 or len(r.dep.surface) < 2
+                    or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
+                    or any(c in ['"', "'"] for c in r.head.surface)
+                    or any(c in ['"', "'"] for c in r.dep.surface)
+                    or r.head.xpos == "-" or r.dep.xpos == "-"):
+                continue
+            matches.append(r)
+        sid += 1
+    return matches
 
 
 def process_tj(src, fout):
@@ -202,6 +249,27 @@ def process_tj(src, fout):
                     line['moot']['details']['details']
                 ))
                 idx += 1
+
+
+def read_conll_file(path):
+    sentences = []
+    with open(path, 'r') as conll_fh:
+        sentence = []
+        sid = 1
+        for line in conll_fh:
+            if line.strip():
+                tokens = line.strip().split('\t')
+                tokens[3] = simplified_pos.get(tokens[3], tokens[3])
+                # tokens[4] = simplified_pos.get(tokens[4], tokens[4])
+                sentence.append(ConllToken(*tokens))
+            else:
+                if sentence:
+                    sentences.append(sentence)
+                    sentence = []
+                    sid += 1
+                else:
+                    continue
+    return sentences
 
 
 def read_meta_tabs_format(tabs_file_path):

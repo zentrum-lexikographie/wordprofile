@@ -39,13 +39,45 @@ def init_word_profile_tables(engine, database):
     """)
 
 
-def create_wordprofile(engine, database):
+def create_collocations(engine, database):
     engine.execute("USE " + database)
     engine.execute("DROP TABLE IF EXISTS collocations")
-    engine.execute("DROP TABLE IF EXISTS wp_stats")
 
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_collocations(meta)
+    meta.create_all(engine)
+
+    print("INSERT collocations")
+    engine.execute("""
+    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
+    SELECT 
+        relation_label, head_lemma as lemma1, dep_lemma as lemma2, head_tag as lemma1_tag, dep_tag as lemma2_tag, 
+        0, COUNT(m.relation_label)
+    FROM matches m
+    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+    HAVING COUNT(m.relation_label) > 5;
+    """)
+    engine.execute("""
+    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
+    SELECT 
+        relation_label, dep_lemma as lemma1, head_lemma as lemma2, dep_tag as lemma1_tag, head_tag as lemma2_tag, 
+        1, COUNT(m.relation_label)
+    FROM matches m
+    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+    HAVING COUNT(m.relation_label) > 5;
+    """)
+    print("CREATE INDEX")
+    engine.execute("create index lemma1_index on collocations (lemma1)")
+    engine.execute("create index lemma1_tag_index on collocations (lemma1, lemma1_tag);")
+    engine.execute("create index lemma2_tag_index on collocations (lemma2, lemma2_tag);")
+    engine.execute("create index lemma on collocations (lemma1, lemma2);")
+
+
+def create_statistics(engine, database):
+    engine.execute("USE " + database)
+    engine.execute("DROP TABLE IF EXISTS wp_stats")
+
+    meta = MetaData()
     wordprofile.wpse.db_tables.get_table_statistics(meta)
     meta.create_all(engine)
 
@@ -65,30 +97,6 @@ def create_wordprofile(engine, database):
         FROM collocations c
         GROUP BY c.lemma1, c.lemma1_tag 
     """)
-    print("insert collocations")
-    engine.execute("""
-    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT 
-        relation_label, head_lemma as lemma1, dep_lemma as lemma2, head_tag as lemma1_tag, dep_tag as lemma2_tag, 
-        0, COUNT(m.relation_label)
-    FROM matches m
-    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
-    HAVING COUNT(m.relation_label) > 5;
-    """)
-    engine.execute("""
-    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT 
-        relation_label, dep_lemma as lemma1, head_lemma as lemma2, dep_tag as lemma1_tag, head_tag as lemma2_tag, 
-        1, COUNT(m.relation_label)
-    FROM matches m
-    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
-    HAVING COUNT(m.relation_label) > 5;
-    """)
-    engine.execute("create index lemma1_index on collocations (lemma1)")
-    engine.execute("create index lemma1_tag_index on collocations (lemma1, lemma1_tag);")
-    engine.execute("create index lemma2_tag_index on collocations (lemma2, lemma2_tag);")
-    engine.execute("create index lemma on collocations (lemma1, lemma2);")
-
     engine.execute("""
     INSERT INTO wp_stats
         (collocation_id)
@@ -121,8 +129,9 @@ def main():
     parser.add_argument("--user", type=str, help="database username", required=True)
     parser.add_argument("--database", type=str, help="database name", required=True)
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
-    parser.add_argument("--init-db", action="store_true", help="ask for database init")
-    parser.add_argument("--wp-db", action="store_true", help="ask for wordprofile creation")
+    parser.add_argument("--init", action="store_true", help="ask for database init")
+    parser.add_argument("--collocations", action="store_true", help="ask for wordprofile creation")
+    parser.add_argument("--stats", action="store_true", help="ask for wordprofile creation")
 
     args = parser.parse_args()
 
@@ -134,12 +143,15 @@ def main():
         db_password = args.user
     engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(
         args.user, db_password))
-    if args.init_db:
+    if args.init:
         print("init database")
         init_word_profile_tables(engine, args.database)
-    elif args.wp_db:
+    elif args.collocations:
         print("create word profile stats")
-        create_wordprofile(engine, args.database)
+        create_collocations(engine, args.database)
+    elif args.stats:
+        print("create word profile stats")
+        create_statistics(engine, args.database)
     else:
         print("nothing happened...")
     print()
