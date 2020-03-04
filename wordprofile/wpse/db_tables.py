@@ -9,7 +9,7 @@ CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', '
 ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
 Match = namedtuple('Match',
                    ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
-                    'head_surface', 'dep_surface', 'prep_surface', 'head_position', 'dep_position',
+                    'head_surface', 'dep_surface', 'head_position', 'dep_position',
                     'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
 
 
@@ -48,6 +48,7 @@ def get_table_matches(meta):
         Column('dep_surface', SURFACE_TYPE),
         Column('head_position', types.Integer),
         Column('dep_position', types.Integer),
+        Column('prep_position', types.Integer),
         Column('corpus_file_id', types.VARCHAR(24)),
         Column('sentence_id', types.Integer),
         Column('creation_date', types.DateTime),
@@ -130,19 +131,53 @@ def insert_bulk_matches(engine, matches):
 
 
 def prepare_matches(doc_id, matches):
-    return [Match(
-        relation_label=m.relation,
-        head_lemma=m.head.lemma,
-        dep_lemma=m.dep.lemma,
-        head_tag=m.head.upos,
-        dep_tag=m.dep.upos,
-        head_surface=m.head.surface,
-        dep_surface=m.dep.surface,
-        prep_surface=m.prep.surface if m.prep else '-',
-        head_position=m.head.idx,
-        dep_position=m.dep.idx,
-        prep_position=m.prep.idx if m.prep else 0,
-        corpus_file_id=doc_id,
-        sentence_id=m.sid,
-        creation_date=datetime.datetime.now()
-    ) for m in matches]
+    db_matches = []
+    for m in matches:
+        if m.prep:
+            db_matches.append(Match(
+                relation_label=m.relation,
+                head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
+                dep_lemma=m.dep.lemma,
+                head_tag=m.head.upos,
+                dep_tag=m.dep.upos,
+                head_surface="{} {}".format(m.head.surface, m.prep.surface),
+                dep_surface=m.dep.surface,
+                head_position=m.head.idx,
+                dep_position=m.dep.idx,
+                prep_position=m.prep.idx,
+                corpus_file_id=doc_id,
+                sentence_id=m.sid,
+                creation_date=datetime.datetime.now()
+            ))
+            db_matches.append(Match(
+                relation_label=m.relation,
+                head_lemma=m.head.lemma,
+                dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
+                head_tag=m.head.upos,
+                dep_tag=m.dep.upos,
+                head_surface=m.head.surface,
+                dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
+                head_position=m.head.idx,
+                dep_position=m.dep.idx,
+                prep_position=m.prep.idx,
+                corpus_file_id=doc_id,
+                sentence_id=m.sid,
+                creation_date=datetime.datetime.now()
+            ))
+        else:
+            db_matches.append(Match(
+                relation_label=m.relation,
+                head_lemma=m.head.lemma,
+                dep_lemma=m.dep.lemma,
+                head_tag=m.head.upos,
+                dep_tag=m.dep.upos,
+                head_surface=m.head.surface,
+                dep_surface=m.dep.surface,
+                head_position=m.head.idx,
+                dep_position=m.dep.idx,
+                prep_position=0,
+                corpus_file_id=doc_id,
+                sentence_id=m.sid,
+                creation_date=datetime.datetime.now()
+            ))
+    return db_matches

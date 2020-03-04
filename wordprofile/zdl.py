@@ -1,5 +1,3 @@
-import json
-import os
 from collections import namedtuple, defaultdict
 from typing import List
 
@@ -8,7 +6,6 @@ from imsnpars.tools.utils import ConLLToken as IMSConllToken, ConLLToken
 TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
 ConllToken = namedtuple('ConllToken',
                         ['idx', 'surface', 'lemma', 'upos', 'xpos', 'morph', 'head', 'rel', 'feature', 'misc'])
-NoneToken = ConllToken(-1, "-", "-", "-", "-", "-", -1, "-", '', 0)
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 
 simplified_pos = {
@@ -80,56 +77,73 @@ relations = {
             ],
     "ATTR": [("ATTR", "NN", "ADJ"),
              ],
-    # "KOM": [("KOM", "CJ", "NN", "NN", "KOKOM"),
-    #         ("KOM", "CJ", "NN", "PPER", "KOKOM"),
-    #         ("KOM", "CJ", "PPER", "NN", "KOKOM"),
-    #         ("KOM", "CJ", "PPER", "PPER", "KOKOM"),
-    #         ("KOM", "CJ", "VV", "NN", "KOKOM"),
-    #         ("KOM", "CJ", "VV", "PPER", "KOKOM"),
-    #         ],
-    # "PP": [("PP", "PN", "NN", "NN", "APPR"),
-    #        ("PP", "PN", "NN", "PPER", "APPR"),
-    #        ("PP", "PN", "PPER", "NN", "APPR"),
-    #        ("PP", "PN", "PPER", "PPER", "APPR"),
-    #        ("PP", "PN", "VV", "NN", "APPR"),
-    #        ("PP", "PN", "VV", "PPER", "APPR"),
-    #        ],
     "VZ": [("VZ", "VV", "VV"),
            ("AVZ", "VV", "VV"),
            ],
 }
-
-relations_inv = defaultdict(lambda: defaultdict(str))
-for relation_dest, relation_patters in relations.items():
-    for relation_src, head_pos, dep_pos in relation_patters:
-        relations_inv[relation_src][(head_pos, dep_pos)] = relation_dest
-relations_inv = {k: dict(vd) for k, vd in relations_inv.items()}
-
-wp_pos_of_interest = {
-    "ADJ": "Adjektiv",
-    "ADV": "Adverb",
-    "PPER": "Personalpronomen",
-    "APPR": "Präposition",
-    "APPO": "Postposition",
-    "APZR": "Zirkumposition",
-    "ART": "Artikel",
-    "ITJ": "Interjektion",
-    "KOUI": "Konjunktion",
-    "KON": "Konjunktion",
-    "KOM": "Konjunktion",
-    "PTKNEG": "Negationspartikel",
-    "PTKVZ": "Verbpartikel",
-    "NN": "Substantiv",
-    "XY": "Substantiv",
-    "CARD": "Kardinalzahl",
-    "VV": "Verb",
-    "VA": "Auxiliar",
-    "VM": "Modalverb",
+# rel_map : (rel1, rel2, head_pos, dep_pos, prep_pos)
+relations_prep = {
+    "KOM": [("KOM", "CJ", "NN", "NN", "KOKOM"),
+            # ("KOM", "CJ", "NN", "PP", "KOKOM"),
+            # ("KOM", "CJ", "PP", "NN", "KOKOM"),
+            # ("KOM", "CJ", "PP", "PP", "KOKOM"),
+            ("KOM", "CJ", "VV", "NN", "KOKOM"),
+            # ("KOM", "CJ", "VV", "PP", "KOKOM"),
+            ],
+    "PP": [("PP", "PN", "NN", "NN", "APP"),
+           # ("PP", "PN", "NN", "PP", "APP"),
+           # ("PP", "PN", "PP", "NN", "APP"),
+           # ("PP", "PN", "PP", "PP", "APP"),
+           ("PP", "PN", "VV", "NN", "APP"),
+           # ("PP", "PN", "VV", "PP", "APP"),
+           ],
 }
 
 
-def extract_binary_relations(tokens, sid):
+def get_inverted_relation_patterns(relation_mappings):
+    relations_inv = defaultdict(lambda: defaultdict(str))
+    for relation_dest, relation_patters in relation_mappings.items():
+        for p in relation_patters:
+            if len(p) == 3:
+                relation_src, head_pos, dep_pos = p
+                relations_inv[relation_src][(head_pos, dep_pos)] = relation_dest
+            elif len(p) == 5:
+                r1, r2, t1, t2, t3 = p
+                relations_inv[(r2, r1)][(t2, t3, t1)] = relation_dest
+            else:
+                raise ValueError('Pattern has unknown dimension')
+    return {k: dict(vd) for k, vd in relations_inv.items()}
+
+
+relations_inv = get_inverted_relation_patterns(relations)
+relations_prep_inv = get_inverted_relation_patterns(relations_prep)
+
+
+def extract_prepositional_matches(tokens, sid):
     relations = []
+    for dep in tokens:
+        prep = tokens[int(dep.head) - 1]
+        if int(prep.head) <= 0:
+            continue
+        head = tokens[int(prep.head) - 1]
+        rel_types = (dep.rel, prep.rel)
+        if rel_types in relations_prep_inv:
+            pos_head = simplified_pos.get(head.xpos, head.xpos)
+            pos_prep = simplified_pos.get(prep.xpos, prep.xpos)
+            pos_dep = simplified_pos.get(dep.xpos, dep.xpos)
+            if (pos_dep, pos_prep, pos_head) in relations_prep_inv[rel_types]:
+                relations.append(Match(
+                    head,
+                    dep,
+                    prep,
+                    relations_prep_inv[rel_types][(pos_dep, pos_prep, pos_head)],
+                    sid,
+                ))
+    return relations
+
+
+def extract_binary_matches(tokens, sid):
+    matches = []
     for dependent in tokens:
         if dependent.head == '0' or dependent.rel in ('--', '_', '-') or dependent.xpos.startswith('$'):
             continue
@@ -141,78 +155,22 @@ def extract_binary_relations(tokens, sid):
             pos_head = simplified_pos.get(head.xpos, head.xpos)
             pos_dep = simplified_pos.get(dependent.xpos, dependent.xpos)
             if (pos_head, pos_dep) in relations_inv[relation_type]:
-                relations.append(Match(
+                matches.append(Match(
                     head,
                     dependent,
                     None,
                     relations_inv[relation_type][(pos_head, pos_dep)],
                     sid,
                 ))
-
-        # if relation_type == "ATTR" and dependent.xpos != "ADJA":
-        #     continue
-        # if relation_type in ['PP-PN', 'KOM-CJ', 'SUBJ-PRED']:
-        #     relations.append(Match(
-        #         head,
-        #         dependent,
-        #         None,
-        #         relation_type,
-        #         sid,
-        #     ))
-        # else:
-        #     relations.append(Match(
-        #         head,
-        #         dependent,
-        #         None,
-        #         relation_type,
-        #         sid,
-        #     ))
-    return relations
-
-
-def extract_all_binary_relations(tokens, sid):
-    relations = []
-    for dependent in tokens:
-        if (dependent.head == '0'
-                or dependent.rel in {'--', '_', '-'}
-                or dependent.xpos.startswith('$')):
-            continue
-        head = tokens[int(dependent.head) - 1]
-        if head.xpos.startswith('$'):
-            continue
-        relations.append(Match(
-            head,
-            dependent,
-            None,
-            dependent.rel,
-            sid,
-        ))
-    return relations
-
-
-def extract_matches_from_document(parses):
-    rel_dict = defaultdict(list)
-    sid = 1
-    for sentence in parses:
-        relations = extract_binary_relations(sentence, sid)
-        for r in relations:
-            # TODO filter inconsistent relations
-            #  - 0 is marked by parser
-            if (r.relation == "0"
-                    or len(r.head.surface) < 2 or len(r.dep.surface) < 2
-                    or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
-                    or r.head.xpos == "-" or r.dep.xpos == "-"):
-                continue
-            rel_dict[(r.relation, r.head.lemma, r.dep.lemma, r.head.upos, r.dep.upos)].append(r)
-        sid += 1
-    return rel_dict
+    return matches
 
 
 def extract_matches_from_doc(parses):
     matches = []
     sid = 1
     for sentence in parses:
-        relations = extract_binary_relations(sentence, sid)
+        relations = extract_binary_matches(sentence, sid)
+        relations.extend(extract_prepositional_matches(sentence, sid))
         for r in relations:
             # TODO filter inconsistent relations
             #  - 0 is marked by parser

@@ -3,41 +3,29 @@
 Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
 Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
 Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation. 
-Diverse Konfigurationen und zusätzliche Daten liegen unter './spec/'.
-Im Ordner './log/' werden Server-Logfiles hinterlegt.
+Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
+Im Ordner `log` werden Server-Logfiles hinterlegt.
 
+## Erstellen eines Wortprofils
 
-*Erstellen einer Wortprofil-MySQL-Datenbank
+### Initialisierung der MySQL Tabellen
+`python3 init_database.py --user USER --database DB --init`
 
- -create_database.py:
+### Befüllen der DB Tabellen mit extrahierten Matches
+Bei der Extraktion der Matches werden pro Dokument Einträge für drei Tabellen generiert, gesammelt und gebündelt in die Datenbank überführt:
+(files, concordances, matches)
+`python3 insert_doc_mongodb.py --user USER --maria-db DB --mongo-db MONGO_DB --mongo-index MONGO_INDEX [--create-index]`
 
-    Eine Wortprofil-Datenbank kann über 'create_database.py' erstellt werden.
-    Hierzu muss eine entsprechende Spezifikation in './Spec' vorhanden sein.
-    Über 'python create_database.py -h' kann die Hilfe zum Aufruf des Programms 
-    ausgegeben werden. Über 'create_database.py' werden hierbei nur die 
-    Kookkurrenzinformationen eingespielt.
+Oder nur das Erstellen der Indices auf den Tabellen
+`python3 insert_doc_mongodb.py --user wpuser --maria-db wp_test --mongo-db zdl_trans_large --create-index`
 
- -update_hit_database.py:
-  
-    Eine bestehende Wortprofil-Datenbank kann über 'update_hit_database.py' um Texttreffer-
-    Informationen erweitert werden. Über 'update_hit_database.py -h' kann die 
-    Hilfe zum Aufruf des Programms ausgegeben werden. Entsprechende Treffer-Tabellen müssen
-    hierbei berechnet und vorhanden sein.
+### Erstellen der WP Statistik
+Übertragen der Kollokationen aus den extrahierten Matches
+`python3 init_database.py --user wpuser --database wp_test --collocations`
+Erstellen der WP Statistik aus den Kollokationen
+`python3 init_database.py --user wpuser --database wp_test  --stats`
 
- -update_mwe_database.py:
-
-    Eine bestehende Wortprofil-Datenbank kann über 'update_mwe_database.py' um MWE-
-    Informationen erweitert werden. Über 'update_mwe_database.py -h' kann die 
-    Hilfe zum Aufruf des Programms ausgegeben werden. Entsprechende MWE-Tabellen müssen
-    hierbei berechnet und vorhanden sein.
-
- -update_moko_database.py
-
-    Eine bestehende Wortprofil-Datenbank kann über 'update_moko_database.py' um 
-    MoKo-Projekt-spezifische Informationen erweitert werden. Über 'update_mwe_database.py -h' 
-    kann die Hilfe zum Aufruf des Programms ausgegeben werden. Entsprechende MoKo-Tabellen müssen
-    hierbei berechnet und vorhanden sein.
-
+## OLD STUFF
 *Starten eines Wortprofil-Servers
 
   -wp_server.py

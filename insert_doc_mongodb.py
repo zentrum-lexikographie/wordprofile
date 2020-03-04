@@ -8,7 +8,6 @@ import sys
 
 import pymongo
 from sqlalchemy import create_engine, MetaData, Index
-
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, get_table_matches, \
     get_table_corpus_files, get_table_concord_sentences
@@ -87,15 +86,15 @@ def create_indices(db_engine_key):
 
 def process_files(mongo_db_keys, db_engine_key):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
-    engine = create_engine(db_engine_key, pool_size=16, max_overflow=32)
+    engine = create_engine(db_engine_key)
 
     document_ids = mongo_db.find({}).distinct('_id')
     print("Found documents:", len(document_ids))
 
-    for doc_i, doc_ids in enumerate(chunks(document_ids, 5000)):
-        with multiprocessing.Pool(5) as pool:
+    for doc_i, doc_ids in enumerate(chunks(document_ids, 3000)):
+        with multiprocessing.Pool(10) as pool:
             db_corpus_files, db_concord_sentences, db_matches = zip(
-                *pool.starmap(process_doc, [(mongo_db_keys, doc_id) for doc_id in doc_ids], chunksize=100)
+                *pool.starmap(process_doc, [(mongo_db_keys, doc_id) for doc_id in doc_ids], chunksize=20)
             )
         db_corpus_files = [x._asdict() for x in db_corpus_files if x]
         db_concord_sentences = [sentence._asdict() for sentences in db_concord_sentences for sentence in sentences]
