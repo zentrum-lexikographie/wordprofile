@@ -228,29 +228,6 @@ def extract_matches_from_doc(parses):
     return matches
 
 
-def process_tj(src, fout):
-    with open(os.path.abspath(src), 'r') as fin:
-        idx = 1
-        for line in fin:
-            line = line.strip()
-            if not line:
-                fout.write('\n')
-                idx = 1
-            elif line.startswith('%%'):
-                pass
-            else:
-                line = json.loads(line.split('\t')[1])
-                fout.write("{}\t{}\t{}\t{}\t{}\t{}\t_\t_\t_\t_\n".format(
-                    idx,
-                    line['text'],
-                    line['moot']['lemma'],
-                    line['moot']['tag'],
-                    line['moot']['tag'],
-                    line['moot']['details']['details']
-                ))
-                idx += 1
-
-
 def read_conll_file(path):
     sentences = []
     with open(path, 'r') as conll_fh:
@@ -260,7 +237,6 @@ def read_conll_file(path):
             if line.strip():
                 tokens = line.strip().split('\t')
                 tokens[3] = simplified_pos.get(tokens[3], tokens[3])
-                # tokens[4] = simplified_pos.get(tokens[4], tokens[4])
                 sentence.append(ConllToken(*tokens))
             else:
                 if sentence:
@@ -284,6 +260,9 @@ def read_meta_tabs_format(tabs_file_path):
             name, shortname = line[line.find("=") + 1:].split(" ")
             index[name] = int(line[line.find("[") + 1:line.find("]")])
         elif line.startswith("%%$DDC:BREAK.s"):
+            continue
+        elif line.strip() and not line.startswith("%%$DDC"):
+            # End of meta header
             break
     return meta, index
 
