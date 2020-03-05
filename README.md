@@ -9,20 +9,26 @@ Im Ordner `log` werden Server-Logfiles hinterlegt.
 ## Erstellen eines Wortprofils
 
 ### Initialisierung der MySQL Tabellen
+
 `python3 init_database.py --user USER --database DB --init`
 
 ### Befüllen der DB Tabellen mit extrahierten Matches
 Bei der Extraktion der Matches werden pro Dokument Einträge für drei Tabellen generiert, gesammelt und gebündelt in die Datenbank überführt:
 (files, concordances, matches)
+
 `python3 insert_doc_mongodb.py --user USER --maria-db DB --mongo-db MONGO_DB --mongo-index MONGO_INDEX [--create-index]`
 
 Oder nur das Erstellen der Indices auf den Tabellen
+
 `python3 insert_doc_mongodb.py --user wpuser --maria-db wp_test --mongo-db zdl_trans_large --create-index`
 
 ### Erstellen der WP Statistik
 Übertragen der Kollokationen aus den extrahierten Matches
+
 `python3 init_database.py --user wpuser --database wp_test --collocations`
+
 Erstellen der WP Statistik aus den Kollokationen
+
 `python3 init_database.py --user wpuser --database wp_test  --stats`
 
 ## OLD STUFF

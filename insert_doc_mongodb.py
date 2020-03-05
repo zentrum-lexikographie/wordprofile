@@ -10,7 +10,7 @@ import pymongo
 from sqlalchemy import create_engine, MetaData, Index
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, get_table_matches, \
-    get_table_corpus_files, get_table_concord_sentences
+    get_table_corpus_files, get_table_concord_sentences, remove_invalid_chars
 from wordprofile.zdl import ConllToken, extract_matches_from_doc
 
 
@@ -39,7 +39,7 @@ def process_doc(mongo_db_keys, doc_id):
     doc = mongo_db.find_one({'_id': doc_id})
     try:
         db_corpus_file = prepare_corpus_file(doc)
-        parses = [[ConllToken(*[token[f] for f in ConllToken._fields]) for token in sentence]
+        parses = [[ConllToken(*[remove_invalid_chars(token[f]) for f in ConllToken._fields]) for token in sentence]
                   for sentence in doc["sentences"]]
         parses = [s for s in parses if sentence_is_valid(s)]
         db_concord_sentences = prepare_concord_sentences(str(doc_id), parses)
@@ -74,12 +74,18 @@ def create_indices(db_engine_key):
     corpus_files_tb = get_table_corpus_files(meta)
     concord_sentences_tb = get_table_concord_sentences(meta)
     matches_tb = get_table_matches(meta)
+    print("CREATE corpus_index")
     Index('corpus_index', corpus_files_tb.c.id, unique=True).create(engine)
+    print("CREATE concord_corpus_index")
     Index('concord_corpus_index', concord_sentences_tb.c.corpus_file_id).create(engine)
+    print("CREATE concord_corpus_sentence_index")
     Index('concord_corpus_sentence_index', concord_sentences_tb.c.corpus_file_id,
-          concord_sentences_tb.c.sentence_id).create(engine)
+          concord_sentences_tb.c.sentence_id, unique=True).create(engine)
+    print("CREATE matches_corpus_index")
     Index('matches_corpus_index', matches_tb.c.corpus_file_id).create(engine)
+    print("CREATE matches_corpus_sentence_index")
     Index('matches_corpus_sentence_index', matches_tb.c.corpus_file_id, matches_tb.c.sentence_id).create(engine)
+    print("CREATE matches_relation_label_index")
     Index('matches_relation_label_index', matches_tb.c.relation_label, matches_tb.c.head_lemma, matches_tb.c.dep_lemma,
           matches_tb.c.head_tag, matches_tb.c.dep_tag).create(engine)
 
@@ -88,19 +94,22 @@ def get_corpus_file_ids(mongo_db_keys, db_engine_key, filter_existing=True):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
     engine = create_engine(db_engine_key)
     if filter_existing:
-        print("LOAD corpus file ids")
+        print("LOAD corpus file ids: ", end='')
         inserted_ids = {i[0] for i in engine.execute('SELECT id FROM corpus_files')}
+        print(len(inserted_ids))
     else:
         inserted_ids = {}
-    print("LOAD document ids for processing")
-    document_ids = [i['_id'] for i in mongo_db.find({}, {'_id': 1}) if str(i['_id']) not in inserted_ids]
+    print("LOAD document ids for processing: ", end='')
+    document_ids = [i['_id'] for i in mongo_db.find({'sentence': {'$ne': []}}, {'_id': 1}) if
+                    str(i['_id']) not in inserted_ids]
+    print(len(document_ids))
     return document_ids
 
 
 def process_files(mongo_db_keys, db_engine_key):
     engine = create_engine(db_engine_key)
     document_ids = get_corpus_file_ids(mongo_db_keys, db_engine_key)
-    print("Found documents:", len(document_ids))
+    delete_indices(db_engine_key)
 
     for doc_i, doc_ids in enumerate(chunks(document_ids, 3000)):
         with multiprocessing.Pool(10) as pool:
@@ -141,7 +150,6 @@ def main():
     db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
     if args.mongo_index:
         mongo_db_keys = ("mongodb://localhost:27017/", args.mongo_db, args.mongo_index)
-        delete_indices(db_engine_key)
         process_files(mongo_db_keys, db_engine_key)
     if args.create_index:
         delete_indices(db_engine_key)

@@ -1,4 +1,5 @@
 import datetime
+import re
 from collections import namedtuple
 
 from sqlalchemy import Table, Column, types, MetaData
@@ -11,6 +12,12 @@ Match = namedtuple('Match',
                    ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
                     'head_surface', 'dep_surface', 'head_position', 'dep_position',
                     'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
+
+re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+
+
+def remove_invalid_chars(unicode_string):
+    return re_pattern.sub('', unicode_string)
 
 
 def get_table_corpus_files(meta):
@@ -133,6 +140,10 @@ def insert_bulk_matches(engine, matches):
 def prepare_matches(doc_id, matches):
     db_matches = []
     for m in matches:
+        if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or
+                len(m.head.lemma) > LEMMA_TYPE.length or len(m.dep.lemma) > LEMMA_TYPE.length):
+            print("SKIP LOONG MATCH", m)
+            continue
         if m.prep:
             db_matches.append(Match(
                 relation_label=m.relation,
