@@ -3,9 +3,8 @@
 import getpass
 from argparse import ArgumentParser
 
-from sqlalchemy import create_engine, MetaData
-
 import wordprofile.wpse.db_tables
+from sqlalchemy import create_engine, MetaData
 
 
 def init_word_profile_tables(engine, database):
@@ -23,19 +22,11 @@ def init_word_profile_tables(engine, database):
 
     engine.execute("""
         CREATE OR REPLACE
-        VIEW corpus_freqs
+        VIEW corpus_file_freqs
         AS
-        SELECT label, COUNT(id) as freq
-        FROM collocations c
-        GROUP BY label
-    """)
-    engine.execute("""
-        CREATE OR REPLACE
-        VIEW token_freqs
-        AS
-        SELECT c.lemma1 as lemma, c.lemma1_tag as tag, SUM(c.frequency) freq
-        FROM collocations c
-        GROUP BY c.lemma1, c.lemma1_tag 
+        SELECT cf.corpus, COUNT(cf.file) 
+        FROM corpus_files cf 
+        GROUP BY cf.corpus
     """)
 
 

@@ -84,11 +84,22 @@ def create_indices(db_engine_key):
           matches_tb.c.head_tag, matches_tb.c.dep_tag).create(engine)
 
 
-def process_files(mongo_db_keys, db_engine_key):
+def get_corpus_file_ids(mongo_db_keys, db_engine_key, filter_existing=True):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
     engine = create_engine(db_engine_key)
+    if filter_existing:
+        print("LOAD corpus file ids")
+        inserted_ids = {i[0] for i in engine.execute('SELECT id FROM corpus_files')}
+    else:
+        inserted_ids = {}
+    print("LOAD document ids for processing")
+    document_ids = [i['_id'] for i in mongo_db.find({}, {'_id': 1}) if str(i['_id']) not in inserted_ids]
+    return document_ids
 
-    document_ids = mongo_db.find({}).distinct('_id')
+
+def process_files(mongo_db_keys, db_engine_key):
+    engine = create_engine(db_engine_key)
+    document_ids = get_corpus_file_ids(mongo_db_keys, db_engine_key)
     print("Found documents:", len(document_ids))
 
     for doc_i, doc_ids in enumerate(chunks(document_ids, 3000)):
