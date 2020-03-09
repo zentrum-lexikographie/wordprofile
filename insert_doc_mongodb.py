@@ -8,6 +8,7 @@ import sys
 
 import pymongo
 from sqlalchemy import create_engine, MetaData, Index
+
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, get_table_matches, \
     get_table_corpus_files, get_table_concord_sentences, remove_invalid_chars
@@ -34,19 +35,34 @@ def sentence_is_valid(s):
     return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)
 
 
+def convert_token(token):
+    return ConllToken(
+        idx=token['idx'],
+        surface=remove_invalid_chars(token['surface']),
+        lemma=remove_invalid_chars(token['lemma']),
+        upos=token['upos'],
+        xpos=token['xpos'],
+        morph=token['morph'],
+        head=token['head'],
+        rel=token['rel'],
+        feature=token['feature'],
+        misc=token['misc']
+    )
+
+
 def process_doc(mongo_db_keys, doc_id):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
     doc = mongo_db.find_one({'_id': doc_id})
     try:
         db_corpus_file = prepare_corpus_file(doc)
-        parses = [[ConllToken(*[remove_invalid_chars(token[f]) for f in ConllToken._fields]) for token in sentence]
-                  for sentence in doc["sentences"]]
+        parses = [[convert_token(token) for token in sentence] for sentence in doc["sentences"]]
         parses = [s for s in parses if sentence_is_valid(s)]
         db_concord_sentences = prepare_concord_sentences(str(doc_id), parses)
         matches = extract_matches_from_doc(parses)
         db_matches = prepare_matches(str(doc_id), matches)
         return db_corpus_file, db_concord_sentences, db_matches
-    except:
+    except Exception as e:
+        print(e)
         return None, [], []
 
 
