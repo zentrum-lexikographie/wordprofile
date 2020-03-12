@@ -18,7 +18,6 @@ class WpSeSpec:
         self.listRelOrder = []
         self.mapRelOrder = {}
         self.mapVariation = {}
-        self.mapLemmaRepair = {}
 
         config = json.load(open(fname, 'r'))
 
@@ -42,14 +41,3 @@ class WpSeSpec:
                             self.mapVariation[line[0]] = line[1]
         except FileNotFoundError:
             logger.error("unknown variation file:" + line)
-
-        for word_class, path in config['LemmaRepair'].items():
-            try:
-                logger.info("read lemma repair list %s" % (path))
-                for line in open(path, 'r', encoding='utf-8'):
-                    line = line.strip().split('\t')
-                    if len(line) == 2:
-                        if line[0] not in self.mapLemmaRepair:
-                            self.mapLemmaRepair[(word_class, line[0])] = line[1]
-            except FileNotFoundError:
-                logger.error("unknown lemma repair file:" + line)

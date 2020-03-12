@@ -10,7 +10,15 @@ import pymongo
 from sqlalchemy import create_engine
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, remove_invalid_chars
-from wordprofile.zdl import extract_matches_from_doc, DBToken, simplified_pos
+from wordprofile.zdl import extract_matches_from_doc, DBToken, simplified_pos, load_lemma_repair_files
+
+LEMMA_REPAIR = load_lemma_repair_files()
+
+
+def repair_lemma(lemma, lemma_tag):
+    if lemma_tag in LEMMA_REPAIR:
+        return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
+    return lemma
 
 
 def sent_filter_length(sentence):
@@ -37,7 +45,7 @@ def convert_sentence(sentence):
     return [DBToken(
         idx=i + 1,
         surface=remove_invalid_chars(token['surface']),
-        lemma=remove_invalid_chars(token['lemma']),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma'])),
         tag=simplified_pos.get(token['xpos'], token['xpos']),
         head=token['head'],
         rel=token['rel'],

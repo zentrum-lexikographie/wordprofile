@@ -260,3 +260,21 @@ def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: 
                                          pars_token.morph, pars_token.headId, pars_token.dep,
                                          bool(tabs_token.word_sep)))
     return sentence_conll
+
+
+def load_lemma_repair_files():
+    word_classes_repair = {}
+    files = [
+        ('ADJ', 'spec/lemma_repair_adjektiv.csv'),
+        ('NN', 'spec/lemma_repair_substantiv.csv'),
+        ('VV', 'spec/lemma_repair_verb.csv'),
+    ]
+    for word_class, path in files:
+        word_class_repair = {}
+        for line in open(path, 'r'):
+            line = line.strip().split('\t')
+            if len(line) == 2:
+                if line[0] not in word_class_repair:
+                    word_class_repair[line[0]] = line[1]
+        word_classes_repair[word_class] = word_class_repair
+    return word_classes_repair

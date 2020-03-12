@@ -292,8 +292,8 @@ class WortprofilQuery:
         results = []
         for coocc in cooccs:
             # evt. Lemma Reparieren
-            lemma2 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma2), coocc.Lemma2)
-            lemma1 = self.wp_spec.mapLemmaRepair.get((coocc.Pos2, coocc.Lemma1), coocc.Lemma1)
+            lemma2 = coocc.Lemma2
+            lemma1 = coocc.Lemma1
             pos1 = coocc.Pos1
             pos2 = coocc.Pos2
 
@@ -607,11 +607,6 @@ class WortprofilQuery:
                 # Ids auf Strings mappen
                 strLemma = diffs[i[yRef1]].Lemma2
                 strPrep = diffs[i[yRef1]].Prep
-
-                # evt. Lemma Reparieren
-                strLemmaRepair = self.wp_spec.mapLemmaRepair.get((localMap['POS'], strLemma), None)
-                if strLemmaRepair:
-                    strLemma = strLemmaRepair
 
                 # Lemma+Präposition formatieren
                 if strPrep != "-":
