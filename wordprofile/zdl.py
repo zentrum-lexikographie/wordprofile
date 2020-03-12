@@ -5,7 +5,9 @@ from imsnpars.tools.utils import ConLLToken as IMSConllToken, ConLLToken
 
 TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
 ConllToken = namedtuple('ConllToken',
-                        ['idx', 'surface', 'lemma', 'upos', 'xpos', 'morph', 'head', 'rel', 'feature', 'misc'])
+                        ['surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'])
+DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
+
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 
 simplified_pos = {
@@ -13,9 +15,12 @@ simplified_pos = {
     'APPO': 'APP',
     'APPRART': 'APP',
     'ADJA': 'ADJ',
-    'ADJD': 'ADJ',
+    'ADJD': 'ADV',
+    'ADV': 'ADV',
+    'PAV': 'ADV',
     # 'ADJC': 'ADJ',
     'NN': 'NN',
+    'KOKOM': 'KOKOM',
     # 'PPER': 'PP',
     'VVFIN': 'VV',
     'VVINF': 'VV',
@@ -128,15 +133,12 @@ def extract_prepositional_matches(tokens, sid):
         head = tokens[int(prep.head) - 1]
         rel_types = (dep.rel, prep.rel)
         if rel_types in relations_prep_inv:
-            pos_head = simplified_pos.get(head.xpos, head.xpos)
-            pos_prep = simplified_pos.get(prep.xpos, prep.xpos)
-            pos_dep = simplified_pos.get(dep.xpos, dep.xpos)
-            if (pos_dep, pos_prep, pos_head) in relations_prep_inv[rel_types]:
+            if (dep.tag, prep.tag, head.tag) in relations_prep_inv[rel_types]:
                 relations.append(Match(
                     head,
                     dep,
                     prep,
-                    relations_prep_inv[rel_types][(pos_dep, pos_prep, pos_head)],
+                    relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
                     sid,
                 ))
     return relations
@@ -144,22 +146,20 @@ def extract_prepositional_matches(tokens, sid):
 
 def extract_binary_matches(tokens, sid):
     matches = []
-    for dependent in tokens:
-        if dependent.head == '0' or dependent.rel in ('--', '_', '-') or dependent.xpos.startswith('$'):
+    for dep in tokens:
+        if dep.head == '0' or dep.rel in ('--', '_', '-') or dep.tag.startswith('$'):
             continue
-        head = tokens[int(dependent.head) - 1]
-        if head.xpos.startswith('$'):
+        head = tokens[int(dep.head) - 1]
+        if head.tag.startswith('$'):
             continue
-        relation_type = dependent.rel
+        relation_type = dep.rel
         if relation_type in relations_inv:
-            pos_head = simplified_pos.get(head.xpos, head.xpos)
-            pos_dep = simplified_pos.get(dependent.xpos, dependent.xpos)
-            if (pos_head, pos_dep) in relations_inv[relation_type]:
+            if (head.tag, dep.tag) in relations_inv[relation_type]:
                 matches.append(Match(
                     head,
-                    dependent,
+                    dep,
                     None,
-                    relations_inv[relation_type][(pos_head, pos_dep)],
+                    relations_inv[relation_type][(head.tag, dep.tag)],
                     sid,
                 ))
     return matches
@@ -179,31 +179,11 @@ def extract_matches_from_doc(parses):
                     or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
                     or any(c in ['"', "'"] for c in r.head.surface)
                     or any(c in ['"', "'"] for c in r.dep.surface)
-                    or r.head.xpos == "-" or r.dep.xpos == "-"):
+                    or r.head.tag == "-" or r.dep.tag == "-"):
                 continue
             matches.append(r)
         sid += 1
     return matches
-
-
-def read_conll_file(path):
-    sentences = []
-    with open(path, 'r') as conll_fh:
-        sentence = []
-        sid = 1
-        for line in conll_fh:
-            if line.strip():
-                tokens = line.strip().split('\t')
-                tokens[3] = simplified_pos.get(tokens[3], tokens[3])
-                sentence.append(ConllToken(*tokens))
-            else:
-                if sentence:
-                    sentences.append(sentence)
-                    sentence = []
-                    sid += 1
-                else:
-                    continue
-    return sentences
 
 
 def read_meta_tabs_format(tabs_file_path):
@@ -276,7 +256,7 @@ def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: 
     sentence_conll = []
     for token_i, (tabs_token, pars_token) in enumerate(zip(sentence_orig, sentence)):
         pos = simplified_pos.get(pars_token.pos, pars_token.pos)
-        sentence_conll.append(ConllToken(pars_token.tokId, pars_token.orth, pars_token.lemma, pos,
-                                         pos, pars_token.morph, pars_token.headId, pars_token.dep, '',
-                                         tabs_token.word_sep))
+        sentence_conll.append(ConllToken(pars_token.orth, pars_token.lemma, pos,
+                                         pars_token.morph, pars_token.headId, pars_token.dep,
+                                         bool(tabs_token.word_sep)))
     return sentence_conll

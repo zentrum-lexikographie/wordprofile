@@ -1,11 +1,16 @@
 import datetime
+import enum
 import re
 from collections import namedtuple
 
-from sqlalchemy import Table, Column, types, MetaData
+from sqlalchemy import Table, Column, types, MetaData, Enum
+from wordprofile.zdl import relations, relations_prep, simplified_pos
 
-LEMMA_TYPE = types.VARCHAR(100)
-SURFACE_TYPE = types.VARCHAR(100)
+LEMMA_TYPE = types.VARCHAR(50)
+SURFACE_TYPE = types.VARCHAR(50)
+CORPUS_FILE_TYPE = types.VARCHAR(24)
+RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(relations.keys()) + list(relations_prep.keys())))
+TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(simplified_pos.values())))
 CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
 ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
 Match = namedtuple('Match',
@@ -23,8 +28,8 @@ def remove_invalid_chars(unicode_string):
 def get_table_corpus_files(meta):
     return Table(
         'corpus_files', meta,
-        Column('id', types.VARCHAR(24)),
-        Column('corpus', types.VARCHAR(100)),
+        Column('id', CORPUS_FILE_TYPE),
+        Column('corpus', types.VARCHAR(50)),
         Column('file', types.VARCHAR(200)),
         Column('orig', types.Text),
         Column('scan', types.Text),
@@ -37,7 +42,7 @@ def get_table_concord_sentences(meta):
     return Table(
         'concord_sentences', meta,
         Column('sentence_id', types.Integer),
-        Column('corpus_file_id', types.VARCHAR(24)),
+        Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence', types.Text),
         Column('page', types.VARCHAR(10)),
     )
@@ -46,17 +51,17 @@ def get_table_concord_sentences(meta):
 def get_table_matches(meta):
     return Table(
         'matches', meta,
-        Column('relation_label', types.VARCHAR(10)),
+        Column('relation_label', Enum(RELATION_TYPE)),
         Column('head_lemma', LEMMA_TYPE),
         Column('dep_lemma', LEMMA_TYPE),
-        Column('head_tag', types.VARCHAR(10)),
-        Column('dep_tag', types.VARCHAR(10)),
+        Column('head_tag', Enum(TAG_TYPE)),
+        Column('dep_tag', Enum(TAG_TYPE)),
         Column('head_surface', SURFACE_TYPE),
         Column('dep_surface', SURFACE_TYPE),
         Column('head_position', types.Integer),
         Column('dep_position', types.Integer),
         Column('prep_position', types.Integer),
-        Column('corpus_file_id', types.VARCHAR(24)),
+        Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence_id', types.Integer),
         Column('creation_date', types.DateTime),
     )
@@ -66,11 +71,11 @@ def get_table_collocations(meta):
     return Table(
         'collocations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
-        Column('label', types.VARCHAR(10)),
+        Column('label', Enum(RELATION_TYPE)),
         Column('lemma1', LEMMA_TYPE),
         Column('lemma2', LEMMA_TYPE),
-        Column('lemma1_tag', types.VARCHAR(10)),
-        Column('lemma2_tag', types.VARCHAR(10)),
+        Column('lemma1_tag', Enum(TAG_TYPE)),
+        Column('lemma2_tag', Enum(TAG_TYPE)),
         Column('inv', types.Boolean, default=0),
         Column('frequency', types.Integer, default=1),
     )
@@ -142,15 +147,21 @@ def prepare_matches(doc_id, matches):
     for m in matches:
         if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or
                 len(m.head.lemma) > LEMMA_TYPE.length or len(m.dep.lemma) > LEMMA_TYPE.length):
-            print("SKIP LOONG MATCH", m)
+            print("SKIP LOONG MATCH", doc_id, m)
             continue
         if m.prep:
+            if (len(m.head.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
+                    len(m.dep.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
+                    len(m.head.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length or
+                    len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length):
+                print("SKIP LOONG MATCH", doc_id, m)
+                continue
             db_matches.append(Match(
-                relation_label=m.relation,
+                relation_label=RELATION_TYPE[m.relation],
                 head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
                 dep_lemma=m.dep.lemma,
-                head_tag=m.head.upos,
-                dep_tag=m.dep.upos,
+                head_tag=TAG_TYPE[m.head.tag],
+                dep_tag=TAG_TYPE[m.dep.tag],
                 head_surface="{} {}".format(m.head.surface, m.prep.surface),
                 dep_surface=m.dep.surface,
                 head_position=m.head.idx,
@@ -164,8 +175,8 @@ def prepare_matches(doc_id, matches):
                 relation_label=m.relation,
                 head_lemma=m.head.lemma,
                 dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
-                head_tag=m.head.upos,
-                dep_tag=m.dep.upos,
+                head_tag=m.head.tag,
+                dep_tag=m.dep.tag,
                 head_surface=m.head.surface,
                 dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
                 head_position=m.head.idx,
@@ -180,8 +191,8 @@ def prepare_matches(doc_id, matches):
                 relation_label=m.relation,
                 head_lemma=m.head.lemma,
                 dep_lemma=m.dep.lemma,
-                head_tag=m.head.upos,
-                dep_tag=m.dep.upos,
+                head_tag=m.head.tag,
+                dep_tag=m.dep.tag,
                 head_surface=m.head.surface,
                 dep_surface=m.dep.surface,
                 head_position=m.head.idx,
