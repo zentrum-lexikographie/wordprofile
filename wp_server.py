@@ -712,10 +712,7 @@ class Wordprofile:
         """
         coocc_id = int(params.get("InfoId"))
         use_context = bool(params.get("UseContext", False))
-        subcorpus = params.get("Subcorpus", "")
-        is_internal_user = bool(params.get("InternalUser", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        return self.wp_db.get_concordances(coocc_id, use_context, subcorpus,
-                                           is_internal_user,
+        return self.wp_db.get_concordances(coocc_id, use_context,
                                            start_index, result_number)

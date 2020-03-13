@@ -41,7 +41,7 @@ class WpSeMySql:
         self.__close_connection()
         return res
 
-    def get_concordances(self, coocc_id, use_context, subcorpus, is_internal_user, start_index, result_number):
+    def get_concordances(self, coocc_id, use_context, start_index, result_number):
         coocc_info = self.get_relation_by_id(coocc_id)
         if coocc_info.inv:
             head_lemma, head_tag = coocc_info.lemma2, coocc_info.pos2
@@ -53,7 +53,7 @@ class WpSeMySql:
         if use_context:
             query = """
             SELECT
-                s_center.sentence, matches.head_position, matches.dep_position, cf.corpus, 
+                s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
                 matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
@@ -81,7 +81,7 @@ class WpSeMySql:
         else:
             query = """
             SELECT
-                s_center.sentence, matches.head_position, matches.dep_position, cf.corpus, 
+                s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
                 matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1
             FROM
@@ -105,12 +105,12 @@ class WpSeMySql:
         results = []
         for item in db_results:
             if use_context:
-                (sentence, token_position_1, token_position_2, corpus, date, textclass, orig, scan,
+                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
                  avail, page, file, score, sentence_left, sentence_right) = item
                 sentence_left = format_sentence(sentence_left)
                 sentence_right = format_sentence(sentence_right)
             else:
-                (sentence, token_position_1, token_position_2, corpus, date, textclass, orig, scan,
+                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
                  avail, page, file, score) = item
                 sentence_left = sentence_right = ""
             if not sentence:
@@ -126,7 +126,8 @@ class WpSeMySql:
                 "Page": page,
                 "File": file,
             }
-            sentence_main = format_sentence_center(sentence, token_position_1, token_position_2)
+            sentence_main = format_sentence_center(sentence, token_position_1, token_position_2,
+                                                   prep_position if prep_position > 0 else None)
             results.append({
                 "Bibl": bib_entry,
                 "ConcordLine": sentence_main,

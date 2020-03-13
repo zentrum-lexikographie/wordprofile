@@ -59,6 +59,7 @@ def get_hits(wp, args):
                 line_chars = 0
             line.append(word)
             line_chars += len(word)
+        new_context += " ".join(line)
         context = new_context
         meta_info = "{} | {} | {} | {} | {} | {} | {} | {}".format(
             bibl_corpus, bibl_date, bibl_text_class, bibl_orig, bibl_scan, bibl_avail, bibl_page, score)
