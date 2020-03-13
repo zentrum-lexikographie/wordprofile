@@ -29,13 +29,13 @@ simplified_pos = {
     'VVPP1': 'VV',
     'VVPP2': 'VV',
     'VVIMP': 'VV',
-    'VAFIN': 'VA',
-    'VAIMP': 'VA',
-    'VAINF': 'VA',
-    'VAPP': 'VA',
-    'VMFIN': 'VM',
-    'VMINF': 'VM',
-    'VMPP': 'VM',
+    # 'VAFIN': 'VA',
+    # 'VAIMP': 'VA',
+    # 'VAINF': 'VA',
+    # 'VAPP': 'VA',
+    # 'VMFIN': 'VM',
+    # 'VMINF': 'VM',
+    # 'VMPP': 'VM',
 }
 
 # rel_map : (rel, head_pos, dep_pos)

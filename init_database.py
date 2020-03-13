@@ -43,27 +43,31 @@ def create_collocations(engine: Engine, database: str):
     print("INSERT collocations")
     engine.execute("""
     INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT 
+    SELECT relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, SUM(rel_count) as rel_sum
+    FROM (
+        SELECT 
         relation_label, head_lemma as lemma1, dep_lemma as lemma2, head_tag as lemma1_tag, dep_tag as lemma2_tag, 
-        0, COUNT(m.relation_label)
-    FROM matches m
-    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
-    HAVING COUNT(m.relation_label) > 5;
-    """)
-    engine.execute("""
-    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT 
-        relation_label, dep_lemma as lemma1, head_lemma as lemma2, dep_tag as lemma1_tag, head_tag as lemma2_tag, 
-        1, COUNT(m.relation_label)
-    FROM matches m
-    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
-    HAVING COUNT(m.relation_label) > 5;
+        0 as inv, COUNT(relation_label) as rel_count
+        FROM matches m
+        GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+        HAVING COUNT(relation_label) > 5
+        
+        UNION ALL
+        
+        SELECT 
+            relation_label, dep_lemma as lemma1, head_lemma as lemma2, dep_tag as lemma1_tag, head_tag as lemma2_tag, 
+            1 as inv, COUNT(relation_label) as rel_count
+        FROM matches m
+        GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
+        HAVING COUNT(relation_label) > 5
+    ) tbf
+    GROUP BY tbf.relation_label, tbf.lemma1, tbf.lemma2, tbf.lemma1_tag, tbf.lemma2_tag, tbf.inv;
     """)
     print("CREATE INDEX")
-    engine.execute("create index lemma1_index on collocations (lemma1)")
-    engine.execute("create index lemma1_tag_index on collocations (lemma1, lemma1_tag);")
-    engine.execute("create index lemma2_tag_index on collocations (lemma2, lemma2_tag);")
-    engine.execute("create index lemma on collocations (lemma1, lemma2);")
+    engine.execute("CREATE INDEX lemma1_index USING HASH ON collocations (lemma1)")
+    engine.execute("CREATE INDEX lemma1_tag_index USING HASH ON collocations (lemma1, lemma1_tag);")
+    engine.execute("CREATE INDEX lemma2_tag_index USING HASH ON collocations (lemma2, lemma2_tag);")
+    engine.execute("CREATE INDEX lemma USING HASH ON collocations (lemma1, lemma2);")
 
 
 def create_statistics(engine: Engine, database: str):
@@ -96,7 +100,7 @@ def create_statistics(engine: Engine, database: str):
     SELECT c.id
     FROM collocations c;
     """)
-    engine.execute("create index stats_index on wp_stats (collocation_id);")
+    engine.execute("CREATE INDEX stats_index USING HASH ON wp_stats (collocation_id);")
     print("insert mi scores")
     engine.execute("""
     UPDATE wp_stats s
@@ -139,14 +143,12 @@ def main():
     if args.init:
         print("init database")
         init_word_profile_tables(engine, args.database)
-    elif args.collocations:
+    if args.collocations:
         print("create word profile stats")
         create_collocations(engine, args.database)
-    elif args.stats:
+    if args.stats:
         print("create word profile stats")
         create_statistics(engine, args.database)
-    else:
-        print("nothing happened...")
     print()
     print("(: done")
 
