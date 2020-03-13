@@ -9,7 +9,7 @@ import xmlrpc.client
 from argparse import ArgumentParser
 
 from tests import wp_rel, wp_hit, wp_cmp, wp_info
-from wp_server import WortprofilQuery
+from wp_server import Wordprofile
 
 parser = ArgumentParser()
 
@@ -103,7 +103,7 @@ else:
         db_password = getpass.getpass("db password: ")
     else:
         db_password = args.user
-    wp = WortprofilQuery(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    wp = Wordprofile(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 if args.subcommand == "status":
     response = wp.status()

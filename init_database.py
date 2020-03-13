@@ -3,11 +3,13 @@
 import getpass
 from argparse import ArgumentParser
 
-import wordprofile.wpse.db_tables
 from sqlalchemy import create_engine, MetaData
+from sqlalchemy.engine import Engine
+
+import wordprofile.wpse.db_tables
 
 
-def init_word_profile_tables(engine, database):
+def init_word_profile_tables(engine: Engine, database: str):
     engine.execute("DROP DATABASE IF EXISTS " + database)
     engine.execute("CREATE DATABASE " + database + " CHARACTER SET utf8")
     engine.execute("USE " + database)
@@ -30,7 +32,7 @@ def init_word_profile_tables(engine, database):
     """)
 
 
-def create_collocations(engine, database):
+def create_collocations(engine: Engine, database: str):
     engine.execute("USE " + database)
     engine.execute("DROP TABLE IF EXISTS collocations")
 
@@ -64,7 +66,7 @@ def create_collocations(engine, database):
     engine.execute("create index lemma on collocations (lemma1, lemma2);")
 
 
-def create_statistics(engine, database):
+def create_statistics(engine: Engine, database: str):
     engine.execute("USE " + database)
     engine.execute("DROP TABLE IF EXISTS wp_stats")
 

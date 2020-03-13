@@ -2,8 +2,12 @@ import datetime
 import enum
 import re
 from collections import namedtuple
+from typing import List
 
 from sqlalchemy import Table, Column, types, MetaData, Enum
+from sqlalchemy.engine import Engine
+
+from wordprofile import zdl
 from wordprofile.zdl import relations, relations_prep, simplified_pos
 
 LEMMA_TYPE = types.VARCHAR(50)
@@ -25,7 +29,7 @@ def remove_invalid_chars(unicode_string):
     return re_pattern.sub('', unicode_string)
 
 
-def get_table_corpus_files(meta):
+def get_table_corpus_files(meta: MetaData):
     return Table(
         'corpus_files', meta,
         Column('id', CORPUS_FILE_TYPE),
@@ -38,7 +42,7 @@ def get_table_corpus_files(meta):
     )
 
 
-def get_table_concord_sentences(meta):
+def get_table_concord_sentences(meta: MetaData):
     return Table(
         'concord_sentences', meta,
         Column('sentence_id', types.Integer),
@@ -48,7 +52,7 @@ def get_table_concord_sentences(meta):
     )
 
 
-def get_table_matches(meta):
+def get_table_matches(meta: MetaData):
     return Table(
         'matches', meta,
         Column('relation_label', Enum(RELATION_TYPE)),
@@ -67,7 +71,7 @@ def get_table_matches(meta):
     )
 
 
-def get_table_collocations(meta):
+def get_table_collocations(meta: MetaData):
     return Table(
         'collocations', meta,
         Column('id', types.Integer, primary_key=True, autoincrement=True),
@@ -81,7 +85,7 @@ def get_table_collocations(meta):
     )
 
 
-def get_table_statistics(meta):
+def get_table_statistics(meta: MetaData):
     return Table(
         'wp_stats', meta,
         Column('collocation_id', types.Integer),
@@ -93,7 +97,7 @@ def get_table_statistics(meta):
     )
 
 
-def insert_bulk_corpus_file(engine, corpus_files):
+def insert_bulk_corpus_file(engine: Engine, corpus_files):
     meta = MetaData()
     corpus_file_tb = get_table_corpus_files(meta)
     query = corpus_file_tb.insert()
@@ -114,7 +118,7 @@ def prepare_corpus_file(doc):
     )
 
 
-def insert_bulk_concord_sentences(engine, concord_sentences):
+def insert_bulk_concord_sentences(engine: Engine, concord_sentences):
     meta = MetaData()
     concord_sentences_tb = get_table_concord_sentences(meta)
     query = concord_sentences_tb.insert()
@@ -133,7 +137,7 @@ def prepare_concord_sentences(doc_id, parses):
     ) for sent_i, parse in enumerate(parses)]
 
 
-def insert_bulk_matches(engine, matches):
+def insert_bulk_matches(engine: Engine, matches: List[dict]):
     meta = MetaData()
     matches_tb = get_table_matches(meta)
     query = matches_tb.insert()
@@ -142,7 +146,7 @@ def insert_bulk_matches(engine, matches):
     conn.close()
 
 
-def prepare_matches(doc_id, matches):
+def prepare_matches(doc_id, matches: List[zdl.Match]):
     db_matches = []
     for m in matches:
         if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or

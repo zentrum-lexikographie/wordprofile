@@ -6,7 +6,7 @@ import time
 import xmlrpc.server
 from argparse import ArgumentParser
 
-from wp_server import WortprofilQuery
+from wp_server import Wordprofile
 
 parser = ArgumentParser()
 parser.add_argument("--user", type=str, help="database username", required=True)
@@ -86,7 +86,7 @@ def main():
     server.register_introspection_functions()
     # register wortprofil
     server.register_instance(
-        WortprofilQuery(args.db_hostname, args.user, db_password, args.database, args.port, args.spec))
+        Wordprofile(args.db_hostname, args.user, db_password, args.database, args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 

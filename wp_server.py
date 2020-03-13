@@ -12,7 +12,7 @@ from wordprofile.wpse.wpse_spec import WpSeSpec
 logger = logging.getLogger('wordprofile')
 
 
-class WortprofilQuery:
+class Wordprofile:
     def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)

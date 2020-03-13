@@ -14,34 +14,31 @@ logger = logging.getLogger('wordprofile.mysql')
 
 class WpSeMySql:
     def __init__(self, host, user, passwd, dbname):
-        self.host = host
-        self.user = user
-        self.passwd = passwd
-        self.dbname = dbname
+        self.__host = host
+        self.__user = user
+        self.__passwd = passwd
+        self.__dbname = dbname
         self.__conn = None
         self.__cursor = None
 
-    def init_connection(self):
+    def __init_connection(self):
         self.__conn = MySQLdb.connect(
-            host=self.host,
-            user=self.user,
-            passwd=self.passwd,
-            db=self.dbname)
+            host=self.__host,
+            user=self.__user,
+            passwd=self.__passwd,
+            db=self.__dbname)
         self.__cursor = self.__conn.cursor()
 
-    def close_connection(self):
+    def __close_connection(self):
         self.__conn.commit()
         self.__cursor.close()
         self.__conn.close()
 
-    def execute(self, query):
-        self.__cursor.execute(query)
-
     def fetchall(self, query):
-        self.init_connection()
+        self.__init_connection()
         self.__cursor.execute(query)
         res = self.__cursor.fetchall()
-        self.close_connection()
+        self.__close_connection()
         return res
 
     def get_concordances(self, coocc_id, use_context, subcorpus, is_internal_user, start_index, result_number):
