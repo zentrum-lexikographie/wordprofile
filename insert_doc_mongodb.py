@@ -45,7 +45,7 @@ def convert_sentence(sentence):
     return [DBToken(
         idx=i + 1,
         surface=remove_invalid_chars(token['surface']),
-        lemma=repair_lemma(remove_invalid_chars(token['lemma'])),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma']), simplified_pos.get(token['xpos'], token['xpos'])),
         tag=simplified_pos.get(token['xpos'], token['xpos']),
         head=token['head'],
         rel=token['rel'],
