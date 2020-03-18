@@ -18,8 +18,8 @@ def compare_lemmas(wp, args):
         mapSelect = mapping[0]
         print("({}) {}/{} [{}]".format(
             colored("1", "green"),
-            colored(mapSelect["Lemma1"], "yellow"),
-            colored(mapSelect["Lemma2"], "cyan"),
+            colored(mapSelect["LemmaId1"], "yellow"),
+            colored(mapSelect["LemmaId2"], "cyan"),
             colored(mapSelect["POS"], "cyan")
         ))
     else:
@@ -28,8 +28,8 @@ def compare_lemmas(wp, args):
             for iCounter, i in enumerate(mapping):
                 print("({}) {}/{} [{}]".format(
                     colored(iCounter, "green"),
-                    colored(i["Lemma1"], "yellow"),
-                    colored(i["Lemma2"], "cyan"),
+                    colored(i["LemmaId1"], "yellow"),
+                    colored(i["LemmaId2"], "cyan"),
                     colored(i["POS"], "cyan")
                 ))
             index_select = int(input(">"))
@@ -39,9 +39,9 @@ def compare_lemmas(wp, args):
 
     # Abfrageoptionen für den Wortvergleich erstellen
     params = {
-        "Lemma1": mapSelect["Lemma1"],
-        "Lemma2": mapSelect["Lemma2"],
-        "Pos": mapSelect["POS"],
+        "LemmaId1": mapSelect["LemmaId1"],
+        "LemmaId2": mapSelect["LemmaId2"],
+        "POS": mapSelect["POS"],
         "Relations": args.relations or mapSelect["Relations"],
         "Number": args.number,
         "OrderBy": args.order,

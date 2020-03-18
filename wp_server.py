@@ -2,12 +2,13 @@
 
 import logging
 import math
-from functools import cmp_to_key
+from collections import defaultdict
 
 from wordprofile.wpse import deprecated
 from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
+from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
 
 logger = logging.getLogger('wordprofile')
 
@@ -89,8 +90,12 @@ class Wordprofile:
                 if i['POS'] == j['POS']:
                     relations = list(set(i['Relations']) | set(j['Relations']))
                     results.append({
-                        'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'POS': i['POS'],
-                        'Frequency1': i['Frequency'], 'Frequency2': j['Frequency'],
+                        'LemmaId1': i['Lemma'],
+                        'LemmaId2': j['Lemma'],
+                        'POS': i['POS'],
+                        'PosId': i['POS'],
+                        'Frequency1': i['Frequency'],
+                        'Frequency2': j['Frequency'],
                         'Relations': relations
                     })
         return results
@@ -252,7 +257,6 @@ class Wordprofile:
             })
         return results
 
-    @deprecated
     def get_diff(self, params):
         """
         Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2')
@@ -266,53 +270,42 @@ class Wordprofile:
         [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
         """
-        lemma1 = params["Lemma1"]
-        lemma2 = params["Lemma2"]
-        pos = params["Pos"]
+        lemma1 = params["LemmaId1"]
+        lemma2 = params["LemmaId2"]
+        pos = params["POS"]
         cooccs = params["Relations"]
-        # start = params.get("Start", 0)
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
-        # subcorpus = params.get("Subcorpus", "")
 
         operation = params.get("Operation", "adiff")
         use_intersection = params.get("Intersection", False)
-        nbest = params.get("NBest", None)
+        nbest = int(params.get("NBest", 0))
 
-        ordered_relations = self.get_ordered_relation_ids(cooccs, pos)
-        diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, ordered_relations, order_by,
-                                                    min_freq, min_stat)
-        cooccs = self.__gen_rel_cooccurrence_mapping(diffs)
-
+        ordered_relations = self.__get_ordered_relation_ids(cooccs, pos)
         relations = []
         for rel in ordered_relations:
-            if rel in cooccs:
-                results = self.__calculate_diff(lemma1, lemma2, diffs, cooccs[rel], number, nbest,
-                                                use_intersection, operation)
-                results = self.__diff_relation_tuples_2_strings(diffs, results)
-
-                relation_name = rel
-                description = self.wp_spec.strRelDesc
-                if relation_name in self.wp_spec.mapRelDesc:
-                    description = self.wp_spec.mapRelDesc[relation_name]
-
-                relations.append({'Relation': relation_name, 'Description': description, 'Tuples': results})
-
+            diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
+            diffs = self.__calculate_diff(lemma1, lemma2, diffs, number, nbest, use_intersection, operation)
+            diffs = self.__format_comparison(diffs)
+            relations.append({
+                'Relation': rel,
+                'Description': self.wp_spec.mapRelDesc.get(rel, self.wp_spec.strRelDesc),
+                'Tuples': diffs
+            })
         return relations
 
-    @deprecated
     def get_intersection(self, mapParam):
         """
         Indirekter aufruf von get_diff mit der Operation 'rmax'
         """
         mapParam['Operation'] = 'rmax'
+        mapParam['Intersection'] = True
         return self.get_diff(mapParam)
 
-    @deprecated
-    def __calculate_diff(self, lemma1_id, lemma2_id, diffs, cooccs_rel, number, nbest, use_intersection, operation):
+    def __calculate_diff(self, lemma1_id, lemma2_id, diffs, number, nbest, use_intersection, operation):
         """
         Berechnung des Vergleiches zweier Wortprofile
         Über die Vergleichsfunktionen lassen sich zwei Wörter anhand ihrer Wortprofile vergleichen.
@@ -324,246 +317,142 @@ class Wordprofile:
             r1/1 - liefert den Rang eines Kookkurenzpartners (standardmäßig nach logDice) K ∊ WP₁
             r2/1 - liefert den Rang eines Kookkurenzpartners (standardmäßig nach logDice) K ∊ WP₂
             L - die Maximale Anzahl an Kookurrenzpartnern die für eine grammatische Relation angezeigt werden soll
-        Wortprofil-Diff:
-            Im ersten Schritt wird für alle K ∊ WP₁ ∪ WP₂ die absolute Differenz der jeweiligen Assoziationswerte berechnet:
-            adiff(K) = |s₁(K)-s₂(K)|
-            Anhand dieser absoluten Differenzwerte werden nun die Kookkurrenzpartner aufsteigend sortiert und nach dem Wert L abgeschnitten.
-            Daraufhin wird die Differenz für die verbleibenden Kookkurrenzpartner berechnet:
-            diff(K) = s₁(K)-s₂(K)
-            Im letzten Schritt werden die Kookkurrenzpartner anhand dieser Differenzwerte aufsteigend sortiert.
-        Wortprofil-Intersect:
-            Zuerst wird für alle K ∊ WP₁ ∩ WP₂ der maximale Rang berechnet:
-            rmax(K) = max(r₁(K),r₂(K))
-            Danach werden diese Kookkurrenzpartner anhand der Maximalränge absteigend sortiert und nach dem Wert L abgeschnitten.
+        Union:
+            1. calculate absolute difference (adiff) for all pairs: |s₁(K)-s₂(K)| for all K ∊ WP₁ ∪ WP₂
+            2. sort and choose nbest
+            3. calculate true difference (diff) for all pairs: s₁(K)-s₂(K) for all K ∊ WP₁ ∪ WP₂
+            4. sort again
+        Intersect:
+            1. compute max rank (rmax) for all pairs: max(r₁(K),r₂(K)) for all K ∊ WP₁ ∩ WP₂
+            2. sort and choose nbest
         """
-        mapData = {}
-        mapCenter = {}
-        mapRank = {}
-
-        # Prüfen, ob die Kookkurrenzpartner für beide Lemmata vorhanden sind
-        iCountRank2 = 1
-        for k, i in enumerate(diffs):
-            if i.Lemma1 == lemma2_id:
-                if nbest == None or iCountRank2 <= nbest:
-                    mapData[i.Lemma2] = (k, i)
-                    mapRank[k] = iCountRank2
-                iCountRank2 += 1
-
-        iCountRank1 = 1
-        for k, i in enumerate(diffs):
-            if i.Lemma1 == lemma1_id:
-                if nbest == None or iCountRank1 <= nbest:
-                    if i.Lemma2 in mapData:
-                        (iPos, myTuple) = mapData[i.Lemma2]
-                        iRef1 = k
-                        iRef2 = iPos
-                        mapCenter[iRef1] = iRef2
-                        mapCenter[iRef2] = -1
-                    mapRank[k] = iCountRank1
-                iCountRank1 += 1
-
+        diffs_grouped = defaultdict(dict)
+        lemma1_ctr = lemma2_ctr = 0
+        for i, c in enumerate(diffs):
+            if nbest and lemma1_ctr > nbest and lemma2_ctr > nbest:
+                break
+            if c.Lemma1 == lemma1_id:
+                if not nbest or lemma1_ctr <= nbest:
+                    diffs_grouped[c.Lemma2]['coocc_1'] = c
+                    diffs_grouped[c.Lemma2]['rank_1'] = i
+                    diffs_grouped[c.Lemma2]['pos'] = c.Pos1
+                lemma1_ctr += 1
+            elif c.Lemma1 == lemma2_id:
+                if not nbest or lemma2_ctr <= nbest:
+                    diffs_grouped[c.Lemma2]['coocc_2'] = c
+                    diffs_grouped[c.Lemma2]['rank_2'] = i
+                    diffs_grouped[c.Lemma2]['pos'] = c.Pos1
+                lemma2_ctr += 1
+            else:
+                raise ValueError("Unexpected lemma")
+        # for intersection, only a subset is used further
         if use_intersection:
-            # wenn der Schnitt berechnet werden soll
-            results = []
-            for k in mapCenter:
-                iRef = mapCenter[k]
-                if iRef != -1:
-                    iRef1 = i
-                    iRef2 = iRef
-                    iRank1 = mapRank[iRef1]
-                    iRank2 = mapRank[iRef2]
-                    iScore = self.__diff_operation(operation, diffs[iRef1].LogDice, diffs[iRef2].LogDice,
-                                                   iRank1, iRank2)
-                    results.append((iRef1, iRef2, iRank1, iRank2, iScore))
+            diffs_grouped = [d for d in diffs_grouped.values() if 'coocc_1' in d and 'coocc_2' in d]
         else:
-            results = []
-            for k, i in enumerate(diffs):
-                # für Lemma1 und Lemma2
-                if k in mapCenter:
-                    iRef = mapCenter[k]
-                    if iRef != -1:
-                        iRef1 = k
-                        iRef2 = iRef
-                        iRank1 = mapRank[iRef1]
-                        iRank2 = mapRank[iRef2]
-                        iScore = self.__diff_operation(operation, i.LogDice, diffs[iRef2].LogDice, iRank1, iRank2)
-                        results.append((iRef1, iRef2, iRank1, iRank2, iScore))
-
-                elif k in mapRank:
-                    # für nur Lemma1
-                    if i.Lemma1 == lemma1_id:
-                        iRef1 = k
-                        iRef2 = -1
-                        iRank1 = mapRank[iRef1]
-                        iRank2 = -1
-                        iScore = self.__diff_operation(operation, i.LogDice, 0, iRank1, 0)
-                    # für nur Lemma2
-                    else:
-                        iRef1 = -1
-                        iRef2 = k
-                        iRank1 = -1
-                        iRank2 = mapRank[iRef2]
-
-                        iScore = self.__diff_operation(operation, 0, diffs[iRef2].Score, 0, iRank2)
-
-                    results.append((iRef1, iRef2, iRank1, iRank2, iScore))
-
-        # Abschließendes Sortieren und Abschneiden
+            diffs_grouped = list(diffs_grouped.values())
+        # compute score based on occurring cooccs
+        for d in diffs_grouped:
+            if 'coocc_1' in d and 'coocc_2' in d:
+                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, d['coocc_2'].LogDice, d['rank_1'], d['rank_2'])
+            elif 'coocc_1' in d:
+                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, 0, d['rank_1'], 0)
+            elif 'coocc_2' in d:
+                d['score'] = self.__diff_operation(operation, 0, d['coocc_2'].LogDice, 0, d['rank_2'])
+        # final sort and cut after nbest cooccs
         if operation in ["adiff", "ardiff"]:
-            results.sort(key=lambda x: math.fabs(x[4]), reverse=True)
-            results = results[:number]
-            results.sort(key=lambda x: x[4], reverse=True)
+            diffs_grouped.sort(key=lambda x: math.fabs(x['score']), reverse=True)
+            diffs_grouped = diffs_grouped[:number]
+            diffs_grouped.sort(key=lambda x: x['score'], reverse=True)
         elif operation == "rmax":
-            results.sort(key=lambda x: x[4])
-            results = results[:number]
+            diffs_grouped.sort(key=lambda x: x['score'])
+            diffs_grouped = diffs_grouped[:number]
         else:
-            results.sort(key=lambda x: x[4], reverse=True)
-            results = results[:number]
+            diffs_grouped.sort(key=lambda x: x['score'], reverse=True)
+            diffs_grouped = diffs_grouped[:number]
+        return diffs_grouped
 
-        return results
-
-    @deprecated
     def __diff_operation(self, strOperation, Sa, Sb, Ra, Rb):
         """
         Berechnen der Nummerischen Diff-Operation (Wert, der den Kookkurrenztupeln zugewiesen wird)
         Gegeben sind der Statistikwert des ersten Lemmas (Sa) und des zweiten Lemmas (Sb). Des Weiteren
         seigegeben der Rank des ersten Lemma (Ra) und des zweiten Lemma (Rb).
         möglich sind:
-          diff, adiff, ardiff, sum, min, max, rmax, avg, havg, gavg
         """
-        iScore = 0
         if strOperation == "diff":
             iScore = Sa - Sb
         elif strOperation == "adiff":
-            iScore = Sa - Sb
-        elif strOperation == "ardiff":
-            if Ra == 0:
-                iScore = -(1000000 - Rb)
-            elif Rb == 0:
-                iScore = (1000000 - Ra)
-            else:
-                iScore = (1000000 - Ra) - (1000000 - Rb)
-        elif strOperation == "sum":
-            iScore = Sa + Sb
-        elif strOperation == "min":
-            iScore = min(Sa, Sb)
+            iScore = math.fabs(Sa - Sb)
         elif strOperation == "max":
             iScore = max(Sa, Sb)
         elif strOperation == "rmax":
             iScore = max(Ra, Rb)
         elif strOperation == "avg":
             iScore = (Sa + Sb) / 2
-        elif strOperation == "havg":
-            iAvg = (Sa + Sb) / 2
-            if Sa <= 0.0 or Sb <= 0.0:
-                iHAvg = 0.0
-            else:
-                iHAvg = (2 * (Sa * Sb)) / (Sa + Sb)
-            iScore = (iHAvg + iAvg) / 2
-        elif strOperation == "gavg":
-            iScore = math.sqrt(Sa * Sb)
+        else:
+            raise ValueError("Unknown operation")
 
         return iScore
 
-    @deprecated
-    def __diff_relation_tuples_2_strings(self, diffs, db_results):
+    def __format_comparison(self, diffs):
         """
         Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
         """
-        yRef1 = 0
-        yRef2 = 1
-        yRank1 = 2
-        yRank2 = 3
-        yScore = 4
-
-        listMapRes = []
-
-        for i in db_results:
-            localMap = {
-                "POS": None
+        coocc_diffs = []
+        for d in diffs:
+            coocc_diff = {
+                'POS': d['pos'],
+                'ConcordId1': 0,
+                'ConcordId2': 0,
+                'ConcordNo1': 0,
+                'ConcordNo2': 0,
+                'ConcordNoAccessible1': 0,
+                'ConcordNoAccessible2': 0,
+                'Score': {
+                    'AScomp': d.get('score'),
+                    'Rank1': d.get('rank_1', -1),
+                    'Rank2': d.get('rank_2', -1),
+                    'Frequency1': 0,
+                    'Assoziation1': 0.0,
+                    'Frequency2': 0,
+                    'Assoziation2': 0.0,
+                }
             }
-            score = {
-                'AScomp': i[yScore],
-                'Rank1': i[yRank1],
-                'Rank2': i[yRank2]
-            }
-            if i[yRef1] != -1:
+            if 'coocc_1' in d:
                 # Es gibt Kookkurenzen zum ersten Wort
-                score['Frequency1'] = diffs[i[yRef1]].Frequency
-                score['Assoziation1'] = diffs[i[yRef1]].Score
-                localMap['ConcordId1'] = diffs[i[yRef1]].RelId
+                coocc_diff['Score']['Frequency1'] = d['coocc_1'].Frequency
+                coocc_diff['Score']['Assoziation1'] = d['coocc_1'].LogDice
+                coocc_diff['ConcordId1'] = d['coocc_1'].RelId
 
-                iConcordNo1 = diffs[i[yRef1]].Frequency
-                if diffs[i[yRef1]].Rel == "KON" and diffs[i[yRef1]].Lemma1 == \
-                        diffs[i[yRef1]].Lemma2:
+                iConcordNo1 = d['coocc_1'].Frequency
+                if d['coocc_1'].Rel == "KON" and d['coocc_1'].Lemma1 == d['coocc_1'].Lemma2:
                     iConcordNo1 = iConcordNo1 / 2
-                localMap['ConcordNo1'] = iConcordNo1
-                localMap['Relation'] = diffs[i[yRef1]].Rel
+                coocc_diff['ConcordNo1'] = iConcordNo1
+                coocc_diff['Relation'] = d['coocc_1'].Rel
+                coocc_diff['Lemma'] = d['coocc_1'].Lemma2
+                coocc_diff['Form'] = d['coocc_1'].Lemma2
 
-                # Ids auf Strings mappen
-                strLemma = diffs[i[yRef1]].Lemma2
-                strPrep = diffs[i[yRef1]].Prep
-
-                # Lemma+Präposition formatieren
-                if strPrep != "-":
-                    if diffs[i[yRef1]].Rel.startswith("~"):
-                        strLemma = strLemma + ' ' + strPrep
-                    else:
-                        strLemma = strPrep + ' ' + strLemma
-
-                localMap['Lemma'] = strLemma
-                localMap['POS'] = diffs[i[yRef1]].Pos2
-
-                if i[yRef2] == -1:
-                    localMap['Position'] = 'left'
+                if 'coocc_2' in d:
+                    coocc_diff['Position'] = 'left'
                 else:
-                    localMap['Position'] = 'center'
-            else:
-                score['Frequency1'] = 0
-                score['Assoziation1'] = 0.0
-                localMap['ConcordId1'] = 0
-                localMap['ConcordNo1'] = 0
-                localMap['ConcordNoAccessible1'] = 0
-
-            if i[yRef2] != -1:
+                    coocc_diff['Position'] = 'center'
+            if 'coocc_2' in d:
                 # Es gibt Kookkurenzen zum zweiten Wort
-                score['Frequency2'] = diffs[i[yRef2]].Frequency
-                score['Assoziation2'] = diffs[i[yRef2]].Score
-                localMap['ConcordId2'] = diffs[i[yRef2]].RelId
+                coocc_diff['Score']['Frequency2'] = d['coocc_2'].Frequency
+                coocc_diff['Score']['Assoziation2'] = d['coocc_2'].LogDice
+                coocc_diff['ConcordId2'] = d['coocc_2'].RelId
 
-                iConcordNo2 = diffs[i[yRef2]].Frequency
-                if diffs[i[yRef2]].Rel == "KON" and diffs[i[yRef2]].Lemma1 == \
-                        diffs[i[yRef2]].Lemma2:
+                iConcordNo2 = d['coocc_2'].Frequency
+                if d['coocc_2'].Rel == "KON" and d['coocc_2'].Lemma1 == d['coocc_2'].Lemma2:
                     iConcordNo2 = iConcordNo2 / 2
-                localMap['ConcordNo2'] = iConcordNo2
+                coocc_diff['ConcordNo2'] = iConcordNo2
+                if 'coocc_1' not in d:
+                    coocc_diff['Relation'] = d['coocc_2'].Rel
+                    coocc_diff['Lemma'] = d['coocc_2'].Lemma2
+                    coocc_diff['Form'] = d['coocc_2'].Lemma2
+                    coocc_diff['Position'] = 'right'
+            coocc_diffs.append(coocc_diff)
 
-                if i[yRef1] == -1:
-                    localMap['Relation'] = diffs[i[yRef2]].Rel
-                    # Ids auf Strings mappen
-                    strLemma = diffs[i[yRef2]].Lemma2
-                    strPrep = diffs[i[yRef2]].Prep
-
-                    # Lemma+Präposition formatieren
-                    if strPrep != "-":
-                        if diffs[i[yRef2]].Rel.startswith("~"):
-                            strLemma = strLemma + ' ' + strPrep
-                        else:
-                            strLemma = strPrep + ' ' + strLemma
-
-                    localMap['Lemma'] = strLemma
-                    localMap['POS'] = diffs[i[yRef2]].Pos2
-                    localMap['Position'] = 'right'
-            else:
-                score['Frequency2'] = 0
-                score['Assoziation2'] = 0.0
-                localMap['ConcordId2'] = 0
-                localMap['ConcordNo2'] = 0
-                localMap['ConcordNoAccessible2'] = 0
-
-            localMap['Score'] = score
-            listMapRes.append(localMap)
-
-        return listMapRes
+        return coocc_diffs
 
     def get_relation_by_info_id(self, params):
         """
