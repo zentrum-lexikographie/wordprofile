@@ -11,8 +11,10 @@ from imsnpars.nparser import options
 from imsnpars.tools import utils
 
 from wordprofile.parsing import get_parser, parse_file
+from wordprofile.utils import chunks
 from wordprofile.zdl import read_tabs_format
 
+# Set for graph search in parser
 sys.setrecursionlimit(200)
 
 parsers = {}
@@ -98,12 +100,6 @@ def get_basenames(mongo_db_keys):
     mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
     mongo_db = mongo_db_client[mongo_db_keys[1]]
     return set(mongo_db[mongo_db_keys[2]].find().distinct('basename'))
-
-
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
 
 
 def main():

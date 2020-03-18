@@ -8,6 +8,8 @@ import sys
 
 import pymongo
 from sqlalchemy import create_engine
+
+from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, remove_invalid_chars
 from wordprofile.zdl import extract_matches_from_doc, DBToken, simplified_pos, load_lemma_repair_files
@@ -66,12 +68,6 @@ def process_doc(mongo_db_keys, doc_id):
     except Exception as e:
         print(e)
         return None, [], []
-
-
-def chunks(lst, n):
-    """Yield successive n-sized chunks from lst."""
-    for i in range(0, len(lst), n):
-        yield lst[i:i + n]
 
 
 def delete_indices(db_engine_key):
