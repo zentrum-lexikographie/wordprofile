@@ -227,22 +227,29 @@ class WpSeMySql:
         db_results = self.fetchall(select_from_sql + where_sql)
         return list(map(Coocc._make, db_results))
 
-    def get_relation_tuples_diff(self, lemma1, lemma2, pos, relations,
+    def get_relation_tuples_diff(self, lemma1, lemma2, pos, relation,
                                  order_by, min_freq, min_stat):
         """
         Ermitteln der Kookkurrenzen zu einer Liste von syntaktischen Relationen für die 'diff'-Abfrage
         """
+        if relation.startswith('~'):
+            relation = relation[1:]
+            inv = 1
+        else:
+            inv = 0
+
         query = """
-        SELECT c.id, label, '-', lemma1, lemma2, lemma1_tag, lemma2_tag, frequency, 1 as score
+        SELECT c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, IFNULL(c.frequency, 0), IFNULL(s.log_dice, 0.0), inv
         FROM collocations c
-        WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label IN ({})
+        LEFT JOIN wp_stats s on c.id = s.collocation_id
+        WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = "{}" and inv = {}
         {}
-        """.format(
+        ORDER BY {} DESC""".format(
             lemma1, lemma2, pos,
-            ",".join(['"{}"'.format(r) for r in relations]),
-            "and frequency >= {}".format(min_freq) if min_freq > 0 else ""
+            relation,
+            inv,
+            "and frequency >= {}".format(min_freq) if min_freq > 0 else "",
+            order_by
         )
         db_results = self.fetchall(query)
-        Coocc = namedtuple("CooccDiff",
-                           ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2", "Frequency", "Score"])
         return list(map(Coocc._make, db_results))

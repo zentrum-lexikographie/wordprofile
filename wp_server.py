@@ -342,21 +342,19 @@ class Wordprofile:
 
         # Prüfen, ob die Kookkurrenzpartner für beide Lemmata vorhanden sind
         iCountRank2 = 1
-        for k in cooccs_rel:
-            i = diffs[k]
+        for k, i in enumerate(diffs):
             if i.Lemma1 == lemma2_id:
                 if nbest == None or iCountRank2 <= nbest:
-                    mapData[(i.Prep, i.Lemma2)] = (k, i)
+                    mapData[i.Lemma2] = (k, i)
                     mapRank[k] = iCountRank2
                 iCountRank2 += 1
 
         iCountRank1 = 1
-        for k in cooccs_rel:
-            i = diffs[k]
+        for k, i in enumerate(diffs):
             if i.Lemma1 == lemma1_id:
                 if nbest == None or iCountRank1 <= nbest:
-                    if (i.Prep, i.Lemma2) in mapData:
-                        (iPos, myTuple) = mapData[(i.Prep, i.Lemma2)]
+                    if i.Lemma2 in mapData:
+                        (iPos, myTuple) = mapData[i.Lemma2]
                         iRef1 = k
                         iRef2 = iPos
                         mapCenter[iRef1] = iRef2
@@ -367,34 +365,28 @@ class Wordprofile:
         if use_intersection:
             # wenn der Schnitt berechnet werden soll
             results = []
-            for i in mapCenter:
-                iRef = mapCenter[i]
+            for k in mapCenter:
+                iRef = mapCenter[k]
                 if iRef != -1:
                     iRef1 = i
                     iRef2 = iRef
                     iRank1 = mapRank[iRef1]
                     iRank2 = mapRank[iRef2]
-
-                    iScore = self.__diff_operation(operation, diffs[iRef1].Score, diffs[iRef2].Score,
+                    iScore = self.__diff_operation(operation, diffs[iRef1].LogDice, diffs[iRef2].LogDice,
                                                    iRank1, iRank2)
                     results.append((iRef1, iRef2, iRank1, iRank2, iScore))
         else:
             results = []
-            for k in cooccs_rel:
-                i = diffs[k]
+            for k, i in enumerate(diffs):
                 # für Lemma1 und Lemma2
                 if k in mapCenter:
                     iRef = mapCenter[k]
-                    if iRef == -1:
-                        pass
-                    else:
+                    if iRef != -1:
                         iRef1 = k
                         iRef2 = iRef
                         iRank1 = mapRank[iRef1]
                         iRank2 = mapRank[iRef2]
-
-                        iScore = self.__diff_operation(operation, i.Score, diffs[iRef2].Score, iRank1, iRank2)
-
+                        iScore = self.__diff_operation(operation, i.LogDice, diffs[iRef2].LogDice, iRank1, iRank2)
                         results.append((iRef1, iRef2, iRank1, iRank2, iScore))
 
                 elif k in mapRank:
@@ -404,9 +396,7 @@ class Wordprofile:
                         iRef2 = -1
                         iRank1 = mapRank[iRef1]
                         iRank2 = -1
-
-                        iScore = self.__diff_operation(operation, i.Score, 0, iRank1, 0)
-
+                        iScore = self.__diff_operation(operation, i.LogDice, 0, iRank1, 0)
                     # für nur Lemma2
                     else:
                         iRef1 = -1
@@ -418,32 +408,17 @@ class Wordprofile:
 
                     results.append((iRef1, iRef2, iRank1, iRank2, iScore))
 
-        yScore = 4
-
         # Abschließendes Sortieren und Abschneiden
-        lcmp = lambda idx: lambda i, j: (i[idx] > j[idx]) and -1 or (i[idx] < j[idx]) and 1 or 0
-        abs_lcmp = lambda idx: lambda i, j: (math.fabs(i[idx]) > math.fabs(j[idx])) and -1 or (
-                math.fabs(i[idx]) < math.fabs(j[idx])) and 1 or 0
-        rcmp = lambda idx: lambda i, j: (i[idx] < j[idx]) and -1 or (i[idx] > j[idx]) and 1 or 0
-        abs_rcmp = lambda idx: lambda i, j: (math.fabs(i[idx]) < math.fabs(j[idx])) and -1 or (
-                math.fabs(i[idx]) > math.fabs(j[idx])) and 1 or 0
-
-        if operation == "rmax":
-            my_cmp = rcmp
+        if operation in ["adiff", "ardiff"]:
+            results.sort(key=lambda x: math.fabs(x[4]), reverse=True)
+            results = results[:number]
+            results.sort(key=lambda x: x[4], reverse=True)
+        elif operation == "rmax":
+            results.sort(key=lambda x: x[4])
+            results = results[:number]
         else:
-            my_cmp = lcmp
-        # TODO cmp was removed in Python3. Seems weird anyway...
-        if operation == "adiff":
-            results.sort(key=cmp_to_key(abs_lcmp(yScore)))
-            results = results[0:number]
-            results.sort(key=cmp_to_key(lcmp(yScore)))
-        elif operation == "ardiff":
-            results.sort(key=cmp_to_key(abs_lcmp(yScore)))
-            results = results[0:number]
-            results.sort(key=cmp_to_key(lcmp(yScore)))
-        else:
-            results.sort(key=cmp_to_key(my_cmp(yScore)))
-            results = results[0:number]
+            results.sort(key=lambda x: x[4], reverse=True)
+            results = results[:number]
 
         return results
 
