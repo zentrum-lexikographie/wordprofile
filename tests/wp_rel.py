@@ -6,7 +6,6 @@ def get_relation(wp, args):
     mapping = wp.get_lemma_and_pos({
         "Word": args.lemma,
         "Subcorpus": args.corpus,
-        "CaseSensitive": args.case_sensitive,
         "UseVariations": args.variations
     })
     if len(mapping) == 0:

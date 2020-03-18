@@ -24,88 +24,18 @@ class Wordprofile:
         Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert.
         Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
         """
-        params = {
-            "Word": "Mann",
-            "Subcorpus": "",
-            "CaseSensitive": True,
-            "UseLemmatizer": False,
-            "UseVariations": 1
-        }
-        mapping = self.get_lemma_and_pos(params)
-        selection = {}
-        for i in mapping:
-            if i["POS"] == "NN":
-                selection = i
-
-        if selection == {}:
-            return "Internal Server Error (get_lemma_and_pos)"
-
-        # Parameter für die Kookkurrenzabfrage
-        params["Lemma"] = selection["Lemma"]
-        params["POS"] = selection["POS"]
-        params["Start"] = 0
-        params["Number"] = 10
-        params["OrderBy"] = "logDice"
-        params["Relations"] = selection["Relations"]
-        relations = self.get_relations(params)
-        if len(relations) == 0:
-            return "Internal Server Error (get_relations)"
-
-        return "OK"
+        raise NotImplementedError()
 
     def get_info(self):
         raise NotImplementedError()
 
-    def get_ordered_relation_ids(self, relations, pos):
+    def __get_ordered_relation_ids(self, relations, pos):
         """
         Gets relation ids sorted by the specified ordering
         """
         relation_order = self.wp_spec.mapRelOrder.get(pos, self.wp_spec.listRelOrder)
         ordered_rels = [i for i in relation_order if i in relations]
         return ordered_rels
-
-    @deprecated
-    def get_lemma_and_pos_by_list(self, mapParam):
-        """
-        Die Methode ermöglicht es, zu einer liste von gegebenen Wörtern die Wortprofil-Lemma/POS-IDs für jedes der enthaltenen Wörter zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten für ein Wort).
-        *Eingabe ist eine Liste aus Lemma/Oberflächen-Formen mehrerer Wörter in UTF-8 ('Parts') (z.B. [Treffen,im,weiß,Haus]) zusammen mit der optionalen Angabe eines Subkorpus ('Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ('UseVariations'). Diese Parameter werden über einen Dictionary übergeben
-        dictParam = {'Parts':<list>, 'Subcorpus':<string>, 'CaseSensitive':<bool=1>, 'UseVariations':<bool=0>}
-        hiervon sind obligatorisch: 'Parts'
-        *Rückgabe ist eine Liste aus einer Liste von: Lemmaform ('Lemma'), part-of-speech ('POS'), Lemma-ID ('LemmaId'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten ('Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ('Relations'), die nach Relevanz geordnet sind. die Listeneinträge sind als dictionary abgelegt:
-        [[ {'Lemma':<string>,'POS':<string>,'LemmaId':<int>,'PosId':<int>,'Frequency':<int>,'Count':<int>,'Relations:<Liste aus Strings>} , ... ], [ ... ], ... ]
-        """
-        listLemma = mapParam['Parts']
-        if len(listLemma) < 1:
-            return []
-        bCaseSensitive = False
-        if "CaseSensitive" in mapParam:
-            bCaseSensitive = bool(mapParam["CaseSensitive"])
-
-        listResult = []
-        # Durchgehen der Lemmaliste
-        for word in listLemma:
-            # Ermitteln der Lemmainformationen
-            mapParam["Word"] = word
-            mapping = self.get_lemma_and_pos(mapParam)
-
-            mappingNew = []
-            for j in mapping:
-                if (not bCaseSensitive or word[0].isupper()) and j['POS'] in ['Substantiv']:
-                    mappingNew.append(j)
-                elif (not bCaseSensitive or word[0].islower()) and j['POS'] in ['Verb', 'Adjektiv', 'Adverb']:
-                    mappingNew.append(j)
-                elif (not bCaseSensitive or word[0].islower()) and j['POS'] in ['Präposition']:
-                    mappingNew = []
-                    mappingNew.append(j)
-                    break
-
-            # TODO warum []???
-            if mappingNew == []:
-                return []
-
-            listResult.append(mappingNew)
-
-        return listResult
 
     def get_lemma_and_pos(self, params):
         """
@@ -116,27 +46,25 @@ class Wordprofile:
         *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
         """
         use_external_variations = bool(params.get('UseVariations', True))
-        is_case_sensitive = bool(params.get("CaseSensitive", False))
         word = params.get("Word")
         pos = params.get("POS", "")
 
-        results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
+        results = self.wp_db.get_lemma_and_pos(word, pos)
 
         # evtl. Variationen in der Schreibweise berücksichtigen
         if not results and use_external_variations and word in self.wp_spec.mapVariation:
             word = self.wp_spec.mapVariation[word]
-            results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
+            results = self.wp_db.get_lemma_and_pos(word, pos)
 
         # evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
         if not results and use_external_variations:
             for word in generate_orth_variations(word):
-                results = self.wp_db.get_lemma_and_pos(word, pos, is_case_sensitive)
+                results = self.wp_db.get_lemma_and_pos(word, pos)
                 if results:
                     break
 
         return results
 
-    @deprecated
     def get_lemma_and_pos_diff(self, params):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
@@ -146,37 +74,14 @@ class Wordprofile:
         *Rückgabe ist eine Liste aus: erster Lemmaform ('Lemma1'), zweiter Lemmaform ('Lemma2'), erster Lemma-ID ('LemmaId1'), zweiter Lemma-ID ('LemmaId2'), part-of-speech ('POS'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten für das erste Wort ('Frequency1') und für das zweite Wort ('Frequency2'), Anzahl Relationen ohne Doppelte für das erte Wort ('Count1') und für das zweite Wort ('Count2') und Liste aller möglichen Relationen für beide Wörter ('Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt:
         [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
         """
-        # Parameter
-        params1 = {}
-        params2 = {}
-        params1["Word"] = params["Word1"]
-        params2["Word"] = params["Word2"]
-        bUseExternalVariations = 1
-        if "UseVariations" in params:
-            bUseExternalVariations = params["UseVariations"]
-        if "Subcorpus" in params:
-            params1["Subcorpus"] = params["Subcorpus"]
-            params2["Subcorpus"] = params["Subcorpus"]
-        if "CaseSensitive" in params:
-            params1["CaseSensitive"] = params["CaseSensitive"]
-            params2["CaseSensitive"] = params["CaseSensitive"]
-
-        # Lemmainformationen zum ersten Lemma ermitteln
-        list1 = self.get_lemma_and_pos(params1)
-        if list1 == [] and bool(bUseExternalVariations):
-            strLemma = params1['Word']
-            if strLemma in self.wp_spec.mapVariation:
-                params1['Word'] = self.wp_spec.mapVariation[strLemma]
-                list1 = self.get_lemma_and_pos(params1)
-
-        # Lemmainformationen zum zweiten Lemma ermitteln
-        list2 = self.get_lemma_and_pos(params2)
-        if list2 == [] and bool(bUseExternalVariations):
-            strLemma = params2['Word']
-            if strLemma in self.wp_spec.mapVariation:
-                params2['Word'] = self.wp_spec.mapVariation[strLemma]
-                list2 = self.get_lemma_and_pos(params2)
-
+        list1 = self.get_lemma_and_pos({
+            "Word": params["Word1"],
+            "UseVariations": bool(params.get('UseVariations', True))
+        })
+        list2 = self.get_lemma_and_pos({
+            "Word": params["Word2"],
+            "UseVariations": bool(params.get('UseVariations', True))
+        })
         # nur Lemmata mit der gleichen Wortart sind vergleichbar
         results = []
         for i in list1:
@@ -186,7 +91,8 @@ class Wordprofile:
                     results.append({
                         'Lemma1': i['Lemma'], 'Lemma2': j['Lemma'], 'POS': i['POS'],
                         'Frequency1': i['Frequency'], 'Frequency2': j['Frequency'],
-                        'Relations': relations})
+                        'Relations': relations
+                    })
         return results
 
     @deprecated
@@ -230,11 +136,11 @@ class Wordprofile:
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
 
-        ordered_relations = self.get_ordered_relation_ids(relations, pos)
+        ordered_relations = self.__get_ordered_relation_ids(relations, pos)
         results = []
         for relation in ordered_relations:
-            cooccs = self.wp_db.get_relation_tuples_check(lemma, lemma2, pos, pos2, start, number,
-                                                          order_by, min_freq, min_stat, relation)
+            cooccs = self.wp_db.get_relation_tuples(lemma, lemma2, pos, pos2, start, number,
+                                                    order_by, min_freq, min_stat, relation)
             # IDs in den Kookkurenzlisten auf Strings abbilden
             cooccs = self.__relation_tuples_2_strings(cooccs)
             # Meta-Informationen
@@ -276,12 +182,11 @@ class Wordprofile:
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", -100000000)
         min_stat = params.get("MinStat", -100000000)
-        subcorpus = params.get("Subcorpus", "")
 
         # Informationen aus der komplexen ID extrahieren
         lemma, pos, rel = hit_id.split("#")[:3]
-        cooccs = self.wp_db.get_relation_tuples_check(lemma, -1, pos, -1, start, number, order_by, min_freq,
-                                                      min_stat, rel)
+        cooccs = self.wp_db.get_relation_tuples(lemma, "", pos, "", start, number, order_by, min_freq,
+                                                min_stat, rel)
         cooccs = self.__relation_tuples_2_strings(cooccs)
         return cooccs
 
@@ -291,25 +196,11 @@ class Wordprofile:
         """
         results = []
         for coocc in cooccs:
-            # evt. Lemma Reparieren
-            lemma2 = coocc.Lemma2
-            lemma1 = coocc.Lemma1
-            pos1 = coocc.Pos1
-            pos2 = coocc.Pos2
-
-            # Lemma+Präposition formatieren
-            if coocc.Prep not in ["-", ""]:
-                if coocc.inverse:
-                    lemma2 = lemma2 + ' ' + coocc.Prep
-                else:
-                    lemma2 = coocc.Prep + ' ' + lemma2
-
-            # Informationen in einer Map bündeln
             result = {
                 'Relation': "~" if coocc.inverse else "" + coocc.Rel,
-                'POS': pos2,
-                'PosId': pos2,
-                'Lemma': lemma2,
+                'POS': coocc.Pos2,
+                'PosId': coocc.Pos2,
+                'Lemma': coocc.Lemma2,
                 'Score': {
                     'Frequency': coocc.Frequency // 2,
                     #     'MiLogFreq': coocc.Score_MiLogFreq,
@@ -332,6 +223,36 @@ class Wordprofile:
             results.append(result)
         return results
 
+    def __format_concordances(self, concords):
+        results = []
+        for c in concords:
+            sentence_left = format_sentence(c.sentence_left)
+            sentence_right = format_sentence(c.sentence_right)
+            if not c.sentence:
+                logger.info("skip line: None in table!")
+                continue
+            bib_entry = {
+                "Corpus": c.corpus,
+                "Date": c.date.strftime("%d-%m-%Y"),
+                "TextClass": c.textclass,
+                "Orig": c.orig.replace('#page#', c.page),
+                "Scan": c.scan.replace('#page#', c.page),
+                "Avail": c.avail,
+                "Page": c.page,
+                "File": c.file,
+            }
+            sentence_main = format_sentence_center(c.sentence, c.token_position_1, c.token_position_2,
+                                                   c.prep_position if c.prep_position > 0 else None)
+            results.append({
+                "Bibl": bib_entry,
+                "ConcordLine": sentence_main,
+                "ConcordLeft": sentence_left,
+                "ConcordRight": sentence_right,
+                "Score": c.score
+            })
+        return results
+
+    @deprecated
     def get_diff(self, params):
         """
         Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2')
@@ -714,5 +635,5 @@ class Wordprofile:
         use_context = bool(params.get("UseContext", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        return self.wp_db.get_concordances(coocc_id, use_context,
-                                           start_index, result_number)
+        return self.__format_concordances(self.wp_db.get_concordances(coocc_id, use_context,
+                                                                      start_index, result_number))

@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import logging
 from collections import defaultdict, namedtuple, Counter
+from typing import List
 
 import pymysql
 
@@ -10,6 +11,13 @@ import MySQLdb
 from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
 
 logger = logging.getLogger('wordprofile.mysql')
+
+Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",
+                             "Frequency", "LogDice", "inverse"])
+Concordance = namedtuple("Concordance",
+                         ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
+                          "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
+                          "sentence_right"])
 
 
 class WpSeMySql:
@@ -83,7 +91,7 @@ class WpSeMySql:
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
                 matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
-                s_center.page, cf.file, 1
+                s_center.page, cf.file, 1, "", ""
             FROM
                 matches
             LEFT JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
@@ -101,43 +109,10 @@ class WpSeMySql:
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
                        start_index, result_number)
         db_results = self.fetchall(query)
+        db_results: List[Concordance] = list(map(Concordance._make, db_results))
+        return db_results
 
-        results = []
-        for item in db_results:
-            if use_context:
-                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
-                 avail, page, file, score, sentence_left, sentence_right) = item
-                sentence_left = format_sentence(sentence_left)
-                sentence_right = format_sentence(sentence_right)
-            else:
-                (sentence, token_position_1, token_position_2, prep_position, corpus, date, textclass, orig, scan,
-                 avail, page, file, score) = item
-                sentence_left = sentence_right = ""
-            if not sentence:
-                logger.info("skip line: None in table!")
-                continue
-            bib_entry = {
-                "Corpus": corpus,
-                "Date": date.strftime("%d-%m-%Y"),
-                "TextClass": textclass,
-                "Orig": orig.replace('#page#', page),
-                "Scan": scan.replace('#page#', page),
-                "Avail": avail,
-                "Page": page,
-                "File": file,
-            }
-            sentence_main = format_sentence_center(sentence, token_position_1, token_position_2,
-                                                   prep_position if prep_position > 0 else None)
-            results.append({
-                "Bibl": bib_entry,
-                "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": score
-            })
-        return results
-
-    def get_lemma_and_pos(self, word, pos, is_case_sensitive):
+    def get_lemma_and_pos(self, word, pos):
         """
         Basismethode zur Abfrage von Lemmainformationen
         """
@@ -156,10 +131,10 @@ class WpSeMySql:
             "and lemma1_tag='{}'".format(pos) if pos not in ["*", ""] else "",
         )
         db_results = self.fetchall(query)
-        return self.__get_valid_sorted_lemmas(db_results, word, False)
+        return self.__get_valid_sorted_lemmas(db_results, word)
 
     @staticmethod
-    def __get_valid_sorted_lemmas(db_results, word, is_case_sensitive):
+    def __get_valid_sorted_lemmas(db_results, word):
         """
         Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
         Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
@@ -183,13 +158,6 @@ class WpSeMySql:
         results = []
         for pos, (lemma, frequency, relations) in pos_sorted:
             relations = [relation for (relation, frequency) in relations]
-
-            # bei case-sensitiver Abfrage Groß-Kleinschreibung zu den Wortarten berücksichtigen
-            if is_case_sensitive:
-                if pos != "Substantiv" and lemma[0].isupper():
-                    continue
-                if pos == "Substantiv" and lemma[0].islower():
-                    continue
 
             # Relevanz der einzelnen Informationen über die verschiedenen Ergebnislisten behandeln
             if word == lemma and word[0].isupper() and lemma[0].isupper():
@@ -220,8 +188,8 @@ class WpSeMySql:
         Coocc = namedtuple("CooccInfo", ["rel", "lemma1", "lemma2", "pos1", "pos2", "inv"])
         return Coocc(*db_results)
 
-    def get_relation_tuples_check(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
-                                  min_stat, relation):
+    def get_relation_tuples(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
+                            min_stat, relation):
         """
         Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
         Wortprofil-MySQL-Datenbank
@@ -235,7 +203,7 @@ class WpSeMySql:
         min_stat_sql = " and (log_dice) >= {} ".format(min_stat) if min_stat > -100000000 else ""
         select_from_sql = """
         SELECT
-            c.id, c.label, '-', c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0), IFNULL(s.log_dice, 0.0), inv
         FROM 
             collocations c
@@ -257,10 +225,7 @@ class WpSeMySql:
                 lemma1, pos1, lemma2, pos2, relation, inv, min_freq_sql, min_stat_sql, order_by, start, number
             )
         db_results = self.fetchall(select_from_sql + where_sql)
-        Coocc = namedtuple("Coocc",
-                           ["RelId", "Rel", "Prep", "Lemma1", "Lemma2", "Pos1", "Pos2",
-                            "Frequency", "LogDice", "inverse"])
-        return map(Coocc._make, db_results)
+        return list(map(Coocc._make, db_results))
 
     def get_relation_tuples_diff(self, lemma1, lemma2, pos, relations,
                                  order_by, min_freq, min_stat):
