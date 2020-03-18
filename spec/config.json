@@ -28,11 +28,11 @@
     ],
     "PP": [
       "hat Präpositionalgruppe",
-      "$1 hat Präpositionalgruppe $3 $2"
+      "$1 hat Präpositionalgruppe $2"
     ],
     "~PP": [
       "ist in Präpositionalgruppe",
-      "$3 $1 ist Präpositionalgruppe von $2"
+      "$1 ist Präpositionalgruppe von $2"
     ],
     "PRED": [
       "hat Prädikativ",
