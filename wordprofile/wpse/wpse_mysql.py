@@ -8,8 +8,6 @@ import pymysql
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
-from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
-
 logger = logging.getLogger('wordprofile.mysql')
 
 Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",

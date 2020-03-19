@@ -9,17 +9,16 @@ logger = logging.getLogger('wordprofile')
 
 class WordprofileXMLRPC:
     def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
-        self.wp = Wordprofile(db_host, db_user, db_passwd, db_name, db_port, wp_spec_file)
+        self.wp = Wordprofile(db_host, db_user, db_passwd, db_name, wp_spec_file)
 
     def status(self):
         """
-        Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert.
-        Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
+        status check for icinga
         """
-        raise self.wp.status()
+        raise NotImplementedError()
 
     def get_info(self):
-        raise self.wp.get_info()
+        raise NotImplementedError()
 
     def get_lemma_and_pos(self, params):
         """

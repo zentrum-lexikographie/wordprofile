@@ -5,30 +5,20 @@ import math
 from collections import defaultdict
 from typing import List
 
+from wordprofile.formatter import format_comparison, format_concordances, format_cooccs
 from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
-from wordprofile.wpse.wpse_string import format_sentence, format_sentence_center
 
 logger = logging.getLogger('wordprofile')
 
 
 class Wordprofile:
-    def __init__(self, db_host, db_user, db_passwd, db_name, db_port, wp_spec_file):
+    def __init__(self, db_host, db_user, db_passwd, db_name, wp_spec_file):
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
         self.wp_db = WpSeMySql(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
-
-    def status(self):
-        """
-        Status-Function für "icinga". Es wird geprüft, ob der Server einwandfrei funktioniert.
-        Hierzu werden Testweise Kookkurrenzen zu einem Wort abgefragt.
-        """
-        raise NotImplementedError()
-
-    def get_info(self):
-        raise NotImplementedError()
 
     def __get_ordered_relation_ids(self, relations, pos):
         """
@@ -106,14 +96,16 @@ class Wordprofile:
         for relation in ordered_relations:
             cooccs = self.wp_db.get_relation_tuples(lemma, lemma2, pos, pos2, start, number,
                                                     order_by, min_freq, min_stat, relation)
-            # IDs in den Kookkurenzlisten auf Strings abbilden
-            cooccs = self.__format_cooccs(cooccs)
             # Meta-Informationen
             description = self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
             hit_id = "{}#{}#{}".format(lemma, pos, relation)
-            results.append({'Relation': relation, 'Description': description, 'Tuples': cooccs, 'RelId': hit_id})
-
+            results.append({
+                'Relation': relation,
+                'Description': description,
+                'Tuples': format_cooccs(cooccs),
+                'RelId': hit_id
+            })
         return results
 
     # def get_cooccurrences(self, hit_id: str, start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000):
@@ -146,65 +138,6 @@ class Wordprofile:
     #     cooccs = self.__format_cooccs(cooccs)
     #     return cooccs
 
-    def __format_cooccs(self, cooccs):
-        results = []
-        for coocc in cooccs:
-            result = {
-                'Relation': "~" if coocc.inverse else "" + coocc.Rel,
-                'POS': coocc.Pos2,
-                'PosId': coocc.Pos2,
-                'Lemma': coocc.Lemma2,
-                'Score': {
-                    'Frequency': coocc.Frequency // 2,
-                    #     'MiLogFreq': coocc.Score_MiLogFreq,
-                    #     'log_dice': coocc.Score_logDice,
-                    'logDice': coocc.LogDice,
-                    #     'MI3': coocc.Score_MI3,
-                },
-                "ConcordId": coocc.RelId
-            }
-
-            # Berechnen der Frequenz und der Anzahl der Belege bei symmetrischen Relationen
-            concord_no = coocc.Frequency
-            # support_no = coocc.FreqBelege
-            if coocc.Rel == "KON" and coocc.Lemma1 == coocc.Lemma2:
-                concord_no = concord_no // 2
-                # support_no = support_no / 2
-            result['ConcordNo'] = concord_no
-            # result['ConcordNoAccessible'] = support_no
-            result['ConcordNoAccessible'] = concord_no
-            results.append(result)
-        return results
-
-    def __format_concordances(self, concords):
-        results = []
-        for c in concords:
-            sentence_left = format_sentence(c.sentence_left)
-            sentence_right = format_sentence(c.sentence_right)
-            if not c.sentence:
-                logger.info("skip line: None in table!")
-                continue
-            bib_entry = {
-                "Corpus": c.corpus,
-                "Date": c.date.strftime("%d-%m-%Y"),
-                "TextClass": c.textclass,
-                "Orig": c.orig.replace('#page#', c.page),
-                "Scan": c.scan.replace('#page#', c.page),
-                "Avail": c.avail,
-                "Page": c.page,
-                "File": c.file,
-            }
-            sentence_main = format_sentence_center(c.sentence, c.token_position_1, c.token_position_2,
-                                                   c.prep_position if c.prep_position > 0 else None)
-            results.append({
-                "Bibl": bib_entry,
-                "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": c.score
-            })
-        return results
-
     def get_diff(self, lemma1: str, lemma2: str, pos: str, cooccs: List[str], number: int = 20,
                  order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
                  use_intersection: bool = False, nbest: int = 0):
@@ -225,11 +158,10 @@ class Wordprofile:
         for rel in ordered_relations:
             diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
             diffs = self.__calculate_diff(lemma1, lemma2, diffs, number, nbest, use_intersection, operation)
-            diffs = self.__format_comparison(diffs)
             relations.append({
                 'Relation': rel,
                 'Description': self.wp_spec.mapRelDesc.get(rel, self.wp_spec.strRelDesc),
-                'Tuples': diffs
+                'Tuples': format_comparison(diffs)
             })
         return relations
 
@@ -322,67 +254,6 @@ class Wordprofile:
 
         return iScore
 
-    def __format_comparison(self, diffs):
-        """
-        Methode, um IDs in den Diff-Kookkurenzlisten auf Strings abzubilden
-        """
-        coocc_diffs = []
-        for d in diffs:
-            coocc_diff = {
-                'POS': d['pos'],
-                'ConcordId1': 0,
-                'ConcordId2': 0,
-                'ConcordNo1': 0,
-                'ConcordNo2': 0,
-                'ConcordNoAccessible1': 0,
-                'ConcordNoAccessible2': 0,
-                'Score': {
-                    'AScomp': d.get('score'),
-                    'Rank1': d.get('rank_1', -1),
-                    'Rank2': d.get('rank_2', -1),
-                    'Frequency1': 0,
-                    'Assoziation1': 0.0,
-                    'Frequency2': 0,
-                    'Assoziation2': 0.0,
-                }
-            }
-            if 'coocc_1' in d:
-                # Es gibt Kookkurenzen zum ersten Wort
-                coocc_diff['Score']['Frequency1'] = d['coocc_1'].Frequency
-                coocc_diff['Score']['Assoziation1'] = d['coocc_1'].LogDice
-                coocc_diff['ConcordId1'] = d['coocc_1'].RelId
-
-                iConcordNo1 = d['coocc_1'].Frequency
-                if d['coocc_1'].Rel == "KON" and d['coocc_1'].Lemma1 == d['coocc_1'].Lemma2:
-                    iConcordNo1 = iConcordNo1 / 2
-                coocc_diff['ConcordNo1'] = iConcordNo1
-                coocc_diff['Relation'] = d['coocc_1'].Rel
-                coocc_diff['Lemma'] = d['coocc_1'].Lemma2
-                coocc_diff['Form'] = d['coocc_1'].Lemma2
-
-                if 'coocc_2' in d:
-                    coocc_diff['Position'] = 'left'
-                else:
-                    coocc_diff['Position'] = 'center'
-            if 'coocc_2' in d:
-                # Es gibt Kookkurenzen zum zweiten Wort
-                coocc_diff['Score']['Frequency2'] = d['coocc_2'].Frequency
-                coocc_diff['Score']['Assoziation2'] = d['coocc_2'].LogDice
-                coocc_diff['ConcordId2'] = d['coocc_2'].RelId
-
-                iConcordNo2 = d['coocc_2'].Frequency
-                if d['coocc_2'].Rel == "KON" and d['coocc_2'].Lemma1 == d['coocc_2'].Lemma2:
-                    iConcordNo2 = iConcordNo2 / 2
-                coocc_diff['ConcordNo2'] = iConcordNo2
-                if 'coocc_1' not in d:
-                    coocc_diff['Relation'] = d['coocc_2'].Rel
-                    coocc_diff['Lemma'] = d['coocc_2'].Lemma2
-                    coocc_diff['Form'] = d['coocc_2'].Lemma2
-                    coocc_diff['Position'] = 'right'
-            coocc_diffs.append(coocc_diff)
-
-        return coocc_diffs
-
     def get_relation_by_info_id(self, coocc_id: int):
         """
         Die Funktion ermöglicht es, anhand einer Concordanz-ID ('InfoId') eine Relation abzufragen.
@@ -415,5 +286,4 @@ class Wordprofile:
         return relation
 
     def get_concordances(self, coocc_id: int, use_context: bool = False, start_index: int = 0, result_number: int = 20):
-        return self.__format_concordances(self.wp_db.get_concordances(coocc_id, use_context,
-                                                                      start_index, result_number))
+        return format_concordances(self.wp_db.get_concordances(coocc_id, use_context, start_index, result_number))
