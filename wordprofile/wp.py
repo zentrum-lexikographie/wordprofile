@@ -3,8 +3,8 @@
 import logging
 import math
 from collections import defaultdict
+from typing import List
 
-from wordprofile.wpse import deprecated
 from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
@@ -38,7 +38,7 @@ class Wordprofile:
         ordered_rels = [i for i in relation_order if i in relations]
         return ordered_rels
 
-    def get_lemma_and_pos(self, params):
+    def get_lemma_and_pos(self, word: str, pos: str = '', use_external_variations: bool = True):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
         *Eingabe ist die Lemma/Oberflächen-Form eines Wortes in UTF-8 ( 'Word') (z.B. Laufen, Baum, Haus, schön, ...) zusammen mit der optionalen Angabe eines Subkorpus ( 'Subcorpus') (z.B. zeit, kern, 21jhd, ...). Zudem ist parametrisiert, ob caseinsensitiv abgefragt werden soll ( 'CaseSensitive') oder ob eine interne Liste mit abweichenden Schreibweisen verwendet werden soll ( 'UseVariations'). Diese Parameter werden über einen Dictionary übergeben:
@@ -46,27 +46,20 @@ class Wordprofile:
         hiervon sind obligatorisch: 'Word'
         *Rückgabe ist eine Liste aus: Lemmaform ( 'Lemma'), part-of-speech ( 'POS'), Lemma-ID ( 'LemmaId'), POS-ID ( 'PosId'), Anzahl der Relationen mit Doppelten ( 'Frequency'), Anzahl Relationen ohne Doppelte ( 'Count') und Liste aller möglichen Relationen ( 'Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt.
         """
-        use_external_variations = bool(params.get('UseVariations', True))
-        word = params.get("Word")
-        pos = params.get("POS", "")
-
         results = self.wp_db.get_lemma_and_pos(word, pos)
-
         # evtl. Variationen in der Schreibweise berücksichtigen
         if not results and use_external_variations and word in self.wp_spec.mapVariation:
             word = self.wp_spec.mapVariation[word]
             results = self.wp_db.get_lemma_and_pos(word, pos)
-
         # evtl. automatisch generierte Variationen der Schreibweisen berücksichtigen
         if not results and use_external_variations:
             for word in generate_orth_variations(word):
                 results = self.wp_db.get_lemma_and_pos(word, pos)
                 if results:
                     break
-
         return results
 
-    def get_lemma_and_pos_diff(self, params):
+    def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str, use_variations: bool = True):
         """
         Die Methode ermöglicht es, zu einem gegebenen Wort die Wortprofil-Lemma/POS-IDs zu ermitteln (evtl. mehrere Part-Of-Speech Lesarten ).
         mapParam = {'Word1':<string>, 'Word2':<string>, 'Subcorpus':<string>, 'CaseSensitive':<bool=False>}
@@ -75,14 +68,8 @@ class Wordprofile:
         *Rückgabe ist eine Liste aus: erster Lemmaform ('Lemma1'), zweiter Lemmaform ('Lemma2'), erster Lemma-ID ('LemmaId1'), zweiter Lemma-ID ('LemmaId2'), part-of-speech ('POS'), POS-ID ('PosId'), Anzahl der Relationen mit Doppelten für das erste Wort ('Frequency1') und für das zweite Wort ('Frequency2'), Anzahl Relationen ohne Doppelte für das erte Wort ('Count1') und für das zweite Wort ('Count2') und Liste aller möglichen Relationen für beide Wörter ('Relations'), die nach Relevanz geordnet sind. Die Listeneinträge sind als dictionary abgelegt:
         [ {'Lemma1':<string>,'Lemma2':<string>,'POS':<string>,'LemmaId1':<int>,'LemmaId2':<int>,'PosId':<int>,'Frequency1':<int>,'Frequency2':<int>,'Count1':<int>,'Count2':<int>,'Relations:<Liste aus Strings>} , ... ]
         """
-        list1 = self.get_lemma_and_pos({
-            "Word": params["Word1"],
-            "UseVariations": bool(params.get('UseVariations', True))
-        })
-        list2 = self.get_lemma_and_pos({
-            "Word": params["Word2"],
-            "UseVariations": bool(params.get('UseVariations', True))
-        })
+        list1 = self.get_lemma_and_pos(lemma1, use_external_variations=use_variations)
+        list2 = self.get_lemma_and_pos(lemma2, use_external_variations=use_variations)
         # nur Lemmata mit der gleichen Wortart sind vergleichbar
         results = []
         for i in list1:
@@ -100,24 +87,9 @@ class Wordprofile:
                     })
         return results
 
-    @deprecated
-    def __gen_rel_cooccurrence_mapping(self, diffs):
-        """
-        Ermitteln eines Mapping von Relation-Id auf die Zeile innerhalb
-        einer Liste von Kookkurenzinformationen (listData)
-        """
-        mapRelData = {}
-        # Position der Relation-Information
-        iCounter = 0
-        for i in diffs:
-            if i.Rel in mapRelData:
-                mapRelData[i.Rel].append(iCounter)
-            else:
-                mapRelData[i.Rel] = [iCounter]
-            iCounter += 1
-        return mapRelData
-
-    def get_relations(self, params):
+    def get_relations(self, lemma: str, lemma2: str, pos: str, pos2: str = '', relations: List[str] = (),
+                      start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0,
+                      min_stat: int = -1000):
         """
         Die Methode ermöglicht es, anhand einer Wortprofil-Lemma-ID und POS-ID Wortprofilrelationen abzufragen.
         *Eingabe ist ein Dictionary aus Parametern. Zu der Wortprofil-Lemma-ID ('LemmaId') und POS-ID ('PosId') sind wetere Parameter: ab dem wievielten Eintrag die Tupel zu den einzelnen Relationen zürückgegeben werden sollen ('Start'), wieviele Einträge zurückgegeben werden sollen ('Number'), nach welcher Statistik ('Frequency','MiLogFreq','MI3','logDice','AScore','logLike') sortiert werden soll ('OrderBy'), die minimal erlaubte Frequenz ('MinFreq'), der minimal erlaubte Statistikwert ('MinStat'), evtl. Angabe eines Subcorpus in dem gesucht werden soll ('Subcorpus') und bezüglich welcher Relationen abgefragt werden soll ('Relations')
@@ -129,25 +101,13 @@ class Wordprofile:
         [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
         Wenn der Wert von 'ConcordNo' der 0 entspricht gibt es aus rechtlichen Gründen keine Texttreffer. Dann ist 'ConcordNoAccessible' auch 0.
         """
-        lemma = params["Lemma"]
-        lemma2 = params.get("Lemma2", "")
-        pos = params["POS"]
-        pos2 = params.get("Pos2Id", "")
-        relations = params.get("Relations", [])
-        start = params.get("Start", 0)
-        number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
-        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-        min_freq = params.get("MinFreq", -100000000)
-        min_stat = params.get("MinStat", -100000000)
-
         ordered_relations = self.__get_ordered_relation_ids(relations, pos)
         results = []
         for relation in ordered_relations:
             cooccs = self.wp_db.get_relation_tuples(lemma, lemma2, pos, pos2, start, number,
                                                     order_by, min_freq, min_stat, relation)
             # IDs in den Kookkurenzlisten auf Strings abbilden
-            cooccs = self.__relation_tuples_2_strings(cooccs)
+            cooccs = self.__format_cooccs(cooccs)
             # Meta-Informationen
             description = self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc)
             # ID (komplex) für die Relation+Kookkurenzen erstellen
@@ -156,49 +116,37 @@ class Wordprofile:
 
         return results
 
-    def get_cooccurrences(self, params):
-        """
-        Die Methode ermöglicht es, anhand einer Relations-ID Kookkurrenzen für eine bestimmte Relation abzufragen
-        (für normale Relationen und MWE-Relationen).
-        *Eingabe ist ein Dictionary aus Parametern. Zu der Relations-ID ('RelId') sind wetere Parameter: ab dem
-        wievielten Eintrag die Tupel zürückgegeben werden sollen ( 'Start'), wieviele Einträge zurückgegeben werden
-        sollen ( 'Number'), nach welcher Statistik ( 'Frequency','MiLogFreq','MI3','logDice','AScore','logLike')
-        sortiert werden soll ( 'OrderBy'), die minimal erlaubte Frequenz ( 'MinFreq'), der minimal erlaubte
-        Statistikwert ( 'MinStat'), evtl. Angabe eines Subkorpus in dem gesucht werden soll ( 'Subcorpus')
-        mapParam = {'RelId':<string>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,
-                    'MinFreq':<int=-inf>,'MinStat':<float=-inf>,'Subcorpus':<string>}
-        hiervon sind obligatorisch: 'RelId'
-        *Rückgabe ist eine Liste aus Kookkurrenztupeln. Ein Kookkurrenztupel enthält folgende Information: syntaktische
-        Relation ('Relation'), Snippet ('Snippet'), Lemma des Kookkurrenzpartners ('Lemma'), Oberflächenform des
-        Kookkurrenzpartners ('Form'), part-of-speech des Dependenten ('POS'), statistic Score ( 'Score'),
-        Concordanz-ID ('ConcordId'), ob es MWEs zu der Kookkurrrenz gibt ('HasMwe' mit den Werten 0 oder 1), Anzahl der
-        Belege ('ConcordNo'). Die Information 'Score' ist komplex und besteht aus einem Dictionary mit einem Eintrag
-        für 'MiLogFreq', für 'logDice', für 'Frequency', für 'MI3', für 'AScore', für 'logLike'. Zudem wird die
-        Gesamtanzahl der möglichen Belege zurückgegeben ('ConcordNo') und die Anzahl der anzeigbaren Belege
-        ('ConcordNoAccessible'). Die Listeneinträge sind als dictionary abgelegt:
-        [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,
-           'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,
-           'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
-        """
-        hit_id = params["RelId"]
-        start = params.get("Start", 0)
-        number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
-        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-        min_freq = params.get("MinFreq", -100000000)
-        min_stat = params.get("MinStat", -100000000)
+    # def get_cooccurrences(self, hit_id: str, start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000):
+    #     """
+    #     Die Methode ermöglicht es, anhand einer Relations-ID Kookkurrenzen für eine bestimmte Relation abzufragen
+    #     (für normale Relationen und MWE-Relationen).
+    #     *Eingabe ist ein Dictionary aus Parametern. Zu der Relations-ID ('RelId') sind wetere Parameter: ab dem
+    #     wievielten Eintrag die Tupel zürückgegeben werden sollen ( 'Start'), wieviele Einträge zurückgegeben werden
+    #     sollen ( 'Number'), nach welcher Statistik ( 'Frequency','MiLogFreq','MI3','logDice','AScore','logLike')
+    #     sortiert werden soll ( 'OrderBy'), die minimal erlaubte Frequenz ( 'MinFreq'), der minimal erlaubte
+    #     Statistikwert ( 'MinStat'), evtl. Angabe eines Subkorpus in dem gesucht werden soll ( 'Subcorpus')
+    #     mapParam = {'RelId':<string>,'Start':<int=0>,'Number':<int=20>,'OrderBy':<string='logDice'>,
+    #                 'MinFreq':<int=-inf>,'MinStat':<float=-inf>,'Subcorpus':<string>}
+    #     hiervon sind obligatorisch: 'RelId'
+    #     *Rückgabe ist eine Liste aus Kookkurrenztupeln. Ein Kookkurrenztupel enthält folgende Information: syntaktische
+    #     Relation ('Relation'), Snippet ('Snippet'), Lemma des Kookkurrenzpartners ('Lemma'), Oberflächenform des
+    #     Kookkurrenzpartners ('Form'), part-of-speech des Dependenten ('POS'), statistic Score ( 'Score'),
+    #     Concordanz-ID ('ConcordId'), ob es MWEs zu der Kookkurrrenz gibt ('HasMwe' mit den Werten 0 oder 1), Anzahl der
+    #     Belege ('ConcordNo'). Die Information 'Score' ist komplex und besteht aus einem Dictionary mit einem Eintrag
+    #     für 'MiLogFreq', für 'logDice', für 'Frequency', für 'MI3', für 'AScore', für 'logLike'. Zudem wird die
+    #     Gesamtanzahl der möglichen Belege zurückgegeben ('ConcordNo') und die Anzahl der anzeigbaren Belege
+    #     ('ConcordNoAccessible'). Die Listeneinträge sind als dictionary abgelegt:
+    #     [ {'Relation':<string>,'Snippet':<string>,'Lemma':<string>,'Form':<string>,'POS':<string>,
+    #        'Score':{'MiLogFreq':<float>,'logDice':<float>,'Frequency':<int>},'ConcordId':<int>,'MweId':<string>,
+    #        'ConcordNo':<int>,'ConcordNoAccessible':<int>}, ... ]
+    #     """
+    #     lemma, pos, rel = hit_id.split("#")[:3]
+    #     cooccs = self.wp_db.get_relation_tuples(lemma, "", pos, "", start, number, order_by, min_freq,
+    #                                             min_stat, rel)
+    #     cooccs = self.__format_cooccs(cooccs)
+    #     return cooccs
 
-        # Informationen aus der komplexen ID extrahieren
-        lemma, pos, rel = hit_id.split("#")[:3]
-        cooccs = self.wp_db.get_relation_tuples(lemma, "", pos, "", start, number, order_by, min_freq,
-                                                min_stat, rel)
-        cooccs = self.__relation_tuples_2_strings(cooccs)
-        return cooccs
-
-    def __relation_tuples_2_strings(self, cooccs):
-        """
-        Methode, um IDs in den Kookkurenzlisten auf Strings abzubilden
-        """
+    def __format_cooccs(self, cooccs):
         results = []
         for coocc in cooccs:
             result = {
@@ -257,7 +205,9 @@ class Wordprofile:
             })
         return results
 
-    def get_diff(self, params):
+    def get_diff(self, lemma1: str, lemma2: str, pos: str, cooccs: List[str], number: int = 20,
+                 order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
+                 use_intersection: bool = False, nbest: int = 0):
         """
         Die Methode ermöglicht es, anhand zweier Wortprofil-Lemma-IDs ('LemmaId1', 'LemmaId2')
         mit POS-ID ('POS') vergleichende Wortprofilrelationen abzufragen.
@@ -270,20 +220,6 @@ class Wordprofile:
         [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
         """
-        lemma1 = params["LemmaId1"]
-        lemma2 = params["LemmaId2"]
-        pos = params["POS"]
-        cooccs = params["Relations"]
-        number = params.get("Number", 20)
-        order_by = params.get("OrderBy", "logDice")
-        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-        min_freq = params.get("MinFreq", -100000000)
-        min_stat = params.get("MinStat", -100000000)
-
-        operation = params.get("Operation", "adiff")
-        use_intersection = params.get("Intersection", False)
-        nbest = int(params.get("NBest", 0))
-
         ordered_relations = self.__get_ordered_relation_ids(cooccs, pos)
         relations = []
         for rel in ordered_relations:
@@ -296,14 +232,6 @@ class Wordprofile:
                 'Tuples': diffs
             })
         return relations
-
-    def get_intersection(self, mapParam):
-        """
-        Indirekter aufruf von get_diff mit der Operation 'rmax'
-        """
-        mapParam['Operation'] = 'rmax'
-        mapParam['Intersection'] = True
-        return self.get_diff(mapParam)
 
     def __calculate_diff(self, lemma1_id, lemma2_id, diffs, number, nbest, use_intersection, operation):
         """
@@ -353,7 +281,8 @@ class Wordprofile:
         # compute score based on occurring cooccs
         for d in diffs_grouped:
             if 'coocc_1' in d and 'coocc_2' in d:
-                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, d['coocc_2'].LogDice, d['rank_1'], d['rank_2'])
+                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, d['coocc_2'].LogDice, d['rank_1'],
+                                                   d['rank_2'])
             elif 'coocc_1' in d:
                 d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, 0, d['rank_1'], 0)
             elif 'coocc_2' in d:
@@ -454,7 +383,7 @@ class Wordprofile:
 
         return coocc_diffs
 
-    def get_relation_by_info_id(self, params):
+    def get_relation_by_info_id(self, coocc_id: int):
         """
         Die Funktion ermöglicht es, anhand einer Concordanz-ID ('InfoId') eine Relation abzufragen.
         mapParam = {'InfoId':<int>}
@@ -462,7 +391,6 @@ class Wordprofile:
         *Rückgabe ist ein Dictionary aus: syntaktischer Relation ('Relation'), Lemmaform von W1 ('Lemma1'), Lemmaform von W2 ('Lemma2'), POS-Tag von W1 ('POS1'), POS-Tag von W2 ('POS2'), Oberflächenform von W1 ('Form1'), Oberflächenform von W2 ('Form2'):
         {'Relation':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>}
         """
-        coocc_id = int(params.get("InfoId"))
         coocc_info = self.wp_db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
@@ -474,30 +402,18 @@ class Wordprofile:
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
                 'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
-    def get_concordances_and_relation(self, params):
+    def get_concordances_and_relation(self, coocc_id: int, use_context: bool = False, start_index: int = 0,
+                                      result_number: int = 20):
         """
         Diese Methode ist ein Mix aus 'get_concordances' und 'get_relation_by_info_id'.
         Die Eingabe gleicht der Eingabe bei der Methode 'get_concordances'
         Rückgabe ist ein Dictionary mit: Relationsbeschreibung ('Description', z.B.: Mann ist Subjekt von laufen), Lemmaform von W1 ( 'Lemma1'), Lemmaform von W2 ( 'Lemma2'), POS-Tag von W1 ( 'POS1'), POS-Tag von W2 ( 'POS2'), Oberflächenform von W1 ( 'Form1'), Oberflächenform von W2 ( 'Form2') und einer Liste mit Konkordanz-Informationen ( 'Tuples') die dem Format der Rückgabe von 'get_concordances' entspricht:
         {'Relation':<string>,'Description':<string>,'Lemma1':<string>,'Lemma2':<string>,'POS1':<string>,'POS2':<string>,'Form1':<string>,'Form2':<string>,'Tuples':[ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string>* ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]}
         """
-        relation = self.get_relation_by_info_id(params)
-        relation['Tuples'] = self.get_concordances(params)
+        relation = self.get_relation_by_info_id(coocc_id)
+        relation['Tuples'] = self.get_concordances(coocc_id, use_context, start_index, result_number)
         return relation
 
-    def get_concordances(self, params):
-        """
-        Die Methode ermöglicht es, anhand einer Concord-ID Texttreffer abzufragen.
-        *Eingabe ist die Concordanz-ID ( 'InfoId') und ein Range von Belegen (Startpunkt ( 'Start') und Anzahl ( 'Number')) und die Angabe, ob nach Datum/Quality-Score absteigend sortiert werden soll ( 'DateDesc'), ob nach Quality-Score sortiert werden soll ('UseScore') und evtl. ein Subcorpus ( 'Subcorpus'). Über die Option 'UseContext' kann zudem angegeben werden ob zusätzlich ein lechter und linker Satz zurückgegeben werden soll. Des Weiteren kann über 'InternalUser' angegeben werden, ob rechtebehaftete Inhalte angezeigt werden. Diese Parameter werden über einen dictionary übergeben:
-        mapParam = {'InfoId':<int/string>,'Start':<int=0>,'Number':<int=20> ,'InternalUser':<bool> ,'Subcorpus':<string> ,'UseScore':<bool=0> ,'UseContext':<bool=0> ,'DateDesc':<bool=1>}
-        Hiervon sind obligatorisch: 'InfoId'
-
-        *Rückgabe ist eine liste von Trefferinformationen. eine Trefferinformation ist ein Dictionary aus 'Bibl', 'ConcordLine', 'ConcordLeft' und 'ConcordRight' wobei 'Bibl' einen dictionary bibliographischer Einträge als wert hat ( 'Corpus','Date', 'TextClass', 'Orig', 'Scan','Page') und 'ConcordLine' den Beleg. Die Primäre Fundstelle im Beleg ist mit && (links) und && (rechts) markiert. Die sekundären Fundstellen sind mit _& (links) und &_(rechts) markiert.
-        [ {'Bibl': {'Corpus':<string>,'Date':<string>,'TextClass':<string>,'Orig':<string> ,'Scan':<string> ,'Page':<string>}, 'ConcordLine':<string>, 'ConcordLeft':<string>, 'ConcordRight':<string>} , ... ]
-        """
-        coocc_id = int(params.get("InfoId"))
-        use_context = bool(params.get("UseContext", False))
-        start_index = params.get("Start", 0)
-        result_number = params.get("Number", 20)
+    def get_concordances(self, coocc_id: int, use_context: bool = False, start_index: int = 0, result_number: int = 20):
         return self.__format_concordances(self.wp_db.get_concordances(coocc_id, use_context,
                                                                       start_index, result_number))

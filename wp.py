@@ -1,15 +1,20 @@
 #!/usr/bin/python
 # This is a simple word profile client that is developed for usage tests
-# It can instantiate a word profile and ask for basic functionality such as relation information, hits/matches, and word
-# profile comparison
+# It can instantiate a word profile and ask for basic functionality such as
+#  * relation information,
+#  * hits/matches, and
+#  * word profile comparison
 
 import getpass
 import logging
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from tests import wp_rel, wp_hit, wp_cmp, wp_info
-from wp_server import Wordprofile
+from wordprofile.apps.xmlrpc import WordprofileXMLRPC
+from wordprofile.cli.cmp import compare_lemmas
+from wordprofile.cli.hit import get_hits
+from wordprofile.cli.info import get_wordprofile_info
+from wordprofile.cli.rel import get_relation
 
 parser = ArgumentParser()
 
@@ -43,9 +48,9 @@ rel_parser.add_argument("-v", action="store_true", dest="variations", default=Fa
                         help="Einbeziehung von alternativen Schreibungen zu einem Eingabelemma")
 
 hit_parser = subparsers.add_parser("hit")
-hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
-hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
-hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
+hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
+hit_parser.add_argument("-s", type=int, dest="start", default=0, help="Trefferstart")
+hit_parser.add_argument("-n", type=int, dest="number", default=20, help="Trefferanzahl (default=20)")
 hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
                         help="host default=http://services.dwds.de:9999")
 hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,
@@ -103,16 +108,16 @@ else:
         db_password = getpass.getpass("db password: ")
     else:
         db_password = args.user
-    wp = Wordprofile(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    wp = WordprofileXMLRPC(args.hostname, args.user, db_password, args.database, args.port, args.spec)
 
 if args.subcommand == "status":
     response = wp.status()
     print("|: status: ", response)
 elif args.subcommand == "info":
-    wp_info.get_wordprofile_info(wp)
+    get_wordprofile_info(wp)
 elif args.subcommand == "rel":
-    wp_rel.get_relation(wp, args)
+    get_relation(wp, args)
 elif args.subcommand == "hit":
-    wp_hit.get_hits(wp, args)
+    get_hits(wp, args)
 elif args.subcommand == "cmp":
-    wp_cmp.compare_lemmas(wp, args)
+    compare_lemmas(wp, args)
