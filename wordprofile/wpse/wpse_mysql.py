@@ -1,21 +1,16 @@
 #!/usr/bin/python
 import logging
-from collections import defaultdict, namedtuple, Counter
+from collections import defaultdict, Counter
 from typing import List
 
 import pymysql
+
+from wordprofile.datatypes import CooccInfo, Coocc, Concordance
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
 
 logger = logging.getLogger('wordprofile.mysql')
-
-Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",
-                             "Frequency", "LogDice", "inverse"])
-Concordance = namedtuple("Concordance",
-                         ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
-                          "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
-                          "sentence_right"])
 
 
 class WpSeMySql:
@@ -183,8 +178,7 @@ class WpSeMySql:
         WHERE c.id = {}
         """.format(coocc_id)
         db_results = self.fetchall(query)[0]
-        Coocc = namedtuple("CooccInfo", ["rel", "lemma1", "lemma2", "pos1", "pos2", "inv"])
-        return Coocc(*db_results)
+        return CooccInfo(*db_results)
 
     def get_relation_tuples(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
                             min_stat, relation):

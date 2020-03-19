@@ -1,7 +1,7 @@
 import re
 from typing import List
 
-from wordprofile.wpse.wpse_mysql import Coocc, Concordance
+from wordprofile.datatypes import Coocc, Concordance
 
 RE_HIT_DELIMITER = re.compile(r"[^\x01\x02]*[\x01\x02]")
 
