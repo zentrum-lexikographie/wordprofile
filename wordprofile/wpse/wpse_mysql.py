@@ -1,6 +1,5 @@
 #!/usr/bin/python
 import logging
-from collections import defaultdict, Counter
 from typing import List
 
 import pymysql
@@ -105,7 +104,7 @@ class WpSeMySql:
         db_results: List[Concordance] = list(map(Concordance._make, db_results))
         return db_results
 
-    def get_lemma_and_pos(self, word, pos):
+    def get_lemma_and_pos(self, word, pos=''):
         """
         Basismethode zur Abfrage von Lemmainformationen
         """
@@ -115,59 +114,16 @@ class WpSeMySql:
         query = """
             SELECT lemma1, lemma1_tag, label, SUM(frequency), inv
             FROM collocations c
-            WHERE LOWER(lemma1) = '{}' {}
+            WHERE lemma1 = '{}' {}
             GROUP BY lemma1, lemma1_tag, label, inv
             HAVING SUM(frequency) > 25
         """.format(
-            word.lower(),
+            word,
             # TODO determine for default POS value
-            "and lemma1_tag='{}'".format(pos) if pos not in ["*", ""] else "",
+            "and lemma1_tag='{}'".format(pos) if pos else "",
         )
         db_results = self.fetchall(query)
-        return self.__get_valid_sorted_lemmas(db_results, word)
-
-    @staticmethod
-    def __get_valid_sorted_lemmas(db_results, word):
-        """
-        Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
-        Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
-        eher Substantiv als Verb.
-        """
-        lemma_pos_mapping = defaultdict(list)
-        for lemma, pos, relation, frequency, inv in db_results:
-            if inv:
-                relation = "~" + relation
-            lemma_pos_mapping[(lemma, pos)].append((relation, frequency))
-
-        # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
-        most_frequent_lemma = {}
-        for (lemma, pos), relations in lemma_pos_mapping.items():
-            relations = list(Counter([r for r, c in relations for _ in range(int(c))]).items())
-            frequency = sum(frequency for _, frequency in relations)
-            if pos not in most_frequent_lemma or most_frequent_lemma[pos][1] < frequency:
-                most_frequent_lemma[pos] = (lemma, frequency, relations)
-        pos_sorted = sorted(most_frequent_lemma.items(), key=lambda x: x[1][1], reverse=True)
-
-        results = []
-        for pos, (lemma, frequency, relations) in pos_sorted:
-            relations = [relation for (relation, frequency) in relations]
-
-            # Relevanz der einzelnen Informationen über die verschiedenen Ergebnislisten behandeln
-            if word == lemma and word[0].isupper() and lemma[0].isupper():
-                if pos == "Substantiv":
-                    score = 1
-                else:
-                    score = 2
-            elif word.lower() == lemma.lower():
-                score = 3
-            elif word[0].isupper() == lemma[0].isupper():
-                score = 4
-            else:
-                score = 5
-            results.append((score, {'Lemma': lemma, 'POS': pos, 'PosId': pos,
-                                    'Frequency': frequency, 'Relations': relations}))
-        results = [r[1] for r in sorted(results, key=lambda x: x[0])]
-        return results
+        return db_results
 
     def get_relation_by_id(self, coocc_id):
         query = """

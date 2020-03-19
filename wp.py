@@ -100,7 +100,7 @@ ch.setFormatter(formatter)
 logger.addHandler(ch)
 
 if args.xmlrpc:
-    wp = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
+    wp: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
     print('user: ' + args.user)
     print('db: ' + args.database)

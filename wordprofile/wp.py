@@ -5,7 +5,7 @@ import math
 from collections import defaultdict
 from typing import List
 
-from wordprofile.formatter import format_comparison, format_concordances, format_cooccs
+from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos
 from wordprofile.wpse.OrthVariations import generate_orth_variations
 from wordprofile.wpse.wpse_mysql import WpSeMySql
 from wordprofile.wpse.wpse_spec import WpSeSpec
@@ -47,7 +47,7 @@ class Wordprofile:
                 results = self.wp_db.get_lemma_and_pos(word, pos)
                 if results:
                     break
-        return results
+        return format_lemma_pos(results, word)
 
     def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str, use_variations: bool = True):
         """
