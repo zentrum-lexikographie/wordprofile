@@ -4,7 +4,7 @@ from typing import List
 
 import pymysql
 
-from wordprofile.datatypes import CooccInfo, Coocc, Concordance
+from wordprofile.datatypes import CooccInfo, Coocc, Concordance, LemmaInfo
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
@@ -104,7 +104,7 @@ class WpSeMySql:
         db_results: List[Concordance] = list(map(Concordance._make, db_results))
         return db_results
 
-    def get_lemma_and_pos(self, word, pos=''):
+    def get_lemma_and_pos(self, word, pos='') -> List[LemmaInfo]:
         """
         Basismethode zur Abfrage von Lemmainformationen
         """
@@ -123,6 +123,7 @@ class WpSeMySql:
             "and lemma1_tag='{}'".format(pos) if pos else "",
         )
         db_results = self.fetchall(query)
+        db_results = list(map(LemmaInfo._make, db_results))
         return db_results
 
     def get_relation_by_id(self, coocc_id):

@@ -1,52 +1,25 @@
 import re
-from collections import defaultdict, Counter
+from collections import defaultdict
 from typing import List
 
-from wordprofile.datatypes import Coocc, Concordance
+from wordprofile.datatypes import Coocc, Concordance, LemmaInfo
 
 RE_HIT_DELIMITER = re.compile(r"[^\x01\x02]*[\x01\x02]")
 
 
-def format_lemma_pos(db_results, word):
-    """
-    Bei einer gegebenen Liste von Lemmainformationen werden Einträge gelöscht und die Einträge werden Sortiert.
-    Hierbei wird Bezug auf die Großschreibung und auf die Wortarten Bezug genommen. So sind Großgeschriebene Worte
-    eher Substantiv als Verb.
+def format_lemma_pos(db_results: List[LemmaInfo]):
+    """Converts lemma-pos items with their information (relations, frequencies) into output format
     """
     lemma_pos_mapping = defaultdict(list)
-    for lemma, pos, relation, frequency, inv in db_results:
-        if inv:
-            relation = "~" + relation
-        lemma_pos_mapping[(lemma, pos)].append((relation, int(frequency)))
-
-    # Erstellen einer map, die zu einer Wortart, die frequenteste Lemmainformation besitzt
-    most_frequent_lemma = {}
-    for (lemma, pos), relations in lemma_pos_mapping.items():
-        relations = list(Counter([r for r, c in relations for _ in range(int(c))]).items())
-        frequency = sum(frequency for _, frequency in relations)
-        if pos not in most_frequent_lemma or most_frequent_lemma[pos][1] < frequency:
-            most_frequent_lemma[pos] = (lemma, frequency, relations)
-    pos_sorted = sorted(most_frequent_lemma.items(), key=lambda x: x[1][1], reverse=True)
+    for i in sorted(db_results, key=lambda x: x.freq, reverse=True):
+        relation = "~" + i.rel if i.inv else i.rel
+        lemma_pos_mapping[(i.lemma, i.tag)].append((relation, int(i.freq)))
 
     results = []
-    for pos, (lemma, frequency, relations) in pos_sorted:
-        relations = [relation for (relation, frequency) in relations]
-
-        # Relevanz der einzelnen Informationen über die verschiedenen Ergebnislisten behandeln
-        if word == lemma and word[0].isupper() and lemma[0].isupper():
-            if pos == "Substantiv":
-                score = 1
-            else:
-                score = 2
-        elif word.lower() == lemma.lower():
-            score = 3
-        elif word[0].isupper() == lemma[0].isupper():
-            score = 4
-        else:
-            score = 5
-        results.append((score, {'Lemma': lemma, 'POS': pos, 'PosId': pos,
-                                'Frequency': frequency, 'Relations': relations}))
-    results = [r[1] for r in sorted(results, key=lambda x: x[0])]
+    for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
+        relations, frequencies = zip(*rel_freqs)
+        results.append({'Lemma': lemma, 'POS': pos, 'PosId': pos,
+                        'Frequency': sum(frequencies), 'Relations': relations})
     return results
 
 

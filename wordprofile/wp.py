@@ -47,7 +47,7 @@ class Wordprofile:
                 results = self.wp_db.get_lemma_and_pos(word, pos)
                 if results:
                     break
-        return format_lemma_pos(results, word)
+        return format_lemma_pos(results)
 
     def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str, use_variations: bool = True):
         """
