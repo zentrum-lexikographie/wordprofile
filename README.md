@@ -31,6 +31,21 @@ Erstellen der WP Statistik aus den Kollokationen
 
 `python3 init_database.py --user wpuser --database wp_test  --stats`
 
+## Clients
+
+### XMLRPC
+`python3 wordprofile/apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
+
+### REST API
+`python3 wordprofile/apps/rest_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
+
+Zusätzlich zur REST API wird bei fastapi eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
+
+### CLI
+...
+
+
+
 ## OLD STUFF
 *Starten eines Wortprofil-Servers
 

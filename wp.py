@@ -10,7 +10,7 @@ import logging
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from wordprofile.apps.xmlrpc import WordprofileXMLRPC
+from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
 from wordprofile.cli.cmp import compare_lemmas
 from wordprofile.cli.hit import get_hits
 from wordprofile.cli.info import get_wordprofile_info
