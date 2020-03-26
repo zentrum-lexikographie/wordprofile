@@ -13,9 +13,9 @@ from wordprofile.zdl import RELATIONS, RELATIONS_PREP, SIMPLE_TAG_MAP
 
 LEMMA_TYPE = types.VARCHAR(50)
 SURFACE_TYPE = types.VARCHAR(50)
-CORPUS_FILE_TYPE = types.VARCHAR(24)
-RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(relations.keys()) + list(relations_prep.keys())))
-TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(simplified_pos.values())))
+CORPUS_FILE_TYPE = types.CHAR(length=24)
+RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATIONS.keys()) + list(RELATIONS_PREP.keys())))
+TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(SIMPLE_TAG_MAP.values())))
 CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
 ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
 Match = namedtuple('Match',
@@ -132,8 +132,9 @@ def insert_bulk_corpus_file(engine: Engine, corpus_files):
 
 
 def prepare_corpus_file(doc):
-    return CorpusFile(
-        id=str(doc['_id']),
+    doc_id = str(doc['_id'])
+    return doc_id, CorpusFile(
+        id=doc_id,
         corpus=doc['collection'],
         file=doc['basename'],
         orig=doc['bibl'],

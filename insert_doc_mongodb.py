@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, remove_invalid_chars
-from wordprofile.zdl import extract_matches_from_doc, DBToken, simplified_pos, load_lemma_repair_files
+from wordprofile.zdl import extract_matches_from_doc, DBToken, SIMPLE_TAG_MAP, load_lemma_repair_files
 
 LEMMA_REPAIR = load_lemma_repair_files()
 
@@ -47,8 +47,8 @@ def convert_sentence(sentence):
     return [DBToken(
         idx=i + 1,
         surface=remove_invalid_chars(token['surface']),
-        lemma=repair_lemma(remove_invalid_chars(token['lemma']), simplified_pos.get(token['xpos'], token['xpos'])),
-        tag=simplified_pos.get(token['xpos'], token['xpos']),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma']), SIMPLE_TAG_MAP.get(token['xpos'], token['xpos'])),
+        tag=SIMPLE_TAG_MAP.get(token['xpos'], token['xpos']),
         head=token['head'],
         rel=token['rel'],
         misc=bool(token['misc'])
@@ -59,11 +59,11 @@ def process_doc(mongo_db_keys, doc_id):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_db_keys[2]]
     doc = mongo_db.find_one({'_id': doc_id})
     try:
-        db_corpus_file = prepare_corpus_file(doc)
+        doc_id, db_corpus_file = prepare_corpus_file(doc)
         parses = list(filter(sentence_is_valid, map(convert_sentence, doc["sentences"])))
-        db_concord_sentences = prepare_concord_sentences(str(doc_id), parses)
+        db_concord_sentences = prepare_concord_sentences(doc_id, parses)
         matches = extract_matches_from_doc(parses)
-        db_matches = prepare_matches(str(doc_id), matches)
+        db_matches = prepare_matches(doc_id, matches)
         return db_corpus_file, db_concord_sentences, db_matches
     except Exception as e:
         print(e)

@@ -10,7 +10,7 @@ DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel'
 
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 
-simplified_pos = {
+SIMPLE_TAG_MAP = {
     'APPR': 'APP',
     'APPO': 'APP',
     'APPRART': 'APP',
@@ -22,6 +22,7 @@ simplified_pos = {
     'NN': 'NN',
     'KOKOM': 'KOKOM',
     # 'PPER': 'PP',
+    'PTKVZ': 'VV',
     'VVFIN': 'VV',
     'VVINF': 'VV',
     'VVIZU': 'VV',
@@ -29,65 +30,80 @@ simplified_pos = {
     'VVPP1': 'VV',
     'VVPP2': 'VV',
     'VVIMP': 'VV',
-    # 'VAFIN': 'VA',
-    # 'VAIMP': 'VA',
-    # 'VAINF': 'VA',
-    # 'VAPP': 'VA',
-    # 'VMFIN': 'VM',
-    # 'VMINF': 'VM',
-    # 'VMPP': 'VM',
+    'VAFIN': 'VV',
+    'VAIMP': 'VV',
+    'VAINF': 'VV',
+    'VAPP': 'VV',
+    'VMFIN': 'VV',
+    'VMINF': 'VV',
+    'VMPP': 'VV',
 }
 
 # rel_map : (rel, head_pos, dep_pos)
-relations = {
-    "KON": [("CJ", "NN", "NN"),
-            # ("CJ", "PP", "NN"),
-            # ("CJ", "NN", "PP"),
-            # ("CJ", "PP", "PP"),
-            ("CJ", "ADJ", "ADJ"),
-            ("CJ", "VV", "VV"),
-            ],
-    "GMOD": [("GMOD", "NN", "NN"),
-             ],
+RELATIONS = {
+    "KON": [
+        ("CJ", "NN", "NN"),
+        # ("CJ", "PP", "NN"),
+        # ("CJ", "NN", "PP"),
+        # ("CJ", "PP", "PP"),
+        ("CJ", "ADJ", "ADJ"),
+        ("CJ", "VV", "VV"),
+        ("KON", "CJ", "NN", "NN", "KON"),
+        ("KON", "CJ", "ADJ", "ADJ", "KON"),
+        ("KON", "CJ", "VV", "VV", "KON"),
+    ],
+    "GMOD": [
+        ("GMOD", "NN", "NN"),
+    ],
     # "SUBJA": [("SUBJA", "VV", "NN"),
     #           ("SUBJA", "VV", "PP"),
     #           ],
     # "SUBJP": [("SUBJP", "VV", "NN"),
     #           ("SUBJP", "VV", "PP"),
     #           ],
-    "OBJ": [("OBJA", "VV", "NN"),
-            # ("OBJA", "VV", "PP"),
-            ("OBJD", "VV", "NN"),
-            # ("OBJD", "VV", "PP"),
-            ],
-    "PRED": [("PRED", "NN", "NN"),
-             ("PRED", "NN", "ADJ"),
-             # ("PRED", "PP", "NN"),
-             # ("PRED", "NN", "PP"),
-             # ("PRED", "PP", "PP"),
-             # ("PRED", "PP", "ADJ"),
-             ("SUBJ", "NN", "NN"),
-             ("SUBJ", "NN", "ADJ"),
-             # ("SUBJ", "PP", "NN"),
-             # ("SUBJ", "NN", "PP"),
-             # ("SUBJ", "PP", "PP"),
-             # ("SUBJ", "PP", "ADJ"),
-             ],
-    "ADV": [("ADV", "VV", "ADJ"),
-            ("ADV", "VV", "ADV"),
-            # ("ADV", "VV", "PTKNEG"),
-            ("ADV", "ADJ", "ADJ"),
-            ("ADV", "ADJ", "ADV"),
-            # ("ADV", "ADJ", "PTKNEG"),
-            ],
-    "ATTR": [("ATTR", "NN", "ADJ"),
-             ],
-    "VZ": [("VZ", "VV", "VV"),
-           ("AVZ", "VV", "VV"),
-           ],
+    "OBJ": [
+        ("OBJA", "VV", "NN"),
+        ("OBJA2", "VV", "NN"),
+        # ("OBJA", "VV", "PP"),
+        ("OBJD", "VV", "NN"),
+        # ("OBJD", "VV", "PP"),
+        # ("OBJG", "VV", "PP"),
+    ],
+    "PRED": [
+        ("PRED", "NN", "NN"),
+        ("PRED", "NN", "ADJ"),
+        ("PRED", "VV", "ADJ"),
+        ("PRED", "VV", "NN"),
+        # ("PRED", "PP", "NN"),
+        # ("PRED", "NN", "PP"),
+        # ("PRED", "PP", "PP"),
+        # ("PRED", "PP", "ADJ"),
+        ("SUBJ", "NN", "NN"),
+        ("SUBJ", "NN", "ADJ"),
+        ("SUBJ", "VV", "NN"),
+        ("SUBJ", "VV", "ADJ"),
+        # ("SUBJ", "PP", "NN"),
+        # ("SUBJ", "NN", "PP"),
+        # ("SUBJ", "PP", "PP"),
+        # ("SUBJ", "PP", "ADJ"),
+    ],
+    "ADV": [
+        ("ADV", "VV", "ADJ"),
+        ("ADV", "VV", "ADV"),
+        # ("ADV", "VV", "PTKNEG"),
+        ("ADV", "ADJ", "ADJ"),
+        ("ADV", "ADJ", "ADV"),
+        # ("ADV", "ADJ", "PTKNEG"),
+    ],
+    "ATTR": [
+        ("ATTR", "NN", "ADJ"),
+    ],
+    "VZ": [
+        ("AVZ", "VV", "VV"),
+    ],
 }
 # rel_map : (rel1, rel2, head_pos, dep_pos, prep_pos)
-relations_prep = {
+RELATIONS_PREP = {
     "KOM": [("KOM", "CJ", "NN", "NN", "KOKOM"),
             # ("KOM", "CJ", "NN", "PP", "KOKOM"),
             # ("KOM", "CJ", "PP", "NN", "KOKOM"),
@@ -120,11 +136,7 @@ def get_inverted_relation_patterns(relation_mappings):
     return {k: dict(vd) for k, vd in relations_inv.items()}
 
 
-relations_inv = get_inverted_relation_patterns(relations)
-relations_prep_inv = get_inverted_relation_patterns(relations_prep)
-
-
-def extract_prepositional_matches(tokens, sid):
+def extract_prepositional_matches(relations_prep_inv, tokens, sid):
     relations = []
     for dep in tokens:
         prep = tokens[int(dep.head) - 1]
@@ -134,17 +146,26 @@ def extract_prepositional_matches(tokens, sid):
         rel_types = (dep.rel, prep.rel)
         if rel_types in relations_prep_inv:
             if (dep.tag, prep.tag, head.tag) in relations_prep_inv[rel_types]:
-                relations.append(Match(
-                    head,
-                    dep,
-                    prep,
-                    relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
-                    sid,
-                ))
+                if prep.tag in ['APP', 'KOKOM']:
+                    relations.append(Match(
+                        head,
+                        dep,
+                        prep,
+                        relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
+                        sid,
+                    ))
+                else:
+                    relations.append(Match(
+                        head,
+                        dep,
+                        None,
+                        relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
+                        sid,
+                    ))
     return relations
 
 
-def extract_binary_matches(tokens, sid):
+def extract_binary_matches(relations_inv, tokens, sid):
     matches = []
     for dep in tokens:
         if dep.head == '0' or dep.rel in ('--', '_', '-') or dep.tag.startswith('$'):
@@ -168,9 +189,11 @@ def extract_binary_matches(tokens, sid):
 def extract_matches_from_doc(parses):
     matches = []
     sid = 1
+    relations_inv = get_inverted_relation_patterns(RELATIONS)
+    relations_prep_inv = get_inverted_relation_patterns(RELATIONS_PREP)
     for sentence in parses:
-        relations = extract_binary_matches(sentence, sid)
-        relations.extend(extract_prepositional_matches(sentence, sid))
+        relations = extract_binary_matches(relations_inv, sentence, sid)
+        relations.extend(extract_prepositional_matches(relations_prep_inv, sentence, sid))
         for r in relations:
             # TODO filter inconsistent relations
             #  - 0 is marked by parser
@@ -255,7 +278,7 @@ def tokenized_sentence_to_conll_token(sentence, normalizer=None):
 def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: List[ConLLToken]):
     sentence_conll = []
     for token_i, (tabs_token, pars_token) in enumerate(zip(sentence_orig, sentence)):
-        pos = simplified_pos.get(pars_token.pos, pars_token.pos)
+        pos = SIMPLE_TAG_MAP.get(pars_token.pos, pars_token.pos)
         sentence_conll.append(ConllToken(pars_token.orth, pars_token.lemma, pos,
                                          pars_token.morph, pars_token.headId, pars_token.dep,
                                          bool(tabs_token.word_sep)))
