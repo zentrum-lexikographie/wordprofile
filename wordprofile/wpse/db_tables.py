@@ -6,9 +6,10 @@ from typing import List
 
 from sqlalchemy import Table, Column, types, MetaData, Enum
 from sqlalchemy.engine import Engine
+from sqlalchemy.sql.schema import Index
 
 from wordprofile import zdl
-from wordprofile.zdl import relations, relations_prep, simplified_pos
+from wordprofile.zdl import RELATIONS, RELATIONS_PREP, SIMPLE_TAG_MAP
 
 LEMMA_TYPE = types.VARCHAR(50)
 SURFACE_TYPE = types.VARCHAR(50)
@@ -22,7 +23,8 @@ Match = namedtuple('Match',
                     'head_surface', 'dep_surface', 'head_position', 'dep_position',
                     'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
 
-re_pattern = re.compile(u'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+re_pattern = re.compile(r'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+re2_pattern = re.compile(r'(^\W+)|(\W+$)')
 
 
 def remove_invalid_chars(unicode_string):
@@ -39,6 +41,7 @@ def get_table_corpus_files(meta: MetaData):
         Column('scan', types.Text),
         Column('text_class', types.Text),
         Column('available', types.Text),
+        mysql_engine='Aria',
     )
 
 
@@ -49,6 +52,7 @@ def get_table_concord_sentences(meta: MetaData):
         Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence', types.Text),
         Column('page', types.VARCHAR(10)),
+        mysql_engine='Aria',
     )
 
 
@@ -68,6 +72,7 @@ def get_table_matches(meta: MetaData):
         Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence_id', types.Integer),
         Column('creation_date', types.DateTime),
+        mysql_engine='Aria'
     )
 
 
@@ -82,18 +87,38 @@ def get_table_collocations(meta: MetaData):
         Column('lemma2_tag', Enum(TAG_TYPE)),
         Column('inv', types.Boolean, default=0),
         Column('frequency', types.Integer, default=1),
+        mysql_engine='Aria',
     )
 
 
-def get_table_statistics(meta: MetaData):
+def get_table_corpus_frequencies(meta: MetaData):
     return Table(
-        'wp_stats', meta,
+        'corpus_freqs', meta,
+        Column('label', Enum(RELATION_TYPE)),
+        Column('freq', types.Integer),
+        Index('label_index', 'label'),
+        mysql_engine='Aria',
+    )
+
+
+def get_table_token_frequencies(meta: MetaData):
+    return Table(
+        'token_freqs', meta,
+        Column('lemma', LEMMA_TYPE),
+        Column('tag', Enum(TAG_TYPE)),
+        Column('freq', types.Integer),
+        Index('label_index', 'lemma'),
+        Index('label_tag_index', 'lemma', 'tag'),
+        mysql_engine='Aria',
+    )
+
+
+def get_table_statistics(meta: MetaData, metric: str = 'log_dice'):
+    return Table(
+        metric, meta,
         Column('collocation_id', types.Integer),
-        Column('mi', types.Float, default=0),
-        Column('mi_log_freq', types.Float),
-        Column('t_score', types.Float),
-        Column('log_dice', types.Float),
-        Column('log_like', types.Float),
+        Column('value', types.Float),
+        mysql_engine='Aria',
     )
 
 

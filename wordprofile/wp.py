@@ -138,7 +138,7 @@ class Wordprofile:
     #     cooccs = self.__format_cooccs(cooccs)
     #     return cooccs
 
-    def get_diff(self, lemma1: str, lemma2: str, pos: str, cooccs: List[str], number: int = 20,
+    def get_diff(self, lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
                  order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
                  use_intersection: bool = False, nbest: int = 0):
         """
@@ -153,7 +153,7 @@ class Wordprofile:
         [ {'Relation':<string>,'Form':<string>,'POS':<string>,'Score':{'Frequency1':<integer>,'Frequency2':<integer>,'Rank1':<integer>,'Rank2':<integer>,'Assoziation1':<float>,'Assoziation2':<float>,'AScomp':<float>},'ConcordId1':<int>,'ConcordId2':<int>,'ConcordNo1':<int>,'ConcordNo2':<int>,'ConcordNoAccessible1':<int>,'ConcordNoAccessible2':<int>,'Position':<string>}, ... ]
         Wenn keine ConcordId? vorhanden ist, wird '0' zurückgegeben.
         """
-        ordered_relations = self.__get_ordered_relation_ids(cooccs, pos)
+        ordered_relations = self.__get_ordered_relation_ids(relations, pos)
         relations = []
         for rel in ordered_relations:
             diffs = self.wp_db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
