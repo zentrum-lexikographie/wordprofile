@@ -1,10 +1,38 @@
 import multiprocessing
+from typing import List
 
 from imsnpars.nparser import builder
+from imsnpars.tools.utils import ConLLToken as IMSConllToken
 
-from wordprofile.zdl import read_tabs_format, tokenized_sentence_to_conll_token, conll_token_to_tokenized_sentence
+from wordprofile.datatypes import TabsToken, ConllToken
+from wordprofile.zdl import read_tabs_format
 
 parsers = {}
+
+
+def tokenized_sentence_to_conll_token(sentence: List[TabsToken], normalizer=None) -> List[IMSConllToken]:
+    sentence_conll = []
+    for token_i, token in enumerate(sentence):
+        sentence_conll.append(
+            IMSConllToken(tokId=token_i + 1,
+                          orth=token.surface,
+                          lemma=token.lemma,
+                          pos=token.pos,
+                          langPos=token.pos,
+                          morph="",
+                          headId=None,
+                          dep=None,
+                          norm=normalizer.norm(token.surface) if normalizer else None))
+    return sentence_conll
+
+
+def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: List[ConllToken]):
+    sentence_conll = []
+    for token_i, (tabs_token, pars_token) in enumerate(zip(sentence_orig, sentence)):
+        sentence_conll.append(ConllToken(pars_token.orth, pars_token.lemma, pars_token.pos,
+                                         pars_token.morph, pars_token.headId, pars_token.dep,
+                                         bool(tabs_token.word_sep)))
+    return sentence_conll
 
 
 def get_parser_prediction(parser, sentence):
