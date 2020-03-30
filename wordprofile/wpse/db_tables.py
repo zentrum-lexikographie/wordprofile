@@ -9,12 +9,12 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.sql.schema import Index
 
 from wordprofile import zdl
-from wordprofile.zdl import RELATIONS, RELATIONS_PREP, SIMPLE_TAG_MAP
+from wordprofile.zdl import RELATIONS, SIMPLE_TAG_MAP
 
 LEMMA_TYPE = types.VARCHAR(50)
 SURFACE_TYPE = types.VARCHAR(50)
 CORPUS_FILE_TYPE = types.CHAR(length=24)
-RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATIONS.keys()) + list(RELATIONS_PREP.keys())))
+RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATIONS.keys())))
 TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(SIMPLE_TAG_MAP.values())))
 CorpusFile = namedtuple('CorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
 ConcordSentence = namedtuple('ConcordSentence', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])

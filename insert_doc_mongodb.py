@@ -5,50 +5,25 @@ import getpass
 import logging
 import multiprocessing
 import sys
+from typing import List, Dict
 
 import pymongo
 from sqlalchemy import create_engine
 
+from wordprofile.datatypes import DBToken
 from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import prepare_corpus_file, prepare_concord_sentences, prepare_matches, \
     insert_bulk_concord_sentences, insert_bulk_corpus_file, insert_bulk_matches, remove_invalid_chars
-from wordprofile.zdl import extract_matches_from_doc, DBToken, SIMPLE_TAG_MAP, load_lemma_repair_files
-
-LEMMA_REPAIR = load_lemma_repair_files()
-
-
-def repair_lemma(lemma, lemma_tag):
-    if lemma_tag in LEMMA_REPAIR:
-        return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
-    return lemma
+from wordprofile.zdl import extract_matches_from_doc, SIMPLE_TAG_MAP, repair_lemma, \
+    sentence_is_valid
 
 
-def sent_filter_length(sentence):
-    return 3 <= len(sentence) <= 100
-
-
-def sent_filter_endings(sentence):
-    return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
-
-
-def sent_filter_lower_start(sentence):
-    return not sentence[0].surface.islower() or sentence[0].tag == 'PPER'
-
-
-def sent_filter_tags(sentence):
-    return any(t.tag in ["NN", "VV", "VM", "VA"] for t in sentence)
-
-
-def sentence_is_valid(s):
-    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)
-
-
-def convert_sentence(sentence):
+def convert_sentence(sentence: List[Dict[str, str]]) -> List[DBToken]:
     return [DBToken(
         idx=i + 1,
         surface=remove_invalid_chars(token['surface']),
-        lemma=repair_lemma(remove_invalid_chars(token['lemma']), SIMPLE_TAG_MAP.get(token['xpos'], token['xpos'])),
-        tag=SIMPLE_TAG_MAP.get(token['xpos'], token['xpos']),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma']), SIMPLE_TAG_MAP.get(token['xpos'], '')),
+        tag=SIMPLE_TAG_MAP.get(token['xpos'], ''),
         head=token['head'],
         rel=token['rel'],
         misc=bool(token['misc'])

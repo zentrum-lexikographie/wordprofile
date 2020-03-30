@@ -8,3 +8,8 @@ Concordance = namedtuple("Concordance",
                          ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
                           "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
                           "sentence_right"])
+TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
+ConllToken = namedtuple('ConllToken',
+                        ['surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'])
+DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
+Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])

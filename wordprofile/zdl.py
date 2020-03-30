@@ -1,16 +1,15 @@
-from collections import namedtuple, defaultdict
-from typing import List
+from collections import defaultdict
+from typing import List, Tuple, Dict
 
-from imsnpars.tools.utils import ConLLToken as IMSConllToken, ConLLToken
-
-TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
-ConllToken = namedtuple('ConllToken',
-                        ['surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'])
-DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
-
-Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
+from wordprofile.datatypes import TabsToken, DBToken, Match
 
 SIMPLE_TAG_MAP = {
+    'APP': 'APP',
+    'ADJ': 'ADJ',
+    'VV': 'VV',
+    'VA': 'VV',
+    'VM': 'VV',
+    'NN': 'NN',
     'APPR': 'APP',
     'APPO': 'APP',
     'APPRART': 'APP',
@@ -19,8 +18,8 @@ SIMPLE_TAG_MAP = {
     'ADV': 'ADV',
     'PAV': 'ADV',
     # 'ADJC': 'ADJ',
-    'NN': 'NN',
     'KOKOM': 'KOKOM',
+    'KON': 'KON',
     # 'PPER': 'PP',
     'PTKVZ': 'VV',
     'VVFIN': 'VV',
@@ -43,9 +42,6 @@ SIMPLE_TAG_MAP = {
 RELATIONS = {
     "KON": [
         ("CJ", "NN", "NN"),
-        # ("CJ", "PP", "NN"),
-        # ("CJ", "NN", "PP"),
-        # ("CJ", "PP", "PP"),
         ("CJ", "ADJ", "ADJ"),
         ("CJ", "VV", "VV"),
         ("KON", "CJ", "NN", "NN", "KON"),
@@ -55,45 +51,26 @@ RELATIONS = {
     "GMOD": [
         ("GMOD", "NN", "NN"),
     ],
-    # "SUBJA": [("SUBJA", "VV", "NN"),
-    #           ("SUBJA", "VV", "PP"),
-    #           ],
-    # "SUBJP": [("SUBJP", "VV", "NN"),
-    #           ("SUBJP", "VV", "PP"),
-    #           ],
     "OBJ": [
         ("OBJA", "VV", "NN"),
         ("OBJA2", "VV", "NN"),
-        # ("OBJA", "VV", "PP"),
         ("OBJD", "VV", "NN"),
-        # ("OBJD", "VV", "PP"),
-        # ("OBJG", "VV", "PP"),
     ],
     "PRED": [
         ("PRED", "NN", "NN"),
         ("PRED", "NN", "ADJ"),
         ("PRED", "VV", "ADJ"),
         ("PRED", "VV", "NN"),
-        # ("PRED", "PP", "NN"),
-        # ("PRED", "NN", "PP"),
-        # ("PRED", "PP", "PP"),
-        # ("PRED", "PP", "ADJ"),
         ("SUBJ", "NN", "NN"),
         ("SUBJ", "NN", "ADJ"),
         ("SUBJ", "VV", "NN"),
         ("SUBJ", "VV", "ADJ"),
-        # ("SUBJ", "PP", "NN"),
-        # ("SUBJ", "NN", "PP"),
-        # ("SUBJ", "PP", "PP"),
-        # ("SUBJ", "PP", "ADJ"),
     ],
     "ADV": [
         ("ADV", "VV", "ADJ"),
         ("ADV", "VV", "ADV"),
-        # ("ADV", "VV", "PTKNEG"),
         ("ADV", "ADJ", "ADJ"),
         ("ADV", "ADJ", "ADV"),
-        # ("ADV", "ADJ", "PTKNEG"),
     ],
     "ATTR": [
         ("ATTR", "NN", "ADJ"),
@@ -101,23 +78,14 @@ RELATIONS = {
     "VZ": [
         ("AVZ", "VV", "VV"),
     ],
-}
-# rel_map : (rel1, rel2, head_pos, dep_pos, prep_pos)
-RELATIONS_PREP = {
-    "KOM": [("KOM", "CJ", "NN", "NN", "KOKOM"),
-            # ("KOM", "CJ", "NN", "PP", "KOKOM"),
-            # ("KOM", "CJ", "PP", "NN", "KOKOM"),
-            # ("KOM", "CJ", "PP", "PP", "KOKOM"),
-            ("KOM", "CJ", "VV", "NN", "KOKOM"),
-            # ("KOM", "CJ", "VV", "PP", "KOKOM"),
-            ],
-    "PP": [("PP", "PN", "NN", "NN", "APP"),
-           # ("PP", "PN", "NN", "PP", "APP"),
-           # ("PP", "PN", "PP", "NN", "APP"),
-           # ("PP", "PN", "PP", "PP", "APP"),
-           ("PP", "PN", "VV", "NN", "APP"),
-           # ("PP", "PN", "VV", "PP", "APP"),
-           ],
+    "KOM": [
+        ("KOM", "CJ", "NN", "NN", "KOKOM"),
+        ("KOM", "CJ", "VV", "NN", "KOKOM"),
+    ],
+    "PP": [
+        ("PP", "PN", "NN", "NN", "APP"),
+        ("PP", "PN", "VV", "NN", "APP"),
+    ],
 }
 
 
@@ -136,80 +104,68 @@ def get_inverted_relation_patterns(relation_mappings):
     return {k: dict(vd) for k, vd in relations_inv.items()}
 
 
-def extract_prepositional_matches(relations_prep_inv, tokens, sid):
-    relations = []
-    for dep in tokens:
-        prep = tokens[int(dep.head) - 1]
-        if int(prep.head) <= 0:
+def extract_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Match]:
+    matches = []
+    for t in tokens:
+        if int(t.head) <= 0:
+            # token is root
             continue
-        head = tokens[int(prep.head) - 1]
-        rel_types = (dep.rel, prep.rel)
-        if rel_types in relations_prep_inv:
-            if (dep.tag, prep.tag, head.tag) in relations_prep_inv[rel_types]:
-                if prep.tag in ['APP', 'KOKOM']:
-                    relations.append(Match(
-                        head,
-                        dep,
-                        prep,
-                        relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
+        t_head_1 = tokens[int(t.head) - 1]
+        relation_type = t.rel
+        if relation_type in relations_inv:
+            if (t_head_1.tag, t.tag) in relations_inv[relation_type]:
+                matches.append(Match(
+                    t_head_1,
+                    t,
+                    None,
+                    relations_inv[relation_type][(t_head_1.tag, t.tag)],
+                    sid,
+                ))
+        if int(t_head_1.head) <= 0:
+            # token head is root, cannot make ternary relation
+            continue
+        t_head_2 = tokens[int(t_head_1.head) - 1]
+        rel_types = (t.rel, t_head_1.rel)
+        if rel_types in relations_inv:
+            if (t.tag, t_head_1.tag, t_head_2.tag) in relations_inv[rel_types]:
+                if t_head_1.tag in ['APP', 'KOKOM']:
+                    matches.append(Match(
+                        t_head_2,
+                        t,
+                        t_head_1,
+                        relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
                         sid,
                     ))
                 else:
-                    relations.append(Match(
-                        head,
-                        dep,
+                    matches.append(Match(
+                        t_head_2,
+                        t,
                         None,
-                        relations_prep_inv[rel_types][(dep.tag, prep.tag, head.tag)],
+                        relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
                         sid,
                     ))
-    return relations
 
-
-def extract_binary_matches(relations_inv, tokens, sid):
-    matches = []
-    for dep in tokens:
-        if dep.head == '0' or dep.rel in ('--', '_', '-') or dep.tag.startswith('$'):
-            continue
-        head = tokens[int(dep.head) - 1]
-        if head.tag.startswith('$'):
-            continue
-        relation_type = dep.rel
-        if relation_type in relations_inv:
-            if (head.tag, dep.tag) in relations_inv[relation_type]:
-                matches.append(Match(
-                    head,
-                    dep,
-                    None,
-                    relations_inv[relation_type][(head.tag, dep.tag)],
-                    sid,
-                ))
     return matches
 
 
-def extract_matches_from_doc(parses):
+def extract_matches_from_doc(parses: List[List[DBToken]]):
     matches = []
-    sid = 1
     relations_inv = get_inverted_relation_patterns(RELATIONS)
-    relations_prep_inv = get_inverted_relation_patterns(RELATIONS_PREP)
-    for sentence in parses:
-        relations = extract_binary_matches(relations_inv, sentence, sid)
-        relations.extend(extract_prepositional_matches(relations_prep_inv, sentence, sid))
+    for sid, sentence in enumerate(parses):
+        relations = extract_matches(relations_inv, sentence, sid + 1)
         for r in relations:
             # TODO filter inconsistent relations
             #  - 0 is marked by parser
-            if (r.relation == "0"
-                    or len(r.head.surface) < 2 or len(r.dep.surface) < 2
+            if (len(r.head.surface) < 2 or len(r.dep.surface) < 2
                     or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
                     or any(c in ['"', "'"] for c in r.head.surface)
-                    or any(c in ['"', "'"] for c in r.dep.surface)
-                    or r.head.tag == "-" or r.dep.tag == "-"):
+                    or any(c in ['"', "'"] for c in r.dep.surface)):
                 continue
             matches.append(r)
-        sid += 1
     return matches
 
 
-def read_meta_tabs_format(tabs_file_path):
+def read_meta_tabs_format(tabs_file_path: str) -> Tuple[Dict[str, str], Dict[str, int]]:
     meta = {}
     index = {}
     tabs_file = open(tabs_file_path, "r")
@@ -228,7 +184,7 @@ def read_meta_tabs_format(tabs_file_path):
     return meta, index
 
 
-def read_text_tabs_format(index, tabs_file_path):
+def read_text_tabs_format(index: Dict[str, int], tabs_file_path: str) -> List[List[TabsToken]]:
     sentences = []
     sentence = []
     tabs_file = open(tabs_file_path, "r")
@@ -250,7 +206,7 @@ def read_text_tabs_format(index, tabs_file_path):
     return sentences
 
 
-def read_tabs_format(tabs_file_path, meta_only=False):
+def read_tabs_format(tabs_file_path, meta_only=False) -> Tuple[Dict[str, str], List[List[TabsToken]]]:
     meta_data, index = read_meta_tabs_format(tabs_file_path)
     if meta_only:
         return meta_data, []
@@ -259,33 +215,14 @@ def read_tabs_format(tabs_file_path, meta_only=False):
         return meta_data, sentences
 
 
-def tokenized_sentence_to_conll_token(sentence, normalizer=None):
-    sentence_conll = []
-    for token_i, token in enumerate(sentence):
-        sentence_conll.append(
-            IMSConllToken(tokId=token_i + 1,
-                          orth=token.surface,
-                          lemma=token.lemma,
-                          pos=token.pos,
-                          langPos=token.pos,
-                          morph="",
-                          headId=None,
-                          dep=None,
-                          norm=normalizer.norm(token.surface) if normalizer else None))
-    return sentence_conll
+def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
+    """
+    Load static repair mapping files into dict.
 
-
-def conll_token_to_tokenized_sentence(sentence_orig: List[TabsToken], sentence: List[ConLLToken]):
-    sentence_conll = []
-    for token_i, (tabs_token, pars_token) in enumerate(zip(sentence_orig, sentence)):
-        pos = SIMPLE_TAG_MAP.get(pars_token.pos, pars_token.pos)
-        sentence_conll.append(ConllToken(pars_token.orth, pars_token.lemma, pos,
-                                         pars_token.morph, pars_token.headId, pars_token.dep,
-                                         bool(tabs_token.word_sep)))
-    return sentence_conll
-
-
-def load_lemma_repair_files():
+    These mappings are used to repair the poor lemmatizer output (already known problems).
+    The files have tab-separated csv format. Each line contains a mapping of the form:
+        <bad lemma>\t<correct lemma>
+    """
     word_classes_repair = {}
     files = [
         ('ADJ', 'spec/lemma_repair_adjektiv.csv'),
@@ -301,3 +238,32 @@ def load_lemma_repair_files():
                     word_class_repair[line[0]] = line[1]
         word_classes_repair[word_class] = word_class_repair
     return word_classes_repair
+
+
+LEMMA_REPAIR = load_lemma_repair_files()
+
+
+def repair_lemma(lemma: str, lemma_tag: str) -> str:
+    if lemma_tag in LEMMA_REPAIR:
+        return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
+    return lemma
+
+
+def sent_filter_length(sentence: List[DBToken]):
+    return 3 <= len(sentence) <= 100
+
+
+def sent_filter_endings(sentence: List[DBToken]):
+    return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
+
+
+def sent_filter_lower_start(sentence: List[DBToken]):
+    return not sentence[0].surface.islower() or sentence[0].tag == 'PPER'
+
+
+def sent_filter_tags(sentence: List[DBToken]):
+    return any(t.tag in ["NN", "VV", "VM", "VA"] for t in sentence)
+
+
+def sentence_is_valid(s: List[DBToken]):
+    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)
