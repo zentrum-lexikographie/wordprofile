@@ -23,7 +23,7 @@ Match = namedtuple('Match',
                     'head_surface', 'dep_surface', 'head_position', 'dep_position',
                     'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
 
-re_pattern = re.compile(r'[^\u0000-\uD7FF\uE000-\uFFFF]', re.UNICODE)
+re_pattern = re.compile(r'[^\u0000-\uD7FF\uE000-\uFFFF]|\\', re.UNICODE)
 re2_pattern = re.compile(r'(^\W+)|(\W+$)')
 
 
@@ -187,11 +187,11 @@ def prepare_matches(doc_id, matches: List[zdl.Match]):
                 print("SKIP LOONG MATCH", doc_id, m)
                 continue
             db_matches.append(Match(
-                relation_label=RELATION_TYPE[m.relation],
+                relation_label=m.relation,
                 head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
                 dep_lemma=m.dep.lemma,
-                head_tag=TAG_TYPE[m.head.tag],
-                dep_tag=TAG_TYPE[m.dep.tag],
+                head_tag=m.head.tag,
+                dep_tag=m.dep.tag,
                 head_surface="{} {}".format(m.head.surface, m.prep.surface),
                 dep_surface=m.dep.surface,
                 head_position=m.head.idx,

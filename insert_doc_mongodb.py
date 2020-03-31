@@ -41,13 +41,13 @@ def process_doc(mongo_db_keys, mongo_index, doc_id):
         db_matches = prepare_matches(doc_id, matches)
         return db_corpus_file, db_concord_sentences, db_matches
     except Exception as e:
-        print(e)
+        logging.warning(e)
         return None, [], []
 
 
 def delete_indices(db_engine_key):
     engine = create_engine(db_engine_key)
-    print("DELETE indices for files, concordances, and matches")
+    logging.info("DELETE indices for files, concordances, and matches")
     engine.execute("DROP INDEX IF EXISTS corpus_index ON corpus_files")
     engine.execute("DROP INDEX IF EXISTS concord_corpus_index ON concord_sentences")
     engine.execute("DROP INDEX IF EXISTS concord_corpus_sentence_index ON concord_sentences")
@@ -81,13 +81,12 @@ def get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key, filter_existi
     if filter_existing:
         print("LOAD corpus file ids: ", end='')
         inserted_ids = {i[0] for i in engine.execute('SELECT id FROM corpus_files')}
-        print(len(inserted_ids))
+        logging.info('LOAD corpus file ids: {}'.format(len(inserted_ids)))
     else:
         inserted_ids = {}
-    print("LOAD document ids for processing: ", end='')
     document_ids = [i['_id'] for i in mongo_db.find({'sentence': {'$ne': []}}, {'_id': 1}) if
                     str(i['_id']) not in inserted_ids]
-    print(len(document_ids))
+    logging.info("LOADED document ids for processing: {}".format(len(document_ids)))
     return document_ids
 
 
@@ -165,8 +164,8 @@ def main():
     parser.add_argument("--create-index", action="store_true", help="create indices")
     args = parser.parse_args()
 
-    print('|: user: ' + args.user)
-    print('|: db: ' + args.maria_db)
+    logging.info('USER: ' + args.user)
+    logging.info('DB: ' + args.maria_db)
     if args.passwd:
         db_password = getpass.getpass("db password: ")
     else:
