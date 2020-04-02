@@ -58,6 +58,7 @@ class WpSeMySql:
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
                 matches
+            LEFT JOIN collocations as c ON (matches.collocation_id = c.id)
             LEFT JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
             LEFT JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
@@ -69,11 +70,11 @@ class WpSeMySql:
                 (s_right.corpus_file_id = cf.id
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE (
-                matches.relation_label = '{}' and
-                matches.head_lemma = '{}' and  
-                matches.head_tag = '{}' and  
-                matches.dep_lemma = '{}' and  
-                matches.dep_tag = '{}'
+                c.label = '{}' and
+                c.lemma1 = '{}' and  
+                c.lemma1_tag = '{}' and  
+                c.lemma2 = '{}' and  
+                c.lemma2_tag = '{}'
             )  
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
@@ -83,19 +84,20 @@ class WpSeMySql:
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
                 matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
-                s_center.page, cf.file, 1, "", ""
+                s_center.page, cf.file, 1, '', ''
             FROM
                 matches
+            LEFT JOIN collocations as c ON (matches.collocation_id = c.id)
             LEFT JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
             LEFT JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = matches.sentence_id)
             WHERE (
-                matches.relation_label = '{}' and
-                matches.head_lemma = '{}' and  
-                matches.head_tag = '{}' and  
-                matches.dep_lemma = '{}' and  
-                matches.dep_tag = '{}'
+                c.label = '{}' and
+                c.lemma1 = '{}' and  
+                c.lemma1_tag = '{}' and  
+                c.lemma2 = '{}' and  
+                c.lemma2_tag = '{}'
             )  
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
@@ -119,7 +121,6 @@ class WpSeMySql:
             HAVING SUM(frequency) > 25
         """.format(
             word,
-            # TODO determine for default POS value
             "and lemma1_tag='{}'".format(pos) if pos else "",
         )
         db_results = self.fetchall(query)
@@ -129,7 +130,7 @@ class WpSeMySql:
     def get_relation_by_id(self, coocc_id):
         query = """
         SELECT
-            c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv
         FROM 
             collocations c
         WHERE c.id = {}
@@ -193,7 +194,7 @@ class WpSeMySql:
             IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
         FROM collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
-        WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = "{}" and inv = {}
+        WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
         {}
         ORDER BY {} DESC""".format(
             lemma1, lemma2, pos,

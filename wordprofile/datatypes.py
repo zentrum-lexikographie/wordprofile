@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 LemmaInfo = namedtuple("LemmaInfo", ["lemma", "tag", "rel", "freq", "inv"])
-CooccInfo = namedtuple("CooccInfo", ["rel", "lemma1", "lemma2", "pos1", "pos2", "inv"])
+CooccInfo = namedtuple("CooccInfo", ["id", "rel", "lemma1", "lemma2", "pos1", "pos2", "inv"])
 Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",
                              "Frequency", "LogDice", "inverse"])
 Concordance = namedtuple("Concordance",

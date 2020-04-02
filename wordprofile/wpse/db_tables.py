@@ -1,14 +1,10 @@
-import datetime
 import enum
 import re
 from collections import namedtuple
-from typing import List
 
 from sqlalchemy import Table, Column, types, MetaData, Enum
-from sqlalchemy.engine import Engine
 from sqlalchemy.sql.schema import Index
 
-from wordprofile import zdl
 from wordprofile.zdl import RELATIONS, SIMPLE_TAG_MAP
 
 LEMMA_TYPE = types.VARCHAR(50)
@@ -48,8 +44,8 @@ def get_table_corpus_files(meta: MetaData):
 def get_table_concord_sentences(meta: MetaData):
     return Table(
         'concord_sentences', meta,
-        Column('sentence_id', types.Integer),
         Column('corpus_file_id', CORPUS_FILE_TYPE),
+        Column('sentence_id', types.Integer),
         Column('sentence', types.Text),
         Column('page', types.VARCHAR(10)),
         mysql_engine='Aria',
@@ -59,11 +55,7 @@ def get_table_concord_sentences(meta: MetaData):
 def get_table_matches(meta: MetaData):
     return Table(
         'matches', meta,
-        Column('relation_label', Enum(RELATION_TYPE)),
-        Column('head_lemma', LEMMA_TYPE),
-        Column('dep_lemma', LEMMA_TYPE),
-        Column('head_tag', Enum(TAG_TYPE)),
-        Column('dep_tag', Enum(TAG_TYPE)),
+        Column('collocation_id', types.Integer),
         Column('head_surface', SURFACE_TYPE),
         Column('dep_surface', SURFACE_TYPE),
         Column('head_position', types.Integer),
@@ -79,7 +71,7 @@ def get_table_matches(meta: MetaData):
 def get_table_collocations(meta: MetaData):
     return Table(
         'collocations', meta,
-        Column('id', types.Integer, primary_key=True, autoincrement=True),
+        Column('id', types.Integer),
         Column('label', Enum(RELATION_TYPE)),
         Column('lemma1', LEMMA_TYPE),
         Column('lemma2', LEMMA_TYPE),
@@ -120,116 +112,3 @@ def get_table_statistics(meta: MetaData, metric: str = 'log_dice'):
         Column('value', types.Float),
         mysql_engine='Aria',
     )
-
-
-def insert_bulk_corpus_file(engine: Engine, corpus_files):
-    meta = MetaData()
-    corpus_file_tb = get_table_corpus_files(meta)
-    query = corpus_file_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, corpus_files)
-    conn.close()
-
-
-def prepare_corpus_file(doc):
-    doc_id = str(doc['_id'])
-    return doc_id, CorpusFile(
-        id=doc_id,
-        corpus=doc['collection'],
-        file=doc['basename'],
-        orig=doc['bibl'],
-        scan=doc['biblLex'],
-        text_class=doc['textClass'],
-        available=doc['collection'],
-    )
-
-
-def insert_bulk_concord_sentences(engine: Engine, concord_sentences):
-    meta = MetaData()
-    concord_sentences_tb = get_table_concord_sentences(meta)
-    query = concord_sentences_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, concord_sentences)
-    conn.close()
-
-
-def prepare_concord_sentences(doc_id, parses):
-    return [ConcordSentence(
-        corpus_file_id=doc_id,
-        sentence_id=sent_i + 1,
-        sentence=''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
-                         for tok_i, tok in enumerate(parse)),
-        page='-'
-    ) for sent_i, parse in enumerate(parses)]
-
-
-def insert_bulk_matches(engine: Engine, matches: List[dict]):
-    meta = MetaData()
-    matches_tb = get_table_matches(meta)
-    query = matches_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, matches)
-    conn.close()
-
-
-def prepare_matches(doc_id, matches: List[zdl.Match]):
-    db_matches = []
-    for m in matches:
-        if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or
-                len(m.head.lemma) > LEMMA_TYPE.length or len(m.dep.lemma) > LEMMA_TYPE.length):
-            print("SKIP LOONG MATCH", doc_id, m)
-            continue
-        if m.prep:
-            if (len(m.head.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
-                    len(m.dep.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
-                    len(m.head.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length or
-                    len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length):
-                print("SKIP LOONG MATCH", doc_id, m)
-                continue
-            db_matches.append(Match(
-                relation_label=m.relation,
-                head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
-                dep_lemma=m.dep.lemma,
-                head_tag=m.head.tag,
-                dep_tag=m.dep.tag,
-                head_surface="{} {}".format(m.head.surface, m.prep.surface),
-                dep_surface=m.dep.surface,
-                head_position=m.head.idx,
-                dep_position=m.dep.idx,
-                prep_position=m.prep.idx,
-                corpus_file_id=doc_id,
-                sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
-            ))
-            db_matches.append(Match(
-                relation_label=m.relation,
-                head_lemma=m.head.lemma,
-                dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
-                head_tag=m.head.tag,
-                dep_tag=m.dep.tag,
-                head_surface=m.head.surface,
-                dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
-                head_position=m.head.idx,
-                dep_position=m.dep.idx,
-                prep_position=m.prep.idx,
-                corpus_file_id=doc_id,
-                sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
-            ))
-        else:
-            db_matches.append(Match(
-                relation_label=m.relation,
-                head_lemma=m.head.lemma,
-                dep_lemma=m.dep.lemma,
-                head_tag=m.head.tag,
-                dep_tag=m.dep.tag,
-                head_surface=m.head.surface,
-                dep_surface=m.dep.surface,
-                head_position=m.head.idx,
-                dep_position=m.dep.idx,
-                prep_position=0,
-                corpus_file_id=doc_id,
-                sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
-            ))
-    return db_matches

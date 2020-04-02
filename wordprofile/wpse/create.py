@@ -1,9 +1,6 @@
 #!/usr/bin/python3
 
-import getpass
-from argparse import ArgumentParser
-
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine
 
 import wordprofile.wpse.db_tables
@@ -34,27 +31,15 @@ def init_word_profile_tables(engine: Engine, database: str):
 
 def create_collocations(engine: Engine, database: str):
     engine.execute("USE " + database)
-    engine.execute("DROP TABLE IF EXISTS collocations")
-
-    meta = MetaData()
-    wordprofile.wpse.db_tables.get_table_collocations(meta)
-    meta.create_all(engine)
 
     print("INSERT collocations")
     engine.execute("""
-    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT relation_label, head_lemma as lemma1, dep_lemma as lemma2, head_tag as lemma1_tag, dep_tag as lemma2_tag, 
-        0 as inv, COUNT(*) as frequency
-    FROM matches m
-    GROUP BY relation_label, lemma1, lemma2, lemma1_tag, lemma2_tag
-    HAVING frequency > 5;
-    """)
-    engine.execute("""
-    INSERT INTO collocations (label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
+    INSERT INTO collocations (id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
+    SELECT id, label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
     FROM collocations c
     """)
     print("CREATE INDEX")
+    engine.execute("CREATE INDEX id_index ON collocations (id);")
     engine.execute("CREATE INDEX lemma1_index USING HASH ON collocations (lemma1);")
     engine.execute("CREATE INDEX lemma1_tag_index USING HASH ON collocations (lemma1, lemma1_tag);")
     engine.execute("CREATE INDEX lemma2_tag_index USING HASH ON collocations (lemma2, lemma2_tag);")
@@ -107,40 +92,3 @@ def create_statistics(engine: Engine, database: str):
     # INNER JOIN corpus_freqs cf ON (cf.label = c.label)
     # """)
     # engine.execute("CREATE INDEX stats_index USING HASH ON mi_score (collocation_id);")
-
-
-def main():
-    print("|: CREATE MYSQL DATABASE")
-    parser = ArgumentParser()
-    parser.add_argument("--user", type=str, help="database username", required=True)
-    parser.add_argument("--database", type=str, help="database name", required=True)
-    parser.add_argument("--passwd", action="store_true", help="ask for database password")
-    parser.add_argument("--init", action="store_true", help="ask for database init")
-    parser.add_argument("--collocations", action="store_true", help="ask for wordprofile creation")
-    parser.add_argument("--stats", action="store_true", help="ask for wordprofile creation")
-
-    args = parser.parse_args()
-
-    print('|: user: ' + args.user)
-    print('|: db: ' + args.database)
-    if args.passwd:
-        db_password = getpass.getpass("db password: ")
-    else:
-        db_password = args.user
-    engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(
-        args.user, db_password))
-    if args.init:
-        print("init database")
-        init_word_profile_tables(engine, args.database)
-    if args.collocations:
-        print("create word profile collocations")
-        create_collocations(engine, args.database)
-    if args.stats:
-        print("create word profile stats")
-        create_statistics(engine, args.database)
-    print()
-    print("(: done")
-
-
-if __name__ == '__main__':
-    main()

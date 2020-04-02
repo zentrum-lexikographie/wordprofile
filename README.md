@@ -42,8 +42,12 @@ Erstellen der WP Statistik aus den Kollokationen
 Zusätzlich zur REST API wird bei fastapi eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
 
 ### CLI
-...
 
+`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json rel -l Mann`
+
+`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509`
+
+`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5`
 
 
 ## OLD STUFF
