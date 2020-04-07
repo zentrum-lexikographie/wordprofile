@@ -18,6 +18,8 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
     results = []
     for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
+        if len(relations) > 1:
+            relations = ('META',) + relations
         results.append({'Lemma': lemma, 'POS': pos, 'PosId': pos,
                         'Frequency': sum(frequencies), 'Relations': relations})
     return results

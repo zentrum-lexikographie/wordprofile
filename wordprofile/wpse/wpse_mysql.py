@@ -177,6 +177,39 @@ class WpSeMySql:
         db_results = self.fetchall(select_from_sql + where_sql)
         return list(map(Coocc._make, db_results))
 
+    def get_relation_meta(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq, min_stat):
+        """
+        Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
+        Wortprofil-MySQL-Datenbank
+        """
+        min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
+        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -100000000 else ""
+        select_from_sql = """
+        SELECT
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+        FROM 
+            collocations c
+        LEFT JOIN log_dice ld on c.id = ld.collocation_id
+        """
+        if not pos2 or not lemma2:
+            where_sql = """
+                WHERE (lemma1='{}' and lemma1_tag='{}') {} {} 
+                ORDER BY {} DESC LIMIT {},{};""".format(
+                lemma1, pos1, min_freq_sql, min_stat_sql, order_by, start, number
+            )
+        else:
+            where_sql = """
+                WHERE 
+                    (lemma1='{}' and lemma1_tag='{}' and 
+                     lemma2='{}' and lemma2_tag='{}') and 
+                     {} {} 
+                ORDER BY {} DESC LIMIT {},{};""".format(
+                lemma1, pos1, lemma2, pos2, min_freq_sql, min_stat_sql, order_by, start, number
+            )
+        db_results = self.fetchall(select_from_sql + where_sql)
+        return list(map(Coocc._make, db_results))
+
     def get_relation_tuples_diff(self, lemma1, lemma2, pos, relation,
                                  order_by, min_freq, min_stat):
         """
