@@ -30,7 +30,7 @@ def main():
 
     logging.info('USER: ' + args.user)
     logging.info('DB: ' + args.maria_db)
-    logging.info('|: mongo-db: ' + args.mongo_db)
+    logging.info('MONGO-DB: ' + args.mongo_db)
     if args.passwd:
         db_password = getpass.getpass("db password: ")
     else:
@@ -44,15 +44,15 @@ def main():
                                                                                                 args.maria_db)
         mongo_db_keys = ("mongodb://localhost:27017/", args.mongo_db)
         process_files(mongo_db_keys, db_engine_key, args.mongo_index, args.tmp)
+    if args.collocations:
+        logging.info("CREATE word profile collocations")
+        engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))
+        create_collocations(engine, args.maria_db)
     if args.create_index:
         logging.info("CREATE indices")
         db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
         # delete_indices(db_engine_key)
         create_indices(db_engine_key)
-    if args.collocations:
-        logging.info("CREATE word profile collocations")
-        engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))
-        create_collocations(engine, args.maria_db)
     if args.stats:
         logging.info("CREATE word profile stats")
         engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))

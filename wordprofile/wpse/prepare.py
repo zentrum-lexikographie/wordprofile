@@ -1,11 +1,12 @@
 import datetime
-from typing import List
+from typing import List, Tuple
 
 from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine
 
-from wordprofile.wpse.db_tables import get_table_corpus_files, CorpusFile, get_table_concord_sentences, ConcordSentence, \
-    get_table_matches, SURFACE_TYPE, LEMMA_TYPE, Match
+from wordprofile.datatypes import Match, DBToken
+from wordprofile.wpse.db_tables import get_table_corpus_files, DBCorpusFile, get_table_concord_sentences, DBConcordance, \
+    get_table_matches, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
 
 def insert_bulk_corpus_file(engine: Engine, corpus_files):
@@ -17,9 +18,17 @@ def insert_bulk_corpus_file(engine: Engine, corpus_files):
     conn.close()
 
 
-def prepare_corpus_file(doc):
+def prepare_corpus_file(doc: dict) -> Tuple[str, DBCorpusFile]:
+    """Converts a document into a DB entry.
+
+    Args:
+        doc: Meta information about document.
+
+    Returns:
+        A documents id (for later usage) and meta information in DB format.
+    """
     doc_id = str(doc['_id'])
-    return doc_id, CorpusFile(
+    return doc_id, DBCorpusFile(
         id=doc_id,
         corpus=doc['collection'],
         file=doc['basename'],
@@ -39,8 +48,17 @@ def insert_bulk_concord_sentences(engine: Engine, concord_sentences):
     conn.close()
 
 
-def prepare_concord_sentences(doc_id, parses):
-    return [ConcordSentence(
+def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[DBConcordance]:
+    """Converts concordances into DB entries.
+
+    Args:
+        doc_id: document id
+        parses: list of valid sentences
+
+    Returns:
+        List of concordances as database entries with encoded sentences.
+    """
+    return [DBConcordance(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
         sentence=''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
@@ -58,7 +76,17 @@ def insert_bulk_matches(engine: Engine, matches: List[dict]):
     conn.close()
 
 
-def prepare_matches(doc_id, matches: List[Match]):
+def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
+    """Converts extracted matches into DB entries.
+
+    Args:
+        doc_id: document id
+        matches: list of extracted matches for document
+
+    Returns:
+        List of corresponding database matches, length might be increased by additional matches generated for
+        prepositions.
+    """
     db_matches = []
     for m in matches:
         if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or
@@ -72,7 +100,7 @@ def prepare_matches(doc_id, matches: List[Match]):
                     len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length):
                 print("SKIP LOONG MATCH", doc_id, m)
                 continue
-            db_matches.append(Match(
+            db_matches.append(DBMatch(
                 relation_label=m.relation,
                 head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
                 dep_lemma=m.dep.lemma,
@@ -87,7 +115,7 @@ def prepare_matches(doc_id, matches: List[Match]):
                 sentence_id=m.sid,
                 creation_date=datetime.datetime.now()
             ))
-            db_matches.append(Match(
+            db_matches.append(DBMatch(
                 relation_label=m.relation,
                 head_lemma=m.head.lemma,
                 dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
@@ -103,7 +131,7 @@ def prepare_matches(doc_id, matches: List[Match]):
                 creation_date=datetime.datetime.now()
             ))
         else:
-            db_matches.append(Match(
+            db_matches.append(DBMatch(
                 relation_label=m.relation,
                 head_lemma=m.head.lemma,
                 dep_lemma=m.dep.lemma,
