@@ -8,7 +8,7 @@ from argparse import ArgumentParser
 from sqlalchemy import create_engine
 
 from wordprofile.wpse.create import init_word_profile_tables, create_collocations, create_statistics
-from wordprofile.wpse.processing import create_indices, process_files
+from wordprofile.wpse.processing import create_indices, process_files, post_process_db_files, load_files_into_db
 
 
 def main():
@@ -26,6 +26,7 @@ def main():
     parser.add_argument("--collocations", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--stats", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
+    parser.add_argument("--chunk-size", default=2000, help="size of document chunks per process per corpus")
     args = parser.parse_args()
 
     logging.info('USER: ' + args.user)
@@ -43,7 +44,9 @@ def main():
         db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}?charset=utf8&local_infile=1'.format(args.user, db_password,
                                                                                                 args.maria_db)
         mongo_db_keys = ("mongodb://localhost:27017/", args.mongo_db)
-        process_files(mongo_db_keys, db_engine_key, args.mongo_index, args.tmp)
+        process_files(mongo_db_keys, db_engine_key, args.mongo_index, args.tmp, args.chunk_size)
+        post_process_db_files(args.tmp)
+        load_files_into_db(db_engine_key, args.tmp)
     if args.collocations:
         logging.info("CREATE word profile collocations")
         engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))

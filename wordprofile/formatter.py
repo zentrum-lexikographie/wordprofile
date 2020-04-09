@@ -4,7 +4,7 @@ from typing import List
 
 from wordprofile.datatypes import Coocc, Concordance, LemmaInfo
 
-RE_HIT_DELIMITER = re.compile(r"[^\x01\x02]+[\x01\x02]")
+RE_HIT_DELIMITER = re.compile(r'([^\x01\x02]+)([\x01\x02])')
 
 
 def format_lemma_pos(db_results: List[LemmaInfo]):
@@ -158,14 +158,14 @@ def format_sentence_and_highlight(sent: str, pos1: int, pos2: int, pos3=None) ->
         sent = sent[1:]
     sent += '\x01'
     tokens = RE_HIT_DELIMITER.findall(sent)
-    for idx, token in enumerate(tokens):
-        padding = ' ' if token[-1] == '\x02' else ''
+    for idx, (token, delim) in enumerate(tokens):
+        padding = ' ' if delim == '\x02' else ''
         if idx == (pos1 - 1):
-            tokens[idx] = "&&{}&&{}".format(token[:-1], padding)
+            tokens[idx] = "&&{}&&{}".format(token, padding)
         elif idx == (pos2 - 1):
-            tokens[idx] = "_&{}&_{}".format(token[:-1], padding)
+            tokens[idx] = "_&{}&_{}".format(token, padding)
         elif pos3 and idx == (pos3 - 1):
-            tokens[idx] = "_&{}&_{}".format(token[:-1], padding)
+            tokens[idx] = "_&{}&_{}".format(token, padding)
         else:
-            tokens[idx] = "{}{}".format(token[:-1], padding)
+            tokens[idx] = "{}{}".format(token, padding)
     return ''.join(tokens)

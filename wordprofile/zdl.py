@@ -157,9 +157,11 @@ def extract_matches_from_doc(parses: List[List[DBToken]]):
             # TODO filter inconsistent relations
             #  - 0 is marked by parser
             if (len(r.head.surface) < 2 or len(r.dep.surface) < 2
+                    or not r.head.surface[0].isalpha() or not r.dep.surface[0].isalpha()
+                    or not r.head.surface[-1].isalpha() or not r.dep.surface[-1].isalpha()
                     or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
-                    or any(c in ['"', "'"] for c in r.head.surface)
-                    or any(c in ['"', "'"] for c in r.dep.surface)):
+                    or any(c in '"\'@§!?;#*/&<>()' for c in r.head.surface)
+                    or any(c in '"\'@§!?;#*/&<>()' for c in r.dep.surface)):
                 continue
             matches.append(r)
     return matches

@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import multiprocessing
 import os
@@ -8,6 +9,7 @@ import pymongo
 from sqlalchemy import create_engine
 
 from wordprofile.datatypes import DBToken
+from wordprofile.formatter import RE_HIT_DELIMITER
 from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
@@ -111,9 +113,10 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def process_files_index(mongo_db_keys, mongo_index, db_engine_key, db_files_queue, db_sents_queue, db_matches_queue):
+def process_files_index(mongo_db_keys, mongo_index, db_engine_key, db_files_queue, db_sents_queue, db_matches_queue,
+                        chunk_size=2000):
     document_ids = get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key, filter_existing=False)
-    for doc_i, doc_ids in enumerate(chunks(document_ids, 2000)):
+    for doc_i, doc_ids in enumerate(chunks(document_ids, chunk_size)):
         with multiprocessing.Pool(3) as pool:
             db_corpus_files, db_concord_sentences, db_matches = zip(
                 *pool.starmap(process_doc, [(mongo_db_keys, mongo_index, doc_id) for doc_id in doc_ids], chunksize=100)
@@ -142,37 +145,43 @@ class ConverterFileWorker(multiprocessing.Process):
         next_rel_id = 1
         fname = "relations"
         logging.info('INIT queue, wait for jobs')
-        with open(os.path.join(self.path, fname), 'w') as matches_rel:
-            while True:
-                db_matches = self.q.get()
-                logging.info("{:10} - GOT queue value. qsize={}".format(fname, self.q.qsize()))
-                if not db_matches:
-                    logging.info('{:10} - CLOSE queue'.format(fname))
+        while True:
+            db_matches = self.q.get()
+            logging.info("{:10} - GOT queue value. qsize={}".format(fname, self.q.qsize()))
+            if not db_matches:
+                logging.info('{:10} - CLOSE queue'.format(fname))
+                with open(os.path.join(self.path, fname), 'w') as matches_rel:
                     for rel, cols_dict in relation_dict.items():
                         for cols, rel_id in cols_dict.items():
                             matches_rel.write('{}\t{}\t{}\t0\t{}\n'.format(
                                 rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
-                    break
-                try:
-                    for m_i, m in enumerate(db_matches):
-                        rel, cols = m[0], m[1:5]
-                        if cols in relation_dict[rel]:
-                            rel_id = relation_dict[rel][cols]
-                        else:
-                            rel_id = next_rel_id
-                            next_rel_id += 1
-                            relation_dict[rel][cols] = rel_id
-                        db_matches[m_i] = (rel_id,) + m[5:]
-                        freq_dict[rel_id] += 1
-                    self.q_match_out.put(db_matches)
-                except Exception as e:
-                    logging.warning(e)
+                break
+            try:
+                for m_i, m in enumerate(db_matches):
+                    rel, cols = m[0], m[1:5]
+                    if cols in relation_dict[rel]:
+                        rel_id = relation_dict[rel][cols]
+                    else:
+                        rel_id = next_rel_id
+                        next_rel_id += 1
+                        relation_dict[rel][cols] = rel_id
+                    db_matches[m_i] = (rel_id,) + m[5:]
+                    freq_dict[rel_id] += 1
+                self.q_match_out.put(db_matches)
+            except Exception as e:
+                logging.warning(e)
 
     def stop(self):
         self.q.put(None)
 
 
-def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path):
+def is_valid_sentence(sentence):
+    sentence += '\x01'
+    s = [t for t, d in RE_HIT_DELIMITER.findall(sentence)]
+    return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
+
+
+def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chunk_size=2000):
     mongo_indices = [i.strip() for i in mongo_indices.split(",") if i.strip()]
     # delete_indices(db_engine_key)
     db_files_worker = FileWorker(storage_path, 'files')
@@ -188,7 +197,7 @@ def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path):
         logging.info('Start Process:{}'.format(mongo_index))
         p = multiprocessing.Process(target=process_files_index,
                                     args=(mongo_db_keys, mongo_index, db_engine_key,
-                                          db_files_worker.q, db_sents_worker.q, match_convert_worker.q))
+                                          db_files_worker.q, db_sents_worker.q, match_convert_worker.q, chunk_size))
         p.start()
         doc_ps.append((mongo_index, p))
 
@@ -206,12 +215,44 @@ def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path):
     match_convert_worker.join()
     db_matches_worker.join()
     logging.info('ALL JOBS DONE')
+
+
+def post_process_db_files(storage_path, min_rel_freq=3):
+    logging.info('FILTER concordances')
+    with open(os.path.join(storage_path, 'sents'), 'r') as sents_in, open(os.path.join(storage_path, 'sents_filtered'),
+                                                                          'w') as sents_out:
+        sent_hashes = defaultdict(list)
+        for item in sents_in:
+            doc_id, sent_id, sentence, page = item.split('\t')
+            if is_valid_sentence(sentence):
+                sent_hash = hashlib.md5(sentence.encode()).hexdigest()
+                if not sent_hash in sent_hashes[doc_id]:
+                    sent_hashes[doc_id].append(sent_hash)
+                    sents_out.write(item)
+    sents_idxs = {tuple(line.split('\t')[:2]) for line in open(os.path.join(storage_path, 'sents_filtered'), 'r')}
+    logging.info('FILTER relations')
+    with open(os.path.join(storage_path, 'relations'), 'r') as rel_in, open(
+            os.path.join(storage_path, 'relations_filtered'), 'w') as rel_out:
+        for line in rel_in:
+            if int(line.split('\t')[-1]) >= min_rel_freq:
+                rel_out.write(line)
+    rel_idxs = {int(line.split('\t')[0]) for line in open(os.path.join(storage_path, 'relations_filtered'), 'r')}
+    logging.info('FILTER matches')
+    with open(os.path.join(storage_path, 'matches'), 'r') as matches_in, open(
+            os.path.join(storage_path, 'matches_filtered'), 'w') as matches_out:
+        for line in matches_in:
+            match = line.split('\t')
+            if int(match[0]) in rel_idxs and tuple(match[6:8]) in sents_idxs:
+                matches_out.write(line)
+
+
+def load_files_into_db(db_engine_key):
     engine = create_engine(db_engine_key)
     engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/files' INTO TABLE corpus_files;")
     logging.info('LOADED corpus_files')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/sents' INTO TABLE concord_sentences;")
+    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/sents_filtered' INTO TABLE concord_sentences;")
     logging.info('LOADED concord_sentences')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/relations' INTO TABLE collocations;")
+    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/relations_filtered' INTO TABLE collocations;")
     logging.info('LOADED collocations')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/matches' INTO TABLE matches;")
+    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/matches_filtered' INTO TABLE matches;")
     logging.info('LOADED matches')
