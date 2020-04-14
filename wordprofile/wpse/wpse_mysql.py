@@ -59,15 +59,15 @@ class WpSeMySql:
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
                 matches
-            LEFT JOIN collocations as c ON (matches.collocation_id = c.id)
-            LEFT JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
-            LEFT JOIN concord_sentences as s_center ON
+            INNER JOIN collocations as c ON (matches.collocation_id = c.id)
+            INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
+            INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = matches.sentence_id)
-            LEFT JOIN concord_sentences as s_left ON
+            INNER JOIN concord_sentences as s_left ON
                 (s_left.corpus_file_id = cf.id
                 and s_left.sentence_id =(matches.sentence_id-1))
-            LEFT JOIN concord_sentences as s_right ON
+            INNER JOIN concord_sentences as s_right ON
                 (s_right.corpus_file_id = cf.id
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE (
@@ -88,9 +88,9 @@ class WpSeMySql:
                 s_center.page, cf.file, 1, '', ''
             FROM
                 matches
-            LEFT JOIN collocations as c ON (matches.collocation_id = c.id)
-            LEFT JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
-            LEFT JOIN concord_sentences as s_center ON
+            INNER JOIN collocations as c ON (matches.collocation_id = c.id)
+            INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
+            INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = matches.sentence_id)
             WHERE (
