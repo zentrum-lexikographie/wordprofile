@@ -12,7 +12,7 @@ SURFACE_TYPE = types.VARCHAR(50)
 CORPUS_FILE_TYPE = types.CHAR(length=24)
 RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATIONS.keys())))
 TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(SIMPLE_TAG_MAP.values())))
-DBCorpusFile = namedtuple('DBCorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'text_class', 'available'])
+DBCorpusFile = namedtuple('DBCorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'date', 'text_class', 'available'])
 DBConcordance = namedtuple('DBConcordance', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
 DBMatch = namedtuple('DBMatch',
                      ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
@@ -35,6 +35,7 @@ def get_table_corpus_files(meta: MetaData):
         Column('file', types.VARCHAR(200)),
         Column('orig', types.Text),
         Column('scan', types.Text),
+        Column('date', types.DateTime),
         Column('text_class', types.Text),
         Column('available', types.Text),
         mysql_engine='Aria',

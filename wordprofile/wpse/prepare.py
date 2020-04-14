@@ -34,6 +34,7 @@ def prepare_corpus_file(doc: dict) -> Tuple[str, DBCorpusFile]:
         file=doc['basename'],
         orig=doc['bibl'],
         scan=doc['biblLex'],
+        date=doc['date_'],
         text_class=doc['textClass'],
         available=doc['collection'],
     )

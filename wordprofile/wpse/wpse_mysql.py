@@ -42,6 +42,7 @@ class WpSeMySql:
         return res
 
     def get_concordances(self, coocc_id, use_context, start_index, result_number):
+        # TODO: replace creation_date with true corpus file date (after updating db)
         coocc_info = self.get_relation_by_id(coocc_id)
         if coocc_info.inv:
             head_lemma, head_tag = coocc_info.lemma2, coocc_info.pos2
