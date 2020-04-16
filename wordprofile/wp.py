@@ -6,8 +6,8 @@ from collections import defaultdict
 from typing import List, Union
 
 from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos
-from wordprofile.wpse.OrthVariations import generate_orth_variations
-from wordprofile.wpse.wpse_mysql import WpSeMySql
+from wordprofile.wpse.connector import WPConnect
+from wordprofile.wpse.variations import generate_orth_variations
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
 logger = logging.getLogger('wordprofile')
@@ -17,29 +17,29 @@ class Wordprofile:
     def __init__(self, db_host, db_user, db_passwd, db_name, wp_spec_file):
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
-        self.db = WpSeMySql(db_host, db_user, db_passwd, db_name)
+        self.db = WPConnect(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
 
-    def get_lemma_and_pos(self, word: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
+    def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
         """Fetches lemma information from word-profile database.
 
         Args:
-            word: Lemma of interest.
+            lemma: Lemma of interest.
             pos: Pos tag of first lemma.
             use_external_variations: Whether to use variations for either lemmas if not found in database.
 
-        Returns:
+        Return:
             List of lemma-pos combinations with stats and possible relations.
         """
-        results = self.db.get_lemma_and_pos(word, pos)
+        results = self.db.get_lemma_and_pos(lemma, pos)
         # if not found in word-profile database, try variations mapping
-        if not results and use_external_variations and word in self.wp_spec.mapVariation:
-            word = self.wp_spec.mapVariation[word]
-            results = self.db.get_lemma_and_pos(word, pos)
+        if not results and use_external_variations and lemma in self.wp_spec.mapVariation:
+            lemma = self.wp_spec.mapVariation[lemma]
+            results = self.db.get_lemma_and_pos(lemma, pos)
         # if not found in variations mapping, try orthographic variations function
         if not results and use_external_variations:
-            for word in generate_orth_variations(word):
-                results = self.db.get_lemma_and_pos(word, pos)
+            for lemma in generate_orth_variations(lemma):
+                results = self.db.get_lemma_and_pos(lemma, pos)
                 if results:
                     break
         return format_lemma_pos(results)
@@ -74,14 +74,14 @@ class Wordprofile:
                     })
         return results
 
-    def get_relations(self, lemma: str, pos: str, lemma2: str = '', pos2: str = '', relations: List[str] = (),
+    def get_relations(self, lemma1: str, pos1: str, lemma2: str = '', pos2: str = '', relations: List[str] = (),
                       start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0,
                       min_stat: int = -1000) -> List[dict]:
         """Fetches collocations from word-profile database.
 
         Args:
-            lemma: Lemma of interest, first collocate.
-            pos: Pos tag of first lemma.
+            lemma1: Lemma of interest, first collocate.
+            pos1: Pos tag of first lemma.
             lemma2 (optional): Second collocate.
             pos2 (optional): Pos tag of second lemma.
             relations (optional): List of relation labels.
@@ -98,16 +98,16 @@ class Wordprofile:
         for relation in relations:
             # meta relation is a summary of all relations
             if relation == 'META':
-                cooccs = self.db.get_relation_meta(lemma, lemma2, pos, pos2, start, number,
+                cooccs = self.db.get_relation_meta(lemma1, pos1, lemma2, pos2, start, number,
                                                    order_by, min_freq, min_stat)
             else:
-                cooccs = self.db.get_relation_tuples(lemma, lemma2, pos, pos2, start, number,
+                cooccs = self.db.get_relation_tuples(lemma1, pos1, lemma2, pos2, start, number,
                                                      order_by, min_freq, min_stat, relation)
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
                 'Tuples': format_cooccs(cooccs),
-                'RelId': "{}#{}#{}".format(lemma, pos, relation)
+                'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results
 
@@ -245,8 +245,8 @@ class Wordprofile:
         Args:
             coocc_id: DB index of the collocation.
 
-        Returns:
-            Returns a dictionary with collocation information.
+        Return:
+            Dictionary with collocation information.
         """
         coocc_info = self.db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
@@ -269,8 +269,8 @@ class Wordprofile:
             start_index: Collocation id.
             result_number: Collocation id.
 
-        Returns:
-            Returns a dictionary with collocation information and their concordances.
+        Return:
+            Dictionary with collocation information and their concordances.
         """
         relation = self.get_relation_by_info_id(coocc_id)
         relation['Tuples'] = format_concordances(

@@ -15,8 +15,7 @@ class WordprofileXMLRPC:
         self.wp = Wordprofile(db_host, db_user, db_passwd, db_name, wp_spec_file)
 
     def status(self):
-        """
-        status check for icinga
+        """Let icinga know the word profile is online.
         """
         return "OK"
 
@@ -115,7 +114,7 @@ class WordprofileXMLRPC:
         lemma1 = params["LemmaId1"]
         lemma2 = params["LemmaId2"]
         pos = params["POS"]
-        cooccs = params["Relations"]
+        relations = params["Relations"]
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
@@ -124,7 +123,7 @@ class WordprofileXMLRPC:
         operation = params.get("Operation", "adiff")
         use_intersection = params.get("Intersection", False)
         nbest = int(params.get("NBest", 0))
-        return self.wp.get_diff(lemma1, lemma2, pos, cooccs, number, order_by, min_freq, min_stat, operation,
+        return self.wp.get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation,
                                 use_intersection, nbest)
 
     def get_intersection(self, params: dict):
@@ -170,9 +169,9 @@ class WordprofileXMLRPC:
         Args:
             params:
                 <coocc_id>: Collocation id.
-                <use_context>: If true, returns surrounding sentences for matched collocation.
-                <start_index>: Collocation id.
-                <result_number>: Collocation id.
+                <use_context> (optional): If true, returns surrounding sentences for matched collocation.
+                <start_index> (optional): Collocation id.
+                <result_number> (optional): Collocation id.
 
         Returns:
             Returns a dictionary with collocation information and their concordances.

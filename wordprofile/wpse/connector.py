@@ -12,7 +12,10 @@ import MySQLdb
 logger = logging.getLogger('wordprofile.mysql')
 
 
-class WpSeMySql:
+class WPConnect:
+    """Gives access to word profile database backend, following the repository pattern.
+    """
+
     def __init__(self, host, user, passwd, dbname):
         self.__host = host
         self.__user = user
@@ -34,14 +37,26 @@ class WpSeMySql:
         self.__cursor.close()
         self.__conn.close()
 
-    def fetchall(self, query):
+    def __fetchall(self, query):
         self.__init_connection()
         self.__cursor.execute(query)
         res = self.__cursor.fetchall()
         self.__close_connection()
         return res
 
-    def get_concordances(self, coocc_id, use_context, start_index, result_number):
+    def get_concordances(self, coocc_id: int, use_context: bool, start_index: int, result_number: int) -> List[
+        Concordance]:
+        """Fetches concordances for collocation id from database backend.
+
+        Args:
+            coocc_id: Collocation id for concordances.
+            use_context: If true, returns surrounding sentences.
+            start_index: Row index to start with.
+            result_number: Number of results to return.
+
+        Return:
+            List of Concordance.
+        """
         # TODO: replace creation_date with true corpus file date (after updating db)
         coocc_info = self.get_relation_by_id(coocc_id)
         if coocc_info.inv:
@@ -103,15 +118,20 @@ class WpSeMySql:
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
                        start_index, result_number)
-        db_results = self.fetchall(query)
+        db_results = self.__fetchall(query)
         db_results: List[Concordance] = list(map(Concordance._make, db_results))
         return db_results
 
-    def get_lemma_and_pos(self, word, pos='') -> List[LemmaInfo]:
+    def get_lemma_and_pos(self, lemma: str, lemma_tag: str = '') -> List[LemmaInfo]:
+        """ Fetches lemma information for valid inputs.
+        Args:
+            lemma: Lemma of form [a-zA-Z-]
+            lemma_tag (optional): Pos tag of lemma.
+
+        Return:
+            List of LemmaInfo that fits criteria.
         """
-        Basismethode zur Abfrage von Lemmainformationen
-        """
-        if not all(c.isalpha() or c == '-' for c in word):
+        if not all(c.isalpha() or c == '-' for c in lemma):
             return []
 
         query = """
@@ -121,14 +141,23 @@ class WpSeMySql:
             GROUP BY lemma1, lemma1_tag, label, inv
             HAVING SUM(frequency) > 25
         """.format(
-            word,
-            "and lemma1_tag='{}'".format(pos) if pos else "",
+            lemma,
+            "and lemma1_tag='{}'".format(lemma_tag) if lemma_tag else "",
         )
-        db_results = self.fetchall(query)
+        db_results = self.__fetchall(query)
         db_results = list(map(LemmaInfo._make, db_results))
         return db_results
 
-    def get_relation_by_id(self, coocc_id):
+    def get_relation_by_id(self, coocc_id: int) -> CooccInfo:
+        """Fetches collocation information for collocation id from database backend.
+
+        Args:
+            coocc_id: Collocation id for concordances.
+
+        Return:
+            Collocation information.
+        """
+
         query = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv
@@ -136,14 +165,27 @@ class WpSeMySql:
             collocations c
         WHERE c.id = {}
         """.format(coocc_id)
-        db_results = self.fetchall(query)[0]
+        db_results = self.__fetchall(query)[0]
         return CooccInfo(*db_results)
 
-    def get_relation_tuples(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq,
-                            min_stat, relation):
-        """
-        Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
-        Wortprofil-MySQL-Datenbank
+    def get_relation_tuples(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
+                            order_by: str, min_freq: int, min_stat: float, relation: str) -> List[Coocc]:
+        """Fetches collocations with related statistics for a specific relation from database backend.
+
+        Args:
+            lemma1: Lemma of interest, first collocate.
+            lemma1_tag: Pos tag of first lemma.
+            lemma2: Second collocate.
+            lemma2_tag: Pos tag of second lemma.
+            start: Number of collocations to skip.
+            number: Number of collocations to take.
+            order_by: Metric for ordering, frequency or log_dice.
+            min_freq: Filter collocations with minimal frequency.
+            min_stat: Filter collocations with minimal stats score.
+            relation: List of relation labels.
+
+        Return:
+            List of Coocc.
         """
         if relation.startswith('~'):
             relation = relation[1:]
@@ -151,7 +193,7 @@ class WpSeMySql:
         else:
             inv = 0
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -100000000 else ""
+        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
@@ -160,11 +202,11 @@ class WpSeMySql:
             collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
         """
-        if not pos2 or not lemma2:
+        if not lemma2_tag or not lemma2:
             where_sql = """
                 WHERE (lemma1='{}' and lemma1_tag='{}') and label = '{}' and inv = {} {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
-                lemma1, pos1, relation, inv, min_freq_sql, min_stat_sql, order_by, start, number
+                lemma1, lemma1_tag, relation, inv, min_freq_sql, min_stat_sql, order_by, start, number
             )
         else:
             where_sql = """
@@ -173,18 +215,32 @@ class WpSeMySql:
                      lemma2='{}' and lemma2_tag='{}') and 
                      label = '{}' and inv = {} {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
-                lemma1, pos1, lemma2, pos2, relation, inv, min_freq_sql, min_stat_sql, order_by, start, number
+                lemma1, lemma1_tag, lemma2, lemma2_tag, relation, inv, min_freq_sql, min_stat_sql, order_by, start,
+                number
             )
-        db_results = self.fetchall(select_from_sql + where_sql)
+        db_results = self.__fetchall(select_from_sql + where_sql)
         return list(map(Coocc._make, db_results))
 
-    def get_relation_meta(self, lemma1, lemma2, pos1, pos2, start, number, order_by, min_freq, min_stat):
-        """
-        Methode zum Abfragen der Kookkurrenztupeln zu einer liste von gegebenen Relation-IDs über die
-        Wortprofil-MySQL-Datenbank
+    def get_relation_meta(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
+                          order_by: str, min_freq: int, min_stat: float) -> List[Coocc]:
+        """Fetches collocations with related statistics for all relations from database backend.
+
+        Args:
+            lemma1: Lemma of interest, first collocate.
+            lemma1_tag: Pos tag of first lemma.
+            lemma2: Second collocate.
+            lemma2_tag: Pos tag of second lemma.
+            start: Number of collocations to skip.
+            number: Number of collocations to take.
+            order_by: Metric for ordering, frequency or log_dice.
+            min_freq: Filter collocations with minimal frequency.
+            min_stat: Filter collocations with minimal stats score.
+
+        Return:
+            List of Coocc.
         """
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -100000000 else ""
+        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
@@ -193,11 +249,11 @@ class WpSeMySql:
             collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
         """
-        if not pos2 or not lemma2:
+        if not lemma2_tag or not lemma2:
             where_sql = """
                 WHERE (lemma1='{}' and lemma1_tag='{}') {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
-                lemma1, pos1, min_freq_sql, min_stat_sql, order_by, start, number
+                lemma1, lemma1_tag, min_freq_sql, min_stat_sql, order_by, start, number
             )
         else:
             where_sql = """
@@ -206,22 +262,34 @@ class WpSeMySql:
                      lemma2='{}' and lemma2_tag='{}') and 
                      {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
-                lemma1, pos1, lemma2, pos2, min_freq_sql, min_stat_sql, order_by, start, number
+                lemma1, lemma1_tag, lemma2, lemma2_tag, min_freq_sql, min_stat_sql, order_by, start, number
             )
-        db_results = self.fetchall(select_from_sql + where_sql)
+        db_results = self.__fetchall(select_from_sql + where_sql)
         return list(map(Coocc._make, db_results))
 
-    def get_relation_tuples_diff(self, lemma1, lemma2, pos, relation,
-                                 order_by, min_freq, min_stat):
-        """
-        Ermitteln der Kookkurrenzen zu einer Liste von syntaktischen Relationen für die 'diff'-Abfrage
+    def get_relation_tuples_diff(self, lemma1: str, lemma2: str, lemma_tag: str, relation: str, order_by: str,
+                                 min_freq: int, min_stat) -> List[Coocc]:
+        """Fetches collocations for both lemmas with related statistics for a specific relation from database backend.
+
+        Args:
+            lemma1: Lemma of interest, first collocate.
+            lemma2: Second collocate.
+            lemma_tag: Pos tag of second lemma.
+            relation: List of relation labels.
+            order_by: Metric for ordering, frequency or log_dice.
+            min_freq: Filter collocations with minimal frequency.
+            min_stat: Filter collocations with minimal stats score.
+
+        Return:
+            List of Coocc.
         """
         if relation.startswith('~'):
             relation = relation[1:]
             inv = 1
         else:
             inv = 0
-
+        min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
+        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
         SELECT 
             c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
@@ -229,13 +297,14 @@ class WpSeMySql:
         FROM collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
-        {}
+        {} {}
         ORDER BY {} DESC""".format(
-            lemma1, lemma2, pos,
+            lemma1, lemma2, lemma_tag,
             relation,
             inv,
-            "and frequency >= {}".format(min_freq) if min_freq > 0 else "",
+            min_freq_sql,
+            min_stat_sql,
             order_by
         )
-        db_results = self.fetchall(query)
+        db_results = self.__fetchall(query)
         return list(map(Coocc._make, db_results))
