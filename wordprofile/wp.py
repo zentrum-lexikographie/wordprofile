@@ -133,7 +133,10 @@ class Wordprofile:
         """
         results = []
         for rel in relations:
-            diffs = self.db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
+            if rel == "META":
+                diffs = self.db.get_relation_tuples_diff_meta(lemma1, lemma2, pos, order_by, min_freq, min_stat)
+            else:
+                diffs = self.db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
             diffs = self.__calculate_diff(lemma1, lemma2, diffs, number, nbest, use_intersection, operation)
             results.append({
                 'Relation': rel,

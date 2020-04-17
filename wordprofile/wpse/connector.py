@@ -308,3 +308,37 @@ class WPConnect:
         )
         db_results = self.__fetchall(query)
         return list(map(Coocc._make, db_results))
+
+    def get_relation_tuples_diff_meta(self, lemma1: str, lemma2: str, lemma_tag: str, order_by: str,
+                                      min_freq: int, min_stat) -> List[Coocc]:
+        """Fetches collocations for both lemmas with related statistics for all relations from database backend.
+
+        Args:
+            lemma1: Lemma of interest, first collocate.
+            lemma2: Second collocate.
+            lemma_tag: Pos tag of second lemma.
+            order_by: Metric for ordering, frequency or log_dice.
+            min_freq: Filter collocations with minimal frequency.
+            min_stat: Filter collocations with minimal stats score.
+
+        Return:
+            List of Coocc.
+        """
+        min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
+        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        query = """
+        SELECT 
+            c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+        FROM collocations c
+        LEFT JOIN log_dice ld on c.id = ld.collocation_id
+        WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}'
+        {} {}
+        ORDER BY {} DESC""".format(
+            lemma1, lemma2, lemma_tag,
+            min_freq_sql,
+            min_stat_sql,
+            order_by
+        )
+        db_results = self.__fetchall(query)
+        return list(map(Coocc._make, db_results))
