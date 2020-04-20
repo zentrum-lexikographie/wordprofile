@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 replacements = {'ß': 'ss', '①': 'ß',
                 'F': 'Ph', '②': 'F', 'f': 'ph', '③': 'f',

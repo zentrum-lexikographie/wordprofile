@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from collections import namedtuple
 
 LemmaInfo = namedtuple("LemmaInfo", ["lemma", "tag", "rel", "freq", "inv"])

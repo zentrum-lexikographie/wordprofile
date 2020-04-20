@@ -251,21 +251,21 @@ def repair_lemma(lemma: str, lemma_tag: str) -> str:
     return lemma
 
 
-def sent_filter_length(sentence: List[DBToken]):
+def sent_filter_length(sentence: List[DBToken]) -> bool:
     return 3 <= len(sentence) <= 100
 
 
-def sent_filter_endings(sentence: List[DBToken]):
+def sent_filter_endings(sentence: List[DBToken]) -> bool:
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
 
 
-def sent_filter_lower_start(sentence: List[DBToken]):
+def sent_filter_lower_start(sentence: List[DBToken]) -> bool:
     return not sentence[0].surface.islower() or sentence[0].tag == 'PPER'
 
 
-def sent_filter_tags(sentence: List[DBToken]):
+def sent_filter_tags(sentence: List[DBToken]) -> bool:
     return any(t.tag in ["NN", "VV", "VM", "VA"] for t in sentence)
 
 
-def sentence_is_valid(s: List[DBToken]):
+def sentence_is_valid(s: List[DBToken]) -> bool:
     return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)

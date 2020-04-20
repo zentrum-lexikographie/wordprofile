@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+import logging
+
 from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine
 
@@ -29,50 +31,48 @@ def init_word_profile_tables(engine: Engine, database: str):
     """)
 
 
-def create_collocations(engine: Engine, database: str):
-    engine.execute("USE " + database)
-
-    print("INSERT collocations")
+def create_collocations(engine: Engine):
+    logging.info("INSERT collocations")
     engine.execute("""
     INSERT INTO collocations (id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT id, label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
+    SELECT -id, label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
     FROM collocations c
     """)
-    print("CREATE INDEX")
+    logging.info("CREATE INDEX")
+    logging.info("CREATE id_index")
     engine.execute("CREATE INDEX id_index ON collocations (id);")
-    engine.execute("CREATE INDEX lemma1_index USING HASH ON collocations (lemma1);")
-    engine.execute("CREATE INDEX lemma1_tag_index USING HASH ON collocations (lemma1, lemma1_tag);")
-    engine.execute("CREATE INDEX lemma2_tag_index USING HASH ON collocations (lemma2, lemma2_tag);")
-    engine.execute("CREATE INDEX lemma USING HASH ON collocations (lemma1, lemma2);")
+    logging.info("CREATE lemma1_index")
+    engine.execute("CREATE INDEX lemma1_index ON collocations (lemma1);")
+    logging.info("CREATE lemma1_tag_index")
+    engine.execute("CREATE INDEX lemma1_tag_index ON collocations (lemma1, lemma1_tag);")
+    logging.info("CREATE lemma2_tag_index")
+    engine.execute("CREATE INDEX lemma2_tag_index ON collocations (lemma2, lemma2_tag);")
+    logging.info("CREATE lemma_index")
+    engine.execute("CREATE INDEX lemma_index ON collocations (lemma1, lemma2);")
 
 
-def create_statistics(engine: Engine, database: str):
-    print("REMOVE all stats tables (log_dice, corpus_freqs, token_freqs)")
-    engine.execute("USE " + database)
-    engine.execute("DROP TABLE IF EXISTS log_dice")
-    engine.execute("DROP TABLE IF EXISTS corpus_freqs")
-    engine.execute("DROP TABLE IF EXISTS token_freqs")
+def create_statistics(engine: Engine):
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_statistics(meta, metric='log_dice')
     wordprofile.wpse.db_tables.get_table_token_frequencies(meta)
     wordprofile.wpse.db_tables.get_table_corpus_frequencies(meta)
     meta.create_all(engine)
 
-    print("INSERT corpus_freqs")
+    logging.info("INSERT corpus_freqs")
     engine.execute("""
         INSERT INTO corpus_freqs (label, freq)
         SELECT label, SUM(frequency) as freq
         FROM collocations c
         GROUP BY label
     """)
-    print("INSERT token_freqs")
+    logging.info("INSERT token_freqs")
     engine.execute("""
         INSERT INTO token_freqs (lemma, tag, freq)
         SELECT c.lemma1 as lemma, c.lemma1_tag as tag, SUM(c.frequency) freq
         FROM collocations c
         GROUP BY c.lemma1, c.lemma1_tag 
     """)
-    print("INSERT log_dice")
+    logging.info("INSERT log_dice")
     engine.execute("""
     INSERT INTO log_dice (collocation_id, value)
     SELECT c.id, (14 + LOG2((IFNULL(c.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))))
@@ -80,7 +80,7 @@ def create_statistics(engine: Engine, database: str):
     INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_tag = t1.tag)
     INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
     """)
-    engine.execute("CREATE INDEX stats_index USING HASH ON log_dice (collocation_id);")
+    engine.execute("CREATE INDEX stats_index ON log_dice (collocation_id);")
 
     # print("INSERT mi score")
     # engine.execute("""

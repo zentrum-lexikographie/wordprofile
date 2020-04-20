@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import hashlib
 import logging
 import multiprocessing
@@ -7,6 +9,7 @@ from typing import List, Dict
 
 import pymongo
 from sqlalchemy import create_engine
+from sqlalchemy.engine.base import Engine
 
 from wordprofile.datatypes import DBToken
 from wordprofile.formatter import RE_HIT_DELIMITER
@@ -43,19 +46,7 @@ def process_doc(mongo_db_keys, mongo_index, doc_id):
         return None, [], []
 
 
-def delete_indices(db_engine_key):
-    engine = create_engine(db_engine_key)
-    logging.info("DELETE indices for files, concordances, and matches")
-    engine.execute("DROP INDEX IF EXISTS corpus_index ON corpus_files")
-    engine.execute("DROP INDEX IF EXISTS concord_corpus_index ON concord_sentences")
-    engine.execute("DROP INDEX IF EXISTS concord_corpus_sentence_index ON concord_sentences")
-    engine.execute("DROP INDEX IF EXISTS matches_corpus_index ON matches")
-    engine.execute("DROP INDEX IF EXISTS matches_corpus_sentence_index ON matches")
-    engine.execute("DROP INDEX IF EXISTS matches_relation_label_index ON matches")
-
-
-def create_indices(db_engine_key):
-    engine = create_engine(db_engine_key)
+def create_indices(engine: Engine):
     logging.info("CREATE INDEX indices for files, concordances, and matches")
     logging.info("CREATE INDEX corpus_index")
     engine.execute("CREATE UNIQUE INDEX corpus_index ON corpus_files (id);")
@@ -133,8 +124,9 @@ def process_files_index(mongo_db_keys, mongo_index, db_engine_key, db_files_queu
 
 
 class ConverterFileWorker(multiprocessing.Process):
-    def __init__(self, path, q_match_out):
+    def __init__(self, path, fname, q_match_out):
         self.path = path
+        self.fname = fname
         self.q = multiprocessing.Manager().Queue(maxsize=100)
         self.q_match_out = q_match_out
         super().__init__()
@@ -143,14 +135,13 @@ class ConverterFileWorker(multiprocessing.Process):
         relation_dict = defaultdict(dict)
         freq_dict = defaultdict(int)
         next_rel_id = 1
-        fname = "relations"
         logging.info('INIT queue, wait for jobs')
         while True:
             db_matches = self.q.get()
-            logging.info("{:10} - GOT queue value. qsize={}".format(fname, self.q.qsize()))
+            logging.info("{:10} - GOT queue value. qsize={}".format(self.fname, self.q.qsize()))
             if not db_matches:
-                logging.info('{:10} - CLOSE queue'.format(fname))
-                with open(os.path.join(self.path, fname), 'w') as matches_rel:
+                logging.info('{:10} - CLOSE queue'.format(self.fname))
+                with open(os.path.join(self.path, self.fname), 'w') as matches_rel:
                     for rel, cols_dict in relation_dict.items():
                         for cols, rel_id in cols_dict.items():
                             matches_rel.write('{}\t{}\t{}\t0\t{}\n'.format(
@@ -176,6 +167,10 @@ class ConverterFileWorker(multiprocessing.Process):
 
 
 def is_valid_sentence(sentence):
+    """Hard constraints for concordances.
+
+    End with sentence delimiter, have a certain length, and start with uppercase letter.
+    """
     sentence += '\x01'
     s = [t for t, d in RE_HIT_DELIMITER.findall(sentence)]
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
@@ -184,12 +179,12 @@ def is_valid_sentence(sentence):
 def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chunk_size=2000):
     mongo_indices = [i.strip() for i in mongo_indices.split(",") if i.strip()]
     # delete_indices(db_engine_key)
-    db_files_worker = FileWorker(storage_path, 'files')
-    db_sents_worker = FileWorker(storage_path, 'sents')
-    db_matches_worker = FileWorker(storage_path, 'matches')
+    db_files_worker = FileWorker(storage_path, 'corpus_files')
+    db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
+    db_matches_worker = FileWorker(storage_path, 'matches_stage')
     db_files_worker.start()
     db_sents_worker.start()
-    match_convert_worker = ConverterFileWorker(storage_path, db_matches_worker.q)
+    match_convert_worker = ConverterFileWorker(storage_path, 'collocations_stage', db_matches_worker.q)
     match_convert_worker.start()
     db_matches_worker.start()
     doc_ps = []
@@ -218,41 +213,51 @@ def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chu
 
 
 def post_process_db_files(storage_path, min_rel_freq=3):
+    """Post-processing of generated data files.
+
+    Filter concordances that satisfy sentence form and remove duplicate sentences.
+    Filter collocations with too little occurrences.
+    Filter matches with respect to available concordances and collocations.
+    """
     logging.info('FILTER concordances')
-    with open(os.path.join(storage_path, 'sents'), 'r') as sents_in, open(os.path.join(storage_path, 'sents_filtered'),
-                                                                          'w') as sents_out:
+    with open(os.path.join(storage_path, 'concord_sentences_stage'), 'r') as sents_in, open(
+            os.path.join(storage_path, 'concord_sentences'),
+            'w') as sents_out:
         sent_hashes = defaultdict(list)
         for item in sents_in:
             doc_id, sent_id, sentence, page = item.split('\t')
+            # checks whether sentence satisfies hard constraints
             if is_valid_sentence(sentence):
                 sent_hash = hashlib.md5(sentence.encode()).hexdigest()
-                if not sent_hash in sent_hashes[doc_id]:
+                # checks for duplicates based on sentence checksum (md5)
+                if sent_hash not in sent_hashes[doc_id]:
                     sent_hashes[doc_id].append(sent_hash)
                     sents_out.write(item)
-    sents_idxs = {tuple(line.split('\t')[:2]) for line in open(os.path.join(storage_path, 'sents_filtered'), 'r')}
     logging.info('FILTER relations')
-    with open(os.path.join(storage_path, 'relations'), 'r') as rel_in, open(
-            os.path.join(storage_path, 'relations_filtered'), 'w') as rel_out:
+    with open(os.path.join(storage_path, 'collocations_stage'), 'r') as rel_in, open(
+            os.path.join(storage_path, 'collocations'), 'w') as rel_out:
         for line in rel_in:
             if int(line.split('\t')[-1]) >= min_rel_freq:
                 rel_out.write(line)
-    rel_idxs = {int(line.split('\t')[0]) for line in open(os.path.join(storage_path, 'relations_filtered'), 'r')}
     logging.info('FILTER matches')
-    with open(os.path.join(storage_path, 'matches'), 'r') as matches_in, open(
-            os.path.join(storage_path, 'matches_filtered'), 'w') as matches_out:
+    sents_idxs = {tuple(line.split('\t')[:2]) for line in open(os.path.join(storage_path, 'concord_sentences'), 'r')}
+    rel_idxs = {int(line.split('\t')[0]) for line in open(os.path.join(storage_path, 'collocations'), 'r')}
+    with open(os.path.join(storage_path, 'matches_stage'), 'r') as matches_in, open(
+            os.path.join(storage_path, 'matches'), 'w') as matches_out:
         for line in matches_in:
             match = line.split('\t')
+            # check whether concordances and collocations still exist for match
             if int(match[0]) in rel_idxs and tuple(match[6:8]) in sents_idxs:
                 matches_out.write(line)
 
 
-def load_files_into_db(db_engine_key):
+def load_files_into_db(db_engine_key, storage_path):
+    """Load generated data files into their corresponding db tables.
+    """
     engine = create_engine(db_engine_key)
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/files' INTO TABLE corpus_files;")
-    logging.info('LOADED corpus_files')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/sents_filtered' INTO TABLE concord_sentences;")
-    logging.info('LOADED concord_sentences')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/relations_filtered' INTO TABLE collocations;")
-    logging.info('LOADED collocations')
-    engine.execute("LOAD DATA LOCAL INFILE '/mnt/SSD/data/matches_filtered' INTO TABLE matches;")
-    logging.info('LOADED matches')
+    for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches']:
+        engine.execute("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
+            os.path.join(storage_path, tb_name),
+            tb_name
+        ))
+        logging.info('LOADED corpus_files')
