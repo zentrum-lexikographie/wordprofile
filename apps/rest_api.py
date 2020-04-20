@@ -1,4 +1,5 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+
 import getpass
 import logging
 import time
@@ -8,7 +9,7 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
-from wordprofile.wp import Wordprofile
+from ..wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
 parser.add_argument("--user", type=str, help="database username", required=True)
@@ -37,7 +38,6 @@ fh.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(ch)
 logger.addHandler(fh)
-
 
 logger.info('user: ' + args.user)
 logger.info('db: ' + args.database)
@@ -144,11 +144,6 @@ async def get_concordances_and_relation(coocc_id: int, use_context: bool = False
     return wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number)
 
 
-# @app.get("/concords/{coocc_id}")
-# async def get_concordances(coocc_id: int, use_context: bool = False, start_index: int = 0, result_number: int = 20):
-#     return wp.get_concordances(coocc_id, use_context, start_index, result_number)
-
-
 @app.get("/cmp/difference/")
 async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
                    order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
@@ -193,8 +188,7 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
     Return:
         List of collocation-diffs grouped by relation.
     """
-    return get_diff(lemma1, lemma2, pos, relations, number,
-                    order_by, min_freq, min_stat, operation='rmax',
+    return get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation='rmax',
                     use_intersection=True, nbest=nbest)
 
 

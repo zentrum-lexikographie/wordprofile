@@ -49,17 +49,19 @@ def main():
         load_files_into_db(db_engine_key, args.tmp)
     if args.collocations:
         logging.info("CREATE word profile collocations")
-        engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))
-        create_collocations(engine, args.maria_db)
+        db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
+        engine = create_engine(db_engine_key)
+        create_collocations(engine)
     if args.create_index:
         logging.info("CREATE indices")
         db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
-        # delete_indices(db_engine_key)
-        create_indices(db_engine_key)
+        engine = create_engine(db_engine_key)
+        create_indices(engine)
     if args.stats:
         logging.info("CREATE word profile stats")
-        engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(args.user, db_password))
-        create_statistics(engine, args.maria_db)
+        db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
+        engine = create_engine(db_engine_key)
+        create_statistics(engine)
     logging.info("DONE")
 
 

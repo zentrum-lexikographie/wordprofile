@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # This is a simple word profile client that is developed for usage tests
 # It can instantiate a word profile and ask for basic functionality such as
 #  * relation information,
@@ -10,11 +10,11 @@ import logging
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
-from wordprofile.cli.cmp import compare_lemmas
-from wordprofile.cli.hit import get_hits
-from wordprofile.cli.info import get_wordprofile_info
-from wordprofile.cli.rel import get_relation
+from apps.xmlrpc_api import WordprofileXMLRPC
+from utils.cmp import compare_lemmas
+from utils.hit import get_hits
+from utils.info import get_wordprofile_info
+from utils.rel import get_relation
 
 parser = ArgumentParser()
 
