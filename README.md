@@ -31,85 +31,51 @@ Erstellen der WP Statistik aus den Kollokationen
 
 `python3 init_database.py --user wpuser --database wp_test  --stats`
 
-## Clients
+## Service
+
+Ein fertig erstelltes Wortprofil kann als Service (XMLRPC oder REST) bereitgestellt werden.
+Über diesen Service werden alle Funktionen zur Wortprofil Datenbank abgewickelt.
 
 ### XMLRPC
+Starten des XMLRPC Service:
 `python3 wordprofile/apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
+
+Über die XMLRPC Schnittstelle werden folgende Funktionen (mit den jeweils obligatorischen Argumenten) bereitgestellt:
+- get_lemma_and_pos({Word: str, POS: str, UseVariations: bool})
+- get_lemma_and_pos_diff({ Word1: str, Word2: str, UseVariations: bool})
+- get_relations({Lemma: str, POS: str})
+- get_diff({LemmaId1: str, LemmaId2: str, PosId: str})
+- get_intersection({LemmaId1: str, LemmaId2: str, PosId: str})
+- get_relation_by_info_id({coocc_id: int})
+- get_concordances_and_relation({coocc_id: int})
 
 ### REST API
 `python3 wordprofile/apps/rest_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
 
-Zusätzlich zur REST API wird bei fastapi eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
+Über die REST Schnittstellen sollen die gleichen Funktionen über eine URL zur verfügung stehen und so leichter zuganglich gemacht werden.
+- `/info/lemma/`: get_lemma_and_pos
+- `/info/lemmas/`: get_lemma_and_pos_diff
+- `/rel/`: get_relations
+- `/cmp/difference/`: get_diff
+- `/cmp/intersection/`: get_intersection
+- `/lemma/id/{coocc_id}`: get_relation_by_info_id
+- `/hits/{coocc_id}`: get_concordances_and_relation
+
+Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
 
 ### CLI
 
-`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json rel -l Mann`
+Abfrage einfacher Kookkurrenzen zu verschiedenen syntaktischen Relationen:
+```
+python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
+```
 
-`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509`
+Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
+```
+python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
+```
 
-`python3 wp.py --user wpuser --database wp_dev --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5`
-
-
-## OLD STUFF
-*Starten eines Wortprofil-Servers
-
-  -wp_server.py
-  
-    Um Kookkurrenzen und Texttreffer über die Wortprofil-Datenbank abzufragen, dient das Programm
-    'wp_server.py'. Dieses stellt eine XMLRPC-Schnittstelle als Server bereit über den über 
-    entsprechende Funktionen Informationen aus der Wortprofil-Datenbank abgefragt werden können. 
-    Über 'wp_server.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-    
-    XMLRPC-Schnittstelle (im TWiki):
-    -für das normale Wortprofil:
-	    http://odo.dwds.de/twiki/bin/view/DWDS/WortprofilSchnittstelle2016	
-    -für den Wortvergleich:
-	    http://odo.dwds.de/twiki/bin/view/DWDS/WortprofilSchnittstelleDiff2014
-
-*Abfragen eines Wortprofil-Servers
-
-  -wp_rel_client.py
-
-    Mit diesem Client-Programm können einfache Kookkurrenzen zu verschiedenen syntaktischen 
-    Relationen abgefragt werden. Über 'wp_rel_client.py -h' kann die Hilfe zum Aufruf des 
-    Programms ausgegeben werden.
-
-  -wp_mwe_rel_client.py
-
-    Mit diesem Client-Programm können MWE-kookkurrenzen zu verschiedenen syntaktischen Relationen 
-    abgefragt werden. Die Abfrage beruht auf einer MWE-ID bzw. Treffer-ID, die einer vorhergehenden 
-    Abfrage mit 'wp_rel_client.py' oder 'wp_mwe_rel_client.py' entnommen werden kann. Über 
-    'wp_mwe_rel_client.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
-  -wp_mwe_free_client.py
-  
-    Experimentelles Client-Programm. Mit diesem Programm können MWE-kookkurrenzen abgefragt werden. 
-    Eingabe hierzu ist eine Liste von Lemmaformen, die eine bestimmte Reihenfolge besitzen müssen.
-    Abfragebeispiele können mit 'wp_mwe_free_client.py -e' ausgegeben werden. Über 
-    'wp_mwe_free_client.py -h' kann die allgemeine Hilfe zum Aufruf des Programms ausgegeben werden.
-
-  -wp_hit_client.py
-  
-    Mit diesem Client-Programm können Texttreffer zu einer Kookkurrenz abgefragt werden. Die 
-    Abfrage beruht auf einer Treffer-ID bzw. MWE-ID, die einer vorhergehenden Abfrage mit 
-    'wp_rel_client.py' oder 'wp_mwe_rel_client.py' entnommen werden kann. Über 
-    'wp_hit_client.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
-  -wp_cmp_client.py
-
-   Mit diesem Client-Programm können zwei Wortprofile (ohne MWE-Kookkurenzen) zu zwei 
-   Lemmata gleicher Wortart miteinander verglichen werden. Es ist möglich sowohl
-   Gemeinsamkeiten als auch Unterschiede sichtbar zu machen. Über 'wp_cmp_client.py -h' 
-   kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
-  -wp_info_client.py
-
-   Mit diesem Client-Programm können allgemeine Informationen über ein Wortprofil-Projekt 
-   abgefragt werden. Sowohl zur Erstellung des Wortprofils als auch zu Frequenzen und Schwellwerten. 
-   Über 'wp_info_client.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
-  -wp_status_client.py
-
-   Mit diesem Client-Programm kann geprüft werden, ob der Wortprofil-XMLRPC-Server ordnungsgemäß 
-   funktioniert. Über 'wp_status_client.py -h' kann die Hilfe zum Aufruf des Programms ausgegeben werden.
-
+Vergleich der Wortprofile zweier Lemmata:
+```
+python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
+```
