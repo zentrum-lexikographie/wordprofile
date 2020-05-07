@@ -18,6 +18,7 @@ class WordprofileXMLRPC:
     def status(self):
         """Let icinga know the word profile is online.
         """
+        logger.info("status request (icinga)")
         return "OK"
 
     def get_info(self):
