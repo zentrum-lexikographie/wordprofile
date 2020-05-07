@@ -20,11 +20,13 @@ from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, ext
 
 
 def convert_sentence(sentence: List[Dict[str, str]]) -> List[DBToken]:
+    # TODO remove hack (xpos-tag) with consitent document database
     return [DBToken(
         idx=i + 1,
         surface=remove_invalid_chars(token['surface']),
-        lemma=repair_lemma(remove_invalid_chars(token['lemma']), SIMPLE_TAG_MAP.get(token['xpos'], '')),
-        tag=SIMPLE_TAG_MAP.get(token['xpos'], ''),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma']),
+                           SIMPLE_TAG_MAP.get(token['xpos' if 'xpos' in token else 'tag'], '')),
+        tag=SIMPLE_TAG_MAP.get(token['xpos' if 'xpos' in token else 'tag'], ''),
         head=token['head'],
         rel=token['rel'],
         misc=bool(token['misc'])
@@ -63,15 +65,15 @@ def create_indices(engine: Engine):
     engine.execute("CREATE INDEX matches_relation_label_index ON matches (collocation_id);")
 
 
-def get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key, filter_existing=True):
+def get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key=None, filter_existing=True):
     mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_index]
-    engine = create_engine(db_engine_key)
     if filter_existing:
+        engine = create_engine(db_engine_key)
         inserted_ids = {i[0] for i in engine.execute('SELECT id FROM corpus_files')}
         logging.info('LOAD corpus file ids: {}'.format(len(inserted_ids)))
     else:
         inserted_ids = {}
-    document_ids = [i['_id'] for i in mongo_db.find({'sentence': {'$ne': []}}, {'_id': 1}) if
+    document_ids = [i['_id'] for i in mongo_db.find({'sentences': {'$ne': []}}, {'_id': 1}) if
                     str(i['_id']) not in inserted_ids]
     logging.info("LOADED document ids for processing: {}".format(len(document_ids)))
     return document_ids
@@ -179,7 +181,7 @@ def is_valid_sentence(sentence):
 def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chunk_size=2000):
     mongo_indices = [i.strip() for i in mongo_indices.split(",") if i.strip()]
     # delete_indices(db_engine_key)
-    db_files_worker = FileWorker(storage_path, 'corpus_files')
+    db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
     db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
     db_matches_worker = FileWorker(storage_path, 'matches_stage')
     db_files_worker.start()
@@ -219,6 +221,14 @@ def post_process_db_files(storage_path, min_rel_freq=3):
     Filter collocations with too little occurrences.
     Filter matches with respect to available concordances and collocations.
     """
+    logging.info('REPLACE INDEX corpus files')
+    corpus_file_idx = {}
+    with open(os.path.join(storage_path, 'corpus_files_stage'), 'r') as files_in, open(
+            os.path.join(storage_path, 'corpus_files'), 'w') as files_out:
+        for c_i, line in enumerate(files_in):
+            line = line.split('\t')
+            corpus_file_idx[line[0]] = c_i
+            files_out.write('\t'.join([str(c_i)] + line[1:]))
     logging.info('FILTER concordances')
     with open(os.path.join(storage_path, 'concord_sentences_stage'), 'r') as sents_in, open(
             os.path.join(storage_path, 'concord_sentences'),
@@ -226,14 +236,15 @@ def post_process_db_files(storage_path, min_rel_freq=3):
         sent_hashes = defaultdict(list)
         for item in sents_in:
             doc_id, sent_id, sentence, page = item.split('\t')
+            doc_id = str(corpus_file_idx[doc_id])
             # checks whether sentence satisfies hard constraints
             if is_valid_sentence(sentence):
                 sent_hash = hashlib.md5(sentence.encode()).hexdigest()
                 # checks for duplicates based on sentence checksum (md5)
                 if sent_hash not in sent_hashes[doc_id]:
                     sent_hashes[doc_id].append(sent_hash)
-                    sents_out.write(item)
-    logging.info('FILTER relations')
+                    sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
+    logging.info('FILTER collocations')
     with open(os.path.join(storage_path, 'collocations_stage'), 'r') as rel_in, open(
             os.path.join(storage_path, 'collocations'), 'w') as rel_out:
         for line in rel_in:
@@ -246,9 +257,10 @@ def post_process_db_files(storage_path, min_rel_freq=3):
             os.path.join(storage_path, 'matches'), 'w') as matches_out:
         for line in matches_in:
             match = line.split('\t')
+            match[6] = str(corpus_file_idx[match[6]])
             # check whether concordances and collocations still exist for match
             if int(match[0]) in rel_idxs and tuple(match[6:8]) in sents_idxs:
-                matches_out.write(line)
+                matches_out.write('\t'.join(match))
 
 
 def load_files_into_db(db_engine_key, storage_path):
@@ -260,4 +272,4 @@ def load_files_into_db(db_engine_key, storage_path):
             os.path.join(storage_path, tb_name),
             tb_name
         ))
-        logging.info('LOADED corpus_files')
+        logging.info('LOADED {}'.format(tb_name))

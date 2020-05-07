@@ -10,7 +10,7 @@ from wordprofile.zdl import RELATIONS, SIMPLE_TAG_MAP
 
 LEMMA_TYPE = types.VARCHAR(50)
 SURFACE_TYPE = types.VARCHAR(50)
-CORPUS_FILE_TYPE = types.CHAR(length=24)
+CORPUS_FILE_TYPE = types.Integer
 RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATIONS.keys())))
 TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(SIMPLE_TAG_MAP.values())))
 DBCorpusFile = namedtuple('DBCorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'date', 'text_class', 'available'])

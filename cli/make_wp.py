@@ -2,6 +2,7 @@
 
 import getpass
 import logging
+import os
 import sys
 from argparse import ArgumentParser
 
@@ -44,6 +45,7 @@ def main():
         db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}?charset=utf8&local_infile=1'.format(args.user, db_password,
                                                                                                 args.maria_db)
         mongo_db_keys = ("mongodb://localhost:27017/", args.mongo_db)
+        os.makedirs(args.tmp, exist_ok=True)
         process_files(mongo_db_keys, db_engine_key, args.mongo_index, args.tmp, args.chunk_size)
         post_process_db_files(args.tmp)
         load_files_into_db(db_engine_key, args.tmp)
