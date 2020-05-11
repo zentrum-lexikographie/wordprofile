@@ -4,7 +4,7 @@ import hashlib
 import logging
 import multiprocessing
 import os
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from glob import glob
 from multiprocessing.queues import Queue
 from typing import List
@@ -237,12 +237,43 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
     rel_idxs = {int(line.split('\t')[0]) for line in open(os.path.join(storage_path, 'collocations'), 'r')}
     with open(os.path.join(storage_path, 'matches_stage'), 'r') as matches_in, open(
             os.path.join(storage_path, 'matches'), 'w') as matches_out:
+        match_i = 0
         for line in matches_in:
             match = line.split('\t')
             match[6] = str(corpus_file_idx[match[6]])
             # check whether concordances and collocations still exist for match
             if int(match[0]) in rel_idxs and tuple(match[6:8]) in sents_idxs:
+                match.insert(0, str(match_i))
+                match_i += 1
                 matches_out.write('\t'.join(match))
+    logging.info('CHECK MWE')
+    Match = namedtuple("Match",
+                       ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
+                        "doc_id", "sent_id", "timestamp"])
+
+    def convert_line_to_match(line):
+        line = line.strip().split("\t")
+        return Match(int(line[0]), int(line[1]), line[2], line[3], int(line[4]), int(line[5]), int(line[6]),
+                     int(line[7]), int(line[8]), line[9])
+
+    with open("/mnt/SSD/data/wp_dev/matches", "r") as fin, open("/mnt/SSD/data/wp_dev/mwe", "w") as fout:
+        sent = []
+        sent_curr = 0
+        doc_curr = 0
+        for line in fin:
+            m = convert_line_to_match(line)
+            if m.doc_id == doc_curr and m.sent_id == sent_curr:
+                sent.append(m)
+            else:
+                if len(sent) > 1:
+                    for m_i, m1 in enumerate(sent):
+                        for m2 in sent[m_i + 1:]:
+                            if len({m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos}) == 3 and (
+                                    m1.prep_pos == m2.prep_pos):
+                                fout.write("{}\t{}\n".format(m1.id, m2.id))
+                sent = []
+                doc_curr = m.doc_id
+                sent_curr = m.sent_id
 
 
 def load_files_into_db(db_engine_key: str, storage_path: str):

@@ -57,6 +57,7 @@ def get_table_concord_sentences(meta: MetaData):
 def get_table_matches(meta: MetaData):
     return Table(
         'matches', meta,
+        Column('id', types.Integer),
         Column('collocation_id', types.Integer),
         Column('head_surface', SURFACE_TYPE),
         Column('dep_surface', SURFACE_TYPE),
@@ -112,5 +113,14 @@ def get_table_statistics(meta: MetaData, metric: str = 'log_dice'):
         metric, meta,
         Column('collocation_id', types.Integer),
         Column('value', types.Float),
+        mysql_engine='Aria',
+    )
+
+
+def get_table_mwe(meta: MetaData):
+    return Table(
+        'mwe', meta,
+        Column('collocation1_id', types.Integer),
+        Column('collocation2_id', types.Integer),
         mysql_engine='Aria',
     )

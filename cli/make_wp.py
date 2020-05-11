@@ -23,6 +23,7 @@ def main():
     parser.add_argument("--create-index", action="store_true", help="create indices")
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
     parser.add_argument("--init", action="store_true", help="ask for database init")
+    parser.add_argument("--no-processing", action="store_true", help="ask for database init")
     parser.add_argument("--collocations", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--stats", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
