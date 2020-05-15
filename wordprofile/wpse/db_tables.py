@@ -86,6 +86,30 @@ def get_table_collocations(meta: MetaData):
     )
 
 
+def get_table_mwe(meta: MetaData):
+    return Table(
+        'mwe', meta,
+        Column('id', types.Integer),
+        Column('collocation1_id', types.Integer),
+        Column('collocation2_id', types.Integer),
+        Column('label', Enum(RELATION_TYPE)),
+        Column('lemma', LEMMA_TYPE),
+        Column('lemma_tag', Enum(TAG_TYPE)),
+        Column('frequency', types.Integer, default=1),
+        mysql_engine='Aria',
+    )
+
+
+def get_table_mwe_match(meta: MetaData):
+    return Table(
+        'mwe_match', meta,
+        Column('mwe_id', types.Integer),
+        Column('match1_id', types.Integer),
+        Column('match2_id', types.Integer),
+        mysql_engine='Aria',
+    )
+
+
 def get_table_corpus_frequencies(meta: MetaData):
     return Table(
         'corpus_freqs', meta,

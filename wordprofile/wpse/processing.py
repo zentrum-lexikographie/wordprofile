@@ -250,18 +250,27 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
     Match = namedtuple("Match",
                        ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
                         "doc_id", "sent_id", "timestamp"])
+    match_dtypes = [int, int, str, str, int, int, int, int, int, str]
+    Colloc = namedtuple("Collocation",
+                        ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
+    colloc_dtypes = [int, str, str, str, str, str, int, int]
 
-    def convert_line_to_match(line):
-        line = line.strip().split("\t")
-        return Match(int(line[0]), int(line[1]), line[2], line[3], int(line[4]), int(line[5]), int(line[6]),
-                     int(line[7]), int(line[8]), line[9])
+    def convert_line(line, cls, dtypes):
+        return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
 
-    with open("/mnt/SSD/data/wp_dev/matches", "r") as fin, open("/mnt/SSD/data/wp_dev/mwe", "w") as fout:
+    collocs = {}
+    with open(os.path.join(storage_path, 'collocations'), "r") as fin:
+        for line in fin:
+            c = convert_line(line, Colloc, colloc_dtypes)
+            collocs[c.id] = c
+
+    with open(os.path.join(storage_path, 'matches'), "r") as fin:
         sent = []
         sent_curr = 0
         doc_curr = 0
+        mwe_groups = defaultdict(list)
         for line in fin:
-            m = convert_line_to_match(line)
+            m = convert_line(line, Match, match_dtypes)
             if m.doc_id == doc_curr and m.sent_id == sent_curr:
                 sent.append(m)
             else:
@@ -270,17 +279,49 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
                         for m2 in sent[m_i + 1:]:
                             if len({m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos}) == 3 and (
                                     m1.prep_pos == m2.prep_pos):
-                                fout.write("{}\t{}\n".format(m1.id, m2.id))
-                sent = []
+                                c1 = collocs[m1.collocation_id]
+                                c2 = collocs[m2.collocation_id]
+                                if len({m1.head_pos, m2.head_pos, m2.dep_pos}) == 2:
+                                    # m2 - m1.dep_surface
+                                    lemma = c1.lemma1 if c1.inv else c1.lemma2
+                                    tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
+                                    mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                                        (m2.id, m1.id))
+                                if len({m1.dep_pos, m2.head_pos, m2.dep_pos}) == 2:
+                                    # m2 - m1.head_surface
+                                    lemma = c1.lemma2 if c1.inv else c1.lemma1
+                                    tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
+                                    mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                                        (m2.id, m1.id))
+                                if len({m2.head_pos, m1.head_pos, m1.dep_pos}) == 2:
+                                    # m1 - m2.dep_surface
+                                    lemma = c2.lemma1 if c2.inv else c2.lemma2
+                                    tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
+                                    mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                                        (m1.id, m2.id))
+                                if len({m2.dep_pos, m1.head_pos, m1.dep_pos}) == 2:
+                                    # m1 - m2.head_surface
+                                    lemma = c2.lemma2 if c2.inv else c2.lemma1
+                                    tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
+                                    mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                                        (m1.id, m2.id))
+                sent = [m]
                 doc_curr = m.doc_id
                 sent_curr = m.sent_id
+
+    with open(os.path.join(storage_path, 'mwe'), "w") as mwe_out, \
+            open(os.path.join(storage_path, 'mwe_match'), "w") as mwe_map:
+        for mwe_id, (mwe, mwe_matches) in enumerate(mwe_groups.items()):
+            mwe_out.write("{}\n".format("\t".join(map(str, (mwe_id,) + mwe + (len(mwe_matches),)))))
+            for m1_id, m2_id in mwe_matches:
+                mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
 
 
 def load_files_into_db(db_engine_key: str, storage_path: str):
     """Load generated data files into their corresponding db tables.
     """
     engine = create_engine(db_engine_key)
-    for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches']:
+    for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches', 'mwe', 'mwe_match']:
         engine.execute("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
             os.path.join(storage_path, tb_name),
             tb_name

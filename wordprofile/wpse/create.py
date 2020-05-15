@@ -20,6 +20,7 @@ def init_word_profile_tables(engine: Engine, database: str):
     wordprofile.wpse.db_tables.get_table_collocations(meta)
     wordprofile.wpse.db_tables.get_table_statistics(meta)
     wordprofile.wpse.db_tables.get_table_mwe(meta)
+    wordprofile.wpse.db_tables.get_table_mwe_match(meta)
     meta.create_all(engine)
 
     engine.execute("""
