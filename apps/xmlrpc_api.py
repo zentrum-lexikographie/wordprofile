@@ -93,6 +93,17 @@ class WordprofileXMLRPC:
         min_stat = params.get("MinStat", -100000000)
         return self.wp.get_relations(lemma, pos, lemma2, pos2, relations, start, number, order_by, min_freq, min_stat)
 
+    def get_mwe_relations(self, params: dict):
+        logger.info(str(params))
+        coocc_ids = params["ConcordIds"]
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+        min_freq = params.get("MinFreq", 0)
+        min_stat = params.get("MinStat", -100000000)
+        return self.wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
+
     def get_diff(self, params: dict):
         """Fetches collocations of common POS from word-profile and computes distances for comparison.
 

@@ -111,6 +111,24 @@ class Wordprofile:
             })
         return results
 
+    def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
+                          min_freq: int = 0, min_stat: int = -1000) -> List[dict]:
+        grouped_relations = defaultdict(list)
+        lemma1 = pos1 = ""
+        for relation in self.db.get_mwe_tuples(coocc_ids, min_freq, min_stat):
+            lemma1 = relation.Lemma1
+            pos1 = relation.Pos1
+            grouped_relations[relation.Rel].append(relation)
+        results = []
+        for relation, cooccs in grouped_relations.items():
+            results.append({
+                'Relation': relation,
+                'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
+                'Tuples': format_cooccs(cooccs),
+                'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
+            })
+        return results
+
     def get_diff(self, lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
                  order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
                  use_intersection: bool = False, nbest: int = 0) -> List[dict]:

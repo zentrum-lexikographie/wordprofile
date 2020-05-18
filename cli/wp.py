@@ -14,6 +14,7 @@ from apps.xmlrpc_api import WordprofileXMLRPC
 from utils.cmp import compare_lemmas
 from utils.hit import get_hits
 from utils.info import get_wordprofile_info
+from utils.mwe_rel import get_mwe_free
 from utils.rel import get_relation
 
 parser = ArgumentParser()
@@ -46,6 +47,18 @@ rel_parser.add_argument("--sf", action="store_true", dest="surface", default=Fal
                         help="Verwenden der Oberflächenform statt der Lemmaform")
 rel_parser.add_argument("-v", action="store_true", dest="variations", default=False,
                         help="Einbeziehung von alternativen Schreibungen zu einem Eingabelemma")
+
+mwe_rel_parser = subparsers.add_parser("mwe-rel", help="collocation relations")
+mwe_rel_parser.add_argument("-l", dest="LemmaList", default="", type=str, help="die Eingabelemmata")
+mwe_rel_parser.add_argument("-p", dest="pos_tag", default="", help="Substantiv,Verb,Adjektiv,Adverb")
+mwe_rel_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
+mwe_rel_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
+mwe_rel_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
+mwe_rel_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
+mwe_rel_parser.add_argument("-r", dest="relations", nargs="*",
+                            help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
+mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
+                            help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 
 hit_parser = subparsers.add_parser("hit")
 hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
@@ -117,6 +130,8 @@ elif args.subcommand == "info":
     get_wordprofile_info(wp)
 elif args.subcommand == "rel":
     get_relation(wp, args)
+elif args.subcommand == "mwe-rel":
+    get_mwe_free(wp, args)
 elif args.subcommand == "hit":
     get_hits(wp, args)
 elif args.subcommand == "cmp":

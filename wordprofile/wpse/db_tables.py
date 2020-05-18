@@ -139,12 +139,3 @@ def get_table_statistics(meta: MetaData, metric: str = 'log_dice'):
         Column('value', types.Float),
         mysql_engine='Aria',
     )
-
-
-def get_table_mwe(meta: MetaData):
-    return Table(
-        'mwe', meta,
-        Column('collocation1_id', types.Integer),
-        Column('collocation2_id', types.Integer),
-        mysql_engine='Aria',
-    )
