@@ -343,19 +343,3 @@ class WPConnect:
         )
         db_results = self.__fetchall(query)
         return list(map(Coocc._make, db_results))
-
-    def get_mwe_tuples(self, coocc_ids: List[int], min_freq: int,
-                       min_stat: float) -> List[Coocc]:
-        min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
-        sql = """
-        SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag
-        FROM mwe
-        JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        WHERE mwe.collocation1_id IN ({}) {} {} 
-        """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
-        db_results = self.__fetchall(sql)
-        return [Coocc(RelId=i[0], Rel=i[1], Lemma1="{}-{}".format(i[5], i[6]), Lemma2=i[2],
-                      Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=0, inverse=0)
-                for i in db_results]

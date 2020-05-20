@@ -14,6 +14,7 @@ from apps.xmlrpc_api import WordprofileXMLRPC
 from utils.cmp import compare_lemmas
 from utils.hit import get_hits
 from utils.info import get_wordprofile_info
+from utils.mwe_hit import get_mwe_hits
 from utils.mwe_rel import get_mwe_free
 from utils.rel import get_relation
 
@@ -61,6 +62,22 @@ mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
                             help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 
 hit_parser = subparsers.add_parser("hit")
+hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
+hit_parser.add_argument("-s", type=int, dest="start", default=0, help="Trefferstart")
+hit_parser.add_argument("-n", type=int, dest="number", default=20, help="Trefferanzahl (default=20)")
+hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
+                        help="host default=http://services.dwds.de:9999")
+hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,
+                        help="interner Benutzer (mit Rechten)")
+hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
+                        help="anzeigen der Contexte (rechter, linker Satz)")
+hit_parser.add_argument("--br", dest="width", default=140, help="Breite der Anzeige (default=140)")
+hit_parser.add_argument("--sc", action="store_true", dest="score", default=False,
+                        help="primär nach dem Sentence-Score sortieren")
+hit_parser.add_argument("-a", action="store_false", dest="dateDesc", default=True, help="Datum aufsteigend")
+hit_parser.add_argument("-c", dest="corpus", default="", help="einzelner Korpus, in dem gesucht werden soll")
+
+hit_parser = subparsers.add_parser("mwe-hit")
 hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
 hit_parser.add_argument("-s", type=int, dest="start", default=0, help="Trefferstart")
 hit_parser.add_argument("-n", type=int, dest="number", default=20, help="Trefferanzahl (default=20)")
@@ -134,5 +151,7 @@ elif args.subcommand == "mwe-rel":
     get_mwe_free(wp, args)
 elif args.subcommand == "hit":
     get_hits(wp, args)
+elif args.subcommand == "mwe-hit":
+    get_mwe_hits(wp, args)
 elif args.subcommand == "cmp":
     compare_lemmas(wp, args)

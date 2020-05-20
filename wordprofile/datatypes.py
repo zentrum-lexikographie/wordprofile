@@ -11,6 +11,12 @@ Concordance = namedtuple("Concordance",
                          ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
                           "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
                           "sentence_right"])
+MweConcordance = namedtuple("Concordance",
+                            ["sentence", "token1_position_1", "token1_position_2", "prep1_position",
+                             "token2_position_1", "token2_position_2", "prep2_position",
+                             "corpus", "date", "textclass", "orig", "scan",
+                             "avail", "page", "file", "score",
+                             "sentence_left", "sentence_right"])
 TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
 ConllToken = namedtuple('ConllToken',
                         ['surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'])

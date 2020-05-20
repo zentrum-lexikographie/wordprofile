@@ -196,6 +196,26 @@ class WordprofileXMLRPC:
         result_number = params.get("Number", 20)
         return self.wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number)
 
+    def get_mwe_concordances_and_relation(self, params: dict):
+        """Fetches collocation information and concordances for a specified hit id.
+
+        Args:
+            params:
+                <coocc_id>: Collocation id.
+                <use_context> (optional): If true, returns surrounding sentences for matched collocation.
+                <start_index> (optional): Collocation id.
+                <result_number> (optional): Collocation id.
+
+        Returns:
+            Returns a dictionary with collocation information and their concordances.
+        """
+        logger.info(str(params))
+        coocc_id = int(str(params.get("InfoId")).strip("#"))
+        use_context = bool(params.get("UseContext", False))
+        start_index = params.get("Start", 0)
+        result_number = params.get("Number", 20)
+        return self.wp.get_mwe_concordances_and_relation(coocc_id, use_context, start_index, result_number)
+
 
 class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
     # Restrict to a particular path.

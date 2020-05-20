@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 from tabulate import tabulate
 from termcolor import colored
 
@@ -9,8 +11,6 @@ def get_mwe_free(wp, args):
         # vLemmaList = s.get_lemma_and_pos_by_list(mapParam)
         mapping = wp.get_lemma_and_pos({
             "Word": lemma,
-            "Subcorpus": args.corpus,
-            "UseVariations": args.variations
         })
         if len(mapping) == 0:
             print("): Ein Wort nicht enthalten")
@@ -51,11 +51,11 @@ def get_mwe_free(wp, args):
         "OrderBy": args.order,
         "MinFreq": args.min_freq,
         "MinStat": args.min_stat,
-        "Subcorpus": args.corpus,
         "Relations": ["META"],
     })
 
-    collocation_ids = [colloc['ConcordId'] for relation_type in relations for colloc in relation_type['Tuples']]
+    # TODO currently uses a hack which makes concordId positive
+    collocation_ids = [abs(colloc['ConcordId']) for relation_type in relations for colloc in relation_type['Tuples']]
 
     mwe_relations = wp.get_mwe_relations({
         "ConcordIds": collocation_ids,
@@ -64,7 +64,6 @@ def get_mwe_free(wp, args):
         "OrderBy": args.order,
         "MinFreq": args.min_freq,
         "MinStat": args.min_stat,
-        "Subcorpus": args.corpus,
     })
 
     for rel_ctr, relation in enumerate(mwe_relations):

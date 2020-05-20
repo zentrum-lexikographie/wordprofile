@@ -5,8 +5,10 @@ import math
 from collections import defaultdict
 from typing import List, Union
 
-from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos
+from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos, \
+    format_mwe_concordances
 from wordprofile.wpse.connector import WPConnect
+from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.variations import generate_orth_variations
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
@@ -18,6 +20,7 @@ class Wordprofile:
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
         self.db = WPConnect(db_host, db_user, db_passwd, db_name)
+        self.db_mwe = WPMweConnect(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
 
     def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
@@ -115,7 +118,7 @@ class Wordprofile:
                           min_freq: int = 0, min_stat: int = -1000) -> List[dict]:
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
-        for relation in self.db.get_mwe_tuples(coocc_ids, min_freq, min_stat):
+        for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
             lemma1 = relation.Lemma1
             pos1 = relation.Pos1
             grouped_relations[relation.Rel].append(relation)
@@ -260,8 +263,28 @@ class Wordprofile:
             raise ValueError("Unknown operation")
         return score
 
-    def get_relation_by_info_id(self, coocc_id: int) -> dict:
+    def get_relation_by_info_id(self, mwe_id: int) -> dict:
         """Fetches collocation information for a specific hit id.
+
+        Args:
+            mwe_id: DB index of the collocation.
+
+        Return:
+            Dictionary with collocation information.
+        """
+        coocc_info = self.db.get_relation_by_id(mwe_id)
+        if coocc_info.rel in self.wp_spec.mapRelDescDetail:
+            description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
+            description = description.replace('$1', coocc_info.lemma1)
+            description = description.replace('$2', coocc_info.lemma2)
+        else:
+            description = ""
+        return {'Description': description, 'Relation': coocc_info.rel,
+                'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
+                'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
+
+    def get_mwe_relation_by_info_id(self, coocc_id: int) -> dict:
+        """Fetches mwe information for a specific mwe id.
 
         Args:
             coocc_id: DB index of the collocation.
@@ -269,7 +292,7 @@ class Wordprofile:
         Return:
             Dictionary with collocation information.
         """
-        coocc_info = self.db.get_relation_by_id(coocc_id)
+        coocc_info = self.db_mwe.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -296,4 +319,22 @@ class Wordprofile:
         relation = self.get_relation_by_info_id(coocc_id)
         relation['Tuples'] = format_concordances(
             self.db.get_concordances(coocc_id, use_context, start_index, result_number))
+        return relation
+
+    def get_mwe_concordances_and_relation(self, mwe_id: int, use_context: bool = False, start_index: int = 0,
+                                          result_number: int = 20):
+        """Fetches MWE information and concordances for a specified mwe id.
+
+        Args:
+            mwe_id: mwe id.
+            use_context: If true, returns surrounding sentences for matched collocation.
+            start_index: Collocation id.
+            result_number: Collocation id.
+
+        Return:
+            Dictionary with mwe information and their concordances.
+        """
+        relation = self.get_mwe_relation_by_info_id(mwe_id)
+        relation['Tuples'] = format_mwe_concordances(
+            self.db_mwe.get_concordances(mwe_id, use_context, start_index, result_number))
         return relation
