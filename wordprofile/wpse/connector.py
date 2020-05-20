@@ -80,10 +80,10 @@ class WPConnect:
             INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = matches.sentence_id)
-            INNER JOIN concord_sentences as s_left ON
+            LEFT JOIN concord_sentences as s_left ON
                 (s_left.corpus_file_id = cf.id
                 and s_left.sentence_id =(matches.sentence_id-1))
-            INNER JOIN concord_sentences as s_right ON
+            LEFT JOIN concord_sentences as s_right ON
                 (s_right.corpus_file_id = cf.id
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE (
