@@ -5,7 +5,7 @@ from typing import List
 
 import pymysql
 
-from wordprofile.datatypes import CooccInfo, Coocc, Concordance, MweConcordance
+from wordprofile.datatypes import CooccInfo, Coocc, MweConcordance
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
@@ -46,7 +46,7 @@ class WPMweConnect:
         return res
 
     def get_concordances(self, mwe_id: int, use_context: bool, start_index: int, result_number: int) -> List[
-        Concordance]:
+        MweConcordance]:
         """Fetches concordances for collocation id from database backend.
 
         Args:
@@ -107,13 +107,13 @@ class WPMweConnect:
         return db_results
 
     def get_relation_by_id(self, mwe_id: int) -> CooccInfo:
-        """Fetches collocation information for collocation id from database backend.
+        """Fetches MWE information for mwe id from database backend.
 
         Args:
             mwe_id: Collocation id for concordances.
 
         Return:
-            Collocation information.
+            MWE information.
         """
         sql = """
         SELECT
@@ -124,20 +124,36 @@ class WPMweConnect:
         """.format(mwe_id)
         db_result = self.__fetchall(sql)[0]
         return CooccInfo(id=db_result[0], rel=db_result[1], lemma1="{}-{}".format(db_result[5], db_result[6]),
-                         lemma2=db_result[2], pos1="{}-{}".format(db_result[7], db_result[8]), pos2=db_result[3], inv=0)
+                         lemma2=db_result[2], pos1="{}-{}".format(db_result[7], db_result[8]), pos2=db_result[3], inv=0,
+                         has_mwe=0)
 
-    def get_relation_tuples(self, coocc_ids: List[int], min_freq: int,
-                            min_stat: float) -> List[Coocc]:
+    def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> \
+            List[Coocc]:
+        """Fetches MWE with related statistics for a specific relation from database backend.
+
+        Args:
+            coocc_ids: List of Collocation ids, one per relation.
+            min_freq: Filter collocations with minimal frequency.
+            min_stat: Filter collocations with minimal stats score.
+
+        Return:
+            List of Coocc.
+        """
+        if not coocc_ids:
+            return []
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
         min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
         sql = """
         SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag
+            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            IFNULL(ld.value, 0.0) as log_dice
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
+        LEFT JOIN mwe_log_dice ld on mwe.id = ld.mwe_id
         WHERE mwe.collocation1_id IN ({}) {} {} 
+        ORDER BY log_dice DESC
         """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
         db_results = self.__fetchall(sql)
         return [Coocc(RelId=i[0], Rel=i[1], Lemma1="{}-{}".format(i[5], i[6]), Lemma2=i[2],
-                      Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=0, inverse=0)
+                      Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=i[9], inverse=0, has_mwe=0)
                 for i in db_results]

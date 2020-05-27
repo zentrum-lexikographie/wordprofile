@@ -56,6 +56,7 @@ def create_collocations(engine: Engine):
 def create_statistics(engine: Engine):
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_statistics(meta, metric='log_dice')
+    wordprofile.wpse.db_tables.get_table_statistics(meta, metric='mwe_log_dice', id_col='mwe_id')
     wordprofile.wpse.db_tables.get_table_token_frequencies(meta)
     wordprofile.wpse.db_tables.get_table_corpus_frequencies(meta)
     meta.create_all(engine)
@@ -83,6 +84,16 @@ def create_statistics(engine: Engine):
     INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
     """)
     engine.execute("CREATE INDEX stats_index ON log_dice (collocation_id);")
+
+    logging.info("INSERT mwe_log_dice")
+    engine.execute("""
+    INSERT INTO mwe_log_dice (mwe_id, value)
+    SELECT mwe.id, (14 + LOG2((IFNULL(mwe.frequency, 1) * 2) / (IFNULL(c.frequency, 1) + IFNULL(t2.freq, 1))))
+    FROM mwe
+    INNER JOIN collocations c ON (mwe.collocation1_id = c.id)
+    INNER JOIN token_freqs t2 ON (mwe.lemma = t2.lemma and mwe.lemma_tag = t2.tag)
+    """)
+    engine.execute("CREATE INDEX stats_index ON mwe_log_dice (mwe_id);")
 
     # print("INSERT mi score")
     # engine.execute("""

@@ -68,6 +68,12 @@ def create_indices(engine: Engine):
     engine.execute("CREATE INDEX matches_corpus_sentence_index ON matches (corpus_file_id, sentence_id);")
     logging.info("CREATE INDEX matches_relation_label_index")
     engine.execute("CREATE INDEX matches_relation_label_index ON matches (collocation_id);")
+    logging.info("CREATE INDEX mwe_index")
+    engine.execute("CREATE INDEX mwe_index ON mwe (id);")
+    logging.info("CREATE INDEX mwe_collocation1_index")
+    engine.execute("CREATE INDEX mwe_collocation1_index ON mwe (collocation1_id);")
+    logging.info("CREATE INDEX mwe_match_index")
+    engine.execute("CREATE INDEX mwe_match_index ON mwe_match (mwe_id);")
 
 
 class FileWorker(multiprocessing.Process):

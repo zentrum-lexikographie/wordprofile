@@ -116,6 +116,19 @@ class Wordprofile:
 
     def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
                           min_freq: int = 0, min_stat: int = -1000) -> List[dict]:
+        """Fetches MWE from word-profile database.
+
+        Args:
+            coocc_ids: List of collocation ids.
+            start (optional): Number of collocations to skip.
+            number (optional): Number of collocations to take.
+            order_by (optional): Metric for ordering, frequency or log_dice.
+            min_freq (optional): Filter collocations with minimal frequency.
+            min_stat (optional): Filter collocations with minimal stats score.
+
+        Return:
+            List of selected collocations grouped by relation.
+        """
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
         for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
@@ -127,7 +140,7 @@ class Wordprofile:
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_cooccs(cooccs),
+                'Tuples': format_cooccs(cooccs[:number]),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results

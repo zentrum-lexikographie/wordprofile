@@ -132,10 +132,10 @@ def get_table_token_frequencies(meta: MetaData):
     )
 
 
-def get_table_statistics(meta: MetaData, metric: str = 'log_dice'):
+def get_table_statistics(meta: MetaData, metric: str = 'log_dice', id_col: str = 'collocation_id'):
     return Table(
         metric, meta,
-        Column('collocation_id', types.Integer),
+        Column(id_col, types.Integer),
         Column('value', types.Float),
         mysql_engine='Aria',
     )
