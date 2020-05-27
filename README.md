@@ -67,15 +67,20 @@ Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation g
 
 Abfrage einfacher Kookkurrenzen zu verschiedenen syntaktischen Relationen:
 ```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
 ```
 
 Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
 ```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
 ```
 
 Vergleich der Wortprofile zweier Lemmata:
 ```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
+```
+
+Vergleich von zwei parallel laufenden WP Instanzen (host1, host2):
+```
+python3 cli/cmp_wp.py --host2 riker:8086 --host1 services3.dwds.de:7780 -r META -n 10
 ```

@@ -8,6 +8,8 @@ import xmlrpc.client
 from argparse import ArgumentParser
 from collections import defaultdict
 
+import numpy as np
+
 from apps.xmlrpc_api import WordprofileXMLRPC
 
 
@@ -47,7 +49,7 @@ def wp_jaccard_distance(wp1, wp2):
     words2 = set(c[1] for c in wp2)
     overlap = len(words1 & words2)
     both = len(words1 | words2)
-    return overlap, both, overlap / both
+    return overlap, both, round(overlap * 100 / len(words1), 2), round(overlap * 100 / both, 2)
 
 
 parser = ArgumentParser()
@@ -94,9 +96,12 @@ lemma_pos_candidates = list(map(lambda c: (c[0], pos_map_inv[c[1]]),
                                 (line.strip().split(",") for line in open("cli/token_freqs.csv", "r").readlines())))
 lemma_pos_candidates = random.choices(lemma_pos_candidates, k=100)
 
-relations = {}
+scores = {
+    'overlaps': [],
+    'jacc_dists': []
+}
+
 for lemma, pos in lemma_pos_candidates:
-    relations[(lemma, pos)] = {}
     relation_cats_1 = get_relation(wp1, lemma, pos, args.start, args.number, args.order,
                                    args.min_freq, args.min_stat, args.corpus, args.relations)
     relation_cats_2 = get_relation(wp2, lemma, pos_map.get(pos), args.start, args.number, args.order,
@@ -105,4 +110,8 @@ for lemma, pos in lemma_pos_candidates:
     for rel_cat in set(relation_cats_1.keys()) & set(relation_cats_2.keys()):
         wps1 = relation_cats_1.get(rel_cat, [])
         wps2 = relation_cats_2.get(rel_cat, [])
+        overlap, both, overlap_prob, jacc_dist = wp_jaccard_distance(wps1, wps2)
+        scores['overlaps'].append(overlap_prob)
+        scores['jacc_dists'].append(jacc_dist)
         print(lemma, pos, rel_cat, wp_jaccard_distance(wps1, wps2))
+print("Avg Overlap: {}, Avg JACC Dist: {}".format(np.mean(scores['overlaps']), np.mean(scores['jacc_dists'])))
