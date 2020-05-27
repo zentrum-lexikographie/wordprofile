@@ -37,7 +37,9 @@ def get_relation(wp, args):
 
     relations = wp.get_relations({
         "Lemma": selection["Lemma"],
+        "LemmaId": selection.get("LemmaId", ""),
         "POS": selection["POS"],
+        "PosId": selection.get("PosId", ""),
         "Start": args.start,
         "Number": args.number,
         "OrderBy": args.order,
