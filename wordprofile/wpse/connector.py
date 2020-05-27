@@ -161,7 +161,8 @@ class WPConnect:
 
         query = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv, 
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         WHERE c.id = {}
@@ -198,7 +199,8 @@ class WPConnect:
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv,
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
@@ -245,7 +247,8 @@ class WPConnect:
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv,
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
@@ -294,7 +297,8 @@ class WPConnect:
         query = """
         SELECT 
             c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv,
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
@@ -330,7 +334,8 @@ class WPConnect:
         query = """
         SELECT 
             c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv,
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
         LEFT JOIN log_dice ld on c.id = ld.collocation_id
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}'

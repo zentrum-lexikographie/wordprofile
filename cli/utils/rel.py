@@ -68,7 +68,7 @@ def get_relation(wp, args):
         for coocc_ctr, coocc in enumerate(relation['Tuples']):
             table_items.append([
                 str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
-                coocc['Score'][args.order], coocc['ConcordId']
+                coocc['Score'][args.order], coocc['ConcordId'], coocc['HasMwe']
             ])
-        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit/MWE-ID']
+        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit-ID', 'HasMwe']
         print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))

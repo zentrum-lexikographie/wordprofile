@@ -49,7 +49,8 @@ def format_cooccs(cooccs: List[Coocc]):
             },
             'ConcordId': coocc.RelId,
             'ConcordNo': concord_no,
-            'ConcordNoAccessible': concord_no
+            'ConcordNoAccessible': concord_no,
+            'HasMwe': coocc.has_mwe
         })
     return results
 

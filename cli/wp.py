@@ -62,9 +62,9 @@ mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
                             help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 
 hit_parser = subparsers.add_parser("hit")
-hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
-hit_parser.add_argument("-s", type=int, dest="start", default=0, help="Trefferstart")
-hit_parser.add_argument("-n", type=int, dest="number", default=20, help="Trefferanzahl (default=20)")
+hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
+hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
+hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
 hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
                         help="host default=http://services.dwds.de:9999")
 hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,
@@ -78,9 +78,9 @@ hit_parser.add_argument("-a", action="store_false", dest="dateDesc", default=Tru
 hit_parser.add_argument("-c", dest="corpus", default="", help="einzelner Korpus, in dem gesucht werden soll")
 
 hit_parser = subparsers.add_parser("mwe-hit")
-hit_parser.add_argument("-i", type=int, dest="info", default=-1, help="die Texttreffer-ID")
-hit_parser.add_argument("-s", type=int, dest="start", default=0, help="Trefferstart")
-hit_parser.add_argument("-n", type=int, dest="number", default=20, help="Trefferanzahl (default=20)")
+hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
+hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
+hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
 hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
                         help="host default=http://services.dwds.de:9999")
 hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,

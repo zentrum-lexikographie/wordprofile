@@ -87,5 +87,5 @@ def get_mwe_free(wp, args):
                 str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
                 coocc['Score'][args.order], coocc['ConcordId']
             ])
-        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit/MWE-ID']
+        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'MWE-ID']
         print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))

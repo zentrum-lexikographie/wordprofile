@@ -4,9 +4,9 @@ from collections import namedtuple
 from typing import List, Iterable
 
 LemmaInfo = namedtuple("LemmaInfo", ["lemma", "tag", "rel", "freq", "inv"])
-CooccInfo = namedtuple("CooccInfo", ["id", "rel", "lemma1", "lemma2", "pos1", "pos2", "inv"])
+CooccInfo = namedtuple("CooccInfo", ["id", "rel", "lemma1", "lemma2", "pos1", "pos2", "inv", "has_mwe"])
 Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",
-                             "Frequency", "LogDice", "inverse"])
+                             "Frequency", "LogDice", "inverse", "has_mwe"])
 Concordance = namedtuple("Concordance",
                          ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
                           "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
