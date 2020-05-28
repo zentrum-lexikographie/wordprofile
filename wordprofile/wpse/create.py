@@ -39,7 +39,13 @@ def create_collocations(engine: Engine):
     INSERT INTO collocations (id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
     SELECT -id, label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
     FROM collocations c
-    """)
+    WHERE c.lemma1 NOT LIKE %s;
+    """, '"% %"')
+    engine.execute("""
+    DELETE
+    FROM collocations
+    WHERE lemma1 LIKE %s;
+    """, '"% %"')
     logging.info("CREATE INDEX")
     logging.info("CREATE id_index")
     engine.execute("CREATE INDEX id_index ON collocations (id);")
