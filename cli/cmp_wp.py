@@ -15,6 +15,19 @@ from apps.xmlrpc_api import WordprofileXMLRPC
 
 
 def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, corpus, relations):
+    """
+    Args:
+        wp:
+        lemma:
+        pos_tag:
+        start:
+        number:
+        order:
+        min_freq:
+        min_stat:
+        corpus:
+        relations:
+    """
     mapping = wp.get_lemma_and_pos({
         "Word": lemma,
         "POS": pos_tag,
@@ -50,6 +63,12 @@ def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, c
 
 
 def wp_jaccard_distance(wp1, wp2, n=10):
+    """
+    Args:
+        wp1:
+        wp2:
+        n:
+    """
     words1 = set(c[1] for c in wp1)
     words2 = set(c[1] for c in wp2)
     overlap = len(words1 & words2)
@@ -66,6 +85,7 @@ db_parser.add_argument("--host1", type=str, help="XML-RPC hostname")
 db_parser.add_argument("--host2", type=str, help="XML-RPC hostname")
 
 db_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
+db_parser.add_argument("-k", dest="k", default=1000, help="Number of samples")
 db_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
 db_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
 db_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
@@ -101,7 +121,7 @@ pos_map_inv = {v: k for k, v in pos_map.items()}
 
 lemma_pos_candidates = list(map(lambda c: (c[0], pos_map_inv[c[1]]),
                                 (line.strip().split(",") for line in open("cli/token_freqs.csv", "r").readlines())))
-lemma_pos_candidates = random.choices(lemma_pos_candidates, k=200)
+lemma_pos_candidates = sorted(random.choices(lemma_pos_candidates, k=args.k), key=lambda x: x[0])
 
 relations = ['ADV', 'ATTR', 'GMOD', '~GMOD', 'KOM', 'KON', 'OBJ', '~OBJ', 'PP', 'PRED', '~PRED', 'VZ']
 # relations = ['VZ']
