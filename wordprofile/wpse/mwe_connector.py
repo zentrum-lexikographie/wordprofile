@@ -142,14 +142,13 @@ class WPMweConnect:
         if not coocc_ids:
             return []
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_stat_sql = " and (log_dice) >= {} ".format(min_stat) if min_stat > -1000 else ""
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(ld.value, 0.0) as log_dice
+            IFNULL(mwe.score, 0.0) as log_dice
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        LEFT JOIN mwe_log_dice ld on mwe.id = ld.mwe_id
         WHERE mwe.collocation1_id IN ({}) {} {} 
         ORDER BY log_dice DESC
         """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)

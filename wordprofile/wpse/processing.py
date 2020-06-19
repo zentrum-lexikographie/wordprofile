@@ -2,6 +2,7 @@
 
 import hashlib
 import logging
+import math
 import multiprocessing
 import os
 from collections import defaultdict, namedtuple
@@ -209,6 +210,17 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
     Filter collocations with too little occurrences.
     Filter matches with respect to available concordances and collocations.
     """
+    Match = namedtuple("Match",
+                       ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
+                        "doc_id", "sent_id", "timestamp"])
+    match_dtypes = [int, int, str, str, int, int, int, int, int, str]
+    Colloc = namedtuple("Collocation",
+                        ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
+    colloc_dtypes = [int, str, str, str, str, str, int, int]
+
+    def convert_line(line, cls, dtypes):
+        return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
+
     logging.info('REPLACE INDEX corpus files')
     corpus_file_idx = {}
     with open(os.path.join(storage_path, 'corpus_files_stage'), 'r') as files_in, open(
@@ -232,15 +244,15 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
                 if sent_hash not in sent_hashes[doc_id]:
                     sent_hashes[doc_id].append(sent_hash)
                     sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
-    logging.info('FILTER collocations')
-    with open(os.path.join(storage_path, 'collocations_stage'), 'r') as rel_in, open(
-            os.path.join(storage_path, 'collocations'), 'w') as rel_out:
-        for line in rel_in:
-            if int(line.split('\t')[-1]) >= min_rel_freq:
-                rel_out.write(line)
+    logging.info('LOAD FILTERED collocations')
+    collocs = {}
+    with open(os.path.join(storage_path, 'collocations_stage'), "r") as fin:
+        for line in fin:
+            c = convert_line(line, Colloc, colloc_dtypes)
+            if c.frequency >= min_rel_freq:
+                collocs[c.id] = c
     logging.info('FILTER matches')
     sents_idxs = {tuple(line.split('\t')[:2]) for line in open(os.path.join(storage_path, 'concord_sentences'), 'r')}
-    rel_idxs = {int(line.split('\t')[0]) for line in open(os.path.join(storage_path, 'collocations'), 'r')}
     with open(os.path.join(storage_path, 'matches_stage'), 'r') as matches_in, open(
             os.path.join(storage_path, 'matches'), 'w') as matches_out:
         match_i = 0
@@ -248,28 +260,36 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
             match = line.split('\t')
             match[6] = str(corpus_file_idx[match[6]])
             # check whether concordances and collocations still exist for match
-            if int(match[0]) in rel_idxs and tuple(match[6:8]) in sents_idxs:
+            if int(match[0]) in collocs and tuple(match[6:8]) in sents_idxs:
                 match.insert(0, str(match_i))
                 match_i += 1
                 matches_out.write('\t'.join(match))
-    logging.info('CHECK MWE')
-    Match = namedtuple("Match",
-                       ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
-                        "doc_id", "sent_id", "timestamp"])
-    match_dtypes = [int, int, str, str, int, int, int, int, int, str]
-    Colloc = namedtuple("Collocation",
-                        ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
-    colloc_dtypes = [int, str, str, str, str, str, int, int]
-
-    def convert_line(line, cls, dtypes):
-        return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
-
-    collocs = {}
-    with open(os.path.join(storage_path, 'collocations'), "r") as fin:
-        for line in fin:
-            c = convert_line(line, Colloc, colloc_dtypes)
-            collocs[c.id] = c
-
+    logging.info('CALCULATE log dice scores')
+    f12 = defaultdict(lambda: defaultdict(int))
+    f1 = defaultdict(lambda: defaultdict(int))
+    f2 = defaultdict(int)
+    for c_id, c in collocs.items():
+        w1 = c.lemma1 + "-" + c.lemma1_tag
+        w2 = c.lemma2 + "-" + c.lemma2_tag
+        f12[c.label][(w1, w2)] += c.frequency
+        f12[c.label][(w2, w1)] += c.frequency
+        f1[c.label][w1] += c.frequency
+        f1[c.label][w2] += c.frequency
+        f2[w1] += c.frequency
+        f2[w2] += c.frequency
+    log_dice = dict()
+    for c_id, c in collocs.items():
+        w1 = c.lemma1 + "-" + c.lemma1_tag
+        w2 = c.lemma2 + "-" + c.lemma2_tag
+        log_dice[c_id] = 14 + math.log2(2 * max(1, f12[c.label][(w1, w2)]) / (max(1, f1[c.label][w1]) + max(1, f2[w2])))
+    logging.info('WRITE OUT collocations')
+    with open(os.path.join(storage_path, 'collocations'), 'w') as fout:
+        for c_id, c in collocs.items():
+            fout.write("{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
+                       "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice[c_id]))
+            fout.write("-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
+                       "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice[c_id]))
+    logging.info('MAKE MWE LVL 1')
     with open(os.path.join(storage_path, 'matches'), "r") as fin:
         sent = []
         sent_curr = 0
@@ -314,11 +334,26 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
                 sent = [m]
                 doc_curr = m.doc_id
                 sent_curr = m.sent_id
+    logging.info('CLACULATE log dice mwe lvl 1')
+    f12 = defaultdict(lambda: defaultdict(int))
+    f1 = defaultdict(lambda: defaultdict(int))
+    f2 = defaultdict(int)
+    for mwe_id, ((w1, w2, label, lemma, tag), mwe_matches) in enumerate(mwe_groups.items()):
+        frequency = len(mwe_matches)
+        f12[label][(w1, w2)] += frequency
+        f12[label][(w2, w1)] += frequency
+        f1[label][w1] += frequency
+        f1[label][w2] += frequency
+        f2[w1] += frequency
+        f2[w2] += frequency
 
     with open(os.path.join(storage_path, 'mwe'), "w") as mwe_out, \
             open(os.path.join(storage_path, 'mwe_match'), "w") as mwe_map:
         for mwe_id, (mwe, mwe_matches) in enumerate(mwe_groups.items()):
-            mwe_out.write("{}\n".format("\t".join(map(str, (mwe_id,) + mwe + (len(mwe_matches),)))))
+            mwe_freq = len(mwe_matches)
+            w1, w2, label, lemma, tag = mwe
+            log_dice = 14 + math.log2(2 * max(1, f12[label][(w1, w2)]) / (max(1, f1[label][w1]) + max(1, f2[w2])))
+            mwe_out.write("{}\n".format("\t".join(map(str, (mwe_id,) + mwe + (mwe_freq, log_dice)))))
             for m1_id, m2_id in mwe_matches:
                 mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
 

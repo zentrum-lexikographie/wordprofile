@@ -82,6 +82,7 @@ def get_table_collocations(meta: MetaData):
         Column('lemma2_tag', Enum(TAG_TYPE)),
         Column('inv', types.Boolean, default=0),
         Column('frequency', types.Integer, default=1),
+        Column('score', types.Float),
         mysql_engine='Aria',
     )
 
@@ -96,6 +97,7 @@ def get_table_mwe(meta: MetaData):
         Column('lemma', LEMMA_TYPE),
         Column('lemma_tag', Enum(TAG_TYPE)),
         Column('frequency', types.Integer, default=1),
+        Column('score', types.Float),
         mysql_engine='Aria',
     )
 
@@ -128,14 +130,5 @@ def get_table_token_frequencies(meta: MetaData):
         Column('freq', types.Integer),
         Index('label_index', 'lemma'),
         Index('label_tag_index', 'lemma', 'tag'),
-        mysql_engine='Aria',
-    )
-
-
-def get_table_statistics(meta: MetaData, metric: str = 'log_dice', id_col: str = 'collocation_id'):
-    return Table(
-        metric, meta,
-        Column(id_col, types.Integer),
-        Column('value', types.Float),
         mysql_engine='Aria',
     )
