@@ -114,12 +114,15 @@ class Wordprofile:
             })
         return results
 
-    def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
-                          min_freq: int = 0, min_stat: int = -1000) -> List[dict]:
+    def get_collocation_ids(self, lemma1: str, lemma2: str) -> List[int]:
+        return [abs(c.RelId) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
+
+    def get_mwe_relations(self, coocc_id: int, start: int = 0, number: int = 20, order_by: str = 'log_dice',
+                          min_freq: int = 0, min_stat: int = -1000) -> dict:
         """Fetches MWE from word-profile database.
 
         Args:
-            coocc_ids: List of collocation ids.
+            coocc_id: Collocation id.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
@@ -129,21 +132,26 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
+        coocc_info = self.db.get_relation_by_id(coocc_id)
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
-        for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
+        for relation in self.db_mwe.get_relation_tuples(coocc_id, min_freq, min_stat):
             lemma1 = relation.Lemma1
             pos1 = relation.Pos1
             grouped_relations[relation.Rel].append(relation)
-        results = []
+        results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
-            results.append({
+            results[lemma1].append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_cooccs(cooccs[:number]),
+                'Tuples': format_cooccs(cooccs[:number], is_mwe=True),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
-        return results
+        return {
+            'parts': [{'Lemma': coocc_info.lemma1, 'POS': coocc_info.pos1},
+                      {'Lemma': coocc_info.lemma2, 'POS': coocc_info.pos2}],
+            'data': dict(results),
+        }
 
     def get_diff(self, lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
                  order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
@@ -276,16 +284,16 @@ class Wordprofile:
             raise ValueError("Unknown operation")
         return score
 
-    def get_relation_by_info_id(self, mwe_id: int) -> dict:
+    def get_relation_by_info_id(self, coocc_id: int) -> dict:
         """Fetches collocation information for a specific hit id.
 
         Args:
-            mwe_id: DB index of the collocation.
+            coocc_id: DB index of the collocation.
 
         Return:
             Dictionary with collocation information.
         """
-        coocc_info = self.db.get_relation_by_id(mwe_id)
+        coocc_info = self.db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -296,16 +304,16 @@ class Wordprofile:
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
                 'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
-    def get_mwe_relation_by_info_id(self, coocc_id: int) -> dict:
+    def get_mwe_relation_by_info_id(self, mwe_id: int) -> dict:
         """Fetches mwe information for a specific mwe id.
 
         Args:
-            coocc_id: DB index of the collocation.
+            mwe_id: DB index of the collocation.
 
         Return:
             Dictionary with collocation information.
         """
-        coocc_info = self.db_mwe.get_relation_by_id(coocc_id)
+        coocc_info = self.db_mwe.get_relation_by_id(mwe_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)

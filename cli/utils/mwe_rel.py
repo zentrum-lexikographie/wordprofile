@@ -55,37 +55,40 @@ def get_mwe_free(wp, args):
     })
 
     # TODO currently uses a hack which makes concordId positive
-    collocation_ids = [abs(colloc['ConcordId']) for relation_type in relations for colloc in relation_type['Tuples']]
+    collocation_ids = [abs(int(colloc['ConcordId'])) for relation_type in relations for colloc in
+                       relation_type['Tuples']]
+    for collocation_id in collocation_ids:
+        print("MWE relations for collocation id:", collocation_id)
+        mwe_parts_relations = wp.get_mwe_relations({
+            "ConcordId": collocation_id,
+            "Start": args.start,
+            "Number": args.number,
+            "OrderBy": args.order,
+            "MinFreq": args.min_freq,
+            "MinStat": args.min_stat,
+        })
 
-    mwe_relations = wp.get_mwe_relations({
-        "ConcordIds": collocation_ids,
-        "Start": args.start,
-        "Number": args.number,
-        "OrderBy": args.order,
-        "MinFreq": args.min_freq,
-        "MinStat": args.min_stat,
-    })
+        for lemma, mwe_relations in mwe_parts_relations['data'].items():
+            for rel_ctr, relation in enumerate(mwe_relations):
+                print()
+                if 'RelId' in relation:
+                    print(colored("{}. {}({}): {}".format(rel_ctr,
+                                                          relation['Relation'],
+                                                          relation['RelId'],
+                                                          relation['Description']),
+                                  "green"))
+                else:
+                    print(colored("{}. {}: {}".format(rel_ctr,
+                                                      relation['Relation'],
+                                                      relation['Description']),
+                                  "green"))
 
-    for rel_ctr, relation in enumerate(mwe_relations):
-        print()
-        if 'RelId' in relation:
-            print(colored("{}. {}({}): {}".format(rel_ctr,
-                                                  relation['Relation'],
-                                                  relation['RelId'],
-                                                  relation['Description']),
-                          "green"))
-        else:
-            print(colored("{}. {}: {}".format(rel_ctr,
-                                              relation['Relation'],
-                                              relation['Description']),
-                          "green"))
+                table_items = []
 
-        table_items = []
-
-        for coocc_ctr, coocc in enumerate(relation['Tuples']):
-            table_items.append([
-                str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
-                coocc['Score'][args.order], coocc['ConcordId']
-            ])
-        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'MWE-ID']
-        print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))
+                for coocc_ctr, coocc in enumerate(relation['Tuples']):
+                    table_items.append([
+                        str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
+                        coocc['Score'][args.order], coocc['ConcordId']
+                    ])
+                headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'MWE-ID']
+                print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))

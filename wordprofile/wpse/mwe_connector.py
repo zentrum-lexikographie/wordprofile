@@ -127,32 +127,53 @@ class WPMweConnect:
                          lemma2=db_result[2], pos1="{}-{}".format(db_result[7], db_result[8]), pos2=db_result[3], inv=0,
                          has_mwe=0)
 
-    def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> \
+    def get_relation_tuples(self, coocc_id: int, min_freq: int, min_stat: float) -> \
             List[Coocc]:
         """Fetches MWE with related statistics for a specific relation from database backend.
 
         Args:
-            coocc_ids: List of Collocation ids, one per relation.
+            coocc_id: List of Collocation ids, one per relation.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
 
         Return:
             List of Coocc.
         """
-        if not coocc_ids:
-            return []
-        min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (log_dice) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_freq_sql = " and (mwe.frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
+        min_stat_sql = " and (mwe.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(mwe.score, 0.0) as log_dice
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        WHERE mwe.collocation1_id IN ({}) {} {} 
+        WHERE mwe.collocation1_id = {} {} {} 
         ORDER BY log_dice DESC
-        """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
+        """.format(coocc_id, min_freq_sql, min_stat_sql)
         db_results = self.__fetchall(sql)
         return [Coocc(RelId=i[0], Rel=i[1], Lemma1="{}-{}".format(i[5], i[6]), Lemma2=i[2],
                       Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=i[9], inverse=0, has_mwe=0)
                 for i in db_results]
+
+    def get_collocations(self, lemma1: str, lemma2: str) -> List[Coocc]:
+        """Fetches collocations with related statistics for a specific relation from database backend.
+
+        Args:
+            lemma1: Lemma of interest, first collocate.
+            lemma2: Second collocate.
+
+        Return:
+            List of Coocc.
+        """
+        query = """
+            SELECT
+                c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+                IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+                IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            FROM 
+                collocations c
+            WHERE lemma1='{}' and lemma2='{}';""".format(
+            lemma1, lemma2
+        )
+        db_results = self.__fetchall(query)
+        return list(filter(lambda c: c.has_mwe == 1, map(Coocc._make, db_results)))

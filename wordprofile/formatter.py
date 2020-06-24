@@ -27,7 +27,7 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
     return results
 
 
-def format_cooccs(cooccs: List[Coocc]):
+def format_cooccs(cooccs: List[Coocc], is_mwe=False):
     """Converts co-occurrences into output format
     """
     results = []
@@ -41,13 +41,10 @@ def format_cooccs(cooccs: List[Coocc]):
             'PosId': coocc.Pos2,
             'Lemma': coocc.Lemma2,
             'Score': {
-                'Frequency': coocc.Frequency // 2,
-                #     'MiLogFreq': coocc.Score_MiLogFreq,
-                #     'log_dice': coocc.Score_logDice,
+                'Frequency': coocc.Frequency,
                 'logDice': coocc.LogDice,
-                #     'MI3': coocc.Score_MI3,
             },
-            'ConcordId': coocc.RelId,
+            'ConcordId': ('#mwe' if is_mwe else '') + str(coocc.RelId),
             'ConcordNo': concord_no,
             'ConcordNoAccessible': concord_no,
             'HasMwe': coocc.has_mwe
@@ -213,10 +210,16 @@ def format_mwe_sentence_and_highlight(sent: str, positions: List[int]) -> str:
         sent = sent[1:]
     sent += '\x01'
     tokens = RE_HIT_DELIMITER.findall(sent)
+    # TODO remove hack but frontend changes necessary
+    is_first = True
     for idx, (token, delim) in enumerate(tokens):
         padding = ' ' if delim == '\x02' else ''
         if (idx + 1) in positions:
-            tokens[idx] = "&&{}&&{}".format(token, padding)
+            if is_first:
+                tokens[idx] = "_&{}&_{}".format(token, padding)
+                is_first = False
+            else:
+                tokens[idx] = "&&{}&&{}".format(token, padding)
         else:
             tokens[idx] = "{}{}".format(token, padding)
     return ''.join(tokens)
