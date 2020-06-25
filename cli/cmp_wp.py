@@ -120,7 +120,8 @@ pos_map = {
 pos_map_inv = {v: k for k, v in pos_map.items()}
 
 lemma_pos_candidates = list(map(lambda c: (c[0], pos_map_inv[c[1]]),
-                                (line.strip().split(",") for line in open("cli/token_freqs.csv", "r").readlines())))
+                                (line.strip().split(",") for line in
+                                 open("docs/wp_cmp_eval/token_freqs.csv", "r").readlines())))
 lemma_pos_candidates = sorted(random.choices(lemma_pos_candidates, k=args.k), key=lambda x: x[0])
 
 relations = ['ADV', 'ATTR', 'GMOD', '~GMOD', 'KOM', 'KON', 'OBJ', '~OBJ', 'PP', 'PRED', '~PRED', 'VZ']
