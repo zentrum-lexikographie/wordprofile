@@ -132,9 +132,6 @@ class WPConnect:
         Return:
             List of LemmaInfo that fits criteria.
         """
-        if not all(c.isalpha() or c == '-' for c in lemma):
-            return []
-
         query = """
             SELECT lemma1, lemma1_tag, label, SUM(frequency), inv
             FROM collocations c

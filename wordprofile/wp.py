@@ -34,6 +34,10 @@ class Wordprofile:
         Return:
             List of lemma-pos combinations with stats and possible relations.
         """
+        if not all(c.isalpha() or c == '-' or c == '+' for c in lemma):
+            return []
+        lemma = lemma.replace("+", ' ')
+
         results = self.db.get_lemma_and_pos(lemma, pos)
         # if not found in word-profile database, try variations mapping
         if not results and use_external_variations and lemma in self.wp_spec.mapVariation:
