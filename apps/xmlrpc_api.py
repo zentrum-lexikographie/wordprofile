@@ -111,7 +111,7 @@ class WordprofileXMLRPC:
                 <data>: Relations specifically for parts of the input.
         """
         logger.info(str(params))
-        coocc_id = abs(int(params["ConcordId"]))
+        coocc_id = abs(int(str(params["ConcordId"]).strip("#")))
         start = params.get("Start", 0)
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
