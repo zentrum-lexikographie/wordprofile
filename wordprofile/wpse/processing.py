@@ -26,7 +26,13 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
 
     If tags are not found in mapping, they are left empty and recognized later.
     """
-    return [DBToken(
+    def normalize_caps(t: DBToken) -> DBToken:
+        return DBToken(idx=t.idx,
+                       surface=t.surface.lower() if t.tag in ["VV", "ADJ", "ADV", "PP"] else t.surface,
+                       lemma=t.lemma.lower() if t.tag in ["VV", "ADJ", "ADV", "PP"] else t.lemma,
+                       tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
+
+    return [normalize_caps(DBToken(
         idx=i,
         surface=remove_invalid_chars(surface),
         lemma=repair_lemma(remove_invalid_chars(lemma),
@@ -35,7 +41,7 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
         head=head,
         rel=rel,
         misc=bool(misc)
-    ) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
+    )) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
 
 
 def process_doc(doc_path: str):
@@ -63,6 +69,8 @@ def create_indices(engine: Engine):
     logging.info("CREATE INDEX concord_corpus_sentence_index")
     engine.execute("CREATE UNIQUE INDEX concord_corpus_sentence_index "
                    "ON concord_sentences (corpus_file_id, sentence_id);")
+    logging.info("CREATE INDEX matches_index")
+    engine.execute("CREATE UNIQUE INDEX matches_index ON matches (id);")
     logging.info("CREATE INDEX matches_corpus_index")
     engine.execute("CREATE INDEX matches_corpus_index ON matches (corpus_file_id);")
     logging.info("CREATE INDEX matches_corpus_sentence_index")
@@ -334,7 +342,7 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
                 sent = [m]
                 doc_curr = m.doc_id
                 sent_curr = m.sent_id
-    logging.info('CLACULATE log dice mwe lvl 1')
+    logging.info('CALCULATE log dice mwe lvl 1')
     f12 = defaultdict(lambda: defaultdict(int))
     f1 = defaultdict(lambda: defaultdict(int))
     f2 = defaultdict(int)
