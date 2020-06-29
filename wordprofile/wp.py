@@ -5,7 +5,7 @@ import math
 from collections import defaultdict
 from typing import List, Union
 
-from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos, \
+from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
     format_mwe_concordances
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
@@ -113,7 +113,7 @@ class Wordprofile:
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_cooccs(cooccs),
+                'Tuples': format_relations(cooccs),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results
@@ -128,7 +128,6 @@ class Wordprofile:
         Return:
             Absolute collocation ids.
         """
-
         return [abs(c.RelId) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
 
     def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
@@ -146,6 +145,9 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
+        if not coocc_ids:
+            return {'parts': [], 'data': {}}
+
         coocc_info = self.db.get_relation_by_id(coocc_ids[0])
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
@@ -158,7 +160,7 @@ class Wordprofile:
             results[lemma1].append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_cooccs(cooccs[:number], is_mwe=True),
+                'Tuples': format_relations(cooccs[:number], is_mwe=True),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return {
@@ -298,36 +300,19 @@ class Wordprofile:
             raise ValueError("Unknown operation")
         return score
 
-    def get_relation_by_info_id(self, coocc_id: int) -> dict:
-        """Fetches collocation information for a specific hit id.
+    def get_relation_by_info_id(self, coocc_id: int, is_mwe: bool = False) -> dict:
+        """Fetches cooccurrence information for a specific hit id.
 
         Args:
             coocc_id: DB index of the collocation.
-
+            is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
         Return:
             Dictionary with collocation information.
         """
-        coocc_info = self.db.get_relation_by_id(coocc_id)
-        if coocc_info.rel in self.wp_spec.mapRelDescDetail:
-            description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
-            description = description.replace('$1', coocc_info.lemma1)
-            description = description.replace('$2', coocc_info.lemma2)
+        if is_mwe:
+            coocc_info = self.db_mwe.get_relation_by_id(coocc_id)
         else:
-            description = ""
-        return {'Description': description, 'Relation': coocc_info.rel,
-                'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
-                'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
-
-    def get_mwe_relation_by_info_id(self, mwe_id: int) -> dict:
-        """Fetches mwe information for a specific mwe id.
-
-        Args:
-            mwe_id: DB index of the collocation.
-
-        Return:
-            Dictionary with collocation information.
-        """
-        coocc_info = self.db_mwe.get_relation_by_id(mwe_id)
+            coocc_info = self.db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -339,7 +324,7 @@ class Wordprofile:
                 'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
     def get_concordances_and_relation(self, coocc_id: int, use_context: bool = False, start_index: int = 0,
-                                      result_number: int = 20):
+                                      result_number: int = 20, is_mwe: bool = False):
         """Fetches collocation information and concordances for a specified hit id.
 
         Args:
@@ -347,29 +332,16 @@ class Wordprofile:
             use_context: If true, returns surrounding sentences for matched collocation.
             start_index: Collocation id.
             result_number: Collocation id.
+            is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
 
         Return:
             Dictionary with collocation information and their concordances.
         """
-        relation = self.get_relation_by_info_id(coocc_id)
-        relation['Tuples'] = format_concordances(
-            self.db.get_concordances(coocc_id, use_context, start_index, result_number))
-        return relation
-
-    def get_mwe_concordances_and_relation(self, mwe_id: int, use_context: bool = False, start_index: int = 0,
-                                          result_number: int = 20):
-        """Fetches MWE information and concordances for a specified mwe id.
-
-        Args:
-            mwe_id: mwe id.
-            use_context: If true, returns surrounding sentences for matched collocation.
-            start_index: Collocation id.
-            result_number: Collocation id.
-
-        Return:
-            Dictionary with mwe information and their concordances.
-        """
-        relation = self.get_mwe_relation_by_info_id(mwe_id)
-        relation['Tuples'] = format_mwe_concordances(
-            self.db_mwe.get_concordances(mwe_id, use_context, start_index, result_number))
+        relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
+        if is_mwe:
+            relation['Tuples'] = format_mwe_concordances(
+                self.db_mwe.get_concordances(coocc_id, use_context, start_index, result_number))
+        else:
+            relation['Tuples'] = format_concordances(
+                self.db.get_concordances(coocc_id, use_context, start_index, result_number))
         return relation

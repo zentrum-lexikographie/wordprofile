@@ -149,7 +149,7 @@ class WordprofileXMLRPC:
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-        min_freq = params.get("MinFreq", 5)
+        min_freq = params.get("MinFreq", 0)
         min_stat = params.get("MinStat", -100000000)
         coocc_ids = self.wp.get_collocation_ids(parts[0], parts[1])
         return self.wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
@@ -270,7 +270,7 @@ class WordprofileXMLRPC:
         use_context = bool(params.get("UseContext", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
-        return self.wp.get_mwe_concordances_and_relation(coocc_id, use_context, start_index, result_number)
+        return self.wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number, is_mwe=True)
 
 
 class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):

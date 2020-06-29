@@ -197,7 +197,7 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
         FROM 
             collocations c
         """
@@ -244,7 +244,7 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
         FROM 
             collocations c
         """

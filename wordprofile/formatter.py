@@ -27,7 +27,7 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
     return results
 
 
-def format_cooccs(cooccs: List[Coocc], is_mwe=False):
+def format_relations(cooccs: List[Coocc], is_mwe=False):
     """Converts co-occurrences into output format
     """
     results = []
