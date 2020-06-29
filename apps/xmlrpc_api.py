@@ -118,9 +118,10 @@ class WordprofileXMLRPC:
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
         min_freq = params.get("MinFreq", 0)
         min_stat = params.get("MinStat", -100000000)
-        return self.wp.get_mwe_relations(coocc_id, start, number, order_by, min_freq, min_stat)
+        return self.wp.get_mwe_relations([coocc_id], start, number, order_by, min_freq, min_stat)
 
-    def get_lemma_and_pos_by_list(self, params: dict):
+    @staticmethod
+    def get_lemma_and_pos_by_list(params: dict):
         """For compatibility to old WP. Just pipes input to output."""
         logger.info(str(params))
         return params["Parts"]
@@ -148,18 +149,10 @@ class WordprofileXMLRPC:
         number = params.get("Number", 20)
         order_by = params.get("OrderBy", "logDice")
         order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-        min_freq = params.get("MinFreq", 0)
+        min_freq = params.get("MinFreq", 5)
         min_stat = params.get("MinStat", -100000000)
-        result = {"parts": [{'Lemma': parts[0], 'POS': ""}, {'Lemma': parts[1], 'POS': ""}], "data": {}}
-        for coocc_id in self.wp.get_collocation_ids(parts[0], parts[1]):
-            mwe_rels = self.wp.get_mwe_relations(coocc_id, start, number, order_by, min_freq, min_stat)
-            for lemma, rels in mwe_rels["data"].items():
-                if lemma in result["data"]:
-                    # TODO better merge of similar relations
-                    result["data"][lemma].extend(rels)
-                else:
-                    result["data"][lemma] = rels
-        return result
+        coocc_ids = self.wp.get_collocation_ids(parts[0], parts[1])
+        return self.wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
 
     def get_diff(self, params: dict):
         """Fetches collocations of common POS from word-profile and computes distances for comparison.

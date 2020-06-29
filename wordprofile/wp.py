@@ -119,14 +119,24 @@ class Wordprofile:
         return results
 
     def get_collocation_ids(self, lemma1: str, lemma2: str) -> List[int]:
+        """Fetches possible collocation ids for lemma pair.
+
+        Args:
+            lemma1: First lemma of collocation.
+            lemma2: Second lemma of collocation.
+
+        Return:
+            Absolute collocation ids.
+        """
+
         return [abs(c.RelId) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
 
-    def get_mwe_relations(self, coocc_id: int, start: int = 0, number: int = 20, order_by: str = 'log_dice',
+    def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
                           min_freq: int = 0, min_stat: int = -1000) -> dict:
         """Fetches MWE from word-profile database.
 
         Args:
-            coocc_id: Collocation id.
+            coocc_ids: List of collocation ids.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
@@ -136,10 +146,10 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
-        coocc_info = self.db.get_relation_by_id(coocc_id)
+        coocc_info = self.db.get_relation_by_id(coocc_ids[0])
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
-        for relation in self.db_mwe.get_relation_tuples(coocc_id, min_freq, min_stat):
+        for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
             lemma1 = relation.Lemma1
             pos1 = relation.Pos1
             grouped_relations[relation.Rel].append(relation)

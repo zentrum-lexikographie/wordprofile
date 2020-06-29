@@ -127,12 +127,11 @@ class WPMweConnect:
                          lemma2=db_result[2], pos1="{}-{}".format(db_result[7], db_result[8]), pos2=db_result[3], inv=0,
                          has_mwe=0)
 
-    def get_relation_tuples(self, coocc_id: int, min_freq: int, min_stat: float) -> \
-            List[Coocc]:
+    def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> List[Coocc]:
         """Fetches MWE with related statistics for a specific relation from database backend.
 
         Args:
-            coocc_id: List of Collocation ids, one per relation.
+            coocc_ids: List of Collocation ids, one per relation.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
 
@@ -147,9 +146,9 @@ class WPMweConnect:
             IFNULL(mwe.score, 0.0) as log_dice
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        WHERE mwe.collocation1_id = {} {} {} 
+        WHERE mwe.collocation1_id IN ({}) {} {} 
         ORDER BY log_dice DESC
-        """.format(coocc_id, min_freq_sql, min_stat_sql)
+        """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
         db_results = self.__fetchall(sql)
         return [Coocc(RelId=i[0], Rel=i[1], Lemma1="{}-{}".format(i[5], i[6]), Lemma2=i[2],
                       Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=i[9], inverse=0, has_mwe=0)
