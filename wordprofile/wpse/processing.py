@@ -20,6 +20,18 @@ from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
 from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, extract_matches_from_doc
 
+Match = namedtuple("Match",
+                   ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
+                    "doc_id", "sent_id", "timestamp"])
+match_dtypes = [int, int, str, str, int, int, int, int, int, str]
+Colloc = namedtuple("Collocation",
+                    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
+colloc_dtypes = [int, str, str, str, str, str, int, int]
+
+
+def convert_line(line, cls, dtypes):
+    return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
+
 
 def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
     """Convert sentence into list of token while performing normalization and filtering.
@@ -211,37 +223,24 @@ def process_files(files_path: str, storage_path: str, njobs: int = 1, chunk_size
     logging.info('ALL JOBS DONE')
 
 
-def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
-    """Post-processing of generated data files.
-
-    Filter concordances that satisfy sentence form and remove duplicate sentences.
-    Filter collocations with too little occurrences.
-    Filter matches with respect to available concordances and collocations.
+def reindex_corpus_files(fin: str, fout: str):
+    """Iterates over generated corpus file in replaces mongodb index by numeric index.
     """
-    Match = namedtuple("Match",
-                       ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
-                        "doc_id", "sent_id", "timestamp"])
-    match_dtypes = [int, int, str, str, int, int, int, int, int, str]
-    Colloc = namedtuple("Collocation",
-                        ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
-    colloc_dtypes = [int, str, str, str, str, str, int, int]
-
-    def convert_line(line, cls, dtypes):
-        return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
-
-    logging.info('REPLACE INDEX corpus files')
     corpus_file_idx = {}
-    with open(os.path.join(storage_path, 'corpus_files_stage'), 'r') as files_in, open(
-            os.path.join(storage_path, 'corpus_files'), 'w') as files_out:
+    with open(fin, 'r') as files_in, open(fout, 'w') as files_out:
         for c_i, line in enumerate(files_in):
             line = line.split('\t')
             corpus_file_idx[line[0]] = c_i
             files_out.write('\t'.join([str(c_i)] + line[1:]))
-    logging.info('FILTER concordances')
-    with open(os.path.join(storage_path, 'concord_sentences_stage'), 'r') as sents_in, open(
-            os.path.join(storage_path, 'concord_sentences'),
-            'w') as sents_out:
-        sent_hashes = defaultdict(list)
+    return corpus_file_idx
+
+
+def reindex_filter_concordances(fin, fout, corpus_file_idx):
+    """Filters and removes duplicates from concordances and replaces corpus file index.
+    """
+    sent_hashes = defaultdict(list)
+    sents_idx = []
+    with open(fin, 'r') as sents_in, open(fout, 'w') as sents_out:
         for item in sents_in:
             doc_id, sent_id, sentence, page = item.split('\t')
             doc_id = str(corpus_file_idx[doc_id])
@@ -252,27 +251,26 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
                 if sent_hash not in sent_hashes[doc_id]:
                     sent_hashes[doc_id].append(sent_hash)
                     sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
-    logging.info('LOAD FILTERED collocations')
-    collocs = {}
-    with open(os.path.join(storage_path, 'collocations_stage'), "r") as fin:
-        for line in fin:
-            c = convert_line(line, Colloc, colloc_dtypes)
-            if c.frequency >= min_rel_freq:
-                collocs[c.id] = c
-    logging.info('FILTER matches')
-    sents_idxs = {tuple(line.split('\t')[:2]) for line in open(os.path.join(storage_path, 'concord_sentences'), 'r')}
-    with open(os.path.join(storage_path, 'matches_stage'), 'r') as matches_in, open(
-            os.path.join(storage_path, 'matches'), 'w') as matches_out:
-        match_i = 0
+                    sents_idx.append((doc_id, sent_id))
+    return set(sents_idx)
+
+
+def filter_matches(fin, fout, corpus_file_idx, sents_idx, collocs):
+    """Filter matches with any missing entry for corpus file, sentence, or collocation.
+    """
+    match_i = 0
+    with open(fin, 'r') as matches_in, open(fout, 'w') as matches_out:
         for line in matches_in:
             match = line.split('\t')
             match[6] = str(corpus_file_idx[match[6]])
             # check whether concordances and collocations still exist for match
-            if int(match[0]) in collocs and tuple(match[6:8]) in sents_idxs:
+            if int(match[0]) in collocs and tuple(match[6:8]) in sents_idx:
                 match.insert(0, str(match_i))
                 match_i += 1
                 matches_out.write('\t'.join(match))
-    logging.info('CALCULATE log dice scores')
+
+
+def compute_collocation_scores(fout, collocs):
     f12 = defaultdict(lambda: defaultdict(int))
     f1 = defaultdict(lambda: defaultdict(int))
     f2 = defaultdict(int)
@@ -285,63 +283,93 @@ def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
         f1[c.label][w2] += c.frequency
         f2[w1] += c.frequency
         f2[w2] += c.frequency
-    log_dice = dict()
-    for c_id, c in collocs.items():
-        w1 = c.lemma1 + "-" + c.lemma1_tag
-        w2 = c.lemma2 + "-" + c.lemma2_tag
-        log_dice[c_id] = 14 + math.log2(2 * max(1, f12[c.label][(w1, w2)]) / (max(1, f1[c.label][w1]) + max(1, f2[w2])))
     logging.info('WRITE OUT collocations')
-    with open(os.path.join(storage_path, 'collocations'), 'w') as fout:
+    with open(fout, 'w') as fout:
         for c_id, c in collocs.items():
+            w1 = c.lemma1 + "-" + c.lemma1_tag
+            w2 = c.lemma2 + "-" + c.lemma2_tag
+            log_dice = 14 + math.log2(2 * max(1, f12[c.label][(w1, w2)]) / (max(1, f1[c.label][w1]) + max(1, f2[w2])))
             fout.write("{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
-                       "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice[c_id]))
-            fout.write("-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
-                       "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice[c_id]))
+                       "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
+            if c.label in ['SUBJ', 'SUBJA', 'SUBJP', 'OBJ', 'OBJA', 'OBJD', 'PRED', 'ADV', 'ATTR', 'GMOD', 'PP', 'KOM']:
+                fout.write("-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
+                           "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
+
+
+def post_process_db_files(storage_path, min_rel_freq=3):
+    """Post-processing of generated data files.
+
+    Filter concordances that satisfy sentence form and remove duplicate sentences.
+    Filter collocations with too little occurrences.
+    Filter matches with respect to available concordances and collocations.
+    """
+    logging.info('REPLACE INDEX corpus files')
+    corpus_file_idx = reindex_corpus_files(os.path.join(storage_path, 'corpus_files_stage'),
+                                           os.path.join(storage_path, 'corpus_files'))
+    logging.info('FILTER concordances')
+    sents_idx = reindex_filter_concordances(os.path.join(storage_path, 'concord_sentences_stage'),
+                                            os.path.join(storage_path, 'concord_sentences'), corpus_file_idx)
+    logging.info('LOAD FILTERED collocations')
+    collocs = {}
+    with open(os.path.join(storage_path, 'collocations_stage'), "r") as fin:
+        for line in fin:
+            c = convert_line(line, Colloc, colloc_dtypes)
+            if c.frequency >= min_rel_freq:
+                collocs[c.id] = c
+    logging.info('FILTER matches')
+    filter_matches(os.path.join(storage_path, 'matches_stage'), os.path.join(storage_path, 'matches'), corpus_file_idx,
+                   sents_idx, collocs)
+    logging.info('CALCULATE log dice scores')
+    compute_collocation_scores(os.path.join(storage_path, 'collocations'), collocs)
     logging.info('MAKE MWE LVL 1')
-    with open(os.path.join(storage_path, 'matches'), "r") as fin:
+
+    def read_collapsed_sentence_matches(fin) -> List[Match]:
         sent = []
         sent_curr = 0
         doc_curr = 0
-        mwe_groups = defaultdict(list)
-        for line in fin:
-            m = convert_line(line, Match, match_dtypes)
-            if m.doc_id == doc_curr and m.sent_id == sent_curr:
-                sent.append(m)
-            else:
-                if len(sent) > 1:
-                    for m_i, m1 in enumerate(sent):
-                        for m2 in sent[m_i + 1:]:
-                            if len({m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos}) == 3 and (
-                                    m1.prep_pos == m2.prep_pos):
-                                c1 = collocs[m1.collocation_id]
-                                c2 = collocs[m2.collocation_id]
-                                if len({m1.head_pos, m2.head_pos, m2.dep_pos}) == 2:
-                                    # m2 - m1.dep_surface
-                                    lemma = c1.lemma1 if c1.inv else c1.lemma2
-                                    tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
-                                    mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
-                                        (m2.id, m1.id))
-                                if len({m1.dep_pos, m2.head_pos, m2.dep_pos}) == 2:
-                                    # m2 - m1.head_surface
-                                    lemma = c1.lemma2 if c1.inv else c1.lemma1
-                                    tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
-                                    mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
-                                        (m2.id, m1.id))
-                                if len({m2.head_pos, m1.head_pos, m1.dep_pos}) == 2:
-                                    # m1 - m2.dep_surface
-                                    lemma = c2.lemma1 if c2.inv else c2.lemma2
-                                    tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
-                                    mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
-                                        (m1.id, m2.id))
-                                if len({m2.dep_pos, m1.head_pos, m1.dep_pos}) == 2:
-                                    # m1 - m2.head_surface
-                                    lemma = c2.lemma2 if c2.inv else c2.lemma1
-                                    tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
-                                    mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
-                                        (m1.id, m2.id))
-                sent = [m]
-                doc_curr = m.doc_id
-                sent_curr = m.sent_id
+        with open(fin, "r") as fh:
+            for line in fh:
+                m = convert_line(line, Match, match_dtypes)
+                if m.doc_id == doc_curr and m.sent_id == sent_curr:
+                    sent.append(m)
+                else:
+                    yield sent
+                    sent = [m]
+                    doc_curr = m.doc_id
+                    sent_curr = m.sent_id
+
+    mwe_groups = defaultdict(list)
+    for sent in read_collapsed_sentence_matches(os.path.join(storage_path, 'matches')):
+        for m_i, m1 in enumerate(sent):
+            for m2 in sent[m_i + 1:]:
+                if len({m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos}) == 3 and (
+                        m1.prep_pos == m2.prep_pos):
+                    c1 = collocs[m1.collocation_id]
+                    c2 = collocs[m2.collocation_id]
+                    if len({m1.head_pos, m2.head_pos, m2.dep_pos}) == 2:
+                        # m2 - m1.dep_surface
+                        lemma = c1.lemma1 if c1.inv else c1.lemma2
+                        tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
+                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                            (m2.id, m1.id))
+                    if len({m1.dep_pos, m2.head_pos, m2.dep_pos}) == 2:
+                        # m2 - m1.head_surface
+                        lemma = c1.lemma2 if c1.inv else c1.lemma1
+                        tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
+                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                            (m2.id, m1.id))
+                    if len({m2.head_pos, m1.head_pos, m1.dep_pos}) == 2:
+                        # m1 - m2.dep_surface
+                        lemma = c2.lemma1 if c2.inv else c2.lemma2
+                        tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
+                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                            (m1.id, m2.id))
+                    if len({m2.dep_pos, m1.head_pos, m1.dep_pos}) == 2:
+                        # m1 - m2.head_surface
+                        lemma = c2.lemma2 if c2.inv else c2.lemma1
+                        tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
+                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                            (m1.id, m2.id))
     logging.info('CALCULATE log dice mwe lvl 1')
     f12 = defaultdict(lambda: defaultdict(int))
     f1 = defaultdict(lambda: defaultdict(int))
