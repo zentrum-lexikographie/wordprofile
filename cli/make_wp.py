@@ -8,8 +8,8 @@ from argparse import ArgumentParser
 
 from sqlalchemy import create_engine
 
-from wordprofile.wpse.create import init_word_profile_tables, create_collocations, create_statistics
-from wordprofile.wpse.processing import create_indices, process_files, post_process_db_files, load_files_into_db
+from wordprofile.wpse.create import init_word_profile_tables, create_statistics, create_indices
+from wordprofile.wpse.processing import process_files, post_process_db_files, load_files_into_db
 
 
 def main():
@@ -24,7 +24,6 @@ def main():
     parser.add_argument("--passwd", action="store_true", help="ask for database password")
     parser.add_argument("--init", action="store_true", help="ask for database init")
     parser.add_argument("--no-processing", action="store_true", help="ask for database init")
-    parser.add_argument("--collocations", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--stats", action="store_true", help="ask for wordprofile creation")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
     parser.add_argument("--chunk-size", type=int, default=2000, help="size of document chunks per process per corpus")
@@ -48,11 +47,6 @@ def main():
         process_files(args.files, args.tmp, args.njobs, args.chunk_size)
         post_process_db_files(args.tmp)
         load_files_into_db(db_engine_key, args.tmp)
-    if args.collocations:
-        logging.info("CREATE word profile collocations")
-        db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)
-        engine = create_engine(db_engine_key)
-        create_collocations(engine)
     if args.create_index:
         logging.info("CREATE indices")
         db_engine_key = 'mysql+pymysql://{}:{}@localhost/{}'.format(args.user, db_password, args.maria_db)

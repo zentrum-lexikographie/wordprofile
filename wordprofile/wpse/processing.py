@@ -8,7 +8,7 @@ import os
 from collections import defaultdict, namedtuple
 from glob import glob
 from multiprocessing.queues import Queue
-from typing import List
+from typing import List, Dict, Tuple, Union, Iterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
@@ -29,7 +29,7 @@ Colloc = namedtuple("Collocation",
 colloc_dtypes = [int, str, str, str, str, str, int, int]
 
 
-def convert_line(line, cls, dtypes):
+def convert_line(line, cls, dtypes) -> Union[Match, Colloc]:
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
 
 
@@ -271,6 +271,8 @@ def filter_matches(fin, fout, corpus_file_idx, sents_idx, collocs):
 
 
 def compute_collocation_scores(fout, collocs):
+    """Computes collocation statistics and writes to file.
+    """
     f12 = defaultdict(lambda: defaultdict(int))
     f1 = defaultdict(lambda: defaultdict(int))
     f2 = defaultdict(int)
@@ -283,7 +285,7 @@ def compute_collocation_scores(fout, collocs):
         f1[c.label][w2] += c.frequency
         f2[w1] += c.frequency
         f2[w2] += c.frequency
-    logging.info('WRITE OUT collocations')
+
     with open(fout, 'w') as fout:
         for c_id, c in collocs.items():
             w1 = c.lemma1 + "-" + c.lemma1_tag
@@ -294,6 +296,103 @@ def compute_collocation_scores(fout, collocs):
             if c.label in ['SUBJ', 'SUBJA', 'SUBJP', 'OBJ', 'OBJA', 'OBJD', 'PRED', 'ADV', 'ATTR', 'GMOD', 'PP', 'KOM']:
                 fout.write("-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
                            "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
+
+
+def extract_mwe_from_collocs(match_fin, collocs):
+    """Compute MWE from matches and collocations.
+    """
+
+    def read_collapsed_sentence_matches(fin) -> Iterator[List[Match]]:
+        """Reads the matches file and returns successively Matches per sentences.
+        """
+        sent = []
+        sent_curr = 0
+        doc_curr = 0
+        with open(fin, "r") as fh:
+            for line in fh:
+                m = convert_line(line, Match, match_dtypes)
+                if m.doc_id == doc_curr and m.sent_id == sent_curr:
+                    sent.append(m)
+                else:
+                    yield sent
+                    sent = [m]
+                    doc_curr = m.doc_id
+                    sent_curr = m.sent_id
+
+    def has_one_overlap(*pos: Tuple[int]):
+        """Checks whether positions have one overlap.
+        """
+        return len(set(pos)) == len(pos) - 1
+
+    mwe_groups = defaultdict(list)
+    for sent in read_collapsed_sentence_matches(match_fin):
+        for m_i, m1 in enumerate(sent):
+            for m2 in sent[m_i + 1:]:
+                if has_one_overlap(m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos) and (m1.prep_pos == m2.prep_pos):
+                    c1 = collocs[m1.collocation_id]
+                    c2 = collocs[m2.collocation_id]
+                    if has_one_overlap(m1.head_pos, m2.head_pos, m2.dep_pos):
+                        # m2 - m1.dep_surface
+                        lemma = c1.lemma1 if c1.inv else c1.lemma2
+                        tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
+                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                            (m2.id, m1.id))
+                    if has_one_overlap(m1.dep_pos, m2.head_pos, m2.dep_pos):
+                        # m2 - m1.head_surface
+                        lemma = c1.lemma2 if c1.inv else c1.lemma1
+                        tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
+                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
+                            (m2.id, m1.id))
+                    if has_one_overlap(m2.head_pos, m1.head_pos, m1.dep_pos):
+                        # m1 - m2.dep_surface
+                        lemma = c2.lemma1 if c2.inv else c2.lemma2
+                        tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
+                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                            (m1.id, m2.id))
+                    if has_one_overlap(m2.dep_pos, m1.head_pos, m1.dep_pos):
+                        # m1 - m2.head_surface
+                        lemma = c2.lemma2 if c2.inv else c2.lemma1
+                        tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
+                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
+                            (m1.id, m2.id))
+    return mwe_groups
+
+
+def compute_mwe_scores(mwe_fout, match_fout, mwe_groups):
+    """Calculates Log Dice score
+    """
+    f12 = defaultdict(lambda: defaultdict(int))
+    f1 = defaultdict(lambda: defaultdict(int))
+    f2 = defaultdict(int)
+    for mwe_id, ((w1, w2, label, lemma, tag), mwe_matches) in enumerate(mwe_groups.items()):
+        frequency = len(mwe_matches)
+        f12[label][(w1, w2)] += frequency
+        f12[label][(w2, w1)] += frequency
+        f1[label][w1] += frequency
+        f1[label][w2] += frequency
+        f2[w1] += frequency
+        f2[w2] += frequency
+
+    with open(mwe_fout, "w") as mwe_out, open(match_fout, "w") as mwe_map:
+        for mwe_id, (mwe, mwe_matches) in enumerate(mwe_groups.items()):
+            mwe_freq = len(mwe_matches)
+            w1, w2, label, lemma, tag = mwe
+            log_dice = 14 + math.log2(2 * max(1, f12[label][(w1, w2)]) / (max(1, f1[label][w1]) + max(1, f2[w2])))
+            mwe_out.write("{}\n".format("\t".join(map(str, (mwe_id,) + mwe + (mwe_freq, log_dice)))))
+            for m1_id, m2_id in mwe_matches:
+                mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
+
+
+def load_collocations(fin, min_rel_freq=3) -> Dict[int, Colloc]:
+    """Load collocations from file and filter by frequency limit.
+    """
+    collocs = {}
+    with open(fin, "r") as fin:
+        for line in fin:
+            c = convert_line(line, Colloc, colloc_dtypes)
+            if c.frequency >= min_rel_freq:
+                collocs[c.id] = c
+    return collocs
 
 
 def post_process_db_files(storage_path, min_rel_freq=3):
@@ -310,91 +409,19 @@ def post_process_db_files(storage_path, min_rel_freq=3):
     sents_idx = reindex_filter_concordances(os.path.join(storage_path, 'concord_sentences_stage'),
                                             os.path.join(storage_path, 'concord_sentences'), corpus_file_idx)
     logging.info('LOAD FILTERED collocations')
-    collocs = {}
-    with open(os.path.join(storage_path, 'collocations_stage'), "r") as fin:
-        for line in fin:
-            c = convert_line(line, Colloc, colloc_dtypes)
-            if c.frequency >= min_rel_freq:
-                collocs[c.id] = c
+    collocs = load_collocations(os.path.join(storage_path, 'collocations_stage'), min_rel_freq)
     logging.info('FILTER matches')
     filter_matches(os.path.join(storage_path, 'matches_stage'), os.path.join(storage_path, 'matches'), corpus_file_idx,
                    sents_idx, collocs)
-    logging.info('CALCULATE log dice scores')
+    logging.info('CALCULATE AND WRITE log dice scores')
     compute_collocation_scores(os.path.join(storage_path, 'collocations'), collocs)
     logging.info('MAKE MWE LVL 1')
-
-    def read_collapsed_sentence_matches(fin) -> List[Match]:
-        sent = []
-        sent_curr = 0
-        doc_curr = 0
-        with open(fin, "r") as fh:
-            for line in fh:
-                m = convert_line(line, Match, match_dtypes)
-                if m.doc_id == doc_curr and m.sent_id == sent_curr:
-                    sent.append(m)
-                else:
-                    yield sent
-                    sent = [m]
-                    doc_curr = m.doc_id
-                    sent_curr = m.sent_id
-
-    mwe_groups = defaultdict(list)
-    for sent in read_collapsed_sentence_matches(os.path.join(storage_path, 'matches')):
-        for m_i, m1 in enumerate(sent):
-            for m2 in sent[m_i + 1:]:
-                if len({m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos}) == 3 and (
-                        m1.prep_pos == m2.prep_pos):
-                    c1 = collocs[m1.collocation_id]
-                    c2 = collocs[m2.collocation_id]
-                    if len({m1.head_pos, m2.head_pos, m2.dep_pos}) == 2:
-                        # m2 - m1.dep_surface
-                        lemma = c1.lemma1 if c1.inv else c1.lemma2
-                        tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
-                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
-                            (m2.id, m1.id))
-                    if len({m1.dep_pos, m2.head_pos, m2.dep_pos}) == 2:
-                        # m2 - m1.head_surface
-                        lemma = c1.lemma2 if c1.inv else c1.lemma1
-                        tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
-                        mwe_groups[(m2.collocation_id, m1.collocation_id, c1.label, lemma, tag)].append(
-                            (m2.id, m1.id))
-                    if len({m2.head_pos, m1.head_pos, m1.dep_pos}) == 2:
-                        # m1 - m2.dep_surface
-                        lemma = c2.lemma1 if c2.inv else c2.lemma2
-                        tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
-                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
-                            (m1.id, m2.id))
-                    if len({m2.dep_pos, m1.head_pos, m1.dep_pos}) == 2:
-                        # m1 - m2.head_surface
-                        lemma = c2.lemma2 if c2.inv else c2.lemma1
-                        tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
-                        mwe_groups[(m1.collocation_id, m2.collocation_id, c2.label, lemma, tag)].append(
-                            (m1.id, m2.id))
+    mwe_groups = extract_mwe_from_collocs(os.path.join(storage_path, 'matches'), collocs)
     logging.info('CALCULATE log dice mwe lvl 1')
-    f12 = defaultdict(lambda: defaultdict(int))
-    f1 = defaultdict(lambda: defaultdict(int))
-    f2 = defaultdict(int)
-    for mwe_id, ((w1, w2, label, lemma, tag), mwe_matches) in enumerate(mwe_groups.items()):
-        frequency = len(mwe_matches)
-        f12[label][(w1, w2)] += frequency
-        f12[label][(w2, w1)] += frequency
-        f1[label][w1] += frequency
-        f1[label][w2] += frequency
-        f2[w1] += frequency
-        f2[w2] += frequency
-
-    with open(os.path.join(storage_path, 'mwe'), "w") as mwe_out, \
-            open(os.path.join(storage_path, 'mwe_match'), "w") as mwe_map:
-        for mwe_id, (mwe, mwe_matches) in enumerate(mwe_groups.items()):
-            mwe_freq = len(mwe_matches)
-            w1, w2, label, lemma, tag = mwe
-            log_dice = 14 + math.log2(2 * max(1, f12[label][(w1, w2)]) / (max(1, f1[label][w1]) + max(1, f2[w2])))
-            mwe_out.write("{}\n".format("\t".join(map(str, (mwe_id,) + mwe + (mwe_freq, log_dice)))))
-            for m1_id, m2_id in mwe_matches:
-                mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
+    compute_mwe_scores(os.path.join(storage_path, 'mwe'), os.path.join(storage_path, 'mwe_match'), mwe_groups)
 
 
-def load_files_into_db(db_engine_key: str, storage_path: str):
+def load_files_into_db(db_engine_key, storage_path):
     """Load generated data files into their corresponding db tables.
     """
     engine = create_engine(db_engine_key)
