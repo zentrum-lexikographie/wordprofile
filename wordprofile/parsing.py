@@ -5,7 +5,6 @@ from typing import List
 
 from imsnpars.nparser import builder
 from imsnpars.tools.utils import ConLLToken as IMSConllToken
-
 from wordprofile.datatypes import TabsToken, ConllToken
 from wordprofile.zdl import read_tabs_format
 
@@ -54,6 +53,19 @@ def parse_file(parser, src, use_normalizer=False):
     parses = map(lambda s: get_parser_prediction(parser, s), parser_data)
     parses_converted = list(map(lambda xs: conll_token_to_tokenized_sentence(*xs), zip(test_data, parses)))
     return meta_data, parses_converted
+
+
+def parse_document(parser, doc, use_normalizer=False):
+    normalizer = builder.buildNormalizer(use_normalizer)
+    test_data = [sent.to_tabs_token(doc.index) for sent in doc.sentences]
+    parser_data = map(lambda s: tokenized_sentence_to_conll_token(s, normalizer), test_data)
+    parses = map(lambda s: get_parser_prediction(parser, s), parser_data)
+    doc.add_column('Head', 'hd')
+    doc.add_column('Deprel', 'rel')
+    for tabs_sent, parse_sent in zip(doc.sentences, parses):
+        tabs_sent.add_column([t.headId for t in parse_sent])
+        tabs_sent.add_column([t.dep for t in parse_sent])
+    return doc
 
 
 def get_parser(args, options):
