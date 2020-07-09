@@ -113,11 +113,14 @@ class TabsDocument:
             buf.write("\n")
         return buf.getvalue()
 
-    def save(self, path):
+    def save(self, path, as_conll=False):
         if not path.parent.exists():
             path.parent.mkdir(parents=True)
         with open(path, 'w') as fh:
-            fh.write(self.as_tabs())
+            if as_conll:
+                fh.write(self.as_conllu())
+            else:
+                fh.write(self.as_tabs())
 
 
 # TODO refactor parser generation - too complicated right now
@@ -132,8 +135,7 @@ def build_parser_from_args(cmd_args=None):
     # files
     filesArgs = argParser.add_argument_group('files')
     filesArgs.add_argument("--src", help="source file", type=str, required=True)
-    filesArgs.add_argument("--list", help="input file consists of whitespace separated input output files",
-                           action="store_true", required=False)
+    filesArgs.add_argument("--conll", help="outputs conll formatted files", action="store_true", required=False)
     filesArgs.add_argument("--dest", help="source file destination", type=str, required=True)
     filesArgs.add_argument("--model", help="load model from the file", type=str, required=True)
 
@@ -156,13 +158,16 @@ def process_files_parallel(srcs, args, options):
     parser = get_parser(args, options)
     for src_i, src in enumerate(srcs):
         doc = TabsDocument(src)
-        tgt_path = Path(os.path.join(args.dest, doc.meta['collection'], os.path.basename(src)))
+        file_name = os.path.basename(src)
+        if args.conll:
+            file_name = file_name[:-len("tabs")] + "conllu"
+        tgt_path = Path(os.path.join(args.dest, doc.meta['collection'], file_name))
         if not tgt_path.exists() or (os.path.getmtime(tgt_path) < os.path.getmtime(src)):
             parse_document(parser, doc, options.normalize)
             logging.info("({}) - parsed document".format(doc.meta['basename']))
-            doc.save(tgt_path)
+            doc.save(tgt_path, as_conll=args.conll)
         else:
-            logging.info("({}) - SKIP - parsed document up-to-date".format(src))
+            logging.info("({},{}) - SKIP - parsed document up-to-date".format(src, tgt_path))
 
 
 def main():
@@ -171,7 +176,7 @@ def main():
     if len(src_files) == 0:
         raise FileNotFoundError("No files found for parsing!")
     files = [(src, args, options) for src in chunks(src_files, 25)]
-    logging.info("Create MPPool with #njobs:", args.jobs)
+    logging.info("Create MPPool with #njobs: {}".format(args.jobs))
     with multiprocessing.Pool(args.jobs) as pool:
         pool.starmap(process_files_parallel, files, chunksize=10)
 
