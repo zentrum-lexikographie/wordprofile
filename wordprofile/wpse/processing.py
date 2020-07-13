@@ -5,13 +5,13 @@ import logging
 import multiprocessing
 import os
 from collections import defaultdict
-from typing import List, Dict
+from glob import glob
+from typing import List
 
-import pymongo
 from sqlalchemy import create_engine
 from sqlalchemy.engine.base import Engine
 
-from wordprofile.datatypes import DBToken
+from wordprofile.datatypes import DBToken, TabsDocument, TabsSentence
 from wordprofile.formatter import RE_HIT_DELIMITER
 from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import remove_invalid_chars
@@ -19,26 +19,24 @@ from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_senten
 from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, extract_matches_from_doc
 
 
-def convert_sentence(sentence: List[Dict[str, str]]) -> List[DBToken]:
-    # TODO remove hack (xpos-tag) with consitent document database
+def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
     return [DBToken(
-        idx=i + 1,
-        surface=remove_invalid_chars(token['surface']),
-        lemma=repair_lemma(remove_invalid_chars(token['lemma']),
-                           SIMPLE_TAG_MAP.get(token['xpos' if 'xpos' in token else 'tag'], '')),
-        tag=SIMPLE_TAG_MAP.get(token['xpos' if 'xpos' in token else 'tag'], ''),
-        head=token['head'],
-        rel=token['rel'],
-        misc=bool(token['misc'])
-    ) for i, token in enumerate(sentence)]
+        idx=i,
+        surface=remove_invalid_chars(surface),
+        lemma=repair_lemma(remove_invalid_chars(lemma),
+                           SIMPLE_TAG_MAP.get(xpos, '')),
+        tag=SIMPLE_TAG_MAP.get(xpos, ''),
+        head=head,
+        rel=rel,
+        misc=bool(misc)
+    ) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
 
 
-def process_doc(mongo_db_keys, mongo_index, doc_id):
-    mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_index]
-    doc = mongo_db.find_one({'_id': doc_id})
+def process_doc(doc_path):
+    doc = TabsDocument.from_conll(doc_path)
     try:
         doc_id, db_corpus_file = prepare_corpus_file(doc)
-        parses = list(filter(sentence_is_valid, map(convert_sentence, doc["sentences"])))
+        parses = list(filter(sentence_is_valid, map(convert_sentence, doc.sentences)))
         db_concord_sentences = prepare_concord_sentences(doc_id, parses)
         matches = extract_matches_from_doc(parses)
         db_matches = prepare_matches(doc_id, matches)
@@ -63,20 +61,6 @@ def create_indices(engine: Engine):
     engine.execute("CREATE INDEX matches_corpus_sentence_index ON matches (corpus_file_id, sentence_id);")
     logging.info("CREATE INDEX matches_relation_label_index")
     engine.execute("CREATE INDEX matches_relation_label_index ON matches (collocation_id);")
-
-
-def get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key=None, filter_existing=True):
-    mongo_db = pymongo.MongoClient(mongo_db_keys[0])[mongo_db_keys[1]][mongo_index]
-    if filter_existing:
-        engine = create_engine(db_engine_key)
-        inserted_ids = {i[0] for i in engine.execute('SELECT id FROM corpus_files')}
-        logging.info('LOAD corpus file ids: {}'.format(len(inserted_ids)))
-    else:
-        inserted_ids = {}
-    document_ids = [i['_id'] for i in mongo_db.find({'sentences': {'$ne': []}}, {'_id': 1}) if
-                    str(i['_id']) not in inserted_ids]
-    logging.info("LOADED document ids for processing: {}".format(len(document_ids)))
-    return document_ids
 
 
 class FileWorker(multiprocessing.Process):
@@ -106,23 +90,16 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def process_files_index(mongo_db_keys, mongo_index, db_engine_key, db_files_queue, db_sents_queue, db_matches_queue,
-                        chunk_size=2000):
-    document_ids = get_corpus_file_ids(mongo_db_keys, mongo_index, db_engine_key, filter_existing=False)
-    for doc_i, doc_ids in enumerate(chunks(document_ids, chunk_size)):
-        with multiprocessing.Pool(3) as pool:
-            db_corpus_files, db_concord_sentences, db_matches = zip(
-                *pool.starmap(process_doc, [(mongo_db_keys, mongo_index, doc_id) for doc_id in doc_ids], chunksize=100)
-            )
-        db_corpus_files = [x for x in db_corpus_files if x]
-        db_concord_sentences = [x for sentences in db_concord_sentences for x in sentences]
-        db_matches = [tuple(x) for file_matches in db_matches for x in file_matches]
-        logging.info("{:10} - PROCESSED documents {} {} {}".format(mongo_index, len(db_corpus_files),
-                                                                   len(db_concord_sentences), len(db_matches)))
-        db_files_queue.put(db_corpus_files)
-        db_sents_queue.put(db_concord_sentences)
-        db_matches_queue.put(db_matches)
-    logging.info('{:10} - INDEX DONE'.format(mongo_index))
+def process_doc_files(doc_paths, db_files_queue, db_sents_queue, db_matches_queue):
+    db_corpus_files, db_concord_sentences, db_matches = zip(*map(process_doc, doc_paths))
+    db_corpus_files = [x for x in db_corpus_files if x]
+    db_concord_sentences = [x for sentences in db_concord_sentences for x in sentences]
+    db_matches = [tuple(x) for file_matches in db_matches for x in file_matches]
+    logging.info("PROCESSED documents {} {} {}".format(len(db_corpus_files),
+                                                       len(db_concord_sentences), len(db_matches)))
+    db_files_queue.put(db_corpus_files)
+    db_sents_queue.put(db_concord_sentences)
+    db_matches_queue.put(db_matches)
 
 
 class ConverterFileWorker(multiprocessing.Process):
@@ -178,9 +155,7 @@ def is_valid_sentence(sentence):
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
-def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chunk_size=2000):
-    mongo_indices = [i.strip() for i in mongo_indices.split(",") if i.strip()]
-    # delete_indices(db_engine_key)
+def process_files(files_path, storage_path, njobs=1, chunk_size=2000):
     db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
     db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
     db_matches_worker = FileWorker(storage_path, 'matches_stage')
@@ -189,18 +164,10 @@ def process_files(mongo_db_keys, db_engine_key, mongo_indices, storage_path, chu
     match_convert_worker = ConverterFileWorker(storage_path, 'collocations_stage', db_matches_worker.q)
     match_convert_worker.start()
     db_matches_worker.start()
-    doc_ps = []
-    for mongo_index in mongo_indices:
-        logging.info('Start Process:{}'.format(mongo_index))
-        p = multiprocessing.Process(target=process_files_index,
-                                    args=(mongo_db_keys, mongo_index, db_engine_key,
-                                          db_files_worker.q, db_sents_worker.q, match_convert_worker.q, chunk_size))
-        p.start()
-        doc_ps.append((mongo_index, p))
-
-    for mongo_index, p in doc_ps:
-        p.join()
-
+    with multiprocessing.Pool(njobs) as pool:
+        pool.starmap(process_doc_files, ((doc_paths, db_files_worker.q, db_sents_worker.q, match_convert_worker.q)
+                                         for doc_paths in chunks(glob(files_path, recursive=True), chunk_size)),
+                     chunksize=100)
     logging.info('INDICES DONE')
     db_files_worker.stop()
     db_sents_worker.stop()

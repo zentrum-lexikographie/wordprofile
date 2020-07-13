@@ -4,7 +4,7 @@ from typing import List, Tuple
 from sqlalchemy import MetaData
 from sqlalchemy.engine import Engine
 
-from wordprofile.datatypes import Match, DBToken
+from wordprofile.datatypes import Match, DBToken, TabsDocument
 from wordprofile.wpse.db_tables import get_table_corpus_files, DBCorpusFile, get_table_concord_sentences, DBConcordance, \
     get_table_matches, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
@@ -18,7 +18,7 @@ def insert_bulk_corpus_file(engine: Engine, corpus_files):
     conn.close()
 
 
-def prepare_corpus_file(doc: dict) -> Tuple[str, DBCorpusFile]:
+def prepare_corpus_file(doc: TabsDocument) -> Tuple[str, DBCorpusFile]:
     """Converts a document into a DB entry.
 
     Args:
@@ -27,16 +27,16 @@ def prepare_corpus_file(doc: dict) -> Tuple[str, DBCorpusFile]:
     Returns:
         A documents id (for later usage) and meta information in DB format.
     """
-    doc_id = str(doc['_id'])
+    doc_id = doc.meta['file_']
     return doc_id, DBCorpusFile(
         id=doc_id,
-        corpus=doc['collection'],
-        file=doc['basename'],
-        orig=doc['bibl'],
-        scan=doc['biblLex'],
-        date=doc['date_'],
-        text_class=doc['textClass'],
-        available=doc['collection'],
+        corpus=doc.meta['collection'],
+        file=doc.meta['basename'],
+        orig=doc.meta['bibl'],
+        scan=doc.meta['biblLex'],
+        date=doc.meta['date_'],
+        text_class=doc.meta['textClass'],
+        available=doc.meta['collection'],
     )
 
 

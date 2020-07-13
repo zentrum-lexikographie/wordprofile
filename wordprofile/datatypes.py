@@ -45,40 +45,69 @@ class TabsDocument:
     """Data structure for processing tabs files and generate output in either tabs or conllu format.
     """
 
-    def __init__(self, tabs_path: str):
+    def __init__(self):
         self.meta = {}
         self.index = {}
         self.index_short = {}
         self.tokid = {}
         self.sentences: List[TabsSentence] = []
-        self.read(tabs_path)
 
     def add_column(self, name: str, shortname: str):
         self.index[name] = len(self.index)
         self.index_short[name] = shortname
 
-    def read(self, tabs_path: str):
+    @staticmethod
+    def from_tabs(tabs_path: str):
+        doc = TabsDocument()
         tabs_file = open(tabs_path, "r")
         meta_sent = []
         tokens = []
         for line in tabs_file:
             line = line.strip()
             if line.startswith("%%$DDC:tokid"):
-                self.tokid[line[len("%%$DDC:tokid."):line.find("=")]] = line[line.find("=") + 1:].strip()
+                doc.tokid[line[len("%%$DDC:tokid."):line.find("=")]] = line[line.find("=") + 1:].strip()
             if line.startswith("%%$DDC:meta"):
-                self.meta[line[len("%%$DDC:meta."):line.find("=")]] = line[line.find("=") + 1:].strip()
+                doc.meta[line[len("%%$DDC:meta."):line.find("=")]] = line[line.find("=") + 1:].strip()
             elif line.startswith("%%$DDC:index"):
                 name, shortname = line[line.find("=") + 1:].split(" ")
-                self.index[name] = int(line[line.find("[") + 1:line.find("]")])
-                self.index_short[name] = shortname
+                doc.index[name] = int(line[line.find("[") + 1:line.find("]")])
+                doc.index_short[name] = shortname
             elif line.startswith("%%$DDC:BREAK"):
                 meta_sent.append(line[len('%%$DDC:BREAK.'):])
             elif line.strip() and not line.startswith("%%$DDC"):
                 tokens.append(tuple(line.split("\t")))
             elif not line.strip() and tokens and meta_sent:
-                self.sentences.append(TabsSentence(meta_sent, tokens))
+                doc.sentences.append(TabsSentence(meta_sent, tokens))
                 meta_sent = []
                 tokens = []
+        return doc
+
+    @staticmethod
+    def from_conll(conll_path):
+        doc = TabsDocument()
+        tabs_file = open(conll_path, "r")
+        meta_sent = []
+        tokens = []
+        for line in tabs_file:
+            line = line.strip()
+            if line.startswith("#DDC:tokid"):
+                doc.tokid[line[len("%%$DDC:tokid."):line.find("=")]] = line[line.find("=") + 1:].strip()
+            if line.startswith("#DDC:meta"):
+                doc.meta[line[len("#DDC:meta."):line.find("=")]] = line[line.find("=") + 1:].strip()
+            elif line.startswith("#DDC:BREAK"):
+                meta_sent.append(line[len('#DDC:BREAK.'):])
+            elif line.strip() and not line.startswith("#"):
+                tokens.append(tuple(line.split("\t")))
+            elif not line.strip() and tokens and meta_sent:
+                doc.sentences.append(TabsSentence(meta_sent, tokens))
+                meta_sent = []
+                tokens = []
+        for i, (name, shortname) in enumerate(
+                [("Index", "idx"), ("Token", "t"), ("Lemma", "l"), ("Pos", "pos"), ("XPos", "xpos"), ("Morph", "m"),
+                 ("Head", "hd"), ("Deprel", "rel"), ("Unknown", "ukn"), ("WordSep", "ws")]):
+            doc.index[name] = i
+            doc.index_short[name] = shortname
+        return doc
 
     def as_tabs(self):
         buf = io.StringIO()

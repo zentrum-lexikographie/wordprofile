@@ -55,7 +55,7 @@ def build_parser_from_args(cmd_args=None):
 def process_files_parallel(srcs, args, options):
     parser = get_parser(args, options)
     for src_i, src in enumerate(srcs):
-        doc = TabsDocument(src)
+        doc = TabsDocument.from_tabs(src)
         file_name = os.path.basename(src)
         if args.conll:
             file_name = file_name[:-len("tabs")] + "conllu"
