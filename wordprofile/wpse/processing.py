@@ -6,6 +6,7 @@ import multiprocessing
 import os
 from collections import defaultdict
 from glob import glob
+from multiprocessing.queues import Queue
 from typing import List
 
 from sqlalchemy import create_engine
@@ -20,6 +21,10 @@ from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, ext
 
 
 def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
+    """Convert sentence into list of token while performing normalization and filtering.
+
+    If tags are not found in mapping, they are left empty and recognized later.
+    """
     return [DBToken(
         idx=i,
         surface=remove_invalid_chars(surface),
@@ -32,7 +37,9 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
     ) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
 
 
-def process_doc(doc_path):
+def process_doc(doc_path: str):
+    """Load single file into memory, extract and prepare information.
+    """
     doc = TabsDocument.from_conll(doc_path)
     try:
         doc_id, db_corpus_file = prepare_corpus_file(doc)
@@ -90,7 +97,9 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def process_doc_files(doc_paths, db_files_queue, db_sents_queue, db_matches_queue):
+def process_doc_files(doc_paths: List[str], db_files_queue: Queue, db_sents_queue: Queue, db_matches_queue: Queue):
+    """Extracts information from files and forwards to corresponding queue.
+    """
     db_corpus_files, db_concord_sentences, db_matches = zip(*map(process_doc, doc_paths))
     db_corpus_files = [x for x in db_corpus_files if x]
     db_concord_sentences = [x for sentences in db_concord_sentences for x in sentences]
@@ -145,7 +154,7 @@ class ConverterFileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def is_valid_sentence(sentence):
+def is_valid_sentence(sentence: str):
     """Hard constraints for concordances.
 
     End with sentence delimiter, have a certain length, and start with uppercase letter.
@@ -155,7 +164,13 @@ def is_valid_sentence(sentence):
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
-def process_files(files_path, storage_path, njobs=1, chunk_size=2000):
+def process_files(files_path: str, storage_path: str, njobs: int = 1, chunk_size: int = 2000):
+    """Extract WP related information from given files.
+
+    This method processed a given list of files in parallel.
+    Workers are created for each result (corpus_files, concordances, matches, collocations) in relation to db tables.
+    The file list is split into several chunks for parallel processing. The extracted results are sent to the workers.
+    """
     db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
     db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
     db_matches_worker = FileWorker(storage_path, 'matches_stage')
@@ -181,7 +196,7 @@ def process_files(files_path, storage_path, njobs=1, chunk_size=2000):
     logging.info('ALL JOBS DONE')
 
 
-def post_process_db_files(storage_path, min_rel_freq=3):
+def post_process_db_files(storage_path: str, min_rel_freq: int = 3):
     """Post-processing of generated data files.
 
     Filter concordances that satisfy sentence form and remove duplicate sentences.
@@ -230,7 +245,7 @@ def post_process_db_files(storage_path, min_rel_freq=3):
                 matches_out.write('\t'.join(match))
 
 
-def load_files_into_db(db_engine_key, storage_path):
+def load_files_into_db(db_engine_key: str, storage_path: str):
     """Load generated data files into their corresponding db tables.
     """
     engine = create_engine(db_engine_key)

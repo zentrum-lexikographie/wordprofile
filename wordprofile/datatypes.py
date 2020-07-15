@@ -83,7 +83,7 @@ class TabsDocument:
         return doc
 
     @staticmethod
-    def from_conll(conll_path):
+    def from_conll(conll_path: str):
         doc = TabsDocument()
         tabs_file = open(conll_path, "r")
         meta_sent = []

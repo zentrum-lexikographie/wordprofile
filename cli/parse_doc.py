@@ -3,21 +3,19 @@
 import argparse
 import logging
 import multiprocessing
+import os
 import sys
 from glob import glob
+from pathlib import Path
 
-import pymongo
-from imsnpars.nparser import options
-from imsnpars.tools import utils
-
-from wordprofile.parsing import get_parser, parse_file
+import imsnpars.nparser.options as options
+import imsnpars.tools.utils as utils
+from wordprofile.datatypes import TabsDocument
+from wordprofile.parsing import get_parser, parse_document
 from wordprofile.utils import chunks
-from wordprofile.zdl import read_tabs_format
 
 # Set for graph search in parser
 sys.setrecursionlimit(200)
-
-parsers = {}
 
 lformat = '[%(levelname)s] %(asctime)s %(name)s# %(message)s'
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat)
@@ -27,12 +25,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat)
 def build_parser_from_args(cmd_args=None):
     argParser = argparse.ArgumentParser(description="""IMS BiLSTM Parser""", add_help=False)
 
-    db_args = argParser.add_argument_group('database')
-    db_args.add_argument("--database", type=str, help="database name", required=True)
-    db_args.add_argument("--index", type=str, help="database name", required=True)
-    db_args.add_argument("--drop", action="store_true", help="clears document database")
-    db_args.add_argument("--skip", action="store_true", help="skips documents already inserted in db")
-
     parserArgs = argParser.add_argument_group('parser')
     parserArgs.add_argument("--parser", help="which parser to use", choices=["GRAPH", "TRANS"], required=True)
     parserArgs.add_argument("--jobs", help="", type=int, default=1)
@@ -41,9 +33,8 @@ def build_parser_from_args(cmd_args=None):
     # files
     filesArgs = argParser.add_argument_group('files')
     filesArgs.add_argument("--src", help="source file", type=str, required=True)
-    filesArgs.add_argument("--list", help="input file consists of whitespace separated input output files",
-                           action="store_true", required=False)
-    filesArgs.add_argument("--dest", help="source file", type=str, required=False)
+    filesArgs.add_argument("--conll", help="outputs conll formatted files", action="store_true", required=False)
+    filesArgs.add_argument("--dest", help="source file destination", type=str, required=True)
     filesArgs.add_argument("--model", help="load model from the file", type=str, required=True)
 
     # parse for the first time to only get the parser name
@@ -61,62 +52,29 @@ def build_parser_from_args(cmd_args=None):
     return args, opts
 
 
-def process_files_parallel(mongo_db_keys, srcs, args, options, basenames):
+def process_files_parallel(srcs, args, options):
     parser = get_parser(args, options)
-    mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
-    mongo_db = mongo_db_client[mongo_db_keys[1]][mongo_db_keys[2]]
-    result = []
     for src_i, src in enumerate(srcs):
-        meta_data, _ = read_tabs_format(src, meta_only=True)
-        if args.skip and meta_data['basename'] in basenames:
-            logging.info("({}) - SKIP - document already in db".format(meta_data['basename']))
+        doc = TabsDocument.from_tabs(src)
+        file_name = os.path.basename(src)
+        if args.conll:
+            file_name = file_name[:-len("tabs")] + "conllu"
+        tgt_path = Path(os.path.join(args.dest, doc.meta['collection'], file_name))
+        if not tgt_path.exists() or (os.path.getmtime(tgt_path) < os.path.getmtime(src)):
+            parse_document(parser, doc, options.normalize)
+            logging.info("({}) - parsed document".format(doc.meta['basename']))
+            doc.save(tgt_path, as_conll=args.conll)
         else:
-            try:
-                meta_data, parses = parse_file(parser, src, options.normalize)
-                parses = [[dict(token._asdict()) for token in sentence] for sentence in parses]
-                logging.info("({}) - parsed document".format(meta_data['basename']))
-                meta_data["sentences"] = parses
-                result.append(meta_data)
-            except RecursionError:
-                logging.warning("Skip parse: maximum recursion depth exceeded")
-    try:
-        mongo_db.insert_many(result)
-        logging.info("Inserted documents: {}".format(len(result)))
-    except Exception as e:
-        logging.warning(e)
-    mongo_db_client.close()
-
-
-def drop_documents(mongo_db_keys):
-    mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
-    mongo_db = mongo_db_client[mongo_db_keys[1]][mongo_db_keys[2]]
-    mongo_db.drop()
-    mongo_db.drop_indexes()
-    mongo_db.create_index([("basename", pymongo.HASHED)])
-    mongo_db_client.close()
-
-
-def get_basenames(mongo_db_keys):
-    mongo_db_client = pymongo.MongoClient(mongo_db_keys[0])
-    mongo_db = mongo_db_client[mongo_db_keys[1]]
-    return set(mongo_db[mongo_db_keys[2]].find().distinct('basename'))
+            logging.info("({}) - SKIP - parsed document up-to-date".format(tgt_path))
 
 
 def main():
     args, options = build_parser_from_args()
-
-    logging.info('|: db: ' + args.database)
-    mongo_db_keys = ("mongodb://localhost:27017/", args.database, args.index)
-    if args.drop:
-        drop_documents(mongo_db_keys)
     src_files = glob("{}/**/*.tabs".format(args.src), recursive=True)
-
     if len(src_files) == 0:
         raise FileNotFoundError("No files found for parsing!")
-
-    basenames = get_basenames(mongo_db_keys)
-    files = [(mongo_db_keys, src, args, options, basenames) for src in chunks(src_files, 25)]
-    logging.info("Create MPPool with #njobs:", args.jobs)
+    files = [(src, args, options) for src in chunks(src_files, 25)]
+    logging.info("Create MPPool with #njobs: {}".format(args.jobs))
     with multiprocessing.Pool(args.jobs) as pool:
         pool.starmap(process_files_parallel, files, chunksize=10)
 
