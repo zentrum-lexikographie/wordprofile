@@ -1,7 +1,7 @@
 from collections import defaultdict
-from typing import List, Tuple, Dict
+from typing import List, Dict
 
-from wordprofile.datatypes import TabsToken, DBToken, Match
+from wordprofile.datatypes import DBToken, Match
 
 SIMPLE_TAG_MAP = {
     'APP': 'APP',
@@ -165,56 +165,6 @@ def extract_matches_from_doc(parses: List[List[DBToken]]):
                 continue
             matches.append(r)
     return matches
-
-
-def read_meta_tabs_format(tabs_file_path: str) -> Tuple[Dict[str, str], Dict[str, int]]:
-    meta = {}
-    index = {}
-    tabs_file = open(tabs_file_path, "r")
-    for line in tabs_file:
-        line = line.strip()
-        if line.startswith("%%$DDC:meta"):
-            meta[line[len("%%$DDC:meta."):line.find("=")]] = line[line.find("=") + 1:].strip()
-        elif line.startswith("%%$DDC:index"):
-            name, shortname = line[line.find("=") + 1:].split(" ")
-            index[name] = int(line[line.find("[") + 1:line.find("]")])
-        elif line.startswith("%%$DDC:BREAK.s"):
-            continue
-        elif line.strip() and not line.startswith("%%$DDC"):
-            # End of meta header
-            break
-    return meta, index
-
-
-def read_text_tabs_format(index: Dict[str, int], tabs_file_path: str) -> List[List[TabsToken]]:
-    sentences = []
-    sentence = []
-    tabs_file = open(tabs_file_path, "r")
-    for line in tabs_file:
-        line = line.strip()
-        if line.startswith("%%$DDC:meta"):
-            continue
-        elif line.startswith("%%$DDC:index"):
-            continue
-        elif line.startswith("%%$DDC:BREAK.s"):
-            if sentence:
-                sentences.append(sentence)
-                sentence = []
-        elif line and not line.startswith("%"):
-            items = line.split("\t")
-            sentence.append(
-                TabsToken(items[index["Token"]], items[index["Lemma"]], items[index["Pos"]],
-                          int(items[index["WordSep"]])))
-    return sentences
-
-
-def read_tabs_format(tabs_file_path, meta_only=False) -> Tuple[Dict[str, str], List[List[TabsToken]]]:
-    meta_data, index = read_meta_tabs_format(tabs_file_path)
-    if meta_only:
-        return meta_data, []
-    else:
-        sentences = read_text_tabs_format(index, tabs_file_path)
-        return meta_data, sentences
 
 
 def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:

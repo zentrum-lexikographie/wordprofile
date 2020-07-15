@@ -1,21 +1,8 @@
 import datetime
 from typing import List, Tuple
 
-from sqlalchemy import MetaData
-from sqlalchemy.engine import Engine
-
 from wordprofile.datatypes import Match, DBToken, TabsDocument
-from wordprofile.wpse.db_tables import get_table_corpus_files, DBCorpusFile, get_table_concord_sentences, DBConcordance, \
-    get_table_matches, SURFACE_TYPE, LEMMA_TYPE, DBMatch
-
-
-def insert_bulk_corpus_file(engine: Engine, corpus_files):
-    meta = MetaData()
-    corpus_file_tb = get_table_corpus_files(meta)
-    query = corpus_file_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, corpus_files)
-    conn.close()
+from wordprofile.wpse.db_tables import DBCorpusFile, DBConcordance, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
 
 def prepare_corpus_file(doc: TabsDocument) -> Tuple[str, DBCorpusFile]:
@@ -40,15 +27,6 @@ def prepare_corpus_file(doc: TabsDocument) -> Tuple[str, DBCorpusFile]:
     )
 
 
-def insert_bulk_concord_sentences(engine: Engine, concord_sentences):
-    meta = MetaData()
-    concord_sentences_tb = get_table_concord_sentences(meta)
-    query = concord_sentences_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, concord_sentences)
-    conn.close()
-
-
 def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[DBConcordance]:
     """Converts concordances into DB entries.
 
@@ -66,15 +44,6 @@ def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[
                          for tok_i, tok in enumerate(parse)),
         page='-'
     ) for sent_i, parse in enumerate(parses)]
-
-
-def insert_bulk_matches(engine: Engine, matches: List[dict]):
-    meta = MetaData()
-    matches_tb = get_table_matches(meta)
-    query = matches_tb.insert()
-    conn = engine.connect()
-    conn.execute(query, matches)
-    conn.close()
 
 
 def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
