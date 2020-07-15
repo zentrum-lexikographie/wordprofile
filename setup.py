@@ -11,7 +11,7 @@ setup(name='wordprofile',
       install_requires=[
           'pymysql',
           'sqlalchemy',
-          'imsnpars @ git@git.zdl.org:knaebel/imsnpars@master',
+          'imsnpars @ git+ssh://git@git.zdl.org/knaebel/imsnpars',
           'termcolor',
           'tabulate'
       ],
@@ -19,9 +19,9 @@ setup(name='wordprofile',
           'console_scripts': [
               'wp-init = cli.make_wp:main',
               'wp-parse = cli.parse_doc:main',
-              'wp-xmlrpc = apps.xmlrpc_api:main'
-              'wp-rest = apps.rest_api:main'
-              'wp-vis = cli.vis:main'
+              'wp-xmlrpc = apps.xmlrpc_api:main',
+              'wp-rest = apps.rest_api:main',
+              'wp-vis = cli.vis:main',
           ],
       }
       )
