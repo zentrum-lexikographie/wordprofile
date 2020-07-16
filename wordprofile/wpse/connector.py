@@ -58,7 +58,6 @@ class WPConnect:
         Return:
             List of Concordance.
         """
-        # TODO: replace creation_date with true corpus file date (after updating db)
         coocc_info = self.get_relation_by_id(coocc_id)
         if coocc_info.inv:
             head_lemma, head_tag = coocc_info.lemma2, coocc_info.pos2
@@ -71,7 +70,7 @@ class WPConnect:
             query = """
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
-                matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
                 matches
@@ -100,7 +99,7 @@ class WPConnect:
             query = """
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
-                matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, '', ''
             FROM
                 matches

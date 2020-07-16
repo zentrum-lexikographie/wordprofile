@@ -18,7 +18,7 @@ DBConcordance = namedtuple('DBConcordance', ['corpus_file_id', 'sentence_id', 's
 DBMatch = namedtuple('DBMatch',
                      ['relation_label', 'head_lemma', 'dep_lemma', 'head_tag', 'dep_tag',
                       'head_surface', 'dep_surface', 'head_position', 'dep_position',
-                      'prep_position', 'corpus_file_id', 'sentence_id', 'creation_date'])
+                      'prep_position', 'corpus_file_id', 'sentence_id'])
 
 re_pattern = re.compile(r'[^\u0000-\uD7FF\uE000-\uFFFF]|\\', re.UNICODE)
 re2_pattern = re.compile(r'(^\W+)|(\W+$)')
@@ -66,7 +66,6 @@ def get_table_matches(meta: MetaData):
         Column('prep_position', types.Integer),
         Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence_id', types.Integer),
-        Column('creation_date', types.DateTime),
         mysql_engine='Aria'
     )
 

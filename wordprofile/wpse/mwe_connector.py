@@ -63,7 +63,7 @@ class WPMweConnect:
             SELECT
                 s_center.sentence, m1.head_position, m1.dep_position, m1.prep_position,
                 m2.head_position, m2.dep_position, m2.prep_position, cf.corpus, 
-                m1.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
                 mwe_match
@@ -88,7 +88,7 @@ class WPMweConnect:
             SELECT
                 s_center.sentence, m1.head_position, m1.dep_position, m1.prep_position,
                 m2.head_position, m2.dep_position, m2.prep_position, 
-                cf.corpus, m1.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.corpus, cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, '', ''
             FROM
                 mwe_match

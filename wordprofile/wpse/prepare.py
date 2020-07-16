@@ -1,4 +1,3 @@
-import datetime
 from typing import List, Tuple
 
 from wordprofile.datatypes import Match, DBToken, TabsDocument
@@ -83,7 +82,6 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=m.prep.idx,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
             db_matches.append(DBMatch(
                 relation_label=m.relation,
@@ -98,7 +96,6 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=m.prep.idx,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
         else:
             db_matches.append(DBMatch(
@@ -114,6 +111,5 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=0,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
     return db_matches

@@ -21,8 +21,8 @@ from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, ext
 
 Match = namedtuple("Match",
                    ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
-                    "doc_id", "sent_id", "timestamp"])
-match_dtypes = [int, int, str, str, int, int, int, int, int, str]
+                    "doc_id", "sent_id"])
+match_dtypes = [int, int, str, str, int, int, int, int, int]
 Colloc = namedtuple("Collocation",
                     ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
 colloc_dtypes = [int, str, str, str, str, str, int, int]
@@ -237,13 +237,13 @@ def filter_matches(fin, fout, corpus_file_idx, sents_idx, collocs):
     match_i = 0
     with open(fin, 'r') as matches_in, open(fout, 'w') as matches_out:
         for line in matches_in:
-            match = line.split('\t')
+            match = line.strip().split('\t')
             match[6] = str(corpus_file_idx[match[6]])
             # check whether concordances and collocations still exist for match
             if int(match[0]) in collocs and tuple(match[6:8]) in sents_idx:
                 match.insert(0, str(match_i))
                 match_i += 1
-                matches_out.write('\t'.join(match))
+                matches_out.write('\t'.join(match) + '\n')
 
 
 def compute_collocation_scores(fout, collocs):
