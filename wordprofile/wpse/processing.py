@@ -11,7 +11,6 @@ from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
 from sqlalchemy import create_engine
-from sqlalchemy.engine.base import Engine
 
 from wordprofile.datatypes import DBToken, TabsDocument, TabsSentence
 from wordprofile.formatter import RE_HIT_DELIMITER
@@ -38,6 +37,7 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
 
     If tags are not found in mapping, they are left empty and recognized later.
     """
+
     def normalize_caps(t: DBToken) -> DBToken:
         return DBToken(idx=t.idx,
                        surface=t.surface.lower() if t.tag in ["VV", "ADJ", "ADV", "PP"] else t.surface,
@@ -70,31 +70,6 @@ def process_doc(doc_path: str):
     except Exception as e:
         logging.warning(e)
         return None, [], []
-
-
-def create_indices(engine: Engine):
-    logging.info("CREATE INDEX indices for files, concordances, and matches")
-    logging.info("CREATE INDEX corpus_index")
-    engine.execute("CREATE UNIQUE INDEX corpus_index ON corpus_files (id);")
-    logging.info("CREATE INDEX concord_corpus_index")
-    engine.execute("CREATE INDEX concord_corpus_index ON concord_sentences (corpus_file_id);")
-    logging.info("CREATE INDEX concord_corpus_sentence_index")
-    engine.execute("CREATE UNIQUE INDEX concord_corpus_sentence_index "
-                   "ON concord_sentences (corpus_file_id, sentence_id);")
-    logging.info("CREATE INDEX matches_index")
-    engine.execute("CREATE UNIQUE INDEX matches_index ON matches (id);")
-    logging.info("CREATE INDEX matches_corpus_index")
-    engine.execute("CREATE INDEX matches_corpus_index ON matches (corpus_file_id);")
-    logging.info("CREATE INDEX matches_corpus_sentence_index")
-    engine.execute("CREATE INDEX matches_corpus_sentence_index ON matches (corpus_file_id, sentence_id);")
-    logging.info("CREATE INDEX matches_relation_label_index")
-    engine.execute("CREATE INDEX matches_relation_label_index ON matches (collocation_id);")
-    logging.info("CREATE INDEX mwe_index")
-    engine.execute("CREATE INDEX mwe_index ON mwe (id);")
-    logging.info("CREATE INDEX mwe_collocation1_index")
-    engine.execute("CREATE INDEX mwe_collocation1_index ON mwe (collocation1_id);")
-    logging.info("CREATE INDEX mwe_match_index")
-    engine.execute("CREATE INDEX mwe_match_index ON mwe_match (mwe_id);")
 
 
 class FileWorker(multiprocessing.Process):
@@ -209,16 +184,17 @@ def process_files(files_path: str, storage_path: str, njobs: int = 1, chunk_size
     with multiprocessing.Pool(njobs) as pool:
         pool.starmap(process_doc_files, ((doc_paths, db_files_worker.q, db_sents_worker.q, match_convert_worker.q)
                                          for doc_paths in chunks(glob(files_path, recursive=True), chunk_size)),
-                     chunksize=100)
+                     chunksize=7)
     logging.info('INDICES DONE')
+    logging.info('STOP first queues and wait...')
     db_files_worker.stop()
     db_sents_worker.stop()
     match_convert_worker.stop()
-    db_matches_worker.stop()
-    logging.info('PUT NONE to queue and wait...')
     db_files_worker.join()
     db_sents_worker.join()
     match_convert_worker.join()
+    logging.info('STOP final matches queue and wait...')
+    db_matches_worker.stop()
     db_matches_worker.join()
     logging.info('ALL JOBS DONE')
 
