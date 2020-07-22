@@ -40,8 +40,8 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
 
     def normalize_caps(t: DBToken) -> DBToken:
         return DBToken(idx=t.idx,
-                       surface=t.surface.lower() if t.tag in ["VV", "ADJ", "ADV", "PP"] else t.surface,
-                       lemma=t.lemma.lower() if t.tag in ["VV", "ADJ", "ADV", "PP"] else t.lemma,
+                       surface=t.surface.lower() if t.tag in ["VV", "ADJ", "ADV", "APP"] else t.surface,
+                       lemma=t.lemma.lower() if t.tag in ["VV", "ADJ", "ADV", "APP"] else t.lemma,
                        tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
 
     return [normalize_caps(DBToken(
