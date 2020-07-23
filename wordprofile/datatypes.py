@@ -86,7 +86,32 @@ class TabsDocument:
                 doc.sentences.append(TabsSentence(meta_sent, tokens))
                 meta_sent = []
                 tokens = []
+        doc.remove_xml_tags_from_tabs()
         return doc
+
+    def remove_xml_tags_from_tabs(self):
+        for sent in self.sentences:
+            tokens = sent.to_tabs_token(self.index)
+            tokens_new = []
+            for tok_i, tok in enumerate(sent.tokens):
+                if tokens[tok_i].surface in ['<', '/><', 'strong>', 'p>', '>', '/></p><p>', '</p><p>', '/>',
+                                             '/></p><p>', '/><a']:
+                    continue
+                if (tok_i > 0 and tokens[tok_i].surface in ['strong', 'p', 'a', 'br', '/'] and
+                        tokens[tok_i - 1].surface[-1] == '<'):
+                    continue
+                for s in ['<', 'strong>', '></p']:
+                    tok = list(tok)
+                    if tokens[tok_i].surface.startswith(s):
+                        tok[self.index['Token']] = tok[self.index['Token']][len(s):]
+                        tok[self.index['Lemma']] = tok[self.index['Lemma']][len(s):]
+                    if tokens[tok_i].surface.endswith(s):
+                        tok[self.index['Token']] = tok[self.index['Token']][:-len(s)]
+                        tok[self.index['Lemma']] = tok[self.index['Lemma']][:-len(s)]
+                    if not tok[self.index['Token']]:
+                        continue
+                tokens_new.append(tuple(tok))
+            sent.tokens = tokens_new
 
     @staticmethod
     def from_conll(conll_path: str):
@@ -145,7 +170,7 @@ class TabsDocument:
             for token_i, token in enumerate(conll_sent):
                 buf.write(
                     "{idx}\t{t.surface}\t{t.lemma}\t{xpos}\t{t.tag}\t_\t{t.head}\t{t.rel}\t_\t{t.misc}\n".format(
-                        idx=token_i + 1, t=token, xpos=ud_pos_map.get(token.tag)))
+                        idx=token_i + 1, t=token, xpos=ud_pos_map.get(token.tag, "X")))
             buf.write("\n")
         return buf.getvalue()
 
