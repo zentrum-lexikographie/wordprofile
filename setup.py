@@ -11,7 +11,7 @@ setup(name='wordprofile',
       install_requires=[
           'pymysql',
           'sqlalchemy',
-          'imsnpars @ git+ssh://git@git.zdl.org/knaebel/imsnpars',
+          'imsnpars @ git+https://github.com/zentrum-lexikographie/IMSnPars',
           'termcolor',
           'tabulate'
       ],
