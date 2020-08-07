@@ -15,11 +15,11 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.schema-version="1.0"
 
 #  cf. https://github.com/clab/dynet/#installation
-RUN apt-get update && apt-get install -y \
-  build-essential \
-  cmake \
-  mercurial \
-  && rm -rf /var/lib/apt/lists/*
+#RUN apt-get update && apt-get install -y \
+#  build-essential \
+#  cmake \
+#  mercurial \
+#  && rm -rf /var/lib/apt/lists/*
 
 COPY . /app
 WORKDIR /app
