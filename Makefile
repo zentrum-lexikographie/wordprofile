@@ -4,6 +4,12 @@ default: docker_build
 dev-setup:
 	@pip install -r requirements-dev.txt
 
+
+.PHONY: test
+test:
+	@pytest
+
+.PHONY: docker_build
 docker_build: VERSION = $(shell git describe --tags --always)
 docker_build:
 	@docker build \
