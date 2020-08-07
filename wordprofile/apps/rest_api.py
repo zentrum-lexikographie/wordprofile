@@ -9,7 +9,7 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
-from ..wordprofile.wp import Wordprofile
+from wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
 parser.add_argument("--user", type=str, help="database username", required=True)
