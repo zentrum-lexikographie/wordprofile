@@ -8,12 +8,19 @@ setup(name='wordprofile',
       author='René Knaebel',
       author_email='rene.knaebel@bbaw.de',
       packages=find_packages(),
+      extra_requires={
+          'parser': [
+              'imsnpars @ git+https://github.com/zentrum-lexikographie/IMSnPars@0.1.0.2020080615'
+          ]
+      },
       install_requires=[
           'pymysql',
           'sqlalchemy',
-#          'imsnpars @ git+https://github.com/zentrum-lexikographie/IMSnPars@0.1.0.2020080615',
           'termcolor',
-          'tabulate'
+          'tabulate',
+          'fastapi',
+          'uvicorn',
+          'gunicorn'
       ],
       entry_points={
           'console_scripts': [

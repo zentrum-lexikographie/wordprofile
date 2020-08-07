@@ -2,7 +2,6 @@
 
 import getpass
 import logging
-import time
 from argparse import ArgumentParser
 from typing import List
 
@@ -23,18 +22,16 @@ parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings
 parser.add_argument('--log', dest='logfile', type=str, help="Optionale log-Datei (Default: stdout")
 args = parser.parse_args()
 
-logger = configure_logger(
-    logging.getLogger('wordprofile'), logging.DEBUG, args.logfile
-)
-
-logger.info('user: ' + args.user)
-logger.info('db: ' + args.database)
 if args.passwd:
+    # FIXME: this will not work with uvicorn's execution model
     db_password = getpass.getpass("db password: ")
 else:
     db_password = args.user
 
+logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG, args.logfile)
+
 wp = Wordprofile(args.db_hostname, args.user, db_password, args.database, args.spec)
+
 app = FastAPI()
 
 
@@ -180,5 +177,9 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
                     use_intersection=True, nbest=nbest)
 
 
+def main():
+    uvicorn.run("wordprofile.apps.rest_api:app", host=args.hostname, port=args.port, log_level="debug", reload=True)
+
+
 if __name__ == '__main__':
-    uvicorn.run("rest_api:app", host=args.hostname, port=args.port, log_level="debug", reload=True)
+    main()
