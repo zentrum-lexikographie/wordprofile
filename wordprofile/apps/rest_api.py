@@ -9,6 +9,7 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
+from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
@@ -19,25 +20,12 @@ parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RP
 parser.add_argument("--passwd", action="store_true", help="ask for database password")
 parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
 parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
-parser.add_argument('--log', dest='logfile', type=str,
-                    default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
-                    help="Angabe der log-Datei (Default: log/wp_{date}.log)")
+parser.add_argument('--log', dest='logfile', type=str, help="Optionale log-Datei (Default: stdout")
 args = parser.parse_args()
 
-logger = logging.getLogger('wordprofile')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-fh = logging.FileHandler(args.logfile)
-ch.setLevel(logging.DEBUG)
-fh.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(ch)
-logger.addHandler(fh)
+logger = configure_logger(
+    logging.getLogger('wordprofile'), logging.DEBUG, args.logfile
+)
 
 logger.info('user: ' + args.user)
 logger.info('db: ' + args.database)

@@ -16,6 +16,8 @@ from utils.hit import get_hits
 from utils.info import get_wordprofile_info
 from utils.rel import get_relation
 
+from wordprofile.utils import configure_logger
+
 parser = ArgumentParser()
 
 subparsers = parser.add_subparsers(dest="subcommand")
@@ -88,16 +90,7 @@ cmp_parser.add_argument("-sf", "--surface", action="store_true", default=False,
 
 args = parser.parse_args()
 
-logger = logging.getLogger('wordprofile')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(ch)
+logger = configure_logger(logging.getLogger('wordprofile'))
 
 if args.xmlrpc:
     wp: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
