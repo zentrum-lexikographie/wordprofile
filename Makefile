@@ -1,8 +1,8 @@
 default: docker_build
 
-.PHONY: setup
-setup:
-	@pip install -e .
+.PHONY: dev-setup
+dev-setup:
+	@pip install -r requirements-dev.txt
 
 docker_build: VERSION = $(shell git describe --tags --always)
 docker_build:
