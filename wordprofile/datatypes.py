@@ -17,7 +17,7 @@ MweConcordance = namedtuple("Concordance",
                              "corpus", "date", "textclass", "orig", "scan",
                              "avail", "page", "file", "score",
                              "sentence_left", "sentence_right"])
-TabsToken = namedtuple("Token", ["surface", "lemma", "pos", "word_sep"])
+TabsToken = namedtuple("TabsToken", ["surface", "lemma", "pos", "word_sep"])
 ConllToken = namedtuple('ConllToken',
                         ['surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'])
 DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
@@ -86,7 +86,6 @@ class TabsDocument:
                 doc.sentences.append(TabsSentence(meta_sent, tokens))
                 meta_sent = []
                 tokens = []
-        doc.remove_xml_tags_from_tabs()
         return doc
 
     def remove_xml_tags_from_tabs(self):
@@ -112,6 +111,18 @@ class TabsDocument:
                         continue
                 tokens_new.append(tuple(tok))
             sent.tokens = tokens_new
+
+    def remove_invalid_sentence(self):
+        def is_valid_word(tag):
+            return ud_pos_map.get(tag, "X") not in ['PUNCT', 'X']
+
+        sents_valid = []
+        for sent in self.sentences:
+            tokens = sent.to_tabs_token(self.index)
+            nb_valid_pos = sum(int(is_valid_word(t.pos)) for t in tokens)
+            if nb_valid_pos > 3:
+                sents_valid.append(sent)
+        self.sentences = sents_valid
 
     @staticmethod
     def from_conll(conll_path: str):

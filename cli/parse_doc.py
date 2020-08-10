@@ -56,6 +56,8 @@ def process_files_parallel(srcs, args, options):
     parser = get_parser(args, options)
     for src_i, src in enumerate(srcs):
         doc = TabsDocument.from_tabs(src)
+        doc.remove_xml_tags_from_tabs()
+        doc.remove_invalid_sentence()
         file_name = os.path.basename(src)
         if args.conll:
             file_name = file_name[:-len("tabs")] + "conllu"
