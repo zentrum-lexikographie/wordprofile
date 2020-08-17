@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
-from wordprofile.datatypes import Match, DBToken, TabsDocument
+from pytabs.tabs import TabsDocument
+from wordprofile.datatypes import Match, DBToken
 from wordprofile.wpse.db_tables import DBCorpusFile, DBConcordance, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
 

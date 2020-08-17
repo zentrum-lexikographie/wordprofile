@@ -13,7 +13,8 @@ setup(name='wordprofile',
           'sqlalchemy',
           'imsnpars @ git+ssh://git@git.zdl.org/knaebel/imsnpars',
           'termcolor',
-          'tabulate'
+          'tabulate',
+          'pytabs @ git+ssh://git@git.zdl.org/zdl/pytabs',
       ],
       entry_points={
           'console_scripts': [

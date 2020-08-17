@@ -2,7 +2,6 @@
 
 import hashlib
 import logging
-import math
 import multiprocessing
 import os
 from collections import defaultdict, namedtuple
@@ -10,9 +9,11 @@ from glob import glob
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
+import math
 from sqlalchemy import create_engine
 
-from wordprofile.datatypes import DBToken, TabsDocument, TabsSentence
+from pytabs.tabs import TabsSentence, TabsDocument
+from wordprofile.datatypes import DBToken
 from wordprofile.formatter import RE_HIT_DELIMITER
 from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import remove_invalid_chars
@@ -52,7 +53,7 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
         tag=SIMPLE_TAG_MAP.get(xpos, ''),
         head=head,
         rel=rel,
-        misc=bool(misc)
+        misc=int(misc)
     )) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
 
 

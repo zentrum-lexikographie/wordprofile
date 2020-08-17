@@ -6,7 +6,7 @@ from glob import glob
 import graphviz
 import nltk
 
-from wordprofile.datatypes import TabsDocument
+from pytabs.tabs import TabsDocument
 
 argparser = argparse.ArgumentParser()
 argparser.add_argument("--files", type=str, help="path pattern interpreted by glob", required=True)
