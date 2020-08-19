@@ -5,20 +5,20 @@ import logging
 import multiprocessing
 import os
 from collections import defaultdict, namedtuple
-from glob import glob
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
+import conllu
+import itertools
 import math
-from sqlalchemy import create_engine
+import sys
+from conllu.models import TokenList
 
-from pytabs.tabs import TabsSentence, TabsDocument
 from wordprofile.datatypes import DBToken
 from wordprofile.formatter import RE_HIT_DELIMITER
-from wordprofile.utils import chunks
 from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
-from wordprofile.zdl import repair_lemma, SIMPLE_TAG_MAP, sentence_is_valid, extract_matches_from_doc
+from wordprofile.zdl import repair_lemma, sentence_is_valid, extract_matches_from_doc
 
 Match = namedtuple("Match",
                    ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
@@ -33,7 +33,7 @@ def convert_line(line, cls, dtypes) -> Union[Match, Colloc]:
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split('\t'))])
 
 
-def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
+def convert_sentence(sentence: TokenList) -> List[DBToken]:
     """Convert sentence into list of token while performing normalization and filtering.
 
     If tags are not found in mapping, they are left empty and recognized later.
@@ -41,36 +41,19 @@ def convert_sentence(sentence: TabsSentence) -> List[DBToken]:
 
     def normalize_caps(t: DBToken) -> DBToken:
         return DBToken(idx=t.idx,
-                       surface=t.surface.lower() if t.tag in ["VV", "ADJ", "ADV", "APP"] else t.surface,
-                       lemma=t.lemma.lower() if t.tag in ["VV", "ADJ", "ADV", "APP"] else t.lemma,
+                       surface=t.surface.lower() if t.tag in ["VERB", "ADJ", "ADV", "ADP"] else t.surface,
+                       lemma=t.lemma.lower() if t.tag in ["VERB", "ADJ", "ADV", "ADP"] else t.lemma,
                        tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
 
     return [normalize_caps(DBToken(
-        idx=i,
-        surface=remove_invalid_chars(surface),
-        lemma=repair_lemma(remove_invalid_chars(lemma),
-                           SIMPLE_TAG_MAP.get(xpos, '')),
-        tag=SIMPLE_TAG_MAP.get(xpos, ''),
-        head=head,
-        rel=rel,
-        misc=int(misc)
-    )) for i, surface, lemma, tag, xpos, _, head, rel, _, misc in sentence.tokens]
-
-
-def process_doc(doc_path: str):
-    """Load single file into memory, extract and prepare information.
-    """
-    doc = TabsDocument.from_conll(doc_path)
-    try:
-        doc_id, db_corpus_file = prepare_corpus_file(doc)
-        parses = list(filter(sentence_is_valid, map(convert_sentence, doc.sentences)))
-        db_concord_sentences = prepare_concord_sentences(doc_id, parses)
-        matches = extract_matches_from_doc(parses)
-        db_matches = prepare_matches(doc_id, matches)
-        return db_corpus_file, db_concord_sentences, db_matches
-    except Exception as e:
-        logging.warning(e)
-        return None, [], []
+        idx=token['id'],
+        surface=remove_invalid_chars(token['form']),
+        lemma=repair_lemma(remove_invalid_chars(token['lemma']), token['upos']),
+        tag=token['upos'],
+        head=token['head'],
+        rel=token['deprel'],
+        misc=(1 - bool(token['misc']))
+    )) for token in sentence]
 
 
 class FileWorker(multiprocessing.Process):
@@ -90,9 +73,10 @@ class FileWorker(multiprocessing.Process):
                     break
                 try:
                     items = ["\t".join(map(str, x)) + "\n" for x in db_batch]
-                    logging.info(
-                        "{:10} - GOT queue value ({}). qsize={}".format(self.fname, len(items), self.q.qsize()))
+                    # logging.info(
+                    #     "{:10} - GOT queue value ({}). qsize={}".format(self.fname, len(items), self.q.qsize()))
                     fh.writelines(items)
+                    fh.flush()
                 except Exception as e:
                     logging.warning(e)
 
@@ -100,18 +84,21 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def process_doc_files(doc_paths: List[str], db_files_queue: Queue, db_sents_queue: Queue, db_matches_queue: Queue):
+def process_doc_file(sentences: TokenList, db_files_queue: Queue, db_sents_queue: Queue, db_matches_queue: Queue):
     """Extracts information from files and forwards to corresponding queue.
     """
-    db_corpus_files, db_concord_sentences, db_matches = zip(*map(process_doc, doc_paths))
-    db_corpus_files = [x for x in db_corpus_files if x]
-    db_concord_sentences = [x for sentences in db_concord_sentences for x in sentences]
-    db_matches = [tuple(x) for file_matches in db_matches for x in file_matches]
-    logging.info("PROCESSED documents {} {} {}".format(len(db_corpus_files),
-                                                       len(db_concord_sentences), len(db_matches)))
-    db_files_queue.put(db_corpus_files)
-    db_sents_queue.put(db_concord_sentences)
-    db_matches_queue.put(db_matches)
+    try:
+        doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
+        parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
+        db_concord_sentences = prepare_concord_sentences(doc_id, parses)
+        matches = extract_matches_from_doc(parses)
+        db_matches = prepare_matches(doc_id, matches)
+        db_files_queue.put([db_corpus_file])
+        db_sents_queue.put(db_concord_sentences)
+        db_matches_queue.put(db_matches)
+    except Exception as e:
+        logging.warning(e)
+        print(sentences)
 
 
 class ConverterFileWorker(multiprocessing.Process):
@@ -129,7 +116,7 @@ class ConverterFileWorker(multiprocessing.Process):
         logging.info('INIT queue, wait for jobs')
         while True:
             db_matches = self.q.get()
-            logging.info("{:10} - GOT queue value. qsize={}".format(self.fname, self.q.qsize()))
+            # logging.info("{:10} - GOT queue value. qsize={}".format(self.fname, self.q.qsize()))
             if not db_matches:
                 logging.info('{:10} - CLOSE queue'.format(self.fname))
                 with open(os.path.join(self.path, self.fname), 'w') as matches_rel:
@@ -137,6 +124,7 @@ class ConverterFileWorker(multiprocessing.Process):
                         for cols, rel_id in cols_dict.items():
                             matches_rel.write('{}\t{}\t{}\t0\t{}\n'.format(
                                 rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
+                            matches_rel.flush()
                 break
             try:
                 for m_i, m in enumerate(db_matches):
@@ -167,7 +155,23 @@ def is_valid_sentence(sentence: str):
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
-def process_files(files_path: str, storage_path: str, njobs: int = 1, chunk_size: int = 2000):
+def doc_getter(file_path):
+    if file_path == "-":
+        fh = sys.stdin
+    else:
+        fh = open(file_path)
+    conll_sentences = conllu.parse_incr(fh, fields=conllu.parser.DEFAULT_FIELDS)
+    doc = []
+    for sent in conll_sentences:
+        if "DDC:meta.file_" in sent.metadata:
+            if doc:
+                yield doc
+            doc = []
+        doc.append(sent)
+    yield doc
+
+
+def process_files(file_path: str, storage_path: str, njobs: int = 1, chunk_size: int = 2000):
     """Extract WP related information from given files.
 
     This method processed a given list of files in parallel.
@@ -182,10 +186,14 @@ def process_files(files_path: str, storage_path: str, njobs: int = 1, chunk_size
     match_convert_worker = ConverterFileWorker(storage_path, 'collocations_stage', db_matches_worker.q)
     match_convert_worker.start()
     db_matches_worker.start()
+    docs = doc_getter(file_path)
     with multiprocessing.Pool(njobs) as pool:
-        pool.starmap(process_doc_files, ((doc_paths, db_files_worker.q, db_sents_worker.q, match_convert_worker.q)
-                                         for doc_paths in chunks(glob(files_path, recursive=True), chunk_size)),
-                     chunksize=7)
+        while True:
+            chunk = list(itertools.islice(docs, chunk_size))
+            if len(chunk) == 0:
+                break
+            pool.starmap(process_doc_file,
+                         ((doc, db_files_worker.q, db_sents_worker.q, match_convert_worker.q) for doc in chunk))
     logging.info('INDICES DONE')
     logging.info('STOP first queues and wait...')
     db_files_worker.stop()
@@ -398,10 +406,9 @@ def post_process_db_files(storage_path, min_rel_freq=3):
     compute_mwe_scores(os.path.join(storage_path, 'mwe'), os.path.join(storage_path, 'mwe_match'), mwe_groups)
 
 
-def load_files_into_db(db_engine_key, storage_path):
+def load_files_into_db(engine, storage_path):
     """Load generated data files into their corresponding db tables.
     """
-    engine = create_engine(db_engine_key)
     for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches', 'mwe', 'mwe_match']:
         engine.execute("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
             os.path.join(storage_path, tb_name),
