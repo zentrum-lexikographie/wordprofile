@@ -1,7 +1,6 @@
 from typing import List, Tuple
 
 from conllu.models import Metadata
-
 from wordprofile.datatypes import Match, DBToken
 from wordprofile.wpse.db_tables import DBCorpusFile, DBConcordance, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
@@ -31,6 +30,8 @@ def prepare_corpus_file(meta: Metadata) -> Tuple[str, DBCorpusFile]:
 def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[DBConcordance]:
     """Converts concordances into DB entries.
 
+    Sentence tokens are encoded such that whitespaces (misc=1) are encoded into \x02 and no-whitespaces (misc=0) are
+    encoded into \x01, respectively.
     Args:
         doc_id: document id
         parses: list of valid sentences
@@ -41,9 +42,8 @@ def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[
     return [DBConcordance(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
-        # TODO CHECK misc SpaceAfter
-        sentence=''.join('{}{}'.format(tok.surface, '' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02')
-                         for tok_i, tok in enumerate(parse)),
+        sentence=''.join('{}{}'.format(tok.surface, '' if tok == parse[-1] else '\x01' if tok.misc == 0 else '\x02')
+                         for tok in parse),
         page='-'
     ) for sent_i, parse in enumerate(parses)]
 

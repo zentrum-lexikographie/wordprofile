@@ -9,11 +9,9 @@ from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
 import conllu
-import itertools
 import math
 import sys
 from conllu.models import TokenList
-
 from wordprofile.datatypes import DBToken
 from wordprofile.formatter import RE_HIT_DELIMITER
 from wordprofile.wpse.db_tables import remove_invalid_chars
@@ -57,14 +55,16 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
 
 
 class FileWorker(multiprocessing.Process):
-    def __init__(self, path, fname):
-        self.q = multiprocessing.Manager().Queue(maxsize=100)
+    def __init__(self, path, fname, flush_limit=100):
+        self.q = multiprocessing.Manager().Queue(maxsize=1000)
         self.path = path
         self.fname = fname
+        self.flush_limit = flush_limit
         super().__init__()
 
     def run(self):
         logging.info('INIT queue, wait for jobs')
+        flush_ctr = 0
         with open(os.path.join(self.path, self.fname), 'w') as fh:
             while True:
                 db_batch = self.q.get()
@@ -73,10 +73,10 @@ class FileWorker(multiprocessing.Process):
                     break
                 try:
                     items = ["\t".join(map(str, x)) + "\n" for x in db_batch]
-                    # logging.info(
-                    #     "{:10} - GOT queue value ({}). qsize={}".format(self.fname, len(items), self.q.qsize()))
                     fh.writelines(items)
-                    fh.flush()
+                    flush_ctr += 1
+                    if flush_ctr >= self.flush_limit:
+                        fh.flush()
                 except Exception as e:
                     logging.warning(e)
 
@@ -84,28 +84,58 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-def process_doc_file(sentences: TokenList, db_files_queue: Queue, db_sents_queue: Queue, db_matches_queue: Queue):
+class FileReader(multiprocessing.Process):
+    def __init__(self, path, q_size=100):
+        self.q = multiprocessing.Manager().Queue(maxsize=q_size)
+        if path == "-":
+            self.fh = sys.stdin
+        else:
+            self.fh = open(path)
+        super().__init__()
+
+    def run(self):
+        logging.info(f'INIT queue, reading file')
+        conll_sentences = conllu.parse_incr(self.fh, fields=conllu.parser.DEFAULT_FIELDS)
+        doc = []
+        for sent in conll_sentences:
+            if "DDC:meta.file_" in sent.metadata:
+                if doc:
+                    self.q.put(doc)
+                doc = []
+            doc.append(sent)
+        self.q.put(doc)
+
+    def stop(self, n_procs: int):
+        for _ in range(n_procs):
+            self.q.put(None)
+
+
+def process_doc_file(file_reader_queue: Queue, db_files_queue: Queue, db_sents_queue: Queue, db_matches_queue: Queue):
     """Extracts information from files and forwards to corresponding queue.
     """
-    try:
-        doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
-        parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
-        db_concord_sentences = prepare_concord_sentences(doc_id, parses)
-        matches = extract_matches_from_doc(parses)
-        db_matches = prepare_matches(doc_id, matches)
-        db_files_queue.put([db_corpus_file])
-        db_sents_queue.put(db_concord_sentences)
-        db_matches_queue.put(db_matches)
-    except Exception as e:
-        logging.warning(e)
-        print(sentences)
+    while True:
+        sentences: TokenList = file_reader_queue.get()
+        if not sentences:
+            break
+        try:
+            doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
+            parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
+            db_concord_sentences = prepare_concord_sentences(doc_id, parses)
+            matches = extract_matches_from_doc(parses)
+            db_matches = prepare_matches(doc_id, matches)
+            db_files_queue.put([db_corpus_file])
+            db_sents_queue.put(db_concord_sentences)
+            db_matches_queue.put(db_matches)
+        except Exception as e:
+            logging.warning(e)
+            print(sentences)
 
 
 class ConverterFileWorker(multiprocessing.Process):
     def __init__(self, path, fname, q_match_out):
         self.path = path
         self.fname = fname
-        self.q = multiprocessing.Manager().Queue(maxsize=100)
+        self.q = multiprocessing.Manager().Queue(maxsize=1000)
         self.q_match_out = q_match_out
         super().__init__()
 
@@ -113,18 +143,16 @@ class ConverterFileWorker(multiprocessing.Process):
         relation_dict = defaultdict(dict)
         freq_dict = defaultdict(int)
         next_rel_id = 1
-        logging.info('INIT queue, wait for jobs')
         while True:
             db_matches = self.q.get()
-            # logging.info("{:10} - GOT queue value. qsize={}".format(self.fname, self.q.qsize()))
             if not db_matches:
                 logging.info('{:10} - CLOSE queue'.format(self.fname))
-                with open(os.path.join(self.path, self.fname), 'w') as matches_rel:
+                with open(os.path.join(self.path, self.fname), 'w') as fh:
                     for rel, cols_dict in relation_dict.items():
                         for cols, rel_id in cols_dict.items():
-                            matches_rel.write('{}\t{}\t{}\t0\t{}\n'.format(
+                            fh.write('{}\t{}\t{}\t0\t{}\n'.format(
                                 rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
-                            matches_rel.flush()
+                    fh.flush()
                 break
             try:
                 for m_i, m in enumerate(db_matches):
@@ -155,22 +183,6 @@ def is_valid_sentence(sentence: str):
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
-def doc_getter(file_path):
-    if file_path == "-":
-        fh = sys.stdin
-    else:
-        fh = open(file_path)
-    conll_sentences = conllu.parse_incr(fh, fields=conllu.parser.DEFAULT_FIELDS)
-    doc = []
-    for sent in conll_sentences:
-        if "DDC:meta.file_" in sent.metadata:
-            if doc:
-                yield doc
-            doc = []
-        doc.append(sent)
-    yield doc
-
-
 def process_files(file_path: str, storage_path: str, njobs: int = 1, chunk_size: int = 2000):
     """Extract WP related information from given files.
 
@@ -178,6 +190,8 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1, chunk_size:
     Workers are created for each result (corpus_files, concordances, matches, collocations) in relation to db tables.
     The file list is split into several chunks for parallel processing. The extracted results are sent to the workers.
     """
+    file_reader = FileReader(file_path, q_size=2 * njobs)
+    file_reader.start()
     db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
     db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
     db_matches_worker = FileWorker(storage_path, 'matches_stage')
@@ -186,14 +200,18 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1, chunk_size:
     match_convert_worker = ConverterFileWorker(storage_path, 'collocations_stage', db_matches_worker.q)
     match_convert_worker.start()
     db_matches_worker.start()
-    docs = doc_getter(file_path)
-    with multiprocessing.Pool(njobs) as pool:
-        while True:
-            chunk = list(itertools.islice(docs, chunk_size))
-            if len(chunk) == 0:
-                break
-            pool.starmap(process_doc_file,
-                         ((doc, db_files_worker.q, db_sents_worker.q, match_convert_worker.q) for doc in chunk))
+    pool = []
+    for i in range(njobs):
+        p = multiprocessing.Process(target=process_doc_file,
+                                    args=(file_reader.q, db_files_worker.q, db_sents_worker.q, match_convert_worker.q))
+        p.start()
+        pool.append(p)
+    logging.info('WAIT for file reader')
+    file_reader.join()
+    file_reader.stop(njobs)
+    logging.info('STOP file reader queue...')
+    for p in pool:
+        p.join()
     logging.info('INDICES DONE')
     logging.info('STOP first queues and wait...')
     db_files_worker.stop()

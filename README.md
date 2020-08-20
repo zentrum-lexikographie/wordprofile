@@ -15,32 +15,37 @@ Ausgeführte Aufgaben:
 - Finden von MWE aus extrahierten Matches
 
 ```
-usage: make_wp.py [-h] [--user USER] [--maria-db MARIA_DB]
-                  [--mongo-db MONGO_DB] [--mongo-index MONGO_INDEX]
-                  [--create-index] [--passwd] [--init] [--no-processing]
-                  [--collocations] [--stats] [--tmp TMP]
-                  [--chunk-size CHUNK_SIZE]
+usage: make_wp.py [-h] [--user USER] [--maria-db MARIA_DB] [--input INPUT]
+                  [--create-wp] [--passwd] [--tmp TMP]
+                  [--chunk-size CHUNK_SIZE] [--njobs NJOBS]
 
 optional arguments:
   -h, --help            show this help message and exit
   --user USER           database username
   --maria-db MARIA_DB   database name
-  --mongo-db MONGO_DB   database name
-  --mongo-index MONGO_INDEX
-                        database index
-  --create-index        create indices
+  --input INPUT         conll input file
+  --create-wp           create wordprofile from tmp data
   --passwd              ask for database password
-  --init                ask for database init
-  --no-processing       ask for database init
-  --collocations        ask for wordprofile creation
-  --stats               ask for wordprofile creation
   --tmp TMP             temporary storage path
   --chunk-size CHUNK_SIZE
                         size of document chunks per process per corpus
+  --njobs NJOBS         size of document chunks per process per corpus
 ```
 Beispielaufruf:
+
+Read from stdin, create wordprofile tables, and store them under tmp dir:
 ```shell script
-python3 cli/make_wp.py --user wpuser --maria-db wp_test --mongo-db zdl_trans_large --init --mongo-index bild,blogs,bz,dradio,dwds_kerncorpus,faz,pnn,spiegel_online,standard,sz,tagesspiegel,welt,zeit --create-index --collocations --stats --tmp /mnt/SSD/data/wp_test
+$ cat some.conll | python3 cli/make_wp.py --tmp /mnt/SSD/data/wp_dev
+```
+
+Create wordprofile from some file and load everything from temp dir into database:
+```shell script
+$ python3 cli/make_wp.py --input test.conll --tmp /mnt/SSD/data/wp_dev --njobs 4 --chunk-size 100 --create-wp --user wpuser --maria-db wp_dev 
+```
+
+Disable input and create wordprofile from temp files:
+```shell script
+$ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --user wpuser --maria-db wp_dev
 ```
 
 ## Service
