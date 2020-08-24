@@ -2,16 +2,17 @@
 
 import hashlib
 import logging
+import math
 import multiprocessing
 import os
+import sys
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
 import conllu
-import math
-import sys
 from conllu.models import TokenList
+
 from wordprofile.datatypes import DBToken
 from wordprofile.formatter import RE_HIT_DELIMITER
 from wordprofile.wpse.db_tables import remove_invalid_chars
@@ -183,7 +184,7 @@ def is_valid_sentence(sentence: str):
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
-def process_files(file_path: str, storage_path: str, njobs: int = 1, chunk_size: int = 2000):
+def process_files(file_path: str, storage_path: str, njobs: int = 1):
     """Extract WP related information from given files.
 
     This method processed a given list of files in parallel.
