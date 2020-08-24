@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import getpass
 import logging
+import os
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
@@ -313,7 +313,6 @@ def main():
     parser.add_argument("--database", type=str, help="database name", required=True)
     parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
     parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
-    parser.add_argument("--passwd", action="store_true", help="ask for database password")
     parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
     parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
     parser.add_argument('--log', dest='logfile', type=str,
@@ -333,12 +332,11 @@ def main():
     logger.addHandler(ch)
     logger.addHandler(fh)
 
-    logger.info('user: ' + args.user)
-    logger.info('db: ' + args.database)
-    if args.passwd:
-        db_password = getpass.getpass("db password: ")
-    else:
-        db_password = args.user
+    wp_user = args.user or os.environ['WP_USER']
+    wp_db = args.database or os.environ['WP_DB']
+    db_password = os.environ.get('WP_PASSWORD', wp_user)
+    logger.info('user: ' + wp_user)
+    logger.info('db: ' + wp_db)
 
     # Create server
     server = xmlrpc.server.SimpleXMLRPCServer((args.hostname, int(args.port)),
@@ -347,7 +345,7 @@ def main():
     server.register_introspection_functions()
     # register wortprofil
     server.register_instance(
-        WordprofileXMLRPC(args.db_hostname, args.user, db_password, args.database, args.port, args.spec))
+        WordprofileXMLRPC(args.db_hostname, wp_user, db_password, wp_db, args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 

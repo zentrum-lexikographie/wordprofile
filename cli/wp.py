@@ -5,18 +5,19 @@
 #  * hits/matches, and
 #  * word profile comparison
 
-import getpass
 import logging
+import os
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from apps.xmlrpc_api import WordprofileXMLRPC
 from utils.cmp import compare_lemmas
 from utils.hit import get_hits
 from utils.info import get_wordprofile_info
 from utils.mwe_hit import get_mwe_hits
 from utils.mwe_rel import get_mwe_free
 from utils.rel import get_relation
+
+from apps.xmlrpc_api import WordprofileXMLRPC
 
 parser = ArgumentParser()
 
@@ -25,7 +26,6 @@ db_parser = parser.add_argument_group("server arguments")
 db_parser.add_argument("--user", type=str, help="database username")
 db_parser.add_argument("--database", type=str, help="database name")
 db_parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
-db_parser.add_argument("--passwd", action="store_true", help="ask for database password")
 db_parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
 db_parser.add_argument('--spec', type=str, help="Angabe der Settings-Datei (*.xml)")
 db_parser.add_argument('--xmlrpc', action="store_true", help="Angabe der Settings-Datei (*.xml)")
@@ -132,13 +132,12 @@ logger.addHandler(ch)
 if args.xmlrpc:
     wp: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
-    print('user: ' + args.user)
-    print('db: ' + args.database)
-    if args.passwd:
-        db_password = getpass.getpass("db password: ")
-    else:
-        db_password = args.user
-    wp = WordprofileXMLRPC(args.hostname, args.user, db_password, args.database, args.port, args.spec)
+    wp_user = args.user or os.environ['WP_USER']
+    wp_db = args.database or os.environ['WP_DB']
+    db_password = os.environ.get('WP_PASSWORD', wp_user)
+    logger.info('user: ' + wp_user)
+    logger.info('db: ' + wp_db)
+    wp = WordprofileXMLRPC(args.hostname, wp_user, db_password, wp_db, args.port, args.spec)
 
 if args.subcommand == "status":
     response = wp.status()
