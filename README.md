@@ -49,12 +49,6 @@ $ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --
 Ein fertig erstelltes Wortprofil kann als Service (XMLRPC oder REST) bereitgestellt werden.
 Über diesen Service werden alle Funktionen zur Wortprofil Datenbank abgewickelt.
 
-Sowohl für XMLRPC als auch REST können Umgebungsvariablen festgelegt werden, welche entsprchende Kommandozeilenparamter ersetzen:
-- user: `WP_USER`
-- database: `WP_DB`
-- password: `WP_PASSWORD` oder der Username (*wp_user*) falls unbelegt.
-
-
 ### XMLRPC
 ```
 usage: xmlrpc_api.py [-h] --user USER --database DATABASE
@@ -68,11 +62,15 @@ optional arguments:
   --hostname HOSTNAME   XML-RPC hostname
   --db-hostname DB_HOSTNAME
                         XML-RPC hostname
-  --passwd              ask for database password
   --port PORT           XML-RPC port
   --spec SPEC           Angabe der Settings-Datei (*.xml)
   --log LOGFILE         Angabe der log-Datei (Default: log/wp_{date}.log)
 ```
+Sowohl für XMLRPC als auch REST können Umgebungsvariablen festgelegt werden, welche entsprchende Kommandozeilenparamter ersetzen:
+- user: `WP_USER`
+- database: `WP_DB`
+- password: `WP_PASSWORD` oder der Username (*wp_user*) falls unbelegt.
+
 Starten des XMLRPC Service:
 ```shell script
 python3 apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json
