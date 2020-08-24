@@ -21,7 +21,7 @@ def main():
     parser.add_argument("--input", default="-", type=str, help="conll input file")
     parser.add_argument("--create-wp", action="store_true", help="create wordprofile from tmp data")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
-    parser.add_argument("--njobs", type=int, default=1, help="size of document chunks per process per corpus")
+    parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
     args = parser.parse_args()
 
     if args.input:

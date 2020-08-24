@@ -15,37 +15,33 @@ Ausgeführte Aufgaben:
 - Finden von MWE aus extrahierten Matches
 
 ```
-usage: make_wp.py [-h] [--user USER] [--maria-db MARIA_DB] [--input INPUT]
-                  [--create-wp] [--passwd] [--tmp TMP]
-                  [--chunk-size CHUNK_SIZE] [--njobs NJOBS]
+usage: make_wp.py [-h] [--user USER] [--db DB] [--input INPUT] [--create-wp]
+                  [--tmp TMP] [--njobs NJOBS]
 
 optional arguments:
-  -h, --help            show this help message and exit
-  --user USER           database username
-  --maria-db MARIA_DB   database name
-  --input INPUT         conll input file
-  --create-wp           create wordprofile from tmp data
-  --passwd              ask for database password
-  --tmp TMP             temporary storage path
-  --chunk-size CHUNK_SIZE
-                        size of document chunks per process per corpus
-  --njobs NJOBS         size of document chunks per process per corpus
+  -h, --help     show this help message and exit
+  --user USER    database username
+  --db DB        database name
+  --input INPUT  conll input file
+  --create-wp    create wordprofile from tmp data
+  --tmp TMP      temporary storage path
+  --njobs NJOBS  number of process jobs
 ```
 Beispielaufruf:
 
-Read from stdin, create wordprofile tables, and store them under tmp dir:
+Einlesen von `stdin`, erstellen der Wortprofil Tabellen und speichern unter dem `tmp` Pfad:
 ```shell script
 $ cat some.conll | python3 cli/make_wp.py --tmp /mnt/SSD/data/wp_dev
 ```
 
-Create wordprofile from some file and load everything from temp dir into database:
+Erstellt ein Wortprofil aus einer gegebenen *conll* Datei und lädt die in `tmp` erstellten Tabellen in die Datenbank:
 ```shell script
-$ python3 cli/make_wp.py --input test.conll --tmp /mnt/SSD/data/wp_dev --njobs 4 --chunk-size 100 --create-wp --user wpuser --maria-db wp_dev 
+$ python3 cli/make_wp.py --input test.conll --tmp /mnt/SSD/data/wp_dev --njobs 4 --create-wp --user wpuser --db wp_dev 
 ```
 
-Disable input and create wordprofile from temp files:
+Deaktiviert die Eingabe und lädt zuvor erstelle Tabellendateien in die Datenbank:
 ```shell script
-$ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --user wpuser --maria-db wp_dev
+$ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --user wpuser --db wp_dev
 ```
 
 ## Service
