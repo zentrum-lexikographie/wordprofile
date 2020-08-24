@@ -3,88 +3,54 @@ from typing import List, Dict
 
 from wordprofile.datatypes import DBToken, Match
 
-SIMPLE_TAG_MAP = {
-    'APP': 'APP',
-    'ADJ': 'ADJ',
-    'VV': 'VV',
-    'VA': 'VV',
-    'VM': 'VV',
-    'NN': 'NN',
-    'APPR': 'APP',
-    'APPO': 'APP',
-    'APPRART': 'APP',
-    'ADJA': 'ADJ',
-    'ADJD': 'ADV',
-    'ADV': 'ADV',
-    'PAV': 'ADV',
-    # 'ADJC': 'ADJ',
-    'KOKOM': 'KOKOM',
-    'KON': 'KON',
-    # 'PPER': 'PP',
-    'PTKVZ': 'VV',
-    'VVFIN': 'VV',
-    'VVINF': 'VV',
-    'VVIZU': 'VV',
-    'VVPP': 'VV',
-    'VVPP1': 'VV',
-    'VVPP2': 'VV',
-    'VVIMP': 'VV',
-    'VAFIN': 'VV',
-    'VAIMP': 'VV',
-    'VAINF': 'VV',
-    'VAPP': 'VV',
-    'VMFIN': 'VV',
-    'VMINF': 'VV',
-    'VMPP': 'VV',
-}
-
 # rel_map : (rel, head_pos, dep_pos)
+#           (rel1, rel2, head_pos, mid_pos, dep_pos)
 RELATIONS = {
     "KON": [
-        ("CJ", "NN", "NN"),
+        ("CJ", "NOUN", "NOUN"),
         ("CJ", "ADJ", "ADJ"),
-        ("CJ", "VV", "VV"),
-        ("KON", "CJ", "NN", "NN", "KON"),
-        ("KON", "CJ", "ADJ", "ADJ", "KON"),
-        ("KON", "CJ", "VV", "VV", "KON"),
+        ("CJ", "VERB", "VERB"),
+        ("KON", "CJ", "NOUN", "NOUN", "CCONJ"),
+        ("KON", "CJ", "ADJ", "ADJ", "CCONJ"),
+        ("KON", "CJ", "VERB", "VERB", "CCONJ"),
     ],
     "GMOD": [
-        ("GMOD", "NN", "NN"),
+        ("GMOD", "NOUN", "NOUN"),
     ],
     "OBJ": [
-        ("OBJA", "VV", "NN"),
-        ("OBJA2", "VV", "NN"),
-        ("OBJD", "VV", "NN"),
+        ("OBJA", "VERB", "NOUN"),
+        ("OBJA2", "VERB", "NOUN"),
+        ("OBJD", "VERB", "NOUN"),
     ],
     "PRED": [
-        ("PRED", "NN", "NN"),
-        ("PRED", "NN", "ADJ"),
-        ("PRED", "VV", "ADJ"),
-        ("PRED", "VV", "NN"),
-        ("SUBJ", "NN", "NN"),
-        ("SUBJ", "NN", "ADJ"),
-        ("SUBJ", "VV", "NN"),
-        ("SUBJ", "VV", "ADJ"),
+        ("PRED", "NOUN", "NOUN"),
+        ("PRED", "NOUN", "ADJ"),
+        ("PRED", "VERB", "ADJ"),
+        ("PRED", "VERB", "NOUN"),
+        ("SUBJ", "NOUN", "NOUN"),
+        ("SUBJ", "NOUN", "ADJ"),
+        ("SUBJ", "VERB", "NOUN"),
+        ("SUBJ", "VERB", "ADJ"),
     ],
     "ADV": [
-        ("ADV", "VV", "ADJ"),
-        ("ADV", "VV", "ADV"),
+        ("ADV", "VERB", "ADJ"),
+        ("ADV", "VERB", "ADV"),
         ("ADV", "ADJ", "ADJ"),
         ("ADV", "ADJ", "ADV"),
     ],
     "ATTR": [
-        ("ATTR", "NN", "ADJ"),
+        ("ATTR", "NOUN", "ADJ"),
     ],
     "VZ": [
-        ("AVZ", "VV", "VV"),
+        ("AVZ", "VERB", "VERB"),
     ],
     "KOM": [
-        ("KOM", "CJ", "NN", "NN", "KOKOM"),
-        ("KOM", "CJ", "VV", "NN", "KOKOM"),
+        ("KOM", "CJ", "NOUN", "NOUN", "CCONJ"),
+        ("KOM", "CJ", "VERB", "NOUN", "CCONJ"),
     ],
     "PP": [
-        ("PP", "PN", "NN", "NN", "APP"),
-        ("PP", "PN", "VV", "NN", "APP"),
+        ("PP", "PN", "NOUN", "NOUN", "ADP"),
+        ("PP", "PN", "VERB", "NOUN", "ADP"),
     ],
 }
 
@@ -178,8 +144,8 @@ def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
     word_classes_repair = {}
     files = [
         ('ADJ', 'spec/lemma_repair_adjektiv.csv'),
-        ('NN', 'spec/lemma_repair_substantiv.csv'),
-        ('VV', 'spec/lemma_repair_verb.csv'),
+        ('NOUN', 'spec/lemma_repair_substantiv.csv'),
+        ('VERB', 'spec/lemma_repair_verb.csv'),
     ]
     for word_class, path in files:
         word_class_repair = {}
@@ -210,12 +176,16 @@ def sent_filter_endings(sentence: List[DBToken]) -> bool:
 
 
 def sent_filter_lower_start(sentence: List[DBToken]) -> bool:
-    return not sentence[0].surface.islower() or sentence[0].tag == 'PPER'
+    return not sentence[0].surface.islower() or sentence[0].tag == 'PRON'
 
 
 def sent_filter_tags(sentence: List[DBToken]) -> bool:
-    return any(t.tag in ["NN", "VV", "VM", "VA"] for t in sentence)
+    return any(t.tag in ["NOUN", "VERB", "AUX"] for t in sentence)
+
+
+def sent_filter_invalid_tags(sentence: List[DBToken]) -> bool:
+    return sum(1 for t in sentence if not t.tag) < 10
 
 
 def sentence_is_valid(s: List[DBToken]) -> bool:
-    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s)
+    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s) and sent_filter_invalid_tags(s)

@@ -1,35 +1,37 @@
-import datetime
 from typing import List, Tuple
 
-from wordprofile.datatypes import Match, DBToken, TabsDocument
+from conllu.models import Metadata
+from wordprofile.datatypes import Match, DBToken
 from wordprofile.wpse.db_tables import DBCorpusFile, DBConcordance, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
 
-def prepare_corpus_file(doc: TabsDocument) -> Tuple[str, DBCorpusFile]:
+def prepare_corpus_file(meta: Metadata) -> Tuple[str, DBCorpusFile]:
     """Converts a document into a DB entry.
 
     Args:
-        doc: Meta information about document.
+        meta: Meta information about document.
 
     Returns:
         A documents id (for later usage) and meta information in DB format.
     """
-    doc_id = doc.meta['file_']
+    doc_id = str(meta.get('DDC:meta.file_'))
     return doc_id, DBCorpusFile(
         id=doc_id,
-        corpus=doc.meta['collection'],
-        file=doc.meta['basename'],
-        orig=doc.meta['bibl'],
-        scan=doc.meta['biblLex'],
-        date=doc.meta['date_'],
-        text_class=doc.meta['textClass'],
-        available=doc.meta['collection'],
+        corpus=meta.get('DDC:meta.collection'),
+        file=meta.get('DDC:meta.basename'),
+        orig=meta.get('DDC:meta.bibl'),
+        scan=meta.get('DDC:meta.biblLex'),
+        date=meta.get('DDC:meta.date_'),
+        text_class=meta.get('DDC:meta.textClass'),
+        available=meta.get('DDC:meta.collection'),
     )
 
 
 def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[DBConcordance]:
     """Converts concordances into DB entries.
 
+    Sentence tokens are encoded such that whitespaces (misc=1) are encoded into \x02 and no-whitespaces (misc=0) are
+    encoded into \x01, respectively.
     Args:
         doc_id: document id
         parses: list of valid sentences
@@ -40,8 +42,8 @@ def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[
     return [DBConcordance(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
-        sentence=''.join('{}{}'.format('' if tok_i == 0 else '\x01' if tok.misc == 0 else '\x02', tok.surface)
-                         for tok_i, tok in enumerate(parse)),
+        sentence=''.join('{}{}'.format(tok.surface, '' if tok == parse[-1] else '\x01' if tok.misc == 0 else '\x02')
+                         for tok in parse),
         page='-'
     ) for sent_i, parse in enumerate(parses)]
 
@@ -83,7 +85,6 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=m.prep.idx,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
             db_matches.append(DBMatch(
                 relation_label=m.relation,
@@ -98,7 +99,6 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=m.prep.idx,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
         else:
             db_matches.append(DBMatch(
@@ -114,6 +114,5 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                 prep_position=0,
                 corpus_file_id=doc_id,
                 sentence_id=m.sid,
-                creation_date=datetime.datetime.now()
             ))
     return db_matches

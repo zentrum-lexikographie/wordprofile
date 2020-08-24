@@ -7,29 +7,42 @@ Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
 Im Ordner `log` werden Server-Logfiles hinterlegt.
 
 ## Erstellen eines Wortprofils
+Ausgeführte Aufgaben:
+- Initialisieren der Datenbank
+- Extraktion der Relationen
+- Befüllen der DB Tabellen mit extrahierten Matches
+- Berechnung der Statistiken
+- Finden von MWE aus extrahierten Matches
 
-### Initialisierung der MySQL Tabellen
+```
+usage: make_wp.py [-h] [--user USER] [--db DB] [--input INPUT] [--create-wp]
+                  [--tmp TMP] [--njobs NJOBS]
 
-`python3 init_database.py --user USER --database DB --init`
+optional arguments:
+  -h, --help     show this help message and exit
+  --user USER    database username
+  --db DB        database name
+  --input INPUT  conll input file
+  --create-wp    create wordprofile from tmp data
+  --tmp TMP      temporary storage path
+  --njobs NJOBS  number of process jobs
+```
+Beispielaufruf:
 
-### Befüllen der DB Tabellen mit extrahierten Matches
-Bei der Extraktion der Matches werden pro Dokument Einträge für drei Tabellen generiert, gesammelt und gebündelt in die Datenbank überführt:
-(files, concordances, matches)
+Einlesen von `stdin`, erstellen der Wortprofil Tabellen und speichern unter dem `tmp` Pfad:
+```shell script
+$ cat some.conll | python3 cli/make_wp.py --tmp /mnt/SSD/data/wp_dev
+```
 
-`python3 insert_doc_mongodb.py --user USER --maria-db DB --mongo-db MONGO_DB --mongo-index MONGO_INDEX [--create-index]`
+Erstellt ein Wortprofil aus einer gegebenen *conll* Datei und lädt die in `tmp` erstellten Tabellen in die Datenbank:
+```shell script
+$ python3 cli/make_wp.py --input test.conll --tmp /mnt/SSD/data/wp_dev --njobs 4 --create-wp --user wpuser --db wp_dev 
+```
 
-Oder nur das Erstellen der Indices auf den Tabellen
-
-`python3 insert_doc_mongodb.py --user wpuser --maria-db wp_test --mongo-db zdl_trans_large --create-index`
-
-### Erstellen der WP Statistik
-Übertragen der Kollokationen aus den extrahierten Matches
-
-`python3 init_database.py --user wpuser --database wp_test --collocations`
-
-Erstellen der WP Statistik aus den Kollokationen
-
-`python3 init_database.py --user wpuser --database wp_test  --stats`
+Deaktiviert die Eingabe und lädt zuvor erstelle Tabellendateien in die Datenbank:
+```shell script
+$ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --user wpuser --db wp_dev
+```
 
 ## Service
 
@@ -37,8 +50,31 @@ Ein fertig erstelltes Wortprofil kann als Service (XMLRPC oder REST) bereitgeste
 Über diesen Service werden alle Funktionen zur Wortprofil Datenbank abgewickelt.
 
 ### XMLRPC
+```
+usage: xmlrpc_api.py [-h] --user USER --database DATABASE
+                     [--hostname HOSTNAME] [--db-hostname DB_HOSTNAME]
+                     [--passwd] [--port PORT] --spec SPEC [--log LOGFILE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --user USER           database username
+  --database DATABASE   database name
+  --hostname HOSTNAME   XML-RPC hostname
+  --db-hostname DB_HOSTNAME
+                        XML-RPC hostname
+  --port PORT           XML-RPC port
+  --spec SPEC           Angabe der Settings-Datei (*.xml)
+  --log LOGFILE         Angabe der log-Datei (Default: log/wp_{date}.log)
+```
+Sowohl für XMLRPC als auch REST können Umgebungsvariablen festgelegt werden, welche entsprchende Kommandozeilenparamter ersetzen:
+- user: `WP_USER`
+- database: `WP_DB`
+- password: `WP_PASSWORD` oder der Username (*wp_user*) falls unbelegt.
+
 Starten des XMLRPC Service:
-`python3 wordprofile/apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
+```shell script
+python3 apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json
+```
 
 Über die XMLRPC Schnittstelle werden folgende Funktionen (mit den jeweils obligatorischen Argumenten) bereitgestellt:
 - get_lemma_and_pos({Word: str, POS: str, UseVariations: bool})
@@ -50,7 +86,10 @@ Starten des XMLRPC Service:
 - get_concordances_and_relation({coocc_id: int})
 
 ### REST API
-`python3 wordprofile/apps/rest_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json`
+
+```shell script
+python3 apps/rest_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json
+```
 
 Über die REST Schnittstellen sollen die gleichen Funktionen über eine URL zur verfügung stehen und so leichter zuganglich gemacht werden.
 - `/info/lemma/`: get_lemma_and_pos
@@ -63,19 +102,40 @@ Starten des XMLRPC Service:
 
 Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
 
-### CLI
+## CLI
+Zusätzlich für Tests oder ähliches bietet `cli/wp.py` die Möglichkeit, ohne laufenden WP Service die Funktionalität zu testen.
+Hierfür wird ein temporäres WP erstellt.
 
+### Einfache Abfrage
 Abfrage einfacher Kookkurrenzen zu verschiedenen syntaktischen Relationen:
-```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
+```shell script
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
 ```
 
 Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
-```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
+```shell script
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
 ```
 
 Vergleich der Wortprofile zweier Lemmata:
+```shell script
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
 ```
-python3 wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
+
+### MWE Abfrage
+
+```shell script
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json mwe-rel -l laufen,schnell
+```
+
+Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
+```shell script
+python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json mwe-hit -i 1948509
+```
+
+### WP Vergleich
+
+Vergleich von zwei parallel laufenden WP Instanzen (host1, host2):
+```shell script
+python3 cli/cmp_wp.py --host2 riker:8086 --host1 services3.dwds.de:7780 -r META -n 10
 ```

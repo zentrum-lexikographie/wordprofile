@@ -58,7 +58,6 @@ class WPConnect:
         Return:
             List of Concordance.
         """
-        # TODO: replace creation_date with true corpus file date (after updating db)
         coocc_info = self.get_relation_by_id(coocc_id)
         if coocc_info.inv:
             head_lemma, head_tag = coocc_info.lemma2, coocc_info.pos2
@@ -71,7 +70,7 @@ class WPConnect:
             query = """
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
-                matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
             FROM
                 matches
@@ -80,10 +79,10 @@ class WPConnect:
             INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = matches.sentence_id)
-            INNER JOIN concord_sentences as s_left ON
+            LEFT JOIN concord_sentences as s_left ON
                 (s_left.corpus_file_id = cf.id
                 and s_left.sentence_id =(matches.sentence_id-1))
-            INNER JOIN concord_sentences as s_right ON
+            LEFT JOIN concord_sentences as s_right ON
                 (s_right.corpus_file_id = cf.id
                 and s_right.sentence_id =(matches.sentence_id + 1))
             WHERE (
@@ -100,7 +99,7 @@ class WPConnect:
             query = """
             SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus, 
-                matches.creation_date, cf.text_class, cf.orig, cf.scan, cf.available, 
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
                 s_center.page, cf.file, 1, '', ''
             FROM
                 matches
@@ -132,9 +131,6 @@ class WPConnect:
         Return:
             List of LemmaInfo that fits criteria.
         """
-        if not all(c.isalpha() or c == '-' for c in lemma):
-            return []
-
         query = """
             SELECT lemma1, lemma1_tag, label, SUM(frequency), inv
             FROM collocations c
@@ -161,7 +157,8 @@ class WPConnect:
 
         query = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv, 
+            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         WHERE c.id = {}
@@ -194,14 +191,14 @@ class WPConnect:
         else:
             inv = 0
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
         FROM 
             collocations c
-        LEFT JOIN log_dice ld on c.id = ld.collocation_id
         """
         if not lemma2_tag or not lemma2:
             where_sql = """
@@ -241,14 +238,14 @@ class WPConnect:
             List of Coocc.
         """
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
         FROM 
             collocations c
-        LEFT JOIN log_dice ld on c.id = ld.collocation_id
         """
         if not lemma2_tag or not lemma2:
             where_sql = """
@@ -260,7 +257,7 @@ class WPConnect:
             where_sql = """
                 WHERE 
                     (lemma1='{}' and lemma1_tag='{}' and 
-                     lemma2='{}' and lemma2_tag='{}') and 
+                     lemma2='{}' and lemma2_tag='{}') 
                      {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
                 lemma1, lemma1_tag, lemma2, lemma2_tag, min_freq_sql, min_stat_sql, order_by, start, number
@@ -290,13 +287,13 @@ class WPConnect:
         else:
             inv = 0
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
         SELECT 
             c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
-        LEFT JOIN log_dice ld on c.id = ld.collocation_id
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
         {} {}
         ORDER BY {} DESC""".format(
@@ -326,13 +323,13 @@ class WPConnect:
             List of Coocc.
         """
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
-        min_stat_sql = " and (ld.value) >= {} ".format(min_stat) if min_stat > -1000 else ""
+        min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
         SELECT 
             c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(ld.value, 0.0) as log_dice, inv
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
-        LEFT JOIN log_dice ld on c.id = ld.collocation_id
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}'
         {} {}
         ORDER BY {} DESC""".format(

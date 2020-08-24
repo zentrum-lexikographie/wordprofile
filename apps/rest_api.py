@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import getpass
 import logging
+import os
 import time
 from argparse import ArgumentParser
 from typing import List
@@ -16,7 +16,6 @@ parser.add_argument("--user", type=str, help="database username", required=True)
 parser.add_argument("--database", type=str, help="database name", required=True)
 parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
 parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
-parser.add_argument("--passwd", action="store_true", help="ask for database password")
 parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
 parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
 parser.add_argument('--log', dest='logfile', type=str,
@@ -39,14 +38,13 @@ fh.setFormatter(formatter)
 logger.addHandler(ch)
 logger.addHandler(fh)
 
-logger.info('user: ' + args.user)
-logger.info('db: ' + args.database)
-if args.passwd:
-    db_password = getpass.getpass("db password: ")
-else:
-    db_password = args.user
+wp_user = args.user or os.environ['WP_USER']
+wp_db = args.database or os.environ['WP_DB']
+db_password = os.environ.get('WP_PASSWORD', wp_user)
+logger.info('user: ' + wp_user)
+logger.info('db: ' + wp_db)
 
-wp = Wordprofile(args.db_hostname, args.user, db_password, args.database, args.spec)
+wp = Wordprofile(args.db_hostname, wp_user, db_password, wp_db, args.spec)
 app = FastAPI()
 
 

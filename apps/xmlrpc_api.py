@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
-import getpass
 import logging
+import os
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
@@ -93,6 +93,67 @@ class WordprofileXMLRPC:
         min_stat = params.get("MinStat", -100000000)
         return self.wp.get_relations(lemma, pos, lemma2, pos2, relations, start, number, order_by, min_freq, min_stat)
 
+    def get_mwe_relations(self, params: dict):
+        """Fetches mwe entries for a given hit id.
+
+        Args:
+            params:
+                <ConcordId>: Hit id.
+                <Start> (optional): Number of collocations to skip.
+                <Number> (optional): Number of collocations to take.
+                <OrderBy> (optional): Metric for ordering, frequency or log_dice.
+                <MinFreq> (optional): Filter collocations with minimal frequency.
+                <MinStat> (optional): Filter collocations with minimal stats score.
+
+        Return:
+            Dictionary of mwe relations for specific collocation parts.
+                <parts>: List of Lemma-POS pairs
+                <data>: Relations specifically for parts of the input.
+        """
+        logger.info(str(params))
+        coocc_id = abs(int(str(params["ConcordId"]).strip("#")))
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+        min_freq = params.get("MinFreq", 0)
+        min_stat = params.get("MinStat", -100000000)
+        return self.wp.get_mwe_relations([coocc_id], start, number, order_by, min_freq, min_stat)
+
+    @staticmethod
+    def get_lemma_and_pos_by_list(params: dict):
+        """For compatibility to old WP. Just pipes input to output."""
+        logger.info(str(params))
+        return params["Parts"]
+
+    def get_mwe_relations_by_list(self, params: dict):
+        """Fetches mwe entries for a given list of lemmas.
+
+        Args:
+            params:
+                <Parts> (optional): List of lemmas.
+                <Start> (optional): Number of collocations to skip.
+                <Number> (optional): Number of collocations to take.
+                <OrderBy> (optional): Metric for ordering, frequency or log_dice.
+                <MinFreq> (optional): Filter collocations with minimal frequency.
+                <MinStat> (optional): Filter collocations with minimal stats score.
+
+        Return:
+            Dictionary of mwe relations for specific collocation parts.
+                <parts>: List of Lemma-POS pairs
+                <data>: Relations specifically for parts of the input.
+        """
+        logger.info(str(params))
+        parts = params["Parts"]
+        start = params.get("Start", 0)
+        number = params.get("Number", 20)
+        order_by = params.get("OrderBy", "logDice")
+        order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+        min_freq = params.get("MinFreq", 0)
+        min_stat = params.get("MinStat", -100000000)
+        coocc_ids = self.wp.get_collocation_ids(parts[0], parts[1])
+        return self.wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
+
     def get_diff(self, params: dict):
         """Fetches collocations of common POS from word-profile and computes distances for comparison.
 
@@ -179,11 +240,37 @@ class WordprofileXMLRPC:
             Returns a dictionary with collocation information and their concordances.
         """
         logger.info(str(params))
-        coocc_id = int(str(params.get("InfoId")).strip("#"))
+        info_id = str(params.get("InfoId"))
+        if info_id.startswith("#mwe"):
+            return self.get_mwe_concordances_and_relation(params)
+        coocc_id = int(info_id.strip("#"))
         use_context = bool(params.get("UseContext", False))
         start_index = params.get("Start", 0)
         result_number = params.get("Number", 20)
         return self.wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number)
+
+    def get_mwe_concordances_and_relation(self, params: dict):
+        """Fetches collocation information and concordances for a specified hit id.
+
+        Args:
+            params:
+                <coocc_id>: Collocation id.
+                <use_context> (optional): If true, returns surrounding sentences for matched collocation.
+                <start_index> (optional): Collocation id.
+                <result_number> (optional): Collocation id.
+
+        Returns:
+            Returns a dictionary with collocation information and their concordances.
+        """
+        logger.info(str(params))
+        info_id = str(params.get("InfoId"))
+        if info_id.startswith("#mwe"):
+            info_id = info_id[len("#mwe"):]
+        coocc_id = int(info_id.strip("#"))
+        use_context = bool(params.get("UseContext", False))
+        start_index = params.get("Start", 0)
+        result_number = params.get("Number", 20)
+        return self.wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number, is_mwe=True)
 
 
 class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
@@ -226,7 +313,6 @@ def main():
     parser.add_argument("--database", type=str, help="database name", required=True)
     parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
     parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
-    parser.add_argument("--passwd", action="store_true", help="ask for database password")
     parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
     parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
     parser.add_argument('--log', dest='logfile', type=str,
@@ -246,12 +332,11 @@ def main():
     logger.addHandler(ch)
     logger.addHandler(fh)
 
-    logger.info('user: ' + args.user)
-    logger.info('db: ' + args.database)
-    if args.passwd:
-        db_password = getpass.getpass("db password: ")
-    else:
-        db_password = args.user
+    wp_user = args.user or os.environ['WP_USER']
+    wp_db = args.database or os.environ['WP_DB']
+    db_password = os.environ.get('WP_PASSWORD', wp_user)
+    logger.info('user: ' + wp_user)
+    logger.info('db: ' + wp_db)
 
     # Create server
     server = xmlrpc.server.SimpleXMLRPCServer((args.hostname, int(args.port)),
@@ -260,7 +345,7 @@ def main():
     server.register_introspection_functions()
     # register wortprofil
     server.register_instance(
-        WordprofileXMLRPC(args.db_hostname, args.user, db_password, args.database, args.port, args.spec))
+        WordprofileXMLRPC(args.db_hostname, wp_user, db_password, wp_db, args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 

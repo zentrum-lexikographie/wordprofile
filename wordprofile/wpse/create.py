@@ -18,7 +18,8 @@ def init_word_profile_tables(engine: Engine, database: str):
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)
     wordprofile.wpse.db_tables.get_table_matches(meta)
     wordprofile.wpse.db_tables.get_table_collocations(meta)
-    wordprofile.wpse.db_tables.get_table_statistics(meta)
+    wordprofile.wpse.db_tables.get_table_mwe(meta)
+    wordprofile.wpse.db_tables.get_table_mwe_match(meta)
     meta.create_all(engine)
 
     engine.execute("""
@@ -31,29 +32,43 @@ def init_word_profile_tables(engine: Engine, database: str):
     """)
 
 
-def create_collocations(engine: Engine):
-    logging.info("INSERT collocations")
-    engine.execute("""
-    INSERT INTO collocations (id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, inv, frequency)
-    SELECT -id, label, lemma2, lemma1, lemma2_tag, lemma1_tag, 1 as inv, frequency
-    FROM collocations c
-    """)
-    logging.info("CREATE INDEX")
-    logging.info("CREATE id_index")
-    engine.execute("CREATE INDEX id_index ON collocations (id);")
-    logging.info("CREATE lemma1_index")
-    engine.execute("CREATE INDEX lemma1_index ON collocations (lemma1);")
-    logging.info("CREATE lemma1_tag_index")
-    engine.execute("CREATE INDEX lemma1_tag_index ON collocations (lemma1, lemma1_tag);")
-    logging.info("CREATE lemma2_tag_index")
-    engine.execute("CREATE INDEX lemma2_tag_index ON collocations (lemma2, lemma2_tag);")
-    logging.info("CREATE lemma_index")
-    engine.execute("CREATE INDEX lemma_index ON collocations (lemma1, lemma2);")
+def create_indices(engine: Engine):
+    logging.info("CREATE INDEX indices for files, concordances, and matches")
+    logging.info("CREATE INDEX corpus_index")
+    engine.execute("CREATE UNIQUE INDEX corpus_index ON corpus_files (id);")
+    logging.info("CREATE INDEX concord_corpus_index")
+    engine.execute("CREATE INDEX concord_corpus_index ON concord_sentences (corpus_file_id);")
+    logging.info("CREATE INDEX concord_corpus_sentence_index")
+    engine.execute("CREATE UNIQUE INDEX concord_corpus_sentence_index "
+                   "ON concord_sentences (corpus_file_id, sentence_id);")
+    logging.info("CREATE INDEX matches_index")
+    engine.execute("CREATE UNIQUE INDEX matches_index ON matches (id);")
+    logging.info("CREATE INDEX matches_corpus_index")
+    engine.execute("CREATE INDEX matches_corpus_index ON matches (corpus_file_id);")
+    logging.info("CREATE INDEX matches_corpus_sentence_index")
+    engine.execute("CREATE INDEX matches_corpus_sentence_index ON matches (corpus_file_id, sentence_id);")
+    logging.info("CREATE INDEX matches_relation_label_index")
+    engine.execute("CREATE INDEX matches_relation_label_index ON matches (collocation_id);")
+    logging.info("CREATE INDEX mwe_index")
+    engine.execute("CREATE INDEX mwe_index ON mwe (id);")
+    logging.info("CREATE INDEX mwe_collocation1_index")
+    engine.execute("CREATE INDEX mwe_collocation1_index ON mwe (collocation1_id);")
+    logging.info("CREATE INDEX mwe_match_index")
+    engine.execute("CREATE INDEX mwe_match_index ON mwe_match (mwe_id);")
+    logging.info("CREATE colloc_id")
+    engine.execute("CREATE INDEX colloc_id ON collocations (id);")
+    logging.info("CREATE colloc_lemma1_index")
+    engine.execute("CREATE INDEX colloc_lemma1_index ON collocations (lemma1);")
+    logging.info("CREATE colloc_lemma1_tag_index")
+    engine.execute("CREATE INDEX colloc_lemma1_tag_index ON collocations (lemma1, lemma1_tag);")
+    logging.info("CREATE colloc_lemma2_tag_index")
+    engine.execute("CREATE INDEX colloc_lemma2_tag_index ON collocations (lemma2, lemma2_tag);")
+    logging.info("CREATE colloc_lemma_index")
+    engine.execute("CREATE INDEX colloc_lemma_index ON collocations (lemma1, lemma2);")
 
 
 def create_statistics(engine: Engine):
     meta = MetaData()
-    wordprofile.wpse.db_tables.get_table_statistics(meta, metric='log_dice')
     wordprofile.wpse.db_tables.get_table_token_frequencies(meta)
     wordprofile.wpse.db_tables.get_table_corpus_frequencies(meta)
     meta.create_all(engine)
@@ -72,23 +87,3 @@ def create_statistics(engine: Engine):
         FROM collocations c
         GROUP BY c.lemma1, c.lemma1_tag 
     """)
-    logging.info("INSERT log_dice")
-    engine.execute("""
-    INSERT INTO log_dice (collocation_id, value)
-    SELECT c.id, (14 + LOG2((IFNULL(c.frequency, 1) * 2) / (IFNULL(t1.freq, 1) + IFNULL(t2.freq, 1))))
-    FROM collocations c
-    INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_tag = t1.tag)
-    INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
-    """)
-    engine.execute("CREATE INDEX stats_index ON log_dice (collocation_id);")
-
-    # print("INSERT mi score")
-    # engine.execute("""
-    # INSERT INTO mi_score (collocation_id, value)
-    # SELECT c.id, LOG2((IFNULL(c.frequency, 1) * cf.freq) / (IFNULL(t1.freq, 1) * IFNULL(t2.freq, 1)))
-    # FROM collocations c
-    # INNER JOIN token_freqs t1 ON (c.lemma1 = t1.lemma and c.lemma1_tag = t1.tag)
-    # INNER JOIN token_freqs t2 ON (c.lemma2 = t2.lemma and c.lemma2_tag = t2.tag)
-    # INNER JOIN corpus_freqs cf ON (cf.label = c.label)
-    # """)
-    # engine.execute("CREATE INDEX stats_index USING HASH ON mi_score (collocation_id);")

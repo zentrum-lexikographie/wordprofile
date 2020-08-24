@@ -5,8 +5,10 @@ import math
 from collections import defaultdict
 from typing import List, Union
 
-from wordprofile.formatter import format_comparison, format_concordances, format_cooccs, format_lemma_pos
+from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
+    format_mwe_concordances
 from wordprofile.wpse.connector import WPConnect
+from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.variations import generate_orth_variations
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
@@ -18,6 +20,7 @@ class Wordprofile:
         logger.info("start init ...")
         self.wp_spec = WpSeSpec(wp_spec_file)
         self.db = WPConnect(db_host, db_user, db_passwd, db_name)
+        self.db_mwe = WPMweConnect(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
 
     def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
@@ -31,6 +34,10 @@ class Wordprofile:
         Return:
             List of lemma-pos combinations with stats and possible relations.
         """
+        if not all(c.isalpha() or c == '-' or c == '+' for c in lemma):
+            return []
+        lemma = lemma.replace("+", ' ')
+
         results = self.db.get_lemma_and_pos(lemma, pos)
         # if not found in word-profile database, try variations mapping
         if not results and use_external_variations and lemma in self.wp_spec.mapVariation:
@@ -106,10 +113,61 @@ class Wordprofile:
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_cooccs(cooccs),
+                'Tuples': format_relations(cooccs),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results
+
+    def get_collocation_ids(self, lemma1: str, lemma2: str) -> List[int]:
+        """Fetches possible collocation ids for lemma pair.
+
+        Args:
+            lemma1: First lemma of collocation.
+            lemma2: Second lemma of collocation.
+
+        Return:
+            Absolute collocation ids.
+        """
+        return [abs(c.RelId) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
+
+    def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
+                          min_freq: int = 0, min_stat: int = -1000) -> dict:
+        """Fetches MWE from word-profile database.
+
+        Args:
+            coocc_ids: List of collocation ids.
+            start (optional): Number of collocations to skip.
+            number (optional): Number of collocations to take.
+            order_by (optional): Metric for ordering, frequency or log_dice.
+            min_freq (optional): Filter collocations with minimal frequency.
+            min_stat (optional): Filter collocations with minimal stats score.
+
+        Return:
+            List of selected collocations grouped by relation.
+        """
+        if not coocc_ids:
+            return {'parts': [], 'data': {}}
+
+        coocc_info = self.db.get_relation_by_id(coocc_ids[0])
+        grouped_relations = defaultdict(list)
+        lemma1 = pos1 = ""
+        for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
+            lemma1 = relation.Lemma1
+            pos1 = relation.Pos1
+            grouped_relations[relation.Rel].append(relation)
+        results = defaultdict(list)
+        for relation, cooccs in grouped_relations.items():
+            results[lemma1].append({
+                'Relation': relation,
+                'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
+                'Tuples': format_relations(cooccs[:number], is_mwe=True),
+                'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
+            })
+        return {
+            'parts': [{'Lemma': coocc_info.lemma1, 'POS': coocc_info.pos1},
+                      {'Lemma': coocc_info.lemma2, 'POS': coocc_info.pos2}],
+            'data': dict(results),
+        }
 
     def get_diff(self, lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
                  order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
@@ -242,16 +300,19 @@ class Wordprofile:
             raise ValueError("Unknown operation")
         return score
 
-    def get_relation_by_info_id(self, coocc_id: int) -> dict:
-        """Fetches collocation information for a specific hit id.
+    def get_relation_by_info_id(self, coocc_id: int, is_mwe: bool = False) -> dict:
+        """Fetches cooccurrence information for a specific hit id.
 
         Args:
             coocc_id: DB index of the collocation.
-
+            is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
         Return:
             Dictionary with collocation information.
         """
-        coocc_info = self.db.get_relation_by_id(coocc_id)
+        if is_mwe:
+            coocc_info = self.db_mwe.get_relation_by_id(coocc_id)
+        else:
+            coocc_info = self.db.get_relation_by_id(coocc_id)
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
@@ -263,7 +324,7 @@ class Wordprofile:
                 'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
 
     def get_concordances_and_relation(self, coocc_id: int, use_context: bool = False, start_index: int = 0,
-                                      result_number: int = 20):
+                                      result_number: int = 20, is_mwe: bool = False):
         """Fetches collocation information and concordances for a specified hit id.
 
         Args:
@@ -271,11 +332,16 @@ class Wordprofile:
             use_context: If true, returns surrounding sentences for matched collocation.
             start_index: Collocation id.
             result_number: Collocation id.
+            is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
 
         Return:
             Dictionary with collocation information and their concordances.
         """
-        relation = self.get_relation_by_info_id(coocc_id)
-        relation['Tuples'] = format_concordances(
-            self.db.get_concordances(coocc_id, use_context, start_index, result_number))
+        relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
+        if is_mwe:
+            relation['Tuples'] = format_mwe_concordances(
+                self.db_mwe.get_concordances(coocc_id, use_context, start_index, result_number))
+        else:
+            relation['Tuples'] = format_concordances(
+                self.db.get_concordances(coocc_id, use_context, start_index, result_number))
         return relation
