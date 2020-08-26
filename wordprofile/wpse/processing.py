@@ -2,15 +2,15 @@
 
 import hashlib
 import logging
-import math
 import multiprocessing
 import os
-import sys
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
 import conllu
+import math
+import sys
 from conllu.models import TokenList
 
 from wordprofile.datatypes import DBToken
@@ -40,7 +40,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
 
     def normalize_caps(t: DBToken) -> DBToken:
         return DBToken(idx=t.idx,
-                       surface=t.surface.lower() if t.tag in ["VERB", "ADJ", "ADV", "ADP"] else t.surface,
+                       surface=t.surface,
                        lemma=t.lemma.lower() if t.tag in ["VERB", "ADJ", "ADV", "ADP"] else t.lemma,
                        tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
 
@@ -85,7 +85,7 @@ class FileWorker(multiprocessing.Process):
         self.q.put(None)
 
 
-class FileReader(multiprocessing.Process):
+class FileReader:
     def __init__(self, path, q_size=100):
         self.q = multiprocessing.Manager().Queue(maxsize=q_size)
         if path == "-":
@@ -192,7 +192,6 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
     The file list is split into several chunks for parallel processing. The extracted results are sent to the workers.
     """
     file_reader = FileReader(file_path, q_size=2 * njobs)
-    file_reader.start()
     db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
     db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
     db_matches_worker = FileWorker(storage_path, 'matches_stage')
@@ -207,8 +206,7 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
                                     args=(file_reader.q, db_files_worker.q, db_sents_worker.q, match_convert_worker.q))
         p.start()
         pool.append(p)
-    logging.info('WAIT for file reader')
-    file_reader.join()
+    file_reader.run()
     file_reader.stop(njobs)
     logging.info('STOP file reader queue...')
     for p in pool:
