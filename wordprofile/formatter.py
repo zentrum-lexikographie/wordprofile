@@ -7,6 +7,7 @@ from typing import List
 from wordprofile.datatypes import Coocc, Concordance, LemmaInfo, MweConcordance
 
 RE_HIT_DELIMITER = re.compile(r'([^\x01\x02]+)([\x01\x02])')
+RE_HIT_DELIMITER2 = re.compile(r'[\x01\x02]')
 
 
 def format_lemma_pos(db_results: List[LemmaInfo]):

@@ -14,7 +14,7 @@ import sys
 from conllu.models import TokenList
 
 from wordprofile.datatypes import DBToken
-from wordprofile.formatter import RE_HIT_DELIMITER
+from wordprofile.formatter import RE_HIT_DELIMITER2
 from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
 from wordprofile.zdl import repair_lemma, sentence_is_valid, extract_matches_from_doc
@@ -69,7 +69,7 @@ class FileWorker(multiprocessing.Process):
         with open(os.path.join(self.path, self.fname), 'w') as fh:
             while True:
                 db_batch = self.q.get()
-                if not db_batch:
+                if db_batch is None:
                     logging.info('{:10} - CLOSE queue'.format(self.fname))
                     break
                 try:
@@ -146,7 +146,7 @@ class ConverterFileWorker(multiprocessing.Process):
         next_rel_id = 1
         while True:
             db_matches = self.q.get()
-            if not db_matches:
+            if db_matches is None:
                 logging.info('{:10} - CLOSE queue'.format(self.fname))
                 with open(os.path.join(self.path, self.fname), 'w') as fh:
                     for rel, cols_dict in relation_dict.items():
@@ -179,8 +179,7 @@ def is_valid_sentence(sentence: str):
 
     End with sentence delimiter, have a certain length, and start with uppercase letter.
     """
-    sentence += '\x01'
-    s = [t for t, d in RE_HIT_DELIMITER.findall(sentence)]
+    s = RE_HIT_DELIMITER2.split(sentence.strip('\x01\x02'))
     return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
 
 
@@ -207,11 +206,11 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
         p.start()
         pool.append(p)
     file_reader.run()
-    file_reader.stop(njobs)
     logging.info('STOP file reader queue...')
+    file_reader.stop(njobs)
+    logging.info('JOIN processes...')
     for p in pool:
         p.join()
-    logging.info('INDICES DONE')
     logging.info('STOP first queues and wait...')
     db_files_worker.stop()
     db_sents_worker.stop()
