@@ -27,6 +27,8 @@ RELATIONS = {
         ("PRED", "NOUN", "ADJ"),
         ("PRED", "VERB", "ADJ"),
         ("PRED", "VERB", "NOUN"),
+    ],
+    "SUBJA": [
         ("SUBJ", "NOUN", "NOUN"),
         ("SUBJ", "NOUN", "ADJ"),
         ("SUBJ", "VERB", "NOUN"),
@@ -43,14 +45,21 @@ RELATIONS = {
     ],
     "VZ": [
         ("AVZ", "VERB", "VERB"),
+        ("AVZ", "AUX", "VERB"),
     ],
     "KOM": [
         ("KOM", "CJ", "NOUN", "NOUN", "CCONJ"),
         ("KOM", "CJ", "VERB", "NOUN", "CCONJ"),
     ],
+    "PN": [
+        ("PP", "NOUN", "ADP"),
+        ("PP", "AUX", "ADP"),
+        ("PP", "VERB", "ADP"),
+    ],
     "PP": [
         ("PP", "PN", "NOUN", "NOUN", "ADP"),
         ("PP", "PN", "VERB", "NOUN", "ADP"),
+        ("PP", "PN", "VERB", "ADJ", "ADP"),
     ],
 }
 
@@ -94,23 +103,13 @@ def extract_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Matc
         rel_types = (t.rel, t_head_1.rel)
         if rel_types in relations_inv:
             if (t.tag, t_head_1.tag, t_head_2.tag) in relations_inv[rel_types]:
-                if t_head_1.tag in ['APP', 'KOKOM']:
-                    matches.append(Match(
-                        t_head_2,
-                        t,
-                        t_head_1,
-                        relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
-                        sid,
-                    ))
-                else:
-                    matches.append(Match(
-                        t_head_2,
-                        t,
-                        None,
-                        relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
-                        sid,
-                    ))
-
+                matches.append(Match(
+                    t_head_2,
+                    t,
+                    t_head_1,
+                    relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
+                    sid,
+                ))
     return matches
 
 
