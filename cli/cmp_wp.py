@@ -85,8 +85,9 @@ db_parser.add_argument("--host1", type=str, help="XML-RPC hostname")
 db_parser.add_argument("--host2", type=str, help="XML-RPC hostname")
 
 db_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
-db_parser.add_argument("-k", dest="k", default=1000, help="Number of samples")
-db_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
+db_parser.add_argument("-k", dest="k", type=int, default=1000, help="Number of samples")
+db_parser.add_argument("-n1", dest="number1", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+db_parser.add_argument("-n2", dest="number2", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
 db_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
 db_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
 db_parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
@@ -125,7 +126,9 @@ lemma_pos_candidates = list(map(lambda c: (c[0], pos_map_inv[c[1]]),
 lemma_pos_candidates = sorted(random.choices(lemma_pos_candidates, k=args.k), key=lambda x: x[0])
 
 relations = ['ADV', 'ATTR', 'GMOD', '~GMOD', 'KOM', 'KON', 'OBJ', '~OBJ', 'PP', 'PRED', '~PRED', 'VZ']
-# relations = ['VZ']
+# ['~SUBJP', 'PP', '~GMOD', 'KOM', 'ATTR', 'KON', 'PRED', '~PP', '~SUBJA', 'META', 'GMOD', '~PRED', '~OBJ', 'PN', '~KOM']
+# ['ADV', 'PP', 'KOM', 'KON', 'SUBJA', 'META', 'OBJ', 'VZ', 'PN', 'SUBJP']
+# ['ADV', '~PRED', '~ATTR', 'KON', '~PP', '~ADV', 'META']
 
 for rel in relations:
     print("Relation:", rel)
@@ -135,9 +138,9 @@ for rel in relations:
     }
     with open('eval/wp_{}_cmp.txt'.format(rel.lower().replace("~", "-")), 'w') as fh:
         for lemma, pos in lemma_pos_candidates:
-            relation_cats_1 = get_relation(wp1, lemma, pos, args.start, args.number, args.order,
+            relation_cats_1 = get_relation(wp1, lemma, pos, args.start, args.number1, args.order,
                                            args.min_freq, args.min_stat, args.corpus, [rel])
-            relation_cats_2 = get_relation(wp2, lemma, pos_map.get(pos), args.start, args.number, args.order,
+            relation_cats_2 = get_relation(wp2, lemma, pos_map.get(pos), args.start, args.number2, args.order,
                                            args.min_freq, args.min_stat, args.corpus, [rel])
 
             for rel_cat in set(relation_cats_1.keys()) & set(relation_cats_2.keys()):
@@ -146,7 +149,11 @@ for rel in relations:
                 max_rel_no = max(len(wps1), len(wps2))
                 table_items = []
                 table_headers = ['POS (alt)', 'Lemma (alt)', 'Score (alt)', 'POS (neu)', 'Lemma (neu)', 'Score (neu)']
+                wp1_lemmas = {lemma for pos, lemma, score in wps1}
+                wp2_lemmas = {lemma for pos, lemma, score in wps2}
                 for i in range(max_rel_no):
+                    if i < len(wps1) and wps1[i][1] in wp2_lemmas or i < len(wps2) and wps2[i][1] in wp1_lemmas:
+                        continue
                     row = []
                     if i < len(wps1):
                         row.extend(wps1[i])
@@ -157,7 +164,7 @@ for rel in relations:
                     else:
                         row.extend([None, None, None])
                     table_items.append(row)
-                overlap, both, overlap_prob, jacc_dist = wp_jaccard_distance(wps1, wps2)
+                overlap, both, overlap_prob, jacc_dist = wp_jaccard_distance(wps1, wps2, args.number1)
                 scores['overlaps'].append(overlap_prob)
                 scores['jacc_dists'].append(jacc_dist)
                 print("  {}-{} both:{:5.2f} jacc:{:5.2f}".format(lemma, pos, overlap_prob, jacc_dist))
