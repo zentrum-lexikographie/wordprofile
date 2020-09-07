@@ -9,15 +9,15 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI
 
-from ..wordprofile.wp import Wordprofile
+from wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
 parser.add_argument("--user", type=str, help="database username", required=True)
 parser.add_argument("--database", type=str, help="database name", required=True)
-parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
-parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
-parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+parser.add_argument("--hostname", default="localhost", type=str, help="REST API hostname")
+parser.add_argument("--db-hostname", default="localhost", type=str, help="Hostname of the wp database.")
+parser.add_argument("--port", default=8086, type=int, help="REST API port")
+parser.add_argument('--spec', type=str, required=True, help="Settings file (*.xml)")
 parser.add_argument('--log', dest='logfile', type=str,
                     default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
                     help="Angabe der log-Datei (Default: log/wp_{date}.log)")
@@ -54,6 +54,13 @@ async def status():
     """Let icinga know the word profile is online.
     """
     return "OK"
+
+
+@app.get("/meta")
+async def meta():
+    """Ask wordprofile for meta information such as table statistics.
+    """
+    return wp.get_info_stats()
 
 
 @app.get("/info/lemma/")

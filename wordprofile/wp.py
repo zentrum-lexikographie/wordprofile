@@ -23,6 +23,11 @@ class Wordprofile:
         self.db_mwe = WPMweConnect(db_host, db_user, db_passwd, db_name)
         logger.info("init complete")
 
+    def get_info_stats(self):
+        return {
+            "table": self.db.get_db_infos()
+        }
+
     def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
         """Fetches lemma information from word-profile database.
 

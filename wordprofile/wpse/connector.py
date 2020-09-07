@@ -45,6 +45,17 @@ class WPConnect:
         self.__close_connection()
         return res
 
+    def get_db_infos(self):
+        query = """SELECT TABLE_NAME, TABLE_ROWS, CREATE_TIME, UPDATE_TIME
+                   FROM information_schema.tables WHERE table_schema = DATABASE();"""
+        db_results = [{
+            'name': t[0],
+            'rows': t[1],
+            'create_time': t[2],
+            'last_update': t[3]
+        } for t in self.__fetchall(query) if t[1]]
+        return db_results
+
     def get_concordances(self, coocc_id: int, use_context: bool, start_index: int, result_number: int) -> List[
         Concordance]:
         """Fetches concordances for collocation id from database backend.
