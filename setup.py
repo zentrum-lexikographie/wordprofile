@@ -8,7 +8,7 @@ setup(name='wordprofile',
       author='René Knaebel',
       author_email='rene.knaebel@bbaw.de',
       packages=find_packages(exclude=["tests"]),
-      extra_requires={
+      extras_require={
           'parser': [
               'imsnpars @ git+https://github.com/zentrum-lexikographie/IMSnPars@0.1.0.2020080615'
           ]
