@@ -56,6 +56,31 @@ class WPConnect:
         } for t in self.__fetchall(query) if t[1]]
         return db_results
 
+    def get_label_frequencies(self):
+        query = """SELECT label, freq FROM corpus_freqs"""
+        db_results = {t[0]: t[1] for t in self.__fetchall(query)}
+        return db_results
+
+    def get_tag_frequencies(self):
+        query = """
+        SELECT tag, SUM(freq) 
+        FROM token_freqs tf 
+        GROUP BY tag"""
+        db_results = {t[0]: t[1] for t in self.__fetchall(query)}
+        return db_results
+
+    def get_corpus_file_stats(self):
+        query = """
+        SELECT corpus, COUNT(*), min(`date`) as min_date, MAX(`date`) as max_date
+        FROM corpus_files cf
+        GROUP BY corpus"""
+        db_results = {t[0]: {
+            "count": t[1],
+            "min_date": t[2],
+            "max_date": t[3],
+        } for t in self.__fetchall(query)}
+        return db_results
+
     def get_concordances(self, coocc_id: int, use_context: bool, start_index: int, result_number: int) -> List[
         Concordance]:
         """Fetches concordances for collocation id from database backend.

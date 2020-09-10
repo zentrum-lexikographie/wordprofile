@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
 import logging
-import math
 from collections import defaultdict
 from typing import List, Union
+
+import math
 
 from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
     format_mwe_concordances
@@ -18,6 +19,7 @@ logger = logging.getLogger('wordprofile')
 class Wordprofile:
     def __init__(self, db_host, db_user, db_passwd, db_name, wp_spec_file):
         logger.info("start init ...")
+        self.db_name = db_name
         self.wp_spec = WpSeSpec(wp_spec_file)
         self.db = WPConnect(db_host, db_user, db_passwd, db_name)
         self.db_mwe = WPMweConnect(db_host, db_user, db_passwd, db_name)
@@ -25,7 +27,13 @@ class Wordprofile:
 
     def get_info_stats(self):
         return {
-            "table": self.db.get_db_infos()
+            "info": self.db_name,
+            "tables": self.db.get_db_infos(),
+            "tags": {
+                "pos": self.db.get_tag_frequencies(),
+                "label": self.db.get_label_frequencies()
+            },
+            "corpora": self.db.get_corpus_file_stats(),
         }
 
     def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
