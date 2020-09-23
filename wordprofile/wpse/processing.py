@@ -327,13 +327,15 @@ def extract_mwe_from_collocs(match_fin, collocs):
     def has_one_overlap(*pos: Tuple[int]):
         """Checks whether positions have one overlap.
         """
-        return len(set(pos)) == len(pos) - 1
+        return len(set(pos)) == (len(pos) - 1)
 
     mwe_groups = defaultdict(list)
     for sent in read_collapsed_sentence_matches(match_fin):
         for m_i, m1 in enumerate(sent):
             for m2 in sent[m_i + 1:]:
                 if has_one_overlap(m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos) and (m1.prep_pos == m2.prep_pos):
+                    if not (m1.collocation_id in collocs and m2.collocation_id in collocs):
+                        continue
                     c1 = collocs[m1.collocation_id]
                     c2 = collocs[m2.collocation_id]
                     if has_one_overlap(m1.head_pos, m2.head_pos, m2.dep_pos):
