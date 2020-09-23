@@ -2,9 +2,9 @@
 
 import logging
 import os
-import sys
 from argparse import ArgumentParser
 
+import sys
 from sqlalchemy import create_engine
 
 from wordprofile.wpse.create import init_word_profile_tables, create_statistics, create_indices
@@ -22,12 +22,13 @@ def main():
     parser.add_argument("--create-wp", action="store_true", help="create wordprofile from tmp data")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
     parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
+    parser.add_argument("--min-rel-freq", type=int, default=3, help="number of process jobs")
     args = parser.parse_args()
 
     if args.input:
         os.makedirs(args.tmp, exist_ok=True)
         process_files(args.input, args.tmp, args.njobs)
-        post_process_db_files(args.tmp)
+        post_process_db_files(args.tmp, min_rel_freq=args.min_rel_freq)
     if args.create_wp:
         wp_user = args.user or os.environ['WP_USER']
         wp_db = args.db or os.environ['WP_DB']
