@@ -4,6 +4,7 @@ import hashlib
 import logging
 import multiprocessing
 import os
+import re
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
@@ -237,7 +238,12 @@ def reindex_corpus_files(fin: str, fout: str):
 def reindex_filter_concordances(fin, fout, corpus_file_idx):
     """Filters and removes duplicates from concordances and replaces corpus file index.
     """
-    sent_hashes = defaultdict(list)
+
+    def get_robust_hash(sentence):
+        sentence = re.sub(r"[^a-z]", "", sentence.lower())
+        return hashlib.md5(sentence.encode()).hexdigest()
+
+    sent_hashes = set()
     sents_idx = []
     with open(fin, 'r') as sents_in, open(fout, 'w') as sents_out:
         for item in sents_in:
@@ -245,10 +251,10 @@ def reindex_filter_concordances(fin, fout, corpus_file_idx):
             doc_id = str(corpus_file_idx[doc_id])
             # checks whether sentence satisfies hard constraints
             if is_valid_sentence(sentence):
-                sent_hash = hashlib.md5(sentence.encode()).hexdigest()
+                sent_hash = get_robust_hash(sentence)
                 # checks for duplicates based on sentence checksum (md5)
-                if sent_hash not in sent_hashes[doc_id]:
-                    sent_hashes[doc_id].append(sent_hash)
+                if sent_hash not in sent_hashes:
+                    sent_hashes.add(sent_hash)
                     sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
                     sents_idx.append((doc_id, sent_id))
     return set(sents_idx)
