@@ -190,19 +190,19 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
     Workers are created for each result (corpus_files, concordances, matches, collocations) in relation to db tables.
     The file list is split into several chunks for parallel processing. The extracted results are sent to the workers.
     """
+    stage_path = os.path.join(storage_path, 'stage')
+    os.makedirs(stage_path, exist_ok=True)
     file_reader = FileReader(file_path, q_size=2 * njobs)
-    db_files_worker = FileWorker(storage_path, 'corpus_files_stage')
-    db_sents_worker = FileWorker(storage_path, 'concord_sentences_stage')
-    db_matches_worker = FileWorker(storage_path, 'matches_stage')
+    db_files_worker = FileWorker(stage_path, 'corpus_files')
+    db_sents_worker = FileWorker(stage_path, 'concord_sentences')
+    db_matches_worker = FileWorker(stage_path, 'matches')
     db_files_worker.start()
     db_sents_worker.start()
-    match_convert_worker = ConverterFileWorker(storage_path, 'collocations_stage', db_matches_worker.q)
-    match_convert_worker.start()
     db_matches_worker.start()
     pool = []
     for i in range(njobs):
         p = multiprocessing.Process(target=process_doc_file,
-                                    args=(file_reader.q, db_files_worker.q, db_sents_worker.q, match_convert_worker.q))
+                                    args=(file_reader.q, db_files_worker.q, db_sents_worker.q, db_matches_worker.q))
         p.start()
         pool.append(p)
     file_reader.run()
@@ -214,10 +214,8 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
     logging.info('STOP first queues and wait...')
     db_files_worker.stop()
     db_sents_worker.stop()
-    match_convert_worker.stop()
     db_files_worker.join()
     db_sents_worker.join()
-    match_convert_worker.join()
     logging.info('STOP final matches queue and wait...')
     db_matches_worker.stop()
     db_matches_worker.join()
@@ -256,19 +254,25 @@ def reindex_filter_concordances(fin, fout, corpus_file_idx):
     return set(sents_idx)
 
 
-def filter_matches(fin, fout, corpus_file_idx, sents_idx, collocs):
-    """Filter matches with any missing entry for corpus file, sentence, or collocation.
+def filter_transform_matches(fin, fout, corpus_file_idx, sents_idx, collocs: Dict[int, Colloc]):
+    """Filter matches with any missing entry for corpus file, sentence, or collocation,
+    then transform using collocation id.
     """
+    relation_dict = dict()
+    for c in collocs.values():
+        relation_dict['-'.join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag])] = c.id
+
     match_i = 0
     with open(fin, 'r') as matches_in, open(fout, 'w') as matches_out:
         for line in matches_in:
             match = line.strip().split('\t')
-            match[6] = str(corpus_file_idx[match[6]])
+            colloc_val = '-'.join(match[:5])
+            match[10] = str(corpus_file_idx[match[10]])
             # check whether concordances and collocations still exist for match
-            if int(match[0]) in collocs and tuple(match[6:8]) in sents_idx:
-                match.insert(0, str(match_i))
-                match_i += 1
+            if colloc_val in relation_dict and tuple(match[10:12]) in sents_idx:
+                match = [str(match_i), str(relation_dict[colloc_val])] + match[5:]
                 matches_out.write('\t'.join(match) + '\n')
+                match_i += 1
 
 
 def compute_collocation_scores(fout, collocs):
@@ -384,6 +388,29 @@ def compute_mwe_scores(mwe_fout, match_fout, mwe_groups):
                 mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
 
 
+def extract_collocations(match_fin, collocs_fout):
+    relation_dict = defaultdict(dict)
+    freq_dict = defaultdict(int)
+    next_rel_id = 1
+    with open(match_fin, "r") as fin:
+        for line in fin:
+            m = tuple(line.split('\t'))
+            rel, cols = m[0], m[1:5]
+            if cols in relation_dict[rel]:
+                rel_id = relation_dict[rel][cols]
+            else:
+                rel_id = next_rel_id
+                next_rel_id += 1
+                relation_dict[rel][cols] = rel_id
+            freq_dict[rel_id] += 1
+
+    with open(collocs_fout, 'w') as fh:
+        for rel, cols_dict in relation_dict.items():
+            for cols, rel_id in cols_dict.items():
+                fh.write('{}\t{}\t{}\t0\t{}\n'.format(
+                    rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
+
+
 def load_collocations(fin, min_rel_freq=3) -> Dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit.
     """
@@ -403,23 +430,28 @@ def post_process_db_files(storage_path, min_rel_freq=3):
     Filter collocations with too little occurrences.
     Filter matches with respect to available concordances and collocations.
     """
+    stage_path = os.path.join(storage_path, 'stage')
+    final_path = os.path.join(storage_path, 'final')
+    os.makedirs(final_path, exist_ok=True)
     logging.info('REPLACE INDEX corpus files')
-    corpus_file_idx = reindex_corpus_files(os.path.join(storage_path, 'corpus_files_stage'),
-                                           os.path.join(storage_path, 'corpus_files'))
+    corpus_file_idx = reindex_corpus_files(os.path.join(stage_path, 'corpus_files'),
+                                           os.path.join(final_path, 'corpus_files'))
     logging.info('FILTER concordances')
-    sents_idx = reindex_filter_concordances(os.path.join(storage_path, 'concord_sentences_stage'),
-                                            os.path.join(storage_path, 'concord_sentences'), corpus_file_idx)
+    sents_idx = reindex_filter_concordances(os.path.join(stage_path, 'concord_sentences'),
+                                            os.path.join(final_path, 'concord_sentences'), corpus_file_idx)
+    logging.info('EXTRACT collocations from matches')
+    extract_collocations(os.path.join(stage_path, 'matches'), os.path.join(final_path, 'collocations'))
     logging.info('LOAD FILTERED collocations')
-    collocs = load_collocations(os.path.join(storage_path, 'collocations_stage'), min_rel_freq)
-    logging.info('FILTER matches')
-    filter_matches(os.path.join(storage_path, 'matches_stage'), os.path.join(storage_path, 'matches'), corpus_file_idx,
-                   sents_idx, collocs)
+    collocs = load_collocations(os.path.join(final_path, 'collocations'), min_rel_freq)
+    logging.info('FILTER TRANSFORM matches')
+    filter_transform_matches(os.path.join(stage_path, 'matches'), os.path.join(final_path, 'matches'), corpus_file_idx,
+                             sents_idx, collocs)
     logging.info('CALCULATE AND WRITE log dice scores')
-    compute_collocation_scores(os.path.join(storage_path, 'collocations'), collocs)
+    compute_collocation_scores(os.path.join(final_path, 'collocations'), collocs)
     logging.info('MAKE MWE LVL 1')
-    mwe_groups = extract_mwe_from_collocs(os.path.join(storage_path, 'matches'), collocs)
+    mwe_groups = extract_mwe_from_collocs(os.path.join(final_path, 'matches'), collocs)
     logging.info('CALCULATE log dice mwe lvl 1')
-    compute_mwe_scores(os.path.join(storage_path, 'mwe'), os.path.join(storage_path, 'mwe_match'), mwe_groups)
+    compute_mwe_scores(os.path.join(final_path, 'mwe'), os.path.join(final_path, 'mwe_match'), mwe_groups)
 
 
 def load_files_into_db(engine, storage_path):
