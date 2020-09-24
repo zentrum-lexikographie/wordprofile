@@ -20,6 +20,7 @@ def main():
     parser.add_argument("--db", type=str, help="database name")
     parser.add_argument("--input", default="-", type=str, help="conll input file")
     parser.add_argument("--create-wp", action="store_true", help="create wordprofile from tmp data")
+    parser.add_argument("--load-wp", action="store_true", help="load wordprofile into db")
     parser.add_argument("--tmp", default='/mnt/SSD/data/', help="temporary storage path")
     parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
     parser.add_argument("--min-rel-freq", type=int, default=3, help="number of process jobs")
@@ -28,8 +29,9 @@ def main():
     if args.input:
         os.makedirs(args.tmp, exist_ok=True)
         process_files(args.input, args.tmp, args.njobs)
-        post_process_db_files(args.tmp, min_rel_freq=args.min_rel_freq)
     if args.create_wp:
+        post_process_db_files(args.tmp, min_rel_freq=args.min_rel_freq)
+    if args.load_wp:
         wp_user = args.user or os.environ['WP_USER']
         wp_db = args.db or os.environ['WP_DB']
         db_password = os.environ.get('WP_PASSWORD', wp_user)

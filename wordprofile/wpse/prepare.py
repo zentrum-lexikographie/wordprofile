@@ -1,6 +1,8 @@
+import logging
 from typing import List, Tuple
 
 from conllu.models import Metadata
+
 from wordprofile.datatypes import Match, DBToken
 from wordprofile.wpse.db_tables import DBCorpusFile, DBConcordance, SURFACE_TYPE, LEMMA_TYPE, DBMatch
 
@@ -63,14 +65,14 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
     for m in matches:
         if (len(m.head.surface) > SURFACE_TYPE.length or len(m.dep.surface) > SURFACE_TYPE.length or
                 len(m.head.lemma) > LEMMA_TYPE.length or len(m.dep.lemma) > LEMMA_TYPE.length):
-            print("SKIP LOONG MATCH", doc_id, m)
+            logging.warning(f"SKIP LOONG MATCH {doc_id} {m}")
             continue
         if m.prep:
             if (len(m.head.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
                     len(m.dep.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
                     len(m.head.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length or
                     len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length):
-                print("SKIP LOONG MATCH", doc_id, m)
+                logging.warning(f"SKIP LOONG MATCH {doc_id} {m}")
                 continue
             db_matches.append(DBMatch(
                 relation_label=m.relation,
