@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 # This is a simple word profile client that is developed for usage tests
 # It is used to compare two running wordprofile instances based on their overlap
-
+import asyncio
 import logging
-import random
 import xmlrpc.client
 from argparse import ArgumentParser
 from collections import defaultdict
@@ -14,20 +13,7 @@ from tabulate import tabulate
 from apps.xmlrpc_api import WordprofileXMLRPC
 
 
-def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, corpus, relations):
-    """
-    Args:
-        wp:
-        lemma:
-        pos_tag:
-        start:
-        number:
-        order:
-        min_freq:
-        min_stat:
-        corpus:
-        relations:
-    """
+async def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, corpus, relations):
     mapping = wp.get_lemma_and_pos({
         "Word": lemma,
         "POS": pos_tag,
@@ -62,20 +48,9 @@ def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, c
     return dict(table_items)
 
 
-def wp_jaccard_distance(wp1, wp2, n=10):
-    """
-    Args:
-        wp1:
-        wp2:
-        n:
-    """
-    words1 = set(c[1] for c in wp1)
-    words2 = set(c[1] for c in wp2)
+def overlap_ratio(words1, words2, n=10):
     overlap = len(words1 & words2)
-    both = len(words1 | words2)
-    overlap_p = round(min(overlap * 100 / min(len(words1), n), 100), 2)
-    jacc = round(min(overlap * 100 / min(both, n * 2), 100), 2)
-    return overlap, both, overlap_p, jacc
+    return round(min(overlap * 100 / min(len(words1), n), 100), 2)
 
 
 parser = ArgumentParser()
@@ -113,66 +88,97 @@ wp1: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}".format(args.host1
 wp2: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}".format(args.host2))
 
 pos_map = {
-    'Verb': 'VV',
-    'Substantiv': 'NN',
+    'Verb': 'VERB',
+    'Substantiv': 'NOUN',
     'Adverb': 'ADV',
     'Adjektiv': 'ADJ',
 }
+
 pos_map_inv = {v: k for k, v in pos_map.items()}
 
 lemma_pos_candidates = list(map(lambda c: (c[0], pos_map_inv[c[1]]),
                                 (line.strip().split(",") for line in
                                  open("docs/wp_cmp_eval/token_freqs.csv", "r").readlines())))
-lemma_pos_candidates = sorted(random.choices(lemma_pos_candidates, k=args.k), key=lambda x: x[0])
+lemma_pos_candidates = sorted(lemma_pos_candidates, key=lambda x: x[0])
 
-relations = ['ADV', 'ATTR', 'GMOD', '~GMOD', 'KOM', 'KON', 'OBJ', '~OBJ', 'PP', 'PRED', '~PRED', 'VZ']
-# ['~SUBJP', 'PP', '~GMOD', 'KOM', 'ATTR', 'KON', 'PRED', '~PP', '~SUBJA', 'META', 'GMOD', '~PRED', '~OBJ', 'PN', '~KOM']
-# ['ADV', 'PP', 'KOM', 'KON', 'SUBJA', 'META', 'OBJ', 'VZ', 'PN', 'SUBJP']
-# ['ADV', '~PRED', '~ATTR', 'KON', '~PP', '~ADV', 'META']
+relations = {
+    'ADV',
+    'ATTR',
+    'GMOD',
+    'KOM',
+    'KON',
+    'OBJ',
+    'PN',
+    'PP',
+    'PRED',
+    'SUBJA',
+    # 'SUBJP',
+    'VZ',
+    '~ADV',
+    '~ATTR',
+    '~GMOD',
+    '~KOM',
+    '~OBJ',
+    '~PP',
+    '~PRED',
+    '~SUBJA',
+    # '~SUBJP'
+}
 
-for rel in relations:
-    print("Relation:", rel)
-    scores = {
-        'overlaps': [],
-        'jacc_dists': []
-    }
-    with open('eval/wp_{}_cmp.txt'.format(rel.lower().replace("~", "-")), 'w') as fh:
-        for lemma, pos in lemma_pos_candidates:
-            relation_cats_1 = get_relation(wp1, lemma, pos, args.start, args.number1, args.order,
-                                           args.min_freq, args.min_stat, args.corpus, [rel])
-            relation_cats_2 = get_relation(wp2, lemma, pos_map.get(pos), args.start, args.number2, args.order,
-                                           args.min_freq, args.min_stat, args.corpus, [rel])
 
-            for rel_cat in set(relation_cats_1.keys()) & set(relation_cats_2.keys()):
-                wps1 = relation_cats_1.get(rel_cat, [])
-                wps2 = relation_cats_2.get(rel_cat, [])
-                max_rel_no = max(len(wps1), len(wps2))
-                table_items = []
-                table_headers = ['POS (alt)', 'Lemma (alt)', 'Score (alt)', 'POS (neu)', 'Lemma (neu)', 'Score (neu)']
-                wp1_lemmas = {lemma for pos, lemma, score in wps1}
-                wp2_lemmas = {lemma for pos, lemma, score in wps2}
-                for i in range(max_rel_no):
-                    if i < len(wps1) and wps1[i][1] in wp2_lemmas or i < len(wps2) and wps2[i][1] in wp1_lemmas:
-                        continue
-                    row = []
-                    if i < len(wps1):
-                        row.extend(wps1[i])
-                    else:
-                        row.extend([None, None, None])
-                    if i < len(wps2):
-                        row.extend(wps2[i])
-                    else:
-                        row.extend([None, None, None])
-                    table_items.append(row)
-                overlap, both, overlap_prob, jacc_dist = wp_jaccard_distance(wps1, wps2, args.number1)
-                scores['overlaps'].append(overlap_prob)
-                scores['jacc_dists'].append(jacc_dist)
-                print("  {}-{} both:{:5.2f} jacc:{:5.2f}".format(lemma, pos, overlap_prob, jacc_dist))
-                print("{}-{} both:{:5.2f} jacc:{:5.2f}".format(lemma, pos, overlap_prob, jacc_dist), file=fh)
-                print(tabulate(table_items, headers=table_headers, tablefmt='fancy_grid'), file=fh)
-                print('', file=fh)
-        print("Avg Overlap: {:5.2f}, Avg JACC Dist: {:5.2f}".format(np.mean(scores['overlaps']),
-                                                                    np.mean(scores['jacc_dists'])))
-        print("Avg Overlap: {:5.2f}, Avg JACC Dist: {:5.2f}".format(np.mean(scores['overlaps']),
-                                                                    np.mean(scores['jacc_dists'])),
-              file=fh)
+async def main():
+    fh_all = open('eval/wp_all.txt', 'w')
+
+    for rel in relations:
+        print("Relation:", rel, file=fh_all)
+        overlap_scores = []
+        with open('eval/wp_{}.txt'.format(rel.lower().replace("~", "-")), 'w') as fh:
+            for lemma, pos in lemma_pos_candidates:
+                t_relation_cats_1 = asyncio.create_task(
+                    get_relation(wp1, lemma, pos, args.start, args.number1, args.order,
+                                 args.min_freq, args.min_stat, args.corpus, [rel]))
+                t_relation_cats_2 = asyncio.create_task(
+                    get_relation(wp2, lemma, pos_map.get(pos), args.start, args.number2, args.order,
+                                 args.min_freq, args.min_stat, args.corpus, [rel]))
+                relation_cats_1, relation_cats_2 = await asyncio.gather(t_relation_cats_1, t_relation_cats_2)
+
+                for rel_cat in set(relation_cats_1.keys()) & set(relation_cats_2.keys()):
+                    wps1 = relation_cats_1.get(rel_cat, [])
+                    wps2 = relation_cats_2.get(rel_cat, [])
+                    max_rel_no = max(len(wps1), len(wps2))
+                    table_items = []
+                    table_headers = ['POS (alt)', 'Lemma (alt)', 'Score (alt)', 'POS (neu)', 'Lemma (neu)',
+                                     'Score (neu)']
+                    wp1_lemmas = {lemma for pos, lemma, score in wps1}
+                    wp2_lemmas = {lemma for pos, lemma, score in wps2}
+                    common_lemmas = set()
+                    for i in range(max_rel_no):
+                        if i < len(wps1) and wps1[i][1] in wp2_lemmas:
+                            common_lemmas.add(wps1[i][1])
+                            continue
+                        if i < len(wps2) and wps2[i][1] in wp1_lemmas:
+                            common_lemmas.add(wps2[i][1])
+                            continue
+                        row = []
+                        if i < len(wps1):
+                            row.extend(wps1[i])
+                        else:
+                            row.extend([None, None, None])
+                        if i < len(wps2):
+                            row.extend(wps2[i])
+                        else:
+                            row.extend([None, None, None])
+                        table_items.append(row)
+                    overlap_prob = overlap_ratio(wp1_lemmas, wp2_lemmas, args.number1)
+                    overlap_scores.append(overlap_prob)
+                    print("  {}-{} both:{:5.2f}".format(lemma, pos, overlap_prob), file=fh_all)
+                    print("{}-{} both:{:5.2f}".format(lemma, pos, overlap_prob), file=fh)
+                    print("[{}]".format(", ".join(common_lemmas)), file=fh)
+                    print(tabulate(table_items, headers=table_headers, tablefmt='fancy_grid'), file=fh)
+                    print('', file=fh)
+            print("Avg Overlap: {:5.2f}".format(np.mean(overlap_scores)), file=fh_all)
+            print("Avg Overlap: {:5.2f}".format(np.mean(overlap_scores)), file=fh)
+
+
+if __name__ == '__main__':
+    asyncio.run(main())
