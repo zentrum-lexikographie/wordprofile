@@ -2,12 +2,12 @@
 
 import logging
 import os
-import time
 from argparse import ArgumentParser
 from typing import List
 
+import time
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 
 from wordprofile.wp import Wordprofile
 
@@ -95,7 +95,8 @@ async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool 
 
 
 @app.get("/rel/")
-async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = '', relations: List[str] = (),
+async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = '',
+                        relations: List[str] = Query(["META"]),
                         start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0,
                         min_stat: int = -1000):
     """Get collocations from word-profile.
@@ -150,7 +151,7 @@ async def get_concordances_and_relation(coocc_id: int, use_context: bool = False
 
 
 @app.get("/cmp/difference/")
-async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
+async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query(["META"]), number: int = 20,
                    order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
                    use_intersection: bool = False, nbest: int = 0):
     """Get collocations of common POS from word-profile database and computes distances for comparison.
@@ -176,7 +177,7 @@ async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str], num
 
 
 @app.get("/cmp/intersection/")
-async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
+async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query(["META"]), number: int = 20,
                            order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, nbest: int = 0):
     """Redirection for get_diff that sets parameters for intersection computation.
 
@@ -193,8 +194,9 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
     Return:
         List of collocation-diffs grouped by relation.
     """
-    return get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation='rmax',
-                    use_intersection=True, nbest=nbest)
+    order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    return wp.get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation='rmax',
+                       use_intersection=True, nbest=nbest)
 
 
 if __name__ == '__main__':
