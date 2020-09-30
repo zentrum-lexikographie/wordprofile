@@ -1,0 +1,95 @@
+<html>
+<head>
+    <title>Wortprofil Vergleich</title>
+    <!-- CSS only -->
+    <link crossorigin="anonymous" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+          integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" rel="stylesheet">
+    <!-- JS, Popper.js, and jQuery -->
+    <script crossorigin="anonymous"
+            integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+            src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+            src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script crossorigin="anonymous"
+            integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+            src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1>Wortprofile Vergleich</h1>
+    <ul class="list-group">
+        <li class="list-group-item list-group-item-primary">Lemma: {{ lemma }}</li>
+        <li class="list-group-item">Pos: {{ pos }}</li>
+        <li class="list-group-item">Relation: {{ relation }}</li>
+        <li class="list-group-item">Überlappung: {{ overlap }}</li>
+    </ul>
+    <div>
+        <form id="wp-form">
+            <div class="row">
+                <div class="col">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            {% for head in header %}
+                            <th scope="col">{{ head }}</th>
+                            {% endfor %}
+                            <th scope="col">OK?</th>
+                        </tr>
+                        </thead>
+                        {% for item in wp1 %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            {% for data in item %}
+                            <td>{{ data }}</td>
+                            {% endfor %}
+                            <td>
+                                <select class="custom-select" name="wp1_{{ loop.index }}">
+                                    <option selected value="0">Ok</option>
+                                    <option value="1">Falsch</option>
+                                    <option value="2">Extrem Falsch</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="col">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            {% for head in header %}
+                            <th scope="col">{{ head }}</th>
+                            {% endfor %}
+                            <th scope="col">OK?</th>
+                        </tr>
+                        </thead>
+                        {% for item in wp2 %}
+                        <tr>
+                            <th scope="row">{{ loop.index }}</th>
+                            {% for data in item %}
+                            <td>{{ data }}</td>
+                            {% endfor %}
+                            <td>
+                                <select class="custom-select" name="wp2_{{ loop.index }}">
+                                    <option selected value="0">Ok</option>
+                                    <option value="1">Stört</option>
+                                    <option value="2">Stört stark</option>
+                                </select>
+
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <button class="btn btn-primary btn-lg btn-block" type="submit">Speichern</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

@@ -54,22 +54,20 @@ def overlap_ratio(words1, words2, n=10):
 
 
 parser = ArgumentParser()
-subparsers = parser.add_subparsers(dest="subcommand")
-db_parser = parser.add_argument_group("server arguments")
-db_parser.add_argument("--host1", type=str, help="XML-RPC hostname")
-db_parser.add_argument("--host2", type=str, help="XML-RPC hostname")
+parser.add_argument("--host1", type=str, help="XML-RPC hostname")
+parser.add_argument("--host2", type=str, help="XML-RPC hostname")
 
-db_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
-db_parser.add_argument("-k", dest="k", type=int, default=1000, help="Number of samples")
-db_parser.add_argument("-n1", dest="number1", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
-db_parser.add_argument("-n2", dest="number2", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
-db_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
-db_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
-db_parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
-db_parser.add_argument("-r", dest="relations", nargs="*",
-                       help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
-db_parser.add_argument("-o", dest="order", default="logDice",
-                       help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
+parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
+parser.add_argument("-k", dest="k", type=int, default=1000, help="Number of samples")
+parser.add_argument("-n1", dest="number1", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+parser.add_argument("-n2", dest="number2", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
+parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
+parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
+parser.add_argument("-r", dest="relations", nargs="*",
+                    help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
+parser.add_argument("-o", dest="order", default="logDice",
+                    help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 
 args = parser.parse_args()
 
