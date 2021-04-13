@@ -1,11 +1,11 @@
 from collections import defaultdict
 from typing import List, Dict
 
-from wordprofile.datatypes import DBToken, Match
+from wordprofile.datatypes import DBToken, Match, DependencyTree
 
 # rel_map : (rel, head_pos, dep_pos)
 #           (rel1, rel2, head_pos, mid_pos, dep_pos)
-RELATIONS = {
+RELATION_PATTERNS = {
     "KON": [
         ("CJ", "NOUN", "NOUN"),
         ("CJ", "ADJ", "ADJ"),
@@ -21,12 +21,6 @@ RELATIONS = {
         ("OBJA", "VERB", "NOUN"),
         ("OBJA2", "VERB", "NOUN"),
         ("OBJD", "VERB", "NOUN"),
-    ],
-    "PRED": [
-        ("PRED", "NOUN", "NOUN"),
-        ("PRED", "NOUN", "ADJ"),
-        ("PRED", "VERB", "ADJ"),
-        ("PRED", "VERB", "NOUN"),
     ],
     "SUBJA": [
         ("SUBJ", "NOUN", "NOUN"),
@@ -79,7 +73,7 @@ def get_inverted_relation_patterns(relation_mappings):
     return {k: dict(vd) for k, vd in relations_inv.items()}
 
 
-def extract_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Match]:
+def extract_pattern_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Match]:
     matches = []
     for t in tokens:
         if int(t.head) <= 0:
@@ -113,11 +107,33 @@ def extract_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Matc
     return matches
 
 
+def extract_predicates(tokens: List[DBToken], sid: int) -> List[Match]:
+    tree = DependencyTree(tokens)
+    matches = []
+    for n in tree.nodes:
+        if n.is_root():
+            continue
+        if n.token.tag == "AUX":
+            for c1 in n.children:
+                if c1.token.rel == "SUBJ" and c1.token.tag in {'NOUN', 'VERB', 'ADJ'}:
+                    for c2 in n.children:
+                        if c2.token.rel == "PRED" and c2.token.tag in {'NOUN', 'VERB', 'ADJ'}:
+                            matches.append(Match(
+                                c1.token,
+                                c2.token,
+                                None,
+                                "PRED",
+                                sid,
+                            ))
+    return matches
+
+
 def extract_matches_from_doc(parses: List[List[DBToken]]):
     matches = []
-    relations_inv = get_inverted_relation_patterns(RELATIONS)
+    relations_inv = get_inverted_relation_patterns(RELATION_PATTERNS)
     for sid, sentence in enumerate(parses):
-        relations = extract_matches(relations_inv, sentence, sid + 1)
+        relations = extract_pattern_matches(relations_inv, sentence, sid + 1)
+        relations.extend(extract_predicates(sentence, sid + 1))
         for r in relations:
             # TODO filter inconsistent relations
             #  - 0 is marked by parser
