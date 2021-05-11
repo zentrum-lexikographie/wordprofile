@@ -6,55 +6,140 @@ from wordprofile.datatypes import DBToken, Match, DependencyTree
 # rel_map : (rel, head_pos, dep_pos)
 #           (rel1, rel2, head_pos, mid_pos, dep_pos)
 RELATION_PATTERNS = {
-    "KON": [
-        ("CJ", "NOUN", "NOUN"),
-        ("CJ", "ADJ", "ADJ"),
-        ("CJ", "VERB", "VERB"),
-        ("KON", "CJ", "NOUN", "NOUN", "CCONJ"),
-        ("KON", "CJ", "ADJ", "ADJ", "CCONJ"),
-        ("KON", "CJ", "VERB", "VERB", "CCONJ"),
-    ],
-    "GMOD": [
-        ("GMOD", "NOUN", "NOUN"),
-    ],
-    "OBJ": [
-        ("OBJA", "VERB", "NOUN"),
-        ("OBJA2", "VERB", "NOUN"),
-        ("OBJD", "VERB", "NOUN"),
-    ],
-    "SUBJA": [
-        ("SUBJ", "NOUN", "NOUN"),
-        ("SUBJ", "NOUN", "ADJ"),
-        ("SUBJ", "VERB", "NOUN"),
-        ("SUBJ", "VERB", "ADJ"),
-    ],
-    "ADV": [
-        ("ADV", "VERB", "ADJ"),
-        ("ADV", "VERB", "ADV"),
-        ("ADV", "ADJ", "ADJ"),
-        ("ADV", "ADJ", "ADV"),
-    ],
-    "ATTR": [
-        ("ATTR", "NOUN", "ADJ"),
-    ],
-    "VZ": [
-        ("AVZ", "VERB", "VERB"),
-        ("AVZ", "AUX", "VERB"),
-    ],
-    "KOM": [
-        ("KOM", "CJ", "NOUN", "NOUN", "CCONJ"),
-        ("KOM", "CJ", "VERB", "NOUN", "CCONJ"),
-    ],
-    "PN": [
-        ("PP", "NOUN", "ADP"),
-        ("PP", "AUX", "ADP"),
-        ("PP", "VERB", "ADP"),
-    ],
-    "PP": [
-        ("PP", "PN", "NOUN", "NOUN", "ADP"),
-        ("PP", "PN", "VERB", "NOUN", "ADP"),
-        ("PP", "PN", "VERB", "ADJ", "ADP"),
-    ],
+    'ADV': {
+        'desc': "hat Adverbialbestimmung",
+        'inverse': "ist Adverbialbestimmung von",
+        'rules': [
+            # ("ADV", "VERB", "ADJ"),
+            # ("ADV", "VERB", "ADV"),
+            # ("ADV", "ADJ", "ADJ"),
+            # ("ADV", "ADJ", "ADV"),
+            ('advmod', 'verb', 'adj'),
+            ('advmod', 'verb', 'adv'),
+            ('advmod', 'adj', 'adj'),
+            ('advmod', 'adj', 'adv'),
+        ],
+    },
+    'ATTR': {
+        'desc': "hat Adjektivattribut",
+        'inverse': "ist Adjektivattribut von",
+        'rules': [
+            # ("ATTR", "NOUN", "ADJ"),
+            ('amod', 'noun', 'adj'),
+            ('amod', 'propn', 'adj'),
+        ],
+    },
+    'GMOD': {
+        'desc': "hat Genitivattribut",
+        'inverse': "ist Genitivattribut von",
+        'rules': [
+            # ("GMOD", "NOUN", "NOUN"),
+            ('nmod', 'noun', 'noun'),
+            ('nmod', 'noun', 'propn'),
+        ],
+    },
+    'KOM': {
+        'desc': "hat vergleichende Wortgruppe",
+        'inverse': "ist in vergleichender Wortgruppe",
+        'rules': [
+            # ("KOM", "CJ", "NOUN", "NOUN", "CCONJ"),
+            # ("KOM", "CJ", "VERB", "NOUN", "CCONJ"),
+        ],
+    },
+    'KON': {
+        'desc': "hat Koordination mit",
+        'inverse': "",
+        'rules': [
+            # ("CJ", "NOUN", "NOUN"),
+            # ("CJ", "ADJ", "ADJ"),
+            # ("CJ", "VERB", "VERB"),
+            # ("KON", "CJ", "NOUN", "NOUN", "CCONJ"),
+            # ("KON", "CJ", "ADJ", "ADJ", "CCONJ"),
+            # ("KON", "CJ", "VERB", "VERB", "CCONJ"),
+            ('conj', 'cc', 'noun', 'noun', 'cconj'),
+            ('conj', 'cc', 'verb', 'verb', 'cconj'),
+            ('conj', 'cc', 'adj', 'adj', 'cconj'),
+        ],
+    },
+    'OBJ': {
+        'desc': "hat Akkusativ/Dativ-Objekt",
+        'inverse': "ist Akkusativ/Dativ-Objekt von",
+        'rules': [
+            # ("OBJA", "VERB", "NOUN"),
+            # ("OBJA2", "VERB", "NOUN"),
+            # ("OBJD", "VERB", "NOUN"),
+            ('obj', 'verb', 'noun'),
+            ('obj', 'verb', 'propn'),
+            ('iobj', 'verb', 'noun'),
+            ('iobj', 'verb', 'propn'),
+        ],
+    },
+    # 'PN': {
+    #     'desc': "",
+    #     'inverse': "",
+    #     'rules': [
+    #         ("PP", "NOUN", "ADP"),
+    #         ("PP", "AUX", "ADP"),
+    #         ("PP", "VERB", "ADP"),
+    #     ]
+    # },
+    'PP': {
+        'desc': "hat Präpositionalgruppe",
+        'inverse': "ist in Präpositionalgruppe",
+        'rules': [
+            # ("PP", "PN", "NOUN", "NOUN", "ADP"),
+            # ("PP", "PN", "VERB", "NOUN", "ADP"),
+            # ("PP", "PN", "VERB", "ADJ", "ADP"),
+            ('nmod', 'case', 'noun', 'noun', 'case'),
+            ('obl', 'case', 'verb', 'noun', 'case'),
+            ('obl', 'case', 'verb', 'adj', 'case'),
+        ],
+    },
+    'PRED': {
+        'desc': "hat Prädikativ",
+        'inverse': "ist Prädikativ von",
+        'rules': [
+            ('nsub', 'verb', 'noun'),
+            ('nsub', 'verb', 'propn'),
+            ('nsub', 'adj', 'noun'),
+            ('nsub', 'noun', 'noun'),
+            # nur wenn cop (aux?) an head hängt
+        ],
+    },
+    'SUBJA': {
+        'desc': "hat Subjekt",
+        'inverse': "ist Subjekt von",
+        'rules': [
+            # ("SUBJ", "NOUN", "NOUN"),
+            # ("SUBJ", "NOUN", "ADJ"),
+            # ("SUBJ", "VERB", "NOUN"),
+            # ("SUBJ", "VERB", "ADJ"),
+            ('nsub', 'verb', 'noun'),
+            ('nsub', 'verb', 'propn'),
+            ('nsub', 'adj', 'noun'),
+            ('nsub', 'noun', 'noun'),
+            # wenn weder aux noch cop an head hängen
+        ],
+    },
+    'SUBJP': {
+        'desc': "hat Passivsubjekt",
+        'inverse': "ist Passivsubjekt von",
+        'rules': [
+            ('nsub', 'verb', 'noun'),
+            ('nsub', 'verb', 'propn'),
+        ],
+    },
+    'VZ': {
+        'desc': "hat Verbzusatz",
+        'inverse': "",
+        'rules': [
+            # ("AVZ", "VERB", "VERB"),
+            # ("AVZ", "AUX", "VERB"),
+            ('compound:prt', 'verb', 'adp'),  # liegt ... zugrunde
+            ('compound:prt', 'aux', 'adp'),  # hat ... vor
+            ('compound:prt', 'leid', 'adp'),  # leid tun
+        ],
+    },
 }
 
 
