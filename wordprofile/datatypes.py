@@ -1,5 +1,5 @@
-#!/usr/bin/python3
 from collections import namedtuple
+from typing import List
 
 LemmaInfo = namedtuple("LemmaInfo", ["lemma", "tag", "rel", "freq", "inv"])
 CooccInfo = namedtuple("CooccInfo", ["id", "rel", "lemma1", "lemma2", "pos1", "pos2", "inv", "has_mwe"])
@@ -18,6 +18,7 @@ MweConcordance = namedtuple("Concordance",
 DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 
+
 class DependencyTree:
     class Node:
         def __init__(self, token: DBToken):
@@ -30,7 +31,7 @@ class DependencyTree:
                 self.children.append(token)
 
         def is_root(self):
-            return self.parent == None
+            return self.parent is None
 
     def __init__(self, tokens: List[DBToken]):
         self.nodes = [DependencyTree.Node(token) for token in tokens]

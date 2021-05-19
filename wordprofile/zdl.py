@@ -1,235 +1,24 @@
-from collections import defaultdict
 from typing import List, Dict
 
-from wordprofile.datatypes import DBToken, Match, DependencyTree
-
-# rel_map : (rel, head_pos, dep_pos)
-#           (rel1, rel2, head_pos, mid_pos, dep_pos)
-RELATION_PATTERNS = {
-    'ADV': {
-        'desc': "hat Adverbialbestimmung",
-        'inverse': "ist Adverbialbestimmung von",
-        'rules': [
-            # ("ADV", "VERB", "ADJ"),
-            # ("ADV", "VERB", "ADV"),
-            # ("ADV", "ADJ", "ADJ"),
-            # ("ADV", "ADJ", "ADV"),
-            ('advmod', 'verb', 'adj'),
-            ('advmod', 'verb', 'adv'),
-            ('advmod', 'adj', 'adj'),
-            ('advmod', 'adj', 'adv'),
-        ],
-    },
-    'ATTR': {
-        'desc': "hat Adjektivattribut",
-        'inverse': "ist Adjektivattribut von",
-        'rules': [
-            # ("ATTR", "NOUN", "ADJ"),
-            ('amod', 'noun', 'adj'),
-            ('amod', 'propn', 'adj'),
-        ],
-    },
-    'GMOD': {
-        'desc': "hat Genitivattribut",
-        'inverse': "ist Genitivattribut von",
-        'rules': [
-            # ("GMOD", "NOUN", "NOUN"),
-            ('nmod', 'noun', 'noun'),
-            ('nmod', 'noun', 'propn'),
-        ],
-    },
-    'KOM': {
-        'desc': "hat vergleichende Wortgruppe",
-        'inverse': "ist in vergleichender Wortgruppe",
-        'rules': [
-            # ("KOM", "CJ", "NOUN", "NOUN", "CCONJ"),
-            # ("KOM", "CJ", "VERB", "NOUN", "CCONJ"),
-        ],
-    },
-    'KON': {
-        'desc': "hat Koordination mit",
-        'inverse': "",
-        'rules': [
-            # ("CJ", "NOUN", "NOUN"),
-            # ("CJ", "ADJ", "ADJ"),
-            # ("CJ", "VERB", "VERB"),
-            # ("KON", "CJ", "NOUN", "NOUN", "CCONJ"),
-            # ("KON", "CJ", "ADJ", "ADJ", "CCONJ"),
-            # ("KON", "CJ", "VERB", "VERB", "CCONJ"),
-            ('conj', 'cc', 'noun', 'noun', 'cconj'),
-            ('conj', 'cc', 'verb', 'verb', 'cconj'),
-            ('conj', 'cc', 'adj', 'adj', 'cconj'),
-        ],
-    },
-    'OBJ': {
-        'desc': "hat Akkusativ/Dativ-Objekt",
-        'inverse': "ist Akkusativ/Dativ-Objekt von",
-        'rules': [
-            # ("OBJA", "VERB", "NOUN"),
-            # ("OBJA2", "VERB", "NOUN"),
-            # ("OBJD", "VERB", "NOUN"),
-            ('obj', 'verb', 'noun'),
-            ('obj', 'verb', 'propn'),
-            ('iobj', 'verb', 'noun'),
-            ('iobj', 'verb', 'propn'),
-        ],
-    },
-    # 'PN': {
-    #     'desc': "",
-    #     'inverse': "",
-    #     'rules': [
-    #         ("PP", "NOUN", "ADP"),
-    #         ("PP", "AUX", "ADP"),
-    #         ("PP", "VERB", "ADP"),
-    #     ]
-    # },
-    'PP': {
-        'desc': "hat Präpositionalgruppe",
-        'inverse': "ist in Präpositionalgruppe",
-        'rules': [
-            # ("PP", "PN", "NOUN", "NOUN", "ADP"),
-            # ("PP", "PN", "VERB", "NOUN", "ADP"),
-            # ("PP", "PN", "VERB", "ADJ", "ADP"),
-            ('nmod', 'case', 'noun', 'noun', 'case'),
-            ('obl', 'case', 'verb', 'noun', 'case'),
-            ('obl', 'case', 'verb', 'adj', 'case'),
-        ],
-    },
-    'PRED': {
-        'desc': "hat Prädikativ",
-        'inverse': "ist Prädikativ von",
-        'rules': [
-            ('nsub', 'verb', 'noun'),
-            ('nsub', 'verb', 'propn'),
-            ('nsub', 'adj', 'noun'),
-            ('nsub', 'noun', 'noun'),
-            # nur wenn cop (aux?) an head hängt
-        ],
-    },
-    'SUBJA': {
-        'desc': "hat Subjekt",
-        'inverse': "ist Subjekt von",
-        'rules': [
-            # ("SUBJ", "NOUN", "NOUN"),
-            # ("SUBJ", "NOUN", "ADJ"),
-            # ("SUBJ", "VERB", "NOUN"),
-            # ("SUBJ", "VERB", "ADJ"),
-            ('nsub', 'verb', 'noun'),
-            ('nsub', 'verb', 'propn'),
-            ('nsub', 'adj', 'noun'),
-            ('nsub', 'noun', 'noun'),
-            # wenn weder aux noch cop an head hängen
-        ],
-    },
-    'SUBJP': {
-        'desc': "hat Passivsubjekt",
-        'inverse': "ist Passivsubjekt von",
-        'rules': [
-            ('nsub', 'verb', 'noun'),
-            ('nsub', 'verb', 'propn'),
-        ],
-    },
-    'VZ': {
-        'desc': "hat Verbzusatz",
-        'inverse': "",
-        'rules': [
-            # ("AVZ", "VERB", "VERB"),
-            # ("AVZ", "AUX", "VERB"),
-            ('compound:prt', 'verb', 'adp'),  # liegt ... zugrunde
-            ('compound:prt', 'aux', 'adp'),  # hat ... vor
-            ('compound:prt', 'leid', 'adp'),  # leid tun
-        ],
-    },
-}
+from wordprofile.datatypes import DBToken, Match
+from wordprofile.extract import extract_matches
 
 
-def get_inverted_relation_patterns(relation_mappings):
-    relations_inv = defaultdict(lambda: defaultdict(str))
-    for relation_dest, relation_patters in relation_mappings.items():
-        for p in relation_patters:
-            if len(p) == 3:
-                relation_src, head_pos, dep_pos = p
-                relations_inv[relation_src][(head_pos, dep_pos)] = relation_dest
-            elif len(p) == 5:
-                r1, r2, t1, t2, t3 = p
-                relations_inv[(r2, r1)][(t2, t3, t1)] = relation_dest
-            else:
-                raise ValueError('Pattern has unknown dimension')
-    return {k: dict(vd) for k, vd in relations_inv.items()}
-
-
-def extract_pattern_matches(relations_inv, tokens: List[DBToken], sid: int) -> List[Match]:
-    matches = []
-    for t in tokens:
-        if int(t.head) <= 0:
-            # token is root
-            continue
-        t_head_1 = tokens[int(t.head) - 1]
-        relation_type = t.rel
-        if relation_type in relations_inv:
-            if (t_head_1.tag, t.tag) in relations_inv[relation_type]:
-                matches.append(Match(
-                    t_head_1,
-                    t,
-                    None,
-                    relations_inv[relation_type][(t_head_1.tag, t.tag)],
-                    sid,
-                ))
-        if int(t_head_1.head) <= 0:
-            # token head is root, cannot make ternary relation
-            continue
-        t_head_2 = tokens[int(t_head_1.head) - 1]
-        rel_types = (t.rel, t_head_1.rel)
-        if rel_types in relations_inv:
-            if (t.tag, t_head_1.tag, t_head_2.tag) in relations_inv[rel_types]:
-                matches.append(Match(
-                    t_head_2,
-                    t,
-                    t_head_1,
-                    relations_inv[rel_types][(t.tag, t_head_1.tag, t_head_2.tag)],
-                    sid,
-                ))
-    return matches
-
-
-def extract_predicates(tokens: List[DBToken], sid: int) -> List[Match]:
-    tree = DependencyTree(tokens)
-    matches = []
-    for n in tree.nodes:
-        if n.is_root():
-            continue
-        if n.token.tag == "AUX":
-            for c1 in n.children:
-                if c1.token.rel == "SUBJ" and c1.token.tag in {'NOUN', 'VERB', 'ADJ'}:
-                    for c2 in n.children:
-                        if c2.token.rel == "PRED" and c2.token.tag in {'NOUN', 'VERB', 'ADJ'}:
-                            matches.append(Match(
-                                c1.token,
-                                c2.token,
-                                None,
-                                "PRED",
-                                sid,
-                            ))
-    return matches
+def valid_match(match: Match):
+    # TODO filter inconsistent relations
+    #  - 0 is marked by parser
+    return not (len(match.head.surface) < 2 or len(match.dep.surface) < 2
+                or not match.head.surface[0].isalpha() or not match.dep.surface[0].isalpha()
+                or not match.head.surface[-1].isalpha() or not match.dep.surface[-1].isalpha()
+                or any(c.isdigit() for c in match.head.lemma) or any(c.isdigit() for c in match.dep.lemma)
+                or any(c in '"\'@§!?;#*/&<>()' for c in match.head.surface)
+                or any(c in '"\'@§!?;#*/&<>()' for c in match.dep.surface))
 
 
 def extract_matches_from_doc(parses: List[List[DBToken]]):
     matches = []
-    relations_inv = get_inverted_relation_patterns(RELATION_PATTERNS)
-    for sid, sentence in enumerate(parses):
-        relations = extract_pattern_matches(relations_inv, sentence, sid + 1)
-        relations.extend(extract_predicates(sentence, sid + 1))
-        for r in relations:
-            # TODO filter inconsistent relations
-            #  - 0 is marked by parser
-            if (len(r.head.surface) < 2 or len(r.dep.surface) < 2
-                    or not r.head.surface[0].isalpha() or not r.dep.surface[0].isalpha()
-                    or not r.head.surface[-1].isalpha() or not r.dep.surface[-1].isalpha()
-                    or any(c.isdigit() for c in r.head.lemma) or any(c.isdigit() for c in r.dep.lemma)
-                    or any(c in '"\'@§!?;#*/&<>()' for c in r.head.surface)
-                    or any(c in '"\'@§!?;#*/&<>()' for c in r.dep.surface)):
-                continue
-            matches.append(r)
+    for match in filter(valid_match, extract_matches(parses)):
+        matches.append(match)
     return matches
 
 

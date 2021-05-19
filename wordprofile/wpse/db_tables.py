@@ -3,15 +3,16 @@ import enum
 import re
 from collections import namedtuple
 
-from pytabs.consts import ud_pos_map
 from sqlalchemy import Table, Column, types, MetaData, Enum
 from sqlalchemy.sql.schema import Index
-from wordprofile.zdl import RELATION_PATTERNS
+
+from pytabs.consts import ud_pos_map
+from wordprofile.extract import get_relation_types
 
 LEMMA_TYPE = types.VARCHAR(50)
 SURFACE_TYPE = types.VARCHAR(50)
 CORPUS_FILE_TYPE = types.Integer
-RELATION_TYPE = enum.Enum('RELATION_TYPE', sorted(list(RELATION_PATTERNS.keys())))
+RELATION_TYPE = enum.Enum('RELATION_TYPE', get_relation_types())
 TAG_TYPE = enum.Enum('TAG_TYPE', sorted(set(ud_pos_map.values())))
 DBCorpusFile = namedtuple('DBCorpusFile', ['id', 'corpus', 'file', 'orig', 'scan', 'date', 'text_class', 'available'])
 DBConcordance = namedtuple('DBConcordance', ['corpus_file_id', 'sentence_id', 'sentence', 'page'])
