@@ -2,16 +2,16 @@
 
 import hashlib
 import logging
+import math
 import multiprocessing
 import os
 import re
+import sys
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
 
 import conllu
-import math
-import sys
 from conllu.models import TokenList
 
 from wordprofile.datatypes import DBToken
@@ -467,7 +467,7 @@ def load_files_into_db(engine, storage_path):
     """
     for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches', 'mwe', 'mwe_match']:
         engine.execute("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
-            os.path.join(storage_path, tb_name),
+            os.path.join(storage_path, "final", tb_name),
             tb_name
         ))
         logging.info('LOADED {}'.format(tb_name))
