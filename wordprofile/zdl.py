@@ -5,6 +5,9 @@ from wordprofile.extract import extract_matches
 
 
 def valid_match(match: Match):
+    """
+    Validates matches by specified criteria (surface form, special symbols, length).
+    """
     # TODO filter inconsistent relations
     #  - 0 is marked by parser
     return not (len(match.head.surface) < 2 or len(match.dep.surface) < 2
@@ -16,6 +19,9 @@ def valid_match(match: Match):
 
 
 def extract_matches_from_doc(parses: List[List[DBToken]]):
+    """
+    Extracts valid matches from a given document (list of token sequences).
+    """
     matches = []
     for match in filter(valid_match, extract_matches(parses)):
         matches.append(match)
