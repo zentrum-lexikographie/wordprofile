@@ -8,6 +8,7 @@ import math
 
 from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
     format_mwe_concordances
+from wordprofile.utils import tag_f2b, tag_b2f
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.variations import generate_orth_variations
@@ -50,7 +51,7 @@ class Wordprofile:
         if not all(c.isalpha() or c == '-' or c == '+' for c in lemma):
             return []
         lemma = lemma.replace("+", ' ')
-
+        pos = tag_f2b[pos]
         results = self.db.get_lemma_and_pos(lemma, pos)
         # if not found in word-profile database, try variations mapping
         if not results and use_external_variations and lemma in self.wp_spec.mapVariation:
@@ -118,10 +119,10 @@ class Wordprofile:
         for relation in relations:
             # meta relation is a summary of all relations
             if relation == 'META':
-                cooccs = self.db.get_relation_meta(lemma1, pos1, lemma2, pos2, start, number,
+                cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
                                                    order_by, min_freq, min_stat)
             else:
-                cooccs = self.db.get_relation_tuples(lemma1, pos1, lemma2, pos2, start, number,
+                cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
                                                      order_by, min_freq, min_stat, relation)
             results.append({
                 'Relation': relation,
@@ -177,8 +178,8 @@ class Wordprofile:
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return {
-            'parts': [{'Lemma': coocc_info.lemma1, 'POS': coocc_info.pos1},
-                      {'Lemma': coocc_info.lemma2, 'POS': coocc_info.pos2}],
+            'parts': [{'Lemma': coocc_info.lemma1, 'POS': tag_b2f[coocc_info.pos1]},
+                      {'Lemma': coocc_info.lemma2, 'POS': tag_b2f[coocc_info.pos2]}],
             'data': dict(results),
         }
 
@@ -204,6 +205,7 @@ class Wordprofile:
         """
         results = []
         for rel in relations:
+            pos = tag_f2b[pos]
             if rel == "META":
                 diffs = self.db.get_relation_tuples_diff_meta(lemma1, lemma2, pos, order_by, min_freq, min_stat)
             else:

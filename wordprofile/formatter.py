@@ -5,6 +5,7 @@ from collections import defaultdict
 from typing import List
 
 from wordprofile.datatypes import Coocc, Concordance, LemmaInfo, MweConcordance
+from wordprofile.utils import tag_b2f
 
 RE_HIT_DELIMITER = re.compile(r'([^\x01\x02]+)([\x01\x02])')
 RE_HIT_DELIMITER2 = re.compile(r'[\x01\x02]')
@@ -23,7 +24,7 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
         relations, frequencies = zip(*rel_freqs)
         if len(relations) > 1:
             relations = ('META',) + relations
-        results.append({'Lemma': lemma, 'POS': pos, 'PosId': pos,
+        results.append({'Lemma': lemma, 'POS': tag_b2f[pos], 'PosId': tag_b2f[pos],
                         'Frequency': sum(frequencies), 'Relations': relations})
     return results
 
@@ -38,8 +39,8 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
             concord_no = concord_no // 2
         results.append({
             'Relation': '~' if coocc.inverse else '' + coocc.Rel,
-            'POS': coocc.Pos2,
-            'PosId': coocc.Pos2,
+            'POS': tag_b2f[coocc.Pos2],
+            'PosId': tag_b2f[coocc.Pos2],
             'Lemma': coocc.Lemma2,
             'Score': {
                 'Frequency': coocc.Frequency,
@@ -117,7 +118,7 @@ def format_comparison(diffs):
     for diff in diffs:
         # create result with common/default values
         coocc_diff = {
-            'POS': diff['pos'],
+            'POS': tag_b2f[diff['pos']],
             'ConcordId1': 0,
             'ConcordId2': 0,
             'ConcordNo1': 0,
