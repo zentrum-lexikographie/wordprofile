@@ -250,6 +250,33 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             )
 
 
+def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
+    """Extracts matches for genitive modification relation from a dependency tree of a sentence.
+
+    Args:
+        dtree: dependency tree of a single sentence
+        sid: sentence id used for match initialization
+
+    Returns:
+        Generator over extracted matches from sentence.
+    """
+    determiners = {"des", "der", "eines", "einer"}
+    for n in dtree.nodes:
+        if n.token.tag == 'NOUN':
+            for nmod in n.children:
+                if nmod.token.rel == "nmod" and nmod.token.tag == 'NOUN':
+                    if any(det.token.surface in determiners for det in nmod.children):
+                        if any(c.token.rel == 'case' for c in nmod.children):
+                            continue
+                        yield Match(
+                            n.token,
+                            nmod.token,
+                            None,
+                            "GMOD",
+                            sid,
+                        )
+
+
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """Extracts matches for active subject relation from a dependency tree of a sentence.
 
@@ -291,7 +318,9 @@ def extract_matches(parses: List[List[DBToken]]) -> Iterator[Match]:
         for match in extract_matches_by_pattern(relations_inv, sentence, sid + 1):
             yield match
         dtree = DependencyTree(sentence)
-        for match in extract_predicates(dtree, sid + 1):
+        for match in extract_predicatives(dtree, sid + 1):
+            yield match
+        for match in extract_genitives(dtree, sid + 1):
             yield match
         for match in extract_comparing_groups(sentence, sid + 1):
             yield match
