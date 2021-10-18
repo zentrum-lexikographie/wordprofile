@@ -210,7 +210,11 @@ def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]
             # token head is root, cannot make ternary relation
             continue
         t_head_2 = tokens[int(t_head_1.head) - 1]
-        if t_head_2.tag in {'VERB', 'NOUN'}:
+        if t.surface == 'als' and t_head_2.tag != 'ADJ':
+            # expect relations with 'als' to relate to an adjective
+            # TODO: preferably check for comparative (https://universaldependencies.org/u/feat/Degree.html)
+            continue
+        if t_head_2.tag in {'ADJ', 'VERB', 'NOUN'}:
             yield Match(
                 t_head_2,
                 t_head_1,
