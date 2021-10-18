@@ -11,7 +11,6 @@ setup(name='wordprofile',
       install_requires=[
           'pymysql',
           'sqlalchemy',
-          'imsnpars @ git+ssh://git@git.zdl.org/knaebel/imsnpars',
           'termcolor',
           'tabulate',
           'pytabs @ git+ssh://git@git.zdl.org/zdl/pytabs',

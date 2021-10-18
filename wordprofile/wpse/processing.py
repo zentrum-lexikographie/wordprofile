@@ -52,7 +52,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
         tag=token['upos'],
         head=token['head'],
         rel=token['deprel'],
-        misc=(1 - bool(token['misc']))
+        misc=token['misc'].get('SpaceAfter') == 'No'
     )) for token in sentence]
 
 
@@ -79,6 +79,7 @@ class FileWorker(multiprocessing.Process):
                     flush_ctr += 1
                     if flush_ctr >= self.flush_limit:
                         fh.flush()
+                        flush_ctr = 0
                 except Exception as e:
                     logging.warning(e)
 
@@ -131,48 +132,6 @@ def process_doc_file(file_reader_queue: Queue, db_files_queue: Queue, db_sents_q
         except Exception as e:
             logging.warning(e)
             print(sentences)
-
-
-class ConverterFileWorker(multiprocessing.Process):
-    def __init__(self, path, fname, q_match_out):
-        self.path = path
-        self.fname = fname
-        self.q = multiprocessing.Manager().Queue(maxsize=1000)
-        self.q_match_out = q_match_out
-        super().__init__()
-
-    def run(self):
-        relation_dict = defaultdict(dict)
-        freq_dict = defaultdict(int)
-        next_rel_id = 1
-        while True:
-            db_matches = self.q.get()
-            if db_matches is None:
-                logging.info('{:10} - CLOSE queue'.format(self.fname))
-                with open(os.path.join(self.path, self.fname), 'w') as fh:
-                    for rel, cols_dict in relation_dict.items():
-                        for cols, rel_id in cols_dict.items():
-                            fh.write('{}\t{}\t{}\t0\t{}\n'.format(
-                                rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
-                    fh.flush()
-                break
-            try:
-                for m_i, m in enumerate(db_matches):
-                    rel, cols = m[0], m[1:5]
-                    if cols in relation_dict[rel]:
-                        rel_id = relation_dict[rel][cols]
-                    else:
-                        rel_id = next_rel_id
-                        next_rel_id += 1
-                        relation_dict[rel][cols] = rel_id
-                    db_matches[m_i] = (rel_id,) + m[5:]
-                    freq_dict[rel_id] += 1
-                self.q_match_out.put(db_matches)
-            except Exception as e:
-                logging.warning(e)
-
-    def stop(self):
-        self.q.put(None)
 
 
 def is_valid_sentence(sentence: str):
@@ -240,6 +199,9 @@ def reindex_filter_concordances(fin, fout, corpus_file_idx):
     """
 
     def get_robust_hash(sentence):
+        """Generates an md5 sentence hash.
+        The sentence string is lowered and all symbols except letters are removed for robustness.
+        """
         sentence = re.sub(r"[^a-z]", "", sentence.lower())
         return hashlib.md5(sentence.encode()).hexdigest()
 
