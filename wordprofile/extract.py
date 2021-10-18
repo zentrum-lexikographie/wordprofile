@@ -224,8 +224,9 @@ def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]
             )
 
 
-def extract_predicates(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for predicative relation from a dependency tree of a sentence.
+def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
+    """Extracts matches for subject predicative relation from a dependency tree of a sentence.
+    TODO: extend for object predicative relations (https://www.deutschplus.net/pages/Pradikativ)
 
     Args:
         dtree: dependency tree of a single sentence
@@ -235,16 +236,14 @@ def extract_predicates(dtree: DependencyTree, sid: int) -> Iterator[Match]:
         Generator over extracted matches from sentence.
     """
     for n in dtree.nodes:
-        if n.is_root():
-            continue
         if n.token.tag in {'NOUN', 'VERB', 'ADJ'}:
-            for cop in n.children:
-                if cop.token.rel == "cop" and cop.token.tag == 'AUX':
+            if any(c.token.rel == "cop" and c.token.tag == "AUX" for c in n.children):
+                if not any(c.token.rel == "case" for c in n.children):
                     for nsubj in n.children:
-                        if nsubj.token.rel == "nsubj" and nsubj.token.tag in {'NOUN', 'PROPN'}:
+                        if nsubj.token.rel == "nsubj" and nsubj.token.tag == 'NOUN':
                             yield Match(
-                                n.token,
                                 nsubj.token,
+                                n.token,
                                 None,
                                 "PRED",
                                 sid,
