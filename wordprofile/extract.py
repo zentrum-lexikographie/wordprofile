@@ -19,26 +19,18 @@ RELATION_PATTERNS = {
         'inverse': "ist Adjektivattribut von",
         'rules': [
             ('amod', 'noun', 'adj'),
-            ('amod', 'propn', 'adj'),
         ],
     },
     'GMOD': {
         'desc': "hat Genitivattribut",
         'inverse': "ist Genitivattribut von",
         'rules': [
-            ('nmod', 'noun', 'noun'),
-            ('nmod', 'noun', 'propn'),
-            ('nmod:poss', 'noun', 'noun'),
-            ('nmod:poss', 'noun', 'propn'),
         ],
     },
     'KOM': {
         'desc': "hat vergleichende Wortgruppe",
         'inverse': "ist in vergleichender Wortgruppe",
         'rules': [
-            # ('obl', 'case', 'verb', 'noun', 'cconj'),
-            # ('obl', 'case', 'noun', 'noun', 'cconj'),
-            # ('nmod', 'case', 'noun', 'noun', 'cconj'),
         ],
     },
     'KON': {
@@ -55,20 +47,9 @@ RELATION_PATTERNS = {
         'inverse': "ist Akkusativ/Dativ-Objekt von",
         'rules': [
             ('obj', 'verb', 'noun'),
-            ('obj', 'verb', 'propn'),
             ('iobj', 'verb', 'noun'),
-            ('iobj', 'verb', 'propn'),
         ],
     },
-    # 'PN': {
-    #     'desc': "",
-    #     'inverse': "",
-    #     'rules': [
-    #         # ("PP", "NOUN", "ADP"),
-    #         # ("PP", "AUX", "ADP"),
-    #         # ("PP", "VERB", "ADP"),
-    #     ]
-    # },
     'PP': {
         'desc': "hat Präpositionalgruppe",
         'inverse': "ist in Präpositionalgruppe",
@@ -82,22 +63,12 @@ RELATION_PATTERNS = {
         'desc': "hat Prädikativ",
         'inverse': "ist Prädikativ von",
         'rules': [
-            # ('nsubj', 'verb', 'noun'),
-            # ('nsubj', 'verb', 'propn'),
-            # ('nsubj', 'adj', 'noun'),
-            # ('nsubj', 'noun', 'noun'),
-            # nur wenn cop (aux?) an head hängt
         ],
     },
     'SUBJA': {
         'desc': "hat Subjekt",
         'inverse': "ist Subjekt von",
         'rules': [
-            # ('nsubj', 'verb', 'noun'),
-            # ('nsubj', 'verb', 'propn'),
-            # ('nsubj', 'adj', 'noun'),
-            # ('nsubj', 'noun', 'noun'),
-            # wenn weder aux noch cop an head hängen
         ],
     },
     'SUBJP': {
@@ -105,7 +76,6 @@ RELATION_PATTERNS = {
         'inverse': "ist Passivsubjekt von",
         'rules': [
             ('nsubj:pass', 'verb', 'noun'),
-            ('nsubj:pass', 'verb', 'propn'),
         ],
     },
     'VZ': {
@@ -288,13 +258,11 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
         Generator over extracted matches from sentence.
     """
     for n in dtree.nodes:
-        if n.is_root():
-            continue
         if any(cop.token.rel == "cop" for cop in n.children):
             continue
         if n.token.tag in {'NOUN', 'VERB', 'ADJ'}:
             for nsubj in n.children:
-                if nsubj.token.rel == "nsubj" and nsubj.token.tag in {'NOUN', 'PROPN'}:
+                if nsubj.token.rel == "nsubj" and nsubj.token.tag == 'NOUN':
                     yield Match(
                         n.token,
                         nsubj.token,
