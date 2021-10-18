@@ -285,16 +285,20 @@ class WPConnect:
         """
         if not lemma2_tag or not lemma2:
             where_sql = """
-                WHERE (lemma1='{}' and lemma1_tag='{}') {} {} 
+                WHERE 
+                    (lemma1='{}' and lemma1_tag='{}')
+                    and label NOT REGEXP 'VZ|PP|KON|KOM'
+                    {} {} 
                 ORDER BY {} DESC LIMIT {},{};""".format(
                 lemma1, lemma1_tag, min_freq_sql, min_stat_sql, order_by, start, number
             )
         else:
             where_sql = """
                 WHERE 
-                    (lemma1='{}' and lemma1_tag='{}' and 
-                     lemma2='{}' and lemma2_tag='{}') 
-                     {} {} 
+                    (lemma1='{}' and lemma1_tag='{}' and
+                     lemma2='{}' and lemma2_tag='{}')
+                     and label NOT REGEXP 'VZ|PP|KON|KOM'
+                     {} {}
                 ORDER BY {} DESC LIMIT {},{};""".format(
                 lemma1, lemma1_tag, lemma2, lemma2_tag, min_freq_sql, min_stat_sql, order_by, start, number
             )
