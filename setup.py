@@ -17,11 +17,8 @@ setup(name='wordprofile',
       ],
       entry_points={
           'console_scripts': [
-              'wp-init = cli.make_wp:main',
-              'wp-parse = cli.parse_doc:main',
               'wp-xmlrpc = apps.xmlrpc_api:main',
               'wp-rest = apps.rest_api:main',
-              'wp-vis = cli.vis:main',
           ],
       }
       )
