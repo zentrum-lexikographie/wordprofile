@@ -16,6 +16,7 @@ def prepare_corpus_file(meta: Metadata) -> Tuple[str, DBCorpusFile]:
     Returns:
         A documents id (for later usage) and meta information in DB format.
     """
+    # TODO change document id; maybe corpus:basename works
     doc_id = str(meta.get('DDC:meta.file_'))
     return doc_id, DBCorpusFile(
         id=doc_id,
@@ -44,7 +45,7 @@ def prepare_concord_sentences(doc_id: str, parses: List[List[DBToken]]) -> List[
     return [DBConcordance(
         corpus_file_id=doc_id,
         sentence_id=sent_i + 1,
-        sentence=''.join('{}{}'.format(tok.surface, '' if tok == parse[-1] else '\x01' if tok.misc == 0 else '\x02')
+        sentence=''.join('{}{}'.format(tok.surface, '' if tok == parse[-1] else '\x01' if tok.misc else '\x02')
                          for tok in parse),
         page='-'
     ) for sent_i, parse in enumerate(parses)]
@@ -72,7 +73,7 @@ def prepare_matches(doc_id: str, matches: List[Match]) -> List[DBMatch]:
                     len(m.dep.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length or
                     len(m.head.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length or
                     len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length):
-                logging.warning(f"SKIP LOONG MATCH {doc_id} {m}")
+                logging.warning(f"SKIP LOONG MATCH {doc_id[:7]}...{doc_id[-15:-8]} {m}")
                 continue
             db_matches.append(DBMatch(
                 relation_label=m.relation,
