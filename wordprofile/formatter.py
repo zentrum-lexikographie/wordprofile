@@ -24,8 +24,14 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
         relations, frequencies = zip(*rel_freqs)
         if len(relations) > 1:
             relations = ('META',) + relations
-        results.append({'Lemma': lemma, 'POS': tag_b2f[pos], 'PosId': tag_b2f[pos],
-                        'Frequency': sum(frequencies), 'Relations': relations})
+        results.append({
+            'Form': lemma,
+            'Lemma': lemma,
+            'POS': tag_b2f[pos],
+            'PosId': tag_b2f[pos],
+            'Frequency': sum(frequencies),
+            'Relations': relations
+        })
     return results
 
 
@@ -41,6 +47,7 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
             'Relation': '~' if coocc.inverse else '' + coocc.Rel,
             'POS': tag_b2f[coocc.Pos2],
             'PosId': tag_b2f[coocc.Pos2],
+            'Form': coocc.Lemma2,
             'Lemma': coocc.Lemma2,
             'Score': {
                 'Frequency': coocc.Frequency,
