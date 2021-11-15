@@ -370,33 +370,24 @@ def compute_mwe_scores(mwe_fout, match_fout, mwe_groups):
                 mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
 
 
-def extract_collocations(match_fins, collocs_fout):
+def extract_collocations(match_fin, collocs_fout):
     """Iterates over all extracted matches and generates a collocation mapping.
 
     Collocations contain only lemmatized match information and, additionally, frequencies are counted for matches.
     The mapping is written to a file and used later for simplifying the matches information.
     """
-    relation_dict = defaultdict(dict)
-    freq_dict = defaultdict(int)
-    next_rel_id = 1
-    for match_fin in match_fins:
-        with open(match_fin, "r") as fin:
-            for line in fin:
-                m = tuple(line.split('\t'))
-                rel, cols = m[0], m[1:5]
-                if cols in relation_dict[rel]:
-                    rel_id = relation_dict[rel][cols]
-                else:
-                    rel_id = next_rel_id
-                    next_rel_id += 1
-                    relation_dict[rel][cols] = rel_id
-                freq_dict[rel_id] += 1
+    relation_dict = defaultdict(lambda: defaultdict(int))
+    with open(match_fin, "r") as fin:
+        for line in fin:
+            m = tuple(line.strip().split('\t'))
+            rel, cols = m[0], m[1:5]
+            relation_dict[rel][cols] += 1
 
     with open(collocs_fout, 'w') as fh:
         for rel, cols_dict in relation_dict.items():
-            for cols, rel_id in cols_dict.items():
-                fh.write('{}\t{}\t{}\t0\t{}\n'.format(
-                    rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
+            for cols, freq in cols_dict.items():
+                fh.write('{}\t{}\t{}\n'.format(
+                    rel, "\t".join(map(str, cols)), freq))
 
 
 def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:

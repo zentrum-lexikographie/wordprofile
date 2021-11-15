@@ -3,7 +3,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from wordprofile.wpse.processing import process_files
+from wordprofile.wpse.processing import process_files, extract_collocations
 
 
 def main():
@@ -18,6 +18,9 @@ def main():
 
     os.makedirs(args.dest, exist_ok=True)
     process_files(args.input, args.dest, args.njobs)
+    logging.info(f'EXTRACT collocations from matches')
+    extract_collocations(os.path.join(args.dest, 'matches'), os.path.join(args.dest, 'collocations'))
+    logging.info(f'DONE {args.dest}')
 
 
 if __name__ == '__main__':
