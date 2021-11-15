@@ -163,22 +163,6 @@
       "~GMOD",
       "~PRED",
       "~KOM"
-    ],
-    "Personalpronomen": [
-      "META",
-      "ATTR",
-      "~OBJ",
-      "~PP",
-      "GMOD",
-      "KON",
-      "PRED",
-      "KOM",
-      "~SUBJ",
-      "~SUBJA",
-      "PP",
-      "~GMOD",
-      "~PRED",
-      "~KOM"
     ]
   }
 }

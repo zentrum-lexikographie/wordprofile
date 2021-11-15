@@ -63,7 +63,7 @@ class Wordprofile:
                 results = self.db.get_lemma_and_pos(lemma, pos)
                 if results:
                     break
-        return format_lemma_pos(results)
+        return format_lemma_pos(results, self.wp_spec.mapRelOrder)
 
     def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str, use_variations: bool = True) -> List[dict]:
         """Fetches lemma pairs with common pos tags from word-profile database.

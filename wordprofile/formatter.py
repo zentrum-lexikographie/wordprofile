@@ -11,7 +11,7 @@ RE_HIT_DELIMITER = re.compile(r'([^\x01\x02]+)([\x01\x02])')
 RE_HIT_DELIMITER2 = re.compile(r'[\x01\x02]')
 
 
-def format_lemma_pos(db_results: List[LemmaInfo]):
+def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     """Converts lemma-pos items with their information (relations, frequencies) into output format
     """
     lemma_pos_mapping = defaultdict(list)
@@ -23,7 +23,7 @@ def format_lemma_pos(db_results: List[LemmaInfo]):
     for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
         if len(relations) > 1:
-            relations = ('META',) + relations
+            relations = ['META'] + [r for r in relation_order[tag_b2f.get(pos)] if r in relations]
         results.append({
             'Form': lemma,
             'Lemma': lemma,
