@@ -196,7 +196,7 @@ def reindex_corpus_files(fins: List[str], fout: str):
     return corpus_file_idx
 
 
-def reindex_filter_concordances(fins, fout, corpus_file_idx):
+def reindex_filter_concordances(fins, fout, corpus_file_idx, fout_invalid, fout_duplicate):
     """Filters and removes duplicates from concordances and replaces corpus file index.
     """
 
@@ -209,12 +209,13 @@ def reindex_filter_concordances(fins, fout, corpus_file_idx):
 
     sent_hashes = set()
     sents_idx = []
-    with open(fout, 'w') as sents_out:
+    with open(fout, 'w') as sents_out, open(fout_invalid, 'w') as invalids_out, open(fout_duplicate, 'w') as dups_out:
         for fin in fins:
+            logging.info(f"- {fin}")
             with open(fin, 'r') as sents_in:
                 for item in sents_in:
-                    doc_id, sent_id, sentence, page = item.split('\t')
-                    doc_id = str(corpus_file_idx[doc_id])
+                    doc_corpus, sent_id, sentence, page = item.split('\t')
+                    doc_id = str(corpus_file_idx[doc_corpus])
                     # checks whether sentence satisfies hard constraints
                     if is_valid_sentence(sentence):
                         sent_hash = get_robust_hash(sentence)
@@ -223,6 +224,10 @@ def reindex_filter_concordances(fins, fout, corpus_file_idx):
                             sent_hashes.add(sent_hash)
                             sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
                             sents_idx.append((doc_id, sent_id))
+                        else:
+                            dups_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
+                    else:
+                        invalids_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
     return set(sents_idx)
 
 
@@ -237,6 +242,7 @@ def filter_transform_matches(fins, fout, corpus_file_idx, sents_idx, collocs: Di
     match_i = 0
     with open(fout, 'w') as matches_out:
         for fin in fins:
+            logging.info(f"- {fin}")
             with open(fin, 'r') as matches_in:
                 for line in matches_in:
                     match = line.strip().split('\t')
@@ -393,15 +399,23 @@ def extract_collocations(match_fins, collocs_fout):
                     rel_id, rel, "\t".join(map(str, cols)), freq_dict[rel_id]))
 
 
-def load_collocations(fin, min_rel_freq=3) -> Dict[int, Colloc]:
+def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit.
     """
+    relation_dict = defaultdict(lambda: defaultdict(int))
+    for fin in fins:
+        with open(fin, "r") as fin:
+            for line in fin:
+                m = tuple(line.strip().split('\t'))
+                rel, cols, freq = m[0], m[1:5], int(m[5])
+                if freq >= min_rel_freq:
+                    relation_dict[rel][cols] += freq
     collocs = {}
-    with open(fin, "r") as fin:
-        for line in fin:
-            c = convert_line(line, Colloc, colloc_dtypes)
-            if c.frequency >= min_rel_freq:
-                collocs[c.id] = c
+    c_id = 0
+    for rel, cols_dict in relation_dict.items():
+        for cols, freq in cols_dict.items():
+            collocs[c_id] = Colloc(c_id, rel, *cols, 0, freq)
+            c_id += 1
     return collocs
 
 
@@ -417,14 +431,14 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
                                            os.path.join(final_path, 'corpus_files'))
     logging.info('FILTER concordances')
     sents_idx = reindex_filter_concordances([os.path.join(p, 'concord_sentences') for p in storage_paths],
-                                            os.path.join(final_path, 'concord_sentences'), corpus_file_idx)
-    logging.info('EXTRACT collocations from matches')
-    extract_collocations([os.path.join(p, 'matches') for p in storage_paths], os.path.join(final_path, 'collocations'))
+                                            os.path.join(final_path, 'concord_sentences'), corpus_file_idx,
+                                            os.path.join(final_path, 'concord_sentences.invalid'),
+                                            os.path.join(final_path, 'concord_sentences.duplicate'))
     logging.info('LOAD FILTERED collocations')
-    collocs = load_collocations(os.path.join(final_path, 'collocations'), min_rel_freq)
+    collocs = load_collocations([os.path.join(p, 'collocations') for p in storage_paths], min_rel_freq)
     logging.info('FILTER TRANSFORM matches')
-    filter_transform_matches([os.path.join(p, 'matches') for p in storage_paths], os.path.join(final_path, 'matches'), corpus_file_idx,
-                             sents_idx, collocs)
+    filter_transform_matches([os.path.join(p, 'matches') for p in storage_paths], os.path.join(final_path, 'matches'),
+                             corpus_file_idx, sents_idx, collocs)
     logging.info('CALCULATE AND WRITE log dice scores')
     compute_collocation_scores(os.path.join(final_path, 'collocations'), collocs)
     if with_mwe:
