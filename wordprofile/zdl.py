@@ -79,8 +79,13 @@ def sent_filter_tags(sentence: List[DBToken]) -> bool:
 
 
 def sent_filter_invalid_tags(sentence: List[DBToken]) -> bool:
-    return sum(1 for t in sentence if not t.tag) < 10
+    return sum(1 for t in sentence if t.tag in {'X', 'SYM'}) < 10
 
 
 def sentence_is_valid(s: List[DBToken]) -> bool:
-    return sent_filter_length(s) and sent_filter_tags(s) and sent_filter_endings(s) and sent_filter_invalid_tags(s)
+    return all([
+        sent_filter_length(s),
+        sent_filter_tags(s),
+        sent_filter_endings(s),
+        sent_filter_invalid_tags(s)
+    ])

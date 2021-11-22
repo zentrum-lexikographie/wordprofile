@@ -7,6 +7,7 @@ import multiprocessing
 import os
 import re
 import sys
+import traceback
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import List, Dict, Tuple, Union, Iterator
@@ -39,10 +40,18 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
     If tags are not found in mapping, they are left empty and recognized later.
     """
 
+    def case_by_tag(w: str, tag: str) -> str:
+        if tag in {"VERB", "ADJ", "ADV", "ADP", "AUX"}:
+            return w.lower()
+        elif tag == "NOUN":
+            return w.capitalize()
+        else:
+            return w
+
     def normalize_caps(t: DBToken) -> DBToken:
         return DBToken(idx=t.idx,
                        surface=t.surface,
-                       lemma=t.lemma.lower() if t.tag in ["VERB", "ADJ", "ADV", "ADP"] else t.lemma,
+                       lemma=case_by_tag(t.lemma, t.tag),
                        tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
 
     return [normalize_caps(DBToken(
@@ -129,9 +138,11 @@ def process_doc_file(file_reader_queue: Queue, db_files_queue: Queue, db_sents_q
             db_files_queue.put([db_corpus_file])
             db_sents_queue.put(db_concord_sentences)
             db_matches_queue.put(db_matches)
+        except TypeError:
+            logging.warning("Type Conversion Error: invalid sentence parse")
         except Exception as e:
             logging.warning(e)
-            print(sentences)
+            logging.warning(traceback.format_exc())
 
 
 def is_valid_sentence(sentence: str):
