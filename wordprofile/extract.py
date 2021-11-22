@@ -206,6 +206,7 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
         Generator over extracted matches from sentence.
     """
     for n in dtree.nodes:
+        # subject predicative
         if n.token.tag in {'NOUN', 'VERB', 'ADJ'}:
             if any(c.token.rel == "cop" and c.token.tag == "AUX" for c in n.children):
                 if not any(c.token.rel == "case" for c in n.children):
@@ -218,6 +219,19 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                                 "PRED",
                                 sid,
                             )
+        # object predicative
+        if n.token.tag == 'VERB':
+            for obj in n.children:
+                if obj.token.tag in {'VERB', 'ADJ', 'NOUN'} and obj.token.rel in {'obj', 'obl'}:  # ++ 'advcl', 'xcomp'
+                    # if any(c.token.rel in {'mark', 'case'} and c.token.tag in {'CCONJ', 'ADP'} for c in obj.children):
+                    if any(c.token.surface in {'als', 'für'} for c in obj.children):
+                        yield Match(
+                            n.token,
+                            obj.token,
+                            None,
+                            "PRED",
+                            sid,
+                        )
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
