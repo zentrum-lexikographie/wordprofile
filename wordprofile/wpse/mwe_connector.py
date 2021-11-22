@@ -81,6 +81,7 @@ class WPMweConnect:
                 and s_right.sentence_id =(m1.sentence_id + 1))
             WHERE 
                 mwe_match.mwe_id = {}  
+            ORDER BY cf.date DESC 
             LIMIT {},{};
             """.format(mwe_id, start_index, result_number)
         else:
@@ -100,6 +101,7 @@ class WPMweConnect:
                 and s_center.sentence_id = m1.sentence_id)
             WHERE 
                 mwe_match.mwe_id = {}  
+            ORDER BY cf.date DESC 
             LIMIT {},{};
             """.format(mwe_id, start_index, result_number)
         db_results = self.__fetchall(query)

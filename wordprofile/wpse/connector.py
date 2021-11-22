@@ -127,7 +127,8 @@ class WPConnect:
                 c.lemma1_tag = '{}' and  
                 c.lemma2 = '{}' and  
                 c.lemma2_tag = '{}'
-            )  
+            )
+            ORDER BY cf.date DESC 
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
                        start_index, result_number)
@@ -150,7 +151,8 @@ class WPConnect:
                 c.lemma1_tag = '{}' and  
                 c.lemma2 = '{}' and  
                 c.lemma2_tag = '{}'
-            )  
+            ) 
+            ORDER BY cf.date DESC 
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
                        start_index, result_number)
