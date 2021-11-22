@@ -204,8 +204,8 @@ class Wordprofile:
             List of collocation-diffs grouped by relation.
         """
         results = []
+        pos = tag_f2b[pos]
         for rel in relations:
-            pos = tag_f2b[pos]
             if rel == "META":
                 diffs = self.db.get_relation_tuples_diff_meta(lemma1, lemma2, pos, order_by, min_freq, min_stat)
             else:
