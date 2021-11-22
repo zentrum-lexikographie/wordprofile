@@ -260,8 +260,9 @@ def filter_transform_matches(fins, fout, corpus_file_idx, sents_idx, collocs: Di
                     colloc_val = '-'.join(match[:5])
                     match[10] = str(corpus_file_idx[match[10]])
                     # check whether concordances and collocations still exist for match
-                    if colloc_val in relation_dict and tuple(match[10:12]) in sents_idx:
-                        match = [str(match_i), str(relation_dict[colloc_val])] + match[5:]
+                    colloc_id = relation_dict.get(colloc_val)
+                    if colloc_id and tuple(match[10:12]) in sents_idx:
+                        match = [str(match_i), str(colloc_id)] + match[5:]
                         matches_out.write('\t'.join(match) + '\n')
                         match_i += 1
 
@@ -283,13 +284,14 @@ def compute_collocation_scores(fout, collocs):
         f2[w2] += c.frequency
 
     with open(fout, 'w') as fout:
+        inv_relations = {'SUBJ', 'SUBJA', 'SUBJP', 'OBJ', 'OBJA', 'OBJD', 'PRED', 'ADV', 'ATTR', 'GMOD', 'PP', 'KOM'}
         for c_id, c in collocs.items():
             w1 = c.lemma1 + "-" + c.lemma1_tag
             w2 = c.lemma2 + "-" + c.lemma2_tag
             log_dice = 14 + math.log2(2 * max(1, f12[c.label][(w1, w2)]) / (max(1, f1[c.label][w1]) + max(1, f2[w2])))
             fout.write("{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
                        "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
-            if c.label in ['SUBJ', 'SUBJA', 'SUBJP', 'OBJ', 'OBJA', 'OBJD', 'PRED', 'ADV', 'ATTR', 'GMOD', 'PP', 'KOM']:
+            if c.label in inv_relations:
                 fout.write("-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
                            "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
 
@@ -391,14 +393,31 @@ def extract_collocations(match_fin, collocs_fout):
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split('\t'))
-            rel, cols = m[0], m[1:5]
-            relation_dict[rel][cols] += 1
+            rel, lemma1, lemma2, tag1, tag2 = m[0:5]
+            relation_dict[rel][lemma1, lemma2, tag1, tag2] += 1
 
     with open(collocs_fout, 'w') as fh:
         for rel, cols_dict in relation_dict.items():
-            for cols, freq in cols_dict.items():
-                fh.write('{}\t{}\t{}\n'.format(
-                    rel, "\t".join(map(str, cols)), freq))
+            for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
+                fh.write(f'{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{freq}\n')
+
+
+def extract_most_common_surface(match_fin, fout):
+    """Iterates over all extracted matches and generates a mapping from a lemma to its most common surface form.
+    """
+    common_surfaces = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    with open(match_fin, "r") as fin:
+        for line in fin:
+            m = tuple(line.strip().split('\t'))
+            rel, lemma1, lemma2, tag1, tag2, form1, form2 = m[:7]
+            common_surfaces[tag1][lemma1][form1] += 1
+            common_surfaces[tag2][lemma2][form2] += 1
+
+    with open(fout, 'w') as fh:
+        for tag in common_surfaces:
+            for lemma in common_surfaces[tag]:
+                surface, freq = sorted(common_surfaces[tag][lemma].items(), key=lambda x: x[1], reverse=True)[0]
+                fh.write(f'{lemma}\t{tag}\t{surface}\t{freq}\n')
 
 
 def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
@@ -409,14 +428,14 @@ def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
         with open(fin, "r") as fin:
             for line in fin:
                 m = tuple(line.strip().split('\t'))
-                rel, cols, freq = m[0], m[1:5], int(m[5])
+                rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
                 if freq >= min_rel_freq:
-                    relation_dict[rel][cols] += freq
+                    relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
     collocs = {}
     c_id = 0
     for rel, cols_dict in relation_dict.items():
-        for cols, freq in cols_dict.items():
-            collocs[c_id] = Colloc(c_id, rel, *cols, 0, freq)
+        for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
+            collocs[c_id] = Colloc(c_id, rel, lemma1, lemma2, tag1, tag2, 0, freq)
             c_id += 1
     return collocs
 

@@ -3,7 +3,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from wordprofile.wpse.processing import process_files, extract_collocations
+from wordprofile.wpse.processing import process_files, extract_collocations, extract_most_common_surface
 
 
 def main():
@@ -20,6 +20,8 @@ def main():
     process_files(args.input, args.dest, args.njobs)
     logging.info(f'EXTRACT collocations from matches')
     extract_collocations(os.path.join(args.dest, 'matches'), os.path.join(args.dest, 'collocations'))
+    logging.info(f'EXTRACT most common surface form')
+    extract_most_common_surface(os.path.join(args.dest, 'matches'), os.path.join(args.dest, 'common_surfaces'))
     logging.info(f'DONE {args.dest}')
 
 
