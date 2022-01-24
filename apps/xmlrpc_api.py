@@ -22,7 +22,7 @@ class WordprofileXMLRPC:
         return "OK"
 
     def get_info(self):
-        raise NotImplementedError()
+        return self.wp.get_info_stats()
 
     def get_lemma_and_pos(self, params: dict):
         """Fetches lemma information from word-profile.

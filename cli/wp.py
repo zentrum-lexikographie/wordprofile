@@ -4,18 +4,18 @@
 #  * relation information,
 #  * hits/matches, and
 #  * word profile comparison
-
+import json
 import logging
 import os
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from utils.cmp import compare_lemmas
-from utils.hit import get_hits
-from utils.info import get_wordprofile_info
-from utils.mwe_hit import get_mwe_hits
-from utils.mwe_rel import get_mwe_free
-from utils.rel import get_relation
+from .utils.cmp import compare_lemmas
+from .utils.hit import get_hits
+from .utils.info import get_wordprofile_info
+from .utils.mwe_hit import get_mwe_hits
+from .utils.mwe_rel import get_mwe_free
+from .utils.rel import get_relation
 
 from apps.xmlrpc_api import WordprofileXMLRPC
 
@@ -143,7 +143,8 @@ if args.subcommand == "status":
     response = wp.status()
     print("|: status: ", response)
 elif args.subcommand == "info":
-    get_wordprofile_info(wp)
+    info = wp.get_info()
+    print(json.dumps(info, indent=4, sort_keys=True, default=str))
 elif args.subcommand == "rel":
     get_relation(wp, args)
 elif args.subcommand == "mwe-rel":

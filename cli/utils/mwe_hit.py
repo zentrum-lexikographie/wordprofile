@@ -3,7 +3,7 @@
 from tabulate import tabulate
 from termcolor import colored
 
-from utils.hit import color_word_markers
+from .hit import color_word_markers
 
 
 def get_mwe_hits(wp, args):
