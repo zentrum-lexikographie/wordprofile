@@ -15,6 +15,7 @@ tag_b2f = {
     'ADJ': 'Adjektiv',
     'PROPN': 'Eigenname',
     'ADP': 'Adposition',
+    'AUX': 'Hilfsverb',
     '': '',
 }
 tag_f2b = {v: k for k, v in tag_b2f.items()}
