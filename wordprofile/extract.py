@@ -57,6 +57,7 @@ RELATION_PATTERNS = {
             ('nmod', 'case', 'noun', 'noun', 'adp'),
             ('obl', 'case', 'verb', 'noun', 'adp'),
             ('obl', 'case', 'verb', 'adj', 'adp'),
+            ('obl', 'case', 'verb', 'adv', 'adp'),
         ],
     },
     'PRED': {
@@ -171,11 +172,13 @@ def extract_matches_by_pattern(relations_inv: dict, tokens: List[DBToken], sid: 
         rel_types = (t_head_1.rel, t.rel)
         if rel_types in relations_inv:
             if (t_head_2.tag, t_head_1.tag, t.tag) in relations_inv[rel_types]:
+                rel = relations_inv[rel_types][(t_head_2.tag, t_head_1.tag, t.tag)]
+                prep = None if rel == "KON" else t
                 yield Match(
                     t_head_2,
                     t_head_1,
-                    t,
-                    relations_inv[rel_types][(t_head_2.tag, t_head_1.tag, t.tag)],
+                    prep,
+                    rel,
                     sid,
                 )
 
@@ -199,7 +202,8 @@ def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]
             # token head is root, cannot make ternary relation
             continue
         t_head_2 = tokens[int(t_head_1.head) - 1]
-        if t.surface == 'als' and t_head_2.tag != 'ADJ':
+        if t.surface == 'als':
+            # and t_head_2.tag != 'ADJ':
             # expect relations with 'als' to relate to an adjective
             # TODO: preferably check for comparative (https://universaldependencies.org/u/feat/Degree.html)
             continue
