@@ -259,6 +259,8 @@ class Wordprofile:
                     diffs_grouped[c.Lemma2]['rank_2'] = i
                     diffs_grouped[c.Lemma2]['pos'] = c.Pos1
                 lemma2_ctr += 1
+            elif c.Lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
+                continue
             else:
                 raise ValueError("Unexpected lemma")
         # for intersection, only a subset is used further
