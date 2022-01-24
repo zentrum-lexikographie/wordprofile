@@ -1,20 +1,28 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+from setuptools import setup, find_packages
+
 
 setup(name='wordprofile',
-      version='0.1.0',
+      version='1.0.0',
       description='DWDS Wordprofile Server',
       author='René Knaebel',
       author_email='rene.knaebel@bbaw.de',
-      packages=['wordprofile'],
+      packages=find_packages(),
       install_requires=[
           'pymysql',
           'sqlalchemy',
           'termcolor',
           'tabulate',
-          'pytabs @ git+ssh://git@git.zdl.org/zdl/pytabs',
+          'conllu',
       ],
+      extras_require={
+          'dev': [
+              'autoflake',
+              'flake8',
+              'pytest'
+          ]
+      },
       entry_points={
           'console_scripts': [
               'wp-xmlrpc = apps.xmlrpc_api:main',
