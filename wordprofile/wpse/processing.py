@@ -44,7 +44,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
         if tag in {"VERB", "ADJ", "ADV", "ADP", "AUX"}:
             return w.lower()
         elif tag == "NOUN":
-            return w.capitalize()
+            return w[0].upper() + w[1:]
         else:
             return w
 

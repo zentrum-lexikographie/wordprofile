@@ -174,13 +174,12 @@ class WPConnect:
             FROM collocations c
             WHERE lemma1 = '{}' {}
             GROUP BY lemma1, lemma1_tag, label, inv
-            HAVING SUM(frequency) > 25
         """.format(
             lemma,
             "and lemma1_tag='{}'".format(lemma_tag) if lemma_tag else "",
         )
         db_results = self.__fetchall(query)
-        db_results = list(map(LemmaInfo._make, db_results))
+        db_results = list(filter(lambda l: l.lemma.lower() == lemma.lower(), map(LemmaInfo._make, db_results)))
         return db_results
 
     def get_relation_by_id(self, coocc_id: int) -> CooccInfo:
