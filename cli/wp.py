@@ -10,12 +10,12 @@ import os
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from .utils.cmp import compare_lemmas
-from .utils.hit import get_hits
-from .utils.info import get_wordprofile_info
-from .utils.mwe_hit import get_mwe_hits
-from .utils.mwe_rel import get_mwe_free
-from .utils.rel import get_relation
+from utils.cmp import compare_lemmas
+from utils.hit import get_hits
+from utils.info import get_wordprofile_info
+from utils.mwe_hit import get_mwe_hits
+from utils.mwe_rel import get_mwe_free
+from utils.rel import get_relation
 
 from apps.xmlrpc_api import WordprofileXMLRPC
 
