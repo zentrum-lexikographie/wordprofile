@@ -99,6 +99,25 @@ def get_relation_types() -> List[str]:
     return sorted(list(RELATION_PATTERNS.keys()))
 
 
+def get_word_classes() -> List[str]:
+    """Extract word classes from relation patterns.
+
+    Returns:
+        Alphabetically sorted list of word classes for wordprofile.
+    """
+
+    def get_classes(rule):
+        if len(rule) == 3:
+            return rule[1:]
+        elif len(rule) == 5:
+            return rule[2:]
+        else:
+            raise ValueError("Unexpected pattern length.")
+
+    return sorted(set(
+        c.upper() for pattern in RELATION_PATTERNS.values() for rule in pattern['rules'] for c in get_classes(rule)))
+
+
 def get_inverted_relation_patterns() -> dict:
     """Generates inverted search structure for relation pattern matching.
 
