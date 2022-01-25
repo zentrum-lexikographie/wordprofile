@@ -1,14 +1,13 @@
-#!/usr/bin/python3
-
 import logging
 import os
+import time
 from argparse import ArgumentParser
 from typing import List
 
-import time
 import uvicorn
 from fastapi import FastAPI, Query
 
+from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
@@ -23,20 +22,7 @@ parser.add_argument('--log', dest='logfile', type=str,
                     help="Angabe der log-Datei (Default: log/wp_{date}.log)")
 args = parser.parse_args()
 
-logger = logging.getLogger('wordprofile')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-fh = logging.FileHandler(args.logfile)
-ch.setLevel(logging.DEBUG)
-fh.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-fh.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(ch)
-logger.addHandler(fh)
+logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG, args.logfile)
 
 wp_user = args.user or os.environ['WP_USER']
 wp_db = args.database or os.environ['WP_DB']
@@ -199,5 +185,9 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
                        use_intersection=True, nbest=nbest)
 
 
+def main():
+    uvicorn.run("wordprofile.apps.rest_api:app", host=args.hostname, port=args.port, log_level="debug", reload=True)
+
+
 if __name__ == '__main__':
-    uvicorn.run("rest_api:app", host=args.hostname, port=args.port, log_level="debug", reload=True)
+    main()

@@ -1,11 +1,10 @@
-#!/usr/bin/python3
-
 import logging
 import os
 import time
 import xmlrpc.server
 from argparse import ArgumentParser
 
+from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
 logger = logging.getLogger('wordprofile')
@@ -319,18 +318,8 @@ def main():
                         default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
                         help="Angabe der log-Datei (Default: log/wp_{date}.log)")
     args = parser.parse_args()
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    fh = logging.FileHandler(args.logfile)
-    ch.setLevel(logging.DEBUG)
-    fh.setLevel(logging.DEBUG)
-    # create formatter and add it to the handlers
-    formatter = logging.Formatter('[%(levelname)s]%(asctime)s - %(funcName)s - %(message)s')
-    ch.setFormatter(formatter)
-    fh.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(ch)
-    logger.addHandler(fh)
+
+    configure_logger(logger, logging.DEBUG, args.logfile)
 
     wp_user = args.user or os.environ['WP_USER']
     wp_db = args.database or os.environ['WP_DB']

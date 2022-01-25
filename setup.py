@@ -1,20 +1,20 @@
-#!/usr/bin/env python
-
 from setuptools import setup, find_packages
-
 
 setup(name='wordprofile',
       version='1.0.0',
       description='DWDS Wordprofile Server',
       author='René Knaebel',
       author_email='rene.knaebel@bbaw.de',
-      packages=find_packages(),
+      packages=find_packages(exclude=["tests"]),
       install_requires=[
           'pymysql',
           'sqlalchemy',
           'termcolor',
           'tabulate',
           'conllu',
+          'fastapi',
+          'uvicorn',
+          'gunicorn',
       ],
       extras_require={
           'dev': [
@@ -25,8 +25,8 @@ setup(name='wordprofile',
       },
       entry_points={
           'console_scripts': [
-              'wp-xmlrpc = apps.xmlrpc_api:main',
-              'wp-rest = apps.rest_api:main',
+              'wp-xmlrpc = wordprofile.apps.xmlrpc_api:main',
+              'wp-rest = wordprofile.apps.rest_api:main',
           ],
       }
       )

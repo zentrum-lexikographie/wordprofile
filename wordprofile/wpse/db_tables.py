@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import enum
 import re
 from collections import namedtuple

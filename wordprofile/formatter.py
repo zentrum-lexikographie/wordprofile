@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import re
 from collections import defaultdict
 from typing import List

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 replacements = {'ß': 'ss', '①': 'ß',
                 'F': 'Ph', '②': 'F', 'f': 'ph', '③': 'f',
                 't': 'th', 'T': 'Th', '④': 'T', '⑤': 't'}

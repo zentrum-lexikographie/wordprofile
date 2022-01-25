@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # This is a simple word profile client that is developed for usage tests
 # It is used to compare two running wordprofile instances based on their overlap
 import asyncio
@@ -10,7 +9,7 @@ from collections import defaultdict
 import numpy as np
 from tabulate import tabulate
 
-from apps.xmlrpc_api import WordprofileXMLRPC
+from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
 
 
 async def get_relation(wp, lemma, pos_tag, start, number, order, min_freq, min_stat, corpus, relations):

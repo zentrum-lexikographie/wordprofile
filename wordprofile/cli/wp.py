@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # This is a simple word profile client that is developed for usage tests
 # It can instantiate a word profile and ask for basic functionality such as
 #  * relation information,
@@ -10,14 +9,14 @@ import os
 import xmlrpc.client
 from argparse import ArgumentParser
 
-from utils.cmp import compare_lemmas
-from utils.hit import get_hits
-from utils.info import get_wordprofile_info
-from utils.mwe_hit import get_mwe_hits
-from utils.mwe_rel import get_mwe_free
-from utils.rel import get_relation
-
-from apps.xmlrpc_api import WordprofileXMLRPC
+from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
+from wordprofile.cli.utils.cmp import compare_lemmas
+from wordprofile.cli.utils.hit import get_hits
+from wordprofile.cli.utils.info import get_wordprofile_info
+from wordprofile.cli.utils.mwe_hit import get_mwe_hits
+from wordprofile.cli.utils.mwe_rel import get_mwe_free
+from wordprofile.cli.utils.rel import get_relation
+from wordprofile.utils import configure_logger
 
 parser = ArgumentParser()
 
@@ -118,16 +117,7 @@ cmp_parser.add_argument("-sf", "--surface", action="store_true", default=False,
 
 args = parser.parse_args()
 
-logger = logging.getLogger('wordprofile')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler()
-ch.setLevel(logging.DEBUG)
-# create formatter and add it to the handlers
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-# add the handlers to the logger
-logger.addHandler(ch)
+logger = configure_logger(logging.getLogger('wordprofile'))
 
 if args.xmlrpc:
     wp: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))

@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 import logging
 
 from sqlalchemy import MetaData

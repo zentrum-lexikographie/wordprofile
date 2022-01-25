@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 from tabulate import tabulate
 from termcolor import colored
 
