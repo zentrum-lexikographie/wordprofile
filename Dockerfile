@@ -14,15 +14,14 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
   org.label-schema.version=$VERSION \
   org.label-schema.schema-version="1.0"
 
-#  cf. https://github.com/clab/dynet/#installation
-#RUN apt-get update && apt-get install -y \
-#  build-essential \
-#  cmake \
-#  mercurial \
-#  && rm -rf /var/lib/apt/lists/*
+RUN pip install -U pip setuptools wheel
 
 COPY . /app
 WORKDIR /app
 
 # Pull dependencies
+RUN pip install -r requirements.txt
 RUN pip install .
+
+# command to run on container start
+ENTRYPOINT wp-xmlrpc --user wpuser --database wp_stage --spec spec/config.json --port 8080
