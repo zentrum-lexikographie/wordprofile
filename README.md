@@ -139,3 +139,21 @@ Vergleich von zwei parallel laufenden WP Instanzen (host1, host2):
 ```shell script
 python3 cli/cmp_wp.py --host2 riker:8086 --host1 services3.dwds.de:7780 -r META -n 10
 ```
+
+## Build
+
+```shell
+docker-compose build
+```
+
+## Entwicklungssetup
+
+```shell
+pip install -r requirements.txt -r requirements-dev.txt
+```
+
+### Tests
+
+```shell
+pytest
+```

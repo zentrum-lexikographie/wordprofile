@@ -1,19 +1,28 @@
-version: "3.4"
+version: "3"
 services:
   db:
-    container_name: "zdl_wordprofile_db"
     image: mysql:5
-    command:
-      "mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci"
     environment:
       MYSQL_DATABASE: "wp"
       MYSQL_USER: "wp"
       MYSQL_PASSWORD: "wp"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
-    ports:
-      - "3306:3306"
     volumes:
       - db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    command:
+      - "mysqld"
+      - "--character-set-server=utf8mb4"
+      - "--collation-server=utf8mb4_unicode_ci"
+  api:
+    image: docker-registry.zdl.org/zdl-wordprofile/server
+    build:
+      context: .
+    environment:
+      WP_DB_HOST: "db"
+    ports:
+      - "8086:8086"
+
 volumes:
   db:
-    name: "zdl_wordprofile_db"

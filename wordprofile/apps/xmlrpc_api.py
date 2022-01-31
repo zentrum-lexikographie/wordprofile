@@ -308,33 +308,39 @@ class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("--user", type=str, help="database username", required=True)
-    parser.add_argument("--database", type=str, help="database name", required=True)
-    parser.add_argument("--hostname", default="localhost", type=str, help="XML-RPC hostname")
-    parser.add_argument("--db-hostname", default="localhost", type=str, help="XML-RPC hostname")
-    parser.add_argument("--port", default=8086, type=int, help="XML-RPC port")
-    parser.add_argument('--spec', type=str, required=True, help="Angabe der Settings-Datei (*.xml)")
+    parser.add_argument("--user", default="wp", type=str,
+                        help="database username")
+    parser.add_argument("--database", default="wp", type=str,
+                        help="database name")
+    parser.add_argument("--db-hostname", default="localhost", type=str,
+                        help="database hostname")
+    parser.add_argument("--port", default=8086, type=int,
+                        help="XML-RPC port")
+    parser.add_argument('--spec', default="spec/config.json", type=str,
+                        help="Angabe der Settings-Datei (*.xml)")
     parser.add_argument('--log', dest='logfile', type=str,
-                        default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
                         help="Angabe der log-Datei (Default: log/wp_{date}.log)")
     args = parser.parse_args()
 
     configure_logger(logger, logging.DEBUG, args.logfile)
 
-    wp_user = args.user or os.environ['WP_USER']
-    wp_db = args.database or os.environ['WP_DB']
-    db_password = os.environ.get('WP_PASSWORD', wp_user)
+    wp_db_host = os.environ.get('WP_DB_HOST', args.db_hostname)
+    wp_db = os.environ.get('WP_DB', args.database)
+    wp_user = os.environ.get('WP_USER', args.user)
+    wp_db_password = os.environ.get('WP_PASSWORD', wp_user)
     logger.info('user: ' + wp_user)
     logger.info('db: ' + wp_db)
 
     # Create server
-    server = xmlrpc.server.SimpleXMLRPCServer((args.hostname, int(args.port)),
+    server = xmlrpc.server.SimpleXMLRPCServer(('', int(args.port)),
                                               requestHandler=RequestHandler, logRequests=False, allow_none=True)
     # register function information
     server.register_introspection_functions()
     # register wortprofil
     server.register_instance(
-        WordprofileXMLRPC(args.db_hostname, wp_user, db_password, wp_db, args.port, args.spec))
+        WordprofileXMLRPC(
+            wp_db_host, wp_user, wp_db_password, wp_db,
+            args.port, args.spec))
     # Run the server's main loop
     server.serve_forever()
 
