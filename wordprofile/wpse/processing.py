@@ -438,6 +438,21 @@ def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
     return collocs
 
 
+def compute_common_surfaces(fins, fout):
+    common_surfaces = {}
+    for fin in fins:
+        with open(fin, "r") as fin:
+            for line in fin:
+                lemma, tag, surface, freq = tuple(line.strip().split('\t'))
+                common_surface, common_freq = common_surfaces.get((lemma, tag), ('', 0))
+                if int(freq) > common_freq:
+                    common_surfaces[lemma, tag] = surface, freq
+
+    with open(fout, 'w') as fh:
+        for (lemma, tag), (surface, freq) in common_surfaces.items():
+            fh.write(f'{lemma}\t{tag}\t{surface}\t{freq}\n')
+
+
 def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=False):
     """Post-processing of generated data files.
 
@@ -455,6 +470,9 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
                                             os.path.join(final_path, 'concord_sentences.duplicate'))
     logging.info('LOAD FILTERED collocations')
     collocs = load_collocations([os.path.join(p, 'collocations') for p in storage_paths], min_rel_freq)
+    logging.info('CALCULATE common surfaces')
+    compute_common_surfaces([os.path.join(p, 'common_surfaces') for p in storage_paths],
+                            os.path.join(final_path, 'common_surfaces'))
     logging.info('FILTER TRANSFORM matches')
     filter_transform_matches([os.path.join(p, 'matches') for p in storage_paths], os.path.join(final_path, 'matches'),
                              corpus_file_idx, sents_idx, collocs)
