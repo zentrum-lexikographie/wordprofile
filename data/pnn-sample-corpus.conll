@@ -1,0 +1,1500 @@
+# DDC:tokid.begin = 13816237
+# DDC:tokid.end = 13816697
+# DDC:meta.n_ = 36694
+# DDC:meta.file_ = pnn01/../../ddc_xml/data/27.09.2004/1383886.pnn.tei.cln.ddc.xml
+# DDC:meta.masked_ = 0
+# DDC:meta.date_ = 2004-09-27
+# DDC:meta.page_ = -1
+# DDC:meta.basename = 27.09.2004/1383886.pnn.tei.cln
+# DDC:meta.bibl = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblLex = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblSig = PNN, 27.09.2004
+# DDC:meta.collection = pnn
+# DDC:meta.textClass = Zeitung:Potsdam
+# DDC:meta.timestamp = 2017-05-08T10:30:06Z
+# DDC:meta.title = Geschädigte Schätze im Tiefkühlraum
+# DDC:meta.url = http://premium-link.net/$44926$0$/27.09.200427.09.2004/1383886.pnn
+# DDC:BREAK.s = 13816237
+# DDC:BREAK.c = 13816237
+# DDC:BREAK.p = 13816237
+# DDC:BREAK.file = 13816237
+# DDC:BREAK.textarea = 13816237
+# text = Potsdam 27. 09. 2004 Geschädigte Schätze im Tiefkühlraum Auch für Sanssoucis Bibliotheken wäre nach einem Brand das rettende Einfrieren gesichert Sanssouci - Im Falle eines Brandes besteht auch für die Stiftung Preußische Schlösser und Gärten die Möglichkeit , beschädigte Bücher und Dokumente einfrieren zu lassen und so zu retten .
+1	Potsdam	Potsdam	PROPN	NE	Person=3	0	root	_	NER=S-LOC|LT=Potsdam
+2	27.	27.	ADJ	ADJA	Person=3	3	amod	_	SpaceAfter=No|LT=27.
+3	09.	09.	ADJ	ADJA	Person=3	1	appos	_	SpaceAfter=No|LT=09.
+4	2004	2004	NUM	CARD	Number=Plur|NumType=Card|Person=3	3	nmod	_	LT=2004
+5	Geschädigte	Geschädigte	ADJ	ADJA	Degree=Pos|Number=Plur	6	amod	_	LT=Geschädigt
+6	Schätze	Schatz	NOUN	NN	Gender=Masc|Number=Plur|Person=3	1	appos	_	LT=Schatz
+7	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	8	case	_	LT=im
+8	Tiefkühlraum	Tiefkühlraum	NOUN	NN	Gender=Masc|Number=Sing|Person=3	6	nmod	_	LT=Kühlraum
+9	Auch	auch	ADV	ADV	_	12	advmod	_	LT=Auch
+10	für	für	ADP	APPR	AdpType=Prep|Case=Acc	12	case	_	LT=für
+11	Sanssoucis	Sanssouci	PROPN	NE	Case=Gen|Person=3	12	nmod	_	NER=S-LOC|LT=Sanssoucis
+12	Bibliotheken	Bibliothek	NOUN	NN	Gender=Fem|Number=Plur|Person=3	20	obl	_	LT=Bibliothek
+13	wäre	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	20	aux:pass	_	LT=sein
+14	nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	16	case	_	LT=nach
+15	einem	eine	DET	ART	Case=Dat|Gender=Masc|Number=Sing|PronType=Art	16	det	_	LT=einem
+16	Brand	Brand	NOUN	NN	Gender=Masc|Number=Sing|Person=3	20	obl	_	LT=Brand
+17	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	19	det	_	LT=das
+18	rettende	rettend	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	19	amod	_	LT=retten
+19	Einfrieren	Einfrieren	NOUN	NN	Gender=Neut|Number=Sing|Person=3	20	nsubj:pass	_	LT=Einfrieren
+20	gesichert	sichern	VERB	VVPP	Aspect=Perf|VerbForm=Part	1	advmod	_	LT=sichern
+21	Sanssouci	Sanssouci	PROPN	NE	Person=3	20	obj	_	NER=S-ORG|LT=Sanssouci
+22	-	-	PUNCT	$(	PunctType=Brck	27	punct	_	LT=-
+23	Im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	24	case	_	LT=Im
+24	Falle	Falle	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing|Person=3	27	obl	_	LT=Fall
+25	eines	eine	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	26	det	_	LT=eines
+26	Brandes	Brandes	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	24	nmod	_	LT=Brand
+27	besteht	bestehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	20	parataxis	_	LT=bestehen
+28	auch	auch	ADV	ADV	_	31	advmod	_	LT=auch
+29	für	für	ADP	APPR	AdpType=Prep|Case=Acc	31	case	_	LT=für
+30	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	31	det	_	LT=die
+31	Stiftung	Stiftung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	27	obl	_	LT=Stiftung
+32	Preußische	preußisch	ADJ	ADJA	Degree=Pos|Number=Plur	33	amod	_	NER=B-ORG|LT=preußisch
+33	Schlösser	Schloß	NOUN	NN	Gender=Neut|Number=Plur|Person=3	31	appos	_	NER=E-ORG|LT=Schloß
+34	und	und	CCONJ	KON	_	35	cc	_	LT=und
+35	Gärten	Garten	NOUN	NN	Gender=Masc|Number=Plur|Person=3	31	conj	_	LT=Gart
+36	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	37	det	_	LT=die
+37	Möglichkeit	Möglichkeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	27	nsubj	_	SpaceAfter=No|LT=Möglichkeit
+38	,	,	PUNCT	$,	PunctType=Comm	45	punct	_	LT=,
+39	beschädigte	beschädigt	ADJ	ADJA	Degree=Pos|Number=Plur	40	amod	_	LT=beschädigen
+40	Bücher	Buch	NOUN	NN	Gender=Neut|Number=Plur|Person=3	45	obj	_	LT=Buch
+41	und	und	CCONJ	KON	_	42	cc	_	LT=und
+42	Dokumente	Dokument	NOUN	NN	Gender=Neut|Number=Plur|Person=3	40	conj	_	LT=Dokument
+43	einfrieren	einfrieren	VERB	VVINF	VerbForm=Inf	45	xcomp	_	LT=einfrieren
+44	zu	zu	PART	PTKZU	PartType=Inf	45	mark	_	LT=zu
+45	lassen	lassen	VERB	VVINF	VerbForm=Inf	37	xcomp	_	LT=lassen
+46	und	und	CCONJ	KON	_	49	cc	_	LT=und
+47	so	so	ADV	ADV	Degree=Pos	49	advmod	_	LT=so
+48	zu	zu	PART	PTKZU	PartType=Inf	49	mark	_	LT=zu
+49	retten	retten	VERB	VVINF	VerbForm=Inf	45	conj	_	LT=retten
+50	.	.	PUNCT	$.	PunctType=Peri	20	punct	_	LT=.
+
+# DDC:BREAK.s = 13816287
+# text = Dafür würde eine Berliner Einrichtung für Bucherhaltung ihre Tiefkühlräume zur Verfügung stellen .
+1	Dafür	dafür	ADV	PROAV	_	12	advmod	_	LT=Dafür
+2	würde	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	12	aux	_	LT=werden
+3	eine	eine	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	5	det	_	LT=eine
+4	Berliner	berliner	ADJ	ADJA	Degree=Pos	5	amod	_	NER=S-MISC|LT=Berliner
+5	Einrichtung	Einrichtung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	nsubj	_	LT=Einrichtung
+6	für	für	ADP	APPR	AdpType=Prep|Case=Acc	7	case	_	LT=für
+7	Bucherhaltung	Bucherhaltung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	nmod	_	LT=Erhaltung
+8	ihre	ihr	PRON	PPOSAT	Case=Acc|Number=Plur|Person=3|Poss=Yes|PronType=Prs	9	det	_	LT=sein
+9	Tiefkühlräume	Tiefkühlraum	NOUN	NN	Gender=Masc|Number=Plur|Person=3	12	obj	_	LT=Kühlraum
+10	zur	zur	ADP	APPRART	AdpType=Prep|Case=Dat|Gender=Fem|PronType=Art	11	case	_	LT=zur
+11	Verfügung	Verfügung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	obl	_	LT=Verfügung
+12	stellen	stellen	VERB	VVINF	VerbForm=Inf	0	root	_	LT=stellen
+13	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13816300
+# text = Dies erklärte die Leiterin der Stiftungswerkstatt für Papierrestaurierung , Irene Hesselbarth .
+1	Dies	diese	PRON	PDS	Case=Acc|Gender=Neut|Number=Sing|Person=3|PronType=Dem	2	obj	_	LT=Dies
+2	erklärte	erklären	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=erklären
+3	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	4	det	_	LT=die
+4	Leiterin	Leiterin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	2	nsubj	_	LT=Leiterin
+5	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	6	det	_	LT=der
+6	Stiftungswerkstatt	Stiftungswerkstatt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	nmod	_	LT=Werkstatt
+7	für	für	ADP	APPR	AdpType=Prep|Case=Acc	8	case	_	LT=für
+8	Papierrestaurierung	Papierrestaurierung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	nmod	_	SpaceAfter=No|LT=Restaurierung
+9	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	LT=,
+10	Irene	Irene	PROPN	NE	Gender=Fem|Number=Sing|Person=3	4	appos	_	NER=B-PER|LT=Irene
+11	Hesselbarth	Hesselbarth	PROPN	NE	Person=3	10	flat:name	_	NER=E-PER|LT=Hesselbarth
+12	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13816312
+# text = Sie öffnete am Sonnabend gemeinsam mit ihrer Kollegin Wiebke Müller die sonst dem Publikum nicht zugängliche Werkstatt für eine Spezialführung , deren Erlös der durch einen Großbrand verwüsteten Anna Amalia Bibliothek in Weimar zugute kommt .
+1	Sie	sie	PRON	PPER	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	LT=Sie
+2	öffnete	öffnen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=öffnen
+3	am	am	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	4	case	_	LT=am
+4	Sonnabend	Sonnabend	NOUN	NN	Gender=Masc|Number=Sing|Person=3	2	obl	_	LT=Sonnabend
+5	gemeinsam	gemeinsam	ADJ	ADJD	Degree=Pos|Variant=Short	2	advcl	_	LT=gemeinsam
+6	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	LT=mit
+7	ihrer	ihr	PRON	PPOSAT	Case=Dat|Gender=Fem|Number=Sing|Person=3|Poss=Yes|PronType=Prs	8	det	_	LT=sein
+8	Kollegin	Kollegein	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obl	_	LT=Kollegin
+9	Wiebke	Wiebke	PROPN	NE	Gender=Fem|Number=Sing|Person=3	8	flat:name	_	NER=B-PER|LT=Wiebke
+10	Müller	Müller	PROPN	NE	Number=Sing|Person=3	8	flat:name	_	NER=E-PER|LT=Müller
+11	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	17	det	_	LT=die
+12	sonst	sonst	ADV	ADV	_	16	advmod	_	LT=sonst
+13	dem	d	DET	ART	Case=Dat|Gender=Neut|Number=Sing|PronType=Art	14	det	_	LT=dem
+14	Publikum	Publikum	NOUN	NN	Gender=Neut|Number=Sing|Person=3	16	obj	_	LT=Publikum
+15	nicht	nicht	PART	PTKNEG	Polarity=Neg	16	advmod	_	LT=nicht
+16	zugängliche	zugänglich	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	17	amod	_	LT=zugänglich
+17	Werkstatt	Werkstatt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	2	obj	_	LT=Werkstatt
+18	für	für	ADP	APPR	AdpType=Prep|Case=Acc	20	case	_	LT=für
+19	eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	20	det	_	LT=eine
+20	Spezialführung	Spezialführung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	nmod	_	SpaceAfter=No|LT=Führung
+21	,	,	PUNCT	$,	PunctType=Comm	35	punct	_	LT=,
+22	deren	die	DET	PRELAT	PronType=Rel	23	det	_	LT=deren
+23	Erlös	Erlös	NOUN	NN	Gender=Masc|Number=Sing|Person=3	35	nsubj	_	LT=Erlös
+24	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	29	det	_	LT=der
+25	durch	durch	ADP	APPR	AdpType=Prep|Case=Acc	27	case	_	LT=durch
+26	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	27	det	_	LT=einen
+27	Großbrand	Großbrand	NOUN	NN	Gender=Masc|Number=Sing|Person=3	28	obl	_	LT=Großbrand
+28	verwüsteten	verwüstet	ADJ	ADJA	Degree=Pos|Number=Sing	29	amod	_	LT=verwüsten
+29	Anna	Anna	PROPN	NE	Gender=Fem|Number=Sing|Person=3	35	obj	_	NER=B-LOC|LT=Anna
+30	Amalia	Amalia	PROPN	NE	Person=3	29	flat:name	_	NER=I-LOC|LT=Amalia
+31	Bibliothek	Bibliothek	NOUN	NN	Gender=Fem|Number=Sing|Person=3	29	appos	_	NER=E-LOC|LT=Bibliothek
+32	in	in	ADP	APPR	AdpType=Prep|Case=Dat	33	case	_	LT=in
+33	Weimar	Weimar	PROPN	NE	Number=Sing|Person=3	31	nmod	_	NER=S-LOC|LT=Weimar
+34	zugute	zugute	ADV	ADV	PartType=Vbp	35	advmod	_	LT=zugute
+35	kommt	kommen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	20	acl	_	LT=kommen
+36	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13816348
+# text = In dem durch das Löschwasser durchtränkten Papier breiten sich Schimmelpilze und andere Schädlinge aus .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	7	case	_	LT=In
+2	dem	d	DET	ART	Case=Dat|Gender=Neut|Number=Sing|PronType=Art	7	det	_	LT=dem
+3	durch	durch	ADP	APPR	AdpType=Prep|Case=Acc	5	case	_	LT=durch
+4	das	d	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	5	det	_	LT=das
+5	Löschwasser	Löschwasser	NOUN	NN	Gender=Neut|Number=Sing|Person=3	6	obl	_	LT=Wasser
+6	durchtränkten	durchtränkt	ADJ	ADJA	Degree=Pos|Number=Sing	7	amod	_	LT=durchtrankt
+7	Papier	Papier	NOUN	NN	Gender=Neut|Number=Sing|Person=3	8	obl	_	LT=Papier
+8	breiten	breit	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=breiten
+9	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	8	obj	_	LT=sich
+10	Schimmelpilze	Schimmelpilz	NOUN	NN	Gender=Masc|Number=Plur|Person=3	8	nsubj	_	LT=Schimmelpilze
+11	und	und	CCONJ	KON	_	13	cc	_	LT=und
+12	andere	ander	ADJ	ADJA	Degree=Pos|Number=Plur	13	amod	_	LT=ander
+13	Schädlinge	Schädling	NOUN	NN	Gender=Masc|Number=Plur|Person=3	10	conj	_	LT=Schädling
+14	aus	aus	ADP	PTKVZ	PartType=Vbp	8	compound:prt	_	LT=aus
+15	.	.	PUNCT	$.	PunctType=Peri	8	punct	_	LT=.
+
+# DDC:BREAK.s = 13816363
+# text = Dafür brauchen sie nur 48 Stunden Zeit .
+1	Dafür	dafür	ADV	PROAV	_	2	advmod	_	LT=Dafür
+2	brauchen	brauchen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=brauchen
+3	sie	sie	PRON	PPER	Case=Nom|Number=Plur|Person=3|PronType=Prs	2	nsubj	_	LT=sie
+4	nur	nur	ADV	ADV	_	5	advmod	_	LT=nur
+5	48	48	NUM	CARD	Number=Plur|NumType=Card|Person=3	6	nummod	_	LT=48
+6	Stunden	Stunde	NOUN	NN	Gender=Fem|Number=Plur|Person=3	2	obj	_	LT=Stunde
+7	Zeit	Zeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	appos	_	LT=Zeit
+8	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13816371
+# text = Das Einfrieren verhindert diesen Prozess .
+1	Das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	2	det	_	LT=Das
+2	Einfrieren	Einfrieren	NOUN	NN	Gender=Neut|Number=Sing|Person=3	3	nsubj	_	LT=Einfrieren
+3	verhindert	verhindern	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=verhindern
+4	diesen	diese	DET	PDAT	Case=Acc|Gender=Masc|Number=Sing|PronType=Dem	5	det	_	LT=dies
+5	Prozess	Prozeß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	3	obj	_	LT=Prozeß
+6	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13816377
+# text = Auf diese Weise wird Zeit für eine spätere Restaurierung gewonnen .
+1	Auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	3	case	_	LT=Auf
+2	diese	diese	DET	PDAT	Case=Acc|Gender=Fem|Number=Sing|PronType=Dem	3	det	_	LT=dies
+3	Weise	Weise	NOUN	NN	Gender=Fem|Number=Sing|Person=3	10	obl	_	LT=Weise
+4	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	10	aux:pass	_	LT=werden
+5	Zeit	Zeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	10	nsubj:pass	_	LT=Zeit
+6	für	für	ADP	APPR	AdpType=Prep|Case=Acc	9	case	_	LT=für
+7	eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	9	det	_	LT=eine
+8	spätere	spät	ADJ	ADJA	Degree=Cmp|Gender=Fem|Number=Sing	9	amod	_	LT=spät
+9	Restaurierung	Restaurierung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	nmod	_	LT=Restaurierung
+10	gewonnen	gewinnen	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=gewinnen
+11	.	.	PUNCT	$.	PunctType=Peri	10	punct	_	LT=.
+
+# DDC:BREAK.s = 13816388
+# text = Welche Methoden es dafür gibt , erläuterten die beiden Restauratorinnen den Besuchern an Beispielen .
+1	Welche	welche	DET	PWAT	Case=Acc|Number=Plur|PronType=Int	2	det	_	LT=Welche
+2	Methoden	Methode	NOUN	NN	Gender=Fem|Number=Plur|Person=3	5	obj	_	LT=Methode
+3	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	5	nsubj	_	LT=es
+4	dafür	dafür	ADV	PROAV	_	5	advmod	_	LT=dafür
+5	gibt	geben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	7	ccomp	_	SpaceAfter=No|LT=geben
+6	,	,	PUNCT	$,	PunctType=Comm	5	punct	_	LT=,
+7	erläuterten	erläutern	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=erläutern
+8	die	d	DET	ART	Case=Nom|Number=Plur|PronType=Art	10	det	_	LT=die
+9	beiden	beide	ADJ	PIDAT	Case=Nom|Number=Plur|Person=3	10	amod	_	LT=beide
+10	Restauratorinnen	Restauratorin	NOUN	NN	Gender=Fem|Number=Plur|Person=3	7	nsubj	_	LT=Jatorin
+11	den	d	DET	ART	Case=Dat|Number=Plur|PronType=Art	12	det	_	LT=den
+12	Besuchern	Besucher	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	7	obj	_	LT=Besucher
+13	an	an	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=an
+14	Beispielen	Beispiel	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur|Person=3	7	obl	_	LT=Beispiel
+15	.	.	PUNCT	$.	PunctType=Peri	7	punct	_	LT=.
+
+# DDC:BREAK.s = 13816403
+# text = Dazu zählten die beiden einzigen aus der Zeit des Soldatenkönigs erhaltenen , nach dem Druck kolorierten Blätter mit Abbildungen von Langen Kerls , die auf einer Ausstellung im Jagdschloss Königs Wusterhausen gezeigt werden sollen , und eine 1812 entstandenen Serie von Pferderadierungen , die das Gestüt in Neustadt ( Dosse ) in sein geplantes Museum einordnen möchte .
+1	Dazu	dazu	ADV	PROAV	_	2	advmod	_	LT=Dazu
+2	zählten	zählen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=zählen
+3	die	d	DET	ART	Case=Nom|Number=Plur|PronType=Art	5	det	_	LT=die
+4	beiden	beide	ADJ	PIDAT	Case=Nom|Number=Plur|Person=3	5	amod	_	LT=beide
+5	einzigen	einzig	ADJ	ADJA	Degree=Pos|Number=Plur	2	nsubj	_	LT=einzig
+6	aus	aus	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	LT=aus
+7	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	8	det	_	LT=der
+8	Zeit	Zeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	11	obl	_	LT=Zeit
+9	des	d	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	10	det	_	LT=des
+10	Soldatenkönigs	Soldatenkönig	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	8	nmod	_	LT=König
+11	erhaltenen	erhalten	ADJ	ADJA	Degree=Pos|Number=Plur	17	amod	_	SpaceAfter=No|LT=erhalten
+12	,	,	PUNCT	$,	PunctType=Comm	16	punct	_	LT=,
+13	nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	15	case	_	LT=nach
+14	dem	d	DET	ART	Case=Dat|Gender=Masc|Number=Sing|PronType=Art	15	det	_	LT=dem
+15	Druck	Druck	NOUN	NN	Gender=Masc|Number=Sing|Person=3	16	obl	_	LT=Druck
+16	kolorierten	koloriert	ADJ	ADJA	Degree=Pos|Number=Plur	11	conj	_	LT=kolorieren
+17	Blätter	Blatt	NOUN	NN	Gender=Neut|Number=Plur|Person=3	2	obj	_	LT=Blatt
+18	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	19	case	_	LT=mit
+19	Abbildungen	Abbildung	NOUN	NN	Gender=Fem|Number=Plur|Person=3	17	nmod	_	LT=Abbildung
+20	von	von	ADP	APPR	AdpType=Prep|Case=Dat	21	case	_	LT=von
+21	Langen	Langen	PROPN	NE	Case=Dat|Degree=Pos|Number=Plur	19	nmod	_	LT=Langen
+22	Kerls	Kerl	PROPN	NE	Number=Plur|Person=3	21	nmod	_	SpaceAfter=No|LT=Kerls
+23	,	,	PUNCT	$,	PunctType=Comm	32	punct	_	LT=,
+24	die	die	PRON	PRELS	Case=Nom|Number=Plur|Person=3|PronType=Rel	32	nsubj:pass	_	LT=die
+25	auf	auf	ADP	APPR	AdpType=Prep|Case=Dat	27	case	_	LT=auf
+26	einer	eine	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	27	det	_	LT=einer
+27	Ausstellung	Ausstellung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	32	obl	_	LT=Ausstellung
+28	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	29	case	_	LT=im
+29	Jagdschloss	Jagdschloß	NOUN	NN	Gender=Neut|Number=Sing|Person=3	27	nmod	_	NER=B-LOC|LT=Schloß
+30	Königs	Königs	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	29	nmod	_	NER=B-LOC|LT=König
+31	Wusterhausen	Wusterhausen	PROPN	NE	Person=3	30	flat:name	_	NER=E-LOC|LT=Wusterhausen
+32	gezeigt	zeigen	VERB	VVPP	Aspect=Perf|VerbForm=Part	19	acl	_	LT=zeigen
+33	werden	werden	AUX	VAINF	VerbForm=Inf	32	aux:pass	_	LT=werden
+34	sollen	sollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	32	aux	_	SpaceAfter=No|LT=sollen
+35	,	,	PUNCT	$,	PunctType=Comm	40	punct	_	LT=,
+36	und	und	CCONJ	KON	_	40	cc	_	LT=und
+37	eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	40	det	_	LT=eine
+38	1812	1812	NUM	CARD	Number=Plur|NumType=Card|Person=3	39	obl	_	LT=1812
+39	entstandenen	entstehen	ADJ	ADJA	Degree=Pos|Number=Plur	40	amod	_	LT=entstehen
+40	Serie	Serie	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	conj	_	LT=Serie
+41	von	von	ADP	APPR	AdpType=Prep|Case=Dat	42	case	_	LT=von
+42	Pferderadierungen	Pferderadierung	NOUN	NN	Gender=Fem|Number=Plur|Person=3	40	nmod	_	SpaceAfter=No|LT=Pferderadierung
+43	,	,	PUNCT	$,	PunctType=Comm	56	punct	_	LT=,
+44	die	die	PRON	PRELS	Case=Acc|Gender=Fem|Number=Sing|Person=3|PronType=Rel	56	obj	_	LT=die
+45	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	46	det	_	LT=das
+46	Gestüt	Gestüt	NOUN	NN	Person=3	56	nsubj	_	LT=Gestüt
+47	in	in	ADP	APPR	AdpType=Prep|Case=Dat	48	case	_	LT=in
+48	Neustadt	Neustadt	PROPN	NE	Person=3	46	nmod	_	NER=S-LOC|LT=Neustadt
+49	(	(	PUNCT	$(	PunctType=Brck	50	punct	_	SpaceAfter=No|LT=(
+50	Dosse	Dosse	NOUN	NN	Gender=Fem|Number=Sing|Person=3	48	appos	_	SpaceAfter=No|LT=Dosse
+51	)	)	PUNCT	$(	PunctType=Brck	50	punct	_	LT=)
+52	in	in	ADP	APPR	AdpType=Prep|Case=Acc	55	case	_	LT=in
+53	sein	sein	PRON	PPOSAT	Case=Acc|Gender=Neut|Number=Sing|Person=3|Poss=Yes|PronType=Prs	55	det	_	LT=sein
+54	geplantes	geplant	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	55	amod	_	LT=planen
+55	Museum	Museum	NOUN	NN	Gender=Neut|Number=Sing|Person=3	56	obl	_	LT=Museum
+56	einordnen	einordnen	VERB	VVINF	VerbForm=Inf	40	acl	_	LT=einordnen
+57	möchte	mögen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	56	aux	_	LT=mögen
+58	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13816461
+# text = Ein anderes Beispiel waren Etiketten aus dem Sanssouci- Weinkeller , der bekanntlich wieder hergestellt wird .
+1	Ein	eine	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	3	det	_	LT=Ein
+2	anderes	ander	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	3	amod	_	LT=ander
+3	Beispiel	Beispiel	NOUN	NN	Gender=Neut|Number=Sing|Person=3	0	root	_	LT=Beispiel
+4	waren	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	3	cop	_	LT=sein
+5	Etiketten	Etikette	NOUN	NN	Gender=Fem|Number=Plur|Person=3	3	nsubj	_	LT=Etikette
+6	aus	aus	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	LT=aus
+7	dem	d	DET	ART	Case=Dat|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=dem
+8	Sanssouci-	sanssouci-	NOUN	TRUNC	Hyph=Yes	5	nmod	_	NER=S-LOC|LT=Sanssouci-
+9	Weinkeller	Weinkeller	NOUN	NN	Gender=Masc|Number=Sing|Person=3	8	appos	_	SpaceAfter=No|LT=Leinkeller
+10	,	,	PUNCT	$,	PunctType=Comm	14	punct	_	LT=,
+11	der	die	PRON	PRELS	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Rel	14	nsubj:pass	_	LT=der
+12	bekanntlich	bekanntlich	ADV	ADV	_	14	advmod	_	LT=bekanntlich
+13	wieder	wieder	ADV	ADV	_	14	advmod	_	LT=wieder
+14	hergestellt	herstellen	VERB	VVPP	Aspect=Perf|VerbForm=Part	9	acl	_	LT=herstellen
+15	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	14	aux:pass	_	LT=werden
+16	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13816477
+# text = Nach Schadensuntersuchung und Dokumentation beginnt die Behandlung des Papiers mit einer Trockenreinigung , für die ein latexgetränkter Schwamm verwendet wird .
+1	Nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	2	case	_	LT=Nach
+2	Schadensuntersuchung	Schadensuntersuchung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obl	_	LT=Untersuchung
+3	und	und	CCONJ	KON	_	4	cc	_	LT=und
+4	Dokumentation	Dokumentation	NOUN	NN	Gender=Fem|Number=Sing|Person=3	2	conj	_	LT=Dokumentation
+5	beginnt	beginnen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=beginnen
+6	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	7	det	_	LT=die
+7	Behandlung	Behandlung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	nsubj	_	LT=Behandlung
+8	des	d	DET	ART	Case=Gen|Gender=Neut|Number=Sing|PronType=Art	9	det	_	LT=des
+9	Papiers	Papier	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing|Person=3	7	nmod	_	LT=Papier
+10	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	LT=mit
+11	einer	eine	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	12	det	_	LT=einer
+12	Trockenreinigung	Trockenreinigung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obj	_	SpaceAfter=No|LT=Reinigung
+13	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	LT=,
+14	für	für	ADP	APPR	AdpType=Prep|Case=Acc	15	case	_	LT=für
+15	die	die	PRON	PRELS	Case=Acc|Gender=Fem|Number=Sing|Person=3|PronType=Rel	19	obl	_	LT=die
+16	ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	18	det	_	LT=ein
+17	latexgetränkter	latexgetränkt	ADJ	ADJA	_	18	amod	_	LT=latexgetränkter
+18	Schwamm	Schwamm	NOUN	NN	Gender=Masc|Number=Sing|Person=3	19	nsubj:pass	_	LT=Schwamm
+19	verwendet	verwenden	VERB	VVPP	Aspect=Perf|VerbForm=Part	12	acl	_	LT=verwenden
+20	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	19	aux:pass	_	LT=werden
+21	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13816498
+# text = Für Verfärbungen , Flecke , Risse , Fehlstellen und ähnliches sind dann weiter gehende Arbeitsgänge im Nassbehandlungsraum erforderlich .
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	2	case	_	LT=Für
+2	Verfärbungen	Verfärbung	NOUN	NN	Gender=Fem|Number=Plur|Person=3	18	obl	_	SpaceAfter=No|LT=Verfärbung
+3	,	,	PUNCT	$,	PunctType=Comm	4	punct	_	LT=,
+4	Flecke	Fleck	NOUN	NN	Gender=Masc|Number=Plur|Person=3	2	conj	_	SpaceAfter=No|LT=Flecke
+5	,	,	PUNCT	$,	PunctType=Comm	6	punct	_	LT=,
+6	Risse	Riß	NOUN	NN	Gender=Masc|Number=Plur|Person=3	2	conj	_	SpaceAfter=No|LT=Riß
+7	,	,	PUNCT	$,	PunctType=Comm	8	punct	_	LT=,
+8	Fehlstellen	Fehlstelle	NOUN	NN	Gender=Neut|Number=Sing|Person=3	2	conj	_	LT=Fehlstellen
+9	und	und	CCONJ	KON	_	10	cc	_	LT=und
+10	ähnliches	ähnlich	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	2	conj	_	LT=ähnlich
+11	sind	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	18	cop	_	LT=sein
+12	dann	dann	ADV	ADV	_	18	advmod	_	LT=dann
+13	weiter	weiter	ADV	ADV	Degree=Cmp	14	advmod	_	LT=weiter
+14	gehende	gehend	ADJ	ADJA	Degree=Pos|Number=Plur	15	amod	_	LT=gehen
+15	Arbeitsgänge	Arbeitsgang	NOUN	NN	Gender=Masc|Number=Plur|Person=3	18	nsubj	_	LT=Gang
+16	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	17	case	_	LT=im
+17	Nassbehandlungsraum	Naßbehandlungsraum	NOUN	NN	Gender=Masc|Number=Sing|Person=3	15	nmod	_	LT=Raum
+18	erforderlich	erforderlich	ADJ	ADJD	Degree=Pos|Variant=Short	0	root	_	LT=erforderlich
+19	.	.	PUNCT	$.	PunctType=Peri	18	punct	_	LT=.
+
+# DDC:BREAK.s = 13816517
+# text = Sauberstes , extra aufbereitetes Wasser zieht den Schutz aus den Fasern , mit Hilfe von Kaliumpermanganat wird das Papier gebleicht und desinfiziert , Skalpell und andere ärztliche Instrumente dienen zum Entfernen von rostenden Metalleinschlüssen .
+1	Sauberstes	sauber	ADJ	ADJA	Degree=Sup|Gender=Neut|Number=Sing	5	amod	_	SpaceAfter=No|LT=Sauberste
+2	,	,	PUNCT	$,	PunctType=Comm	4	punct	_	LT=,
+3	extra	extra	ADV	ADV	_	4	advmod	_	LT=extra
+4	aufbereitetes	aufbereitet	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	5	amod	_	LT=aufbereiten
+5	Wasser	Wasser	NOUN	NN	Gender=Neut|Number=Sing|Person=3	6	nsubj	_	LT=Wasser
+6	zieht	ziehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=ziehen
+7	den	d	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=den
+8	Schutz	Schutz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	6	obj	_	LT=Schutz
+9	aus	aus	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=aus
+10	den	d	DET	ART	Case=Dat|Number=Plur|PronType=Art	11	det	_	LT=den
+11	Fasern	Faser	NOUN	NN	Gender=Fem|Number=Plur|Person=3	6	obl	_	SpaceAfter=No|LT=Faser
+12	,	,	PUNCT	$,	PunctType=Comm	20	punct	_	LT=,
+13	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=mit
+14	Hilfe	Hilfe	NOUN	NN	Gender=Fem|Number=Sing|Person=3	20	obl	_	LT=Hilfe
+15	von	von	ADP	APPR	AdpType=Prep|Case=Dat	16	case	_	LT=von
+16	Kaliumpermanganat	Kaliumpermanganat	NOUN	NN	Person=3	14	nmod	_	LT=Manat
+17	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	20	aux:pass	_	LT=werden
+18	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	19	det	_	LT=das
+19	Papier	Papier	NOUN	NN	Gender=Neut|Number=Sing|Person=3	20	nsubj:pass	_	LT=Papier
+20	gebleicht	bleichen	VERB	VVPP	Aspect=Perf|VerbForm=Part	6	conj	_	LT=bleichen
+21	und	und	CCONJ	KON	_	22	cc	_	LT=und
+22	desinfiziert	desinfizieren	VERB	VVPP	Aspect=Perf|VerbForm=Part	20	conj	_	SpaceAfter=No|LT=desinfizieren
+23	,	,	PUNCT	$,	PunctType=Comm	29	punct	_	LT=,
+24	Skalpell	Skalpell	NOUN	NN	Gender=Masc|Number=Sing|Person=3	29	nsubj	_	LT=Skalpell
+25	und	und	CCONJ	KON	_	28	cc	_	LT=und
+26	andere	ander	ADJ	ADJA	Degree=Pos|Number=Plur	28	amod	_	LT=ander
+27	ärztliche	ärztlich	ADJ	ADJA	Degree=Pos|Number=Plur	28	amod	_	LT=ärztlich
+28	Instrumente	Instrument	NOUN	NN	Gender=Neut|Number=Plur|Person=3	24	conj	_	LT=Instrument
+29	dienen	dienen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	6	conj	_	LT=dienen
+30	zum	zum	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	31	case	_	LT=zum
+31	Entfernen	Entfernen	NOUN	NN	Gender=Neut|Number=Sing|Person=3	29	obj	_	LT=Entfernen
+32	von	von	ADP	APPR	AdpType=Prep|Case=Dat	34	case	_	LT=von
+33	rostenden	rostend	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Plur	34	amod	_	LT=rosten
+34	Metalleinschlüssen	Metalleinschluß	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	31	nmod	_	LT=Lüsse
+35	.	.	PUNCT	$.	PunctType=Peri	6	punct	_	LT=.
+
+# DDC:BREAK.s = 13816552
+# text = Zur „ hohen Kunst der Restaurierung gehören das millimetergenaue Ergänzen von Fehlstellen mit im Mixer hergestellter Papiermasse , wofür ein Spezialgerät zur Verfügung steht , und das Spalten von Blättern , in die dann ein hauchdünnes , stabilisierendes Kernpapier eingezogen wird .
+1	Zur	zur	ADP	APPRART	AdpType=Prep|Case=Dat|Gender=Fem|PronType=Art	4	case	_	LT=Zur
+2	„	„	PUNCT	$(	PunctType=Brck	4	punct	_	SpaceAfter=No|LT=„
+3	hohen	hoch	ADJ	ADJA	Degree=Pos|Number=Sing	4	amod	_	LT=hoch
+4	Kunst	Kunst	NOUN	NN	Gender=Fem|Number=Sing|Person=3	7	obj	_	LT=Kunst
+5	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	6	det	_	LT=der
+6	Restaurierung	Restaurierung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	nmod	_	LT=Restaurierung
+7	gehören	gehören	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=gehören
+8	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	10	det	_	LT=das
+9	millimetergenaue	millimetergenau	ADJ	ADJA	_	10	amod	_	LT=millimetergenaue
+10	Ergänzen	Ergänzen	NOUN	NN	Gender=Neut|Number=Sing|Person=3	7	nsubj	_	LT=Ergänzen
+11	von	von	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	LT=von
+12	Fehlstellen	Fehlstelle	NOUN	NN	Gender=Fem|Number=Plur|Person=3	10	nmod	_	LT=Fehlstellen
+13	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	17	case	_	LT=mit
+14	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	15	case	_	LT=im
+15	Mixer	Mixer	NOUN	NN	Gender=Masc|Number=Sing|Person=3	16	obl	_	LT=Mixer
+16	hergestellter	hergestellt	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	17	amod	_	LT=hergestellter
+17	Papiermasse	Papiermasse	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	nmod	_	SpaceAfter=No|LT=Maß
+18	,	,	PUNCT	$,	PunctType=Comm	24	punct	_	LT=,
+19	wofür	wofür	ADV	PWAV	PronType=Int	24	advmod	_	LT=wofür
+20	ein	eine	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	21	det	_	LT=ein
+21	Spezialgerät	Spezialgerät	NOUN	NN	Gender=Neut|Number=Sing|Person=3	24	nsubj	_	LT=Gerät
+22	zur	zur	ADP	APPRART	AdpType=Prep|Case=Dat|Gender=Fem|PronType=Art	23	case	_	LT=zur
+23	Verfügung	Verfügung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	24	obl	_	LT=Verfügung
+24	steht	stehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	10	acl	_	SpaceAfter=No|LT=stehen
+25	,	,	PUNCT	$,	PunctType=Comm	28	punct	_	LT=,
+26	und	und	CCONJ	KON	_	28	cc	_	LT=und
+27	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	28	det	_	LT=das
+28	Spalten	Spalte	NOUN	NN	Gender=Neut|Number=Sing|Person=3	10	conj	_	LT=Spalte
+29	von	von	ADP	APPR	AdpType=Prep|Case=Dat	30	case	_	LT=von
+30	Blättern	Blatt	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur|Person=3	28	nmod	_	SpaceAfter=No|LT=Blatt
+31	,	,	PUNCT	$,	PunctType=Comm	40	punct	_	LT=,
+32	in	in	ADP	APPR	AdpType=Prep|Case=Acc	33	case	_	LT=in
+33	die	die	PRON	PRELS	Case=Acc|Number=Plur|Person=3|PronType=Rel	40	obl	_	LT=die
+34	dann	dann	ADV	ADV	_	40	advmod	_	LT=dann
+35	ein	eine	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	39	det	_	LT=ein
+36	hauchdünnes	hauchdünn	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	39	amod	_	SpaceAfter=No|LT=hauchdünn
+37	,	,	PUNCT	$,	PunctType=Comm	38	punct	_	LT=,
+38	stabilisierendes	stabilisierend	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	36	conj	_	LT=stabilisieren
+39	Kernpapier	Kernpapier	NOUN	NN	Gender=Neut|Number=Sing|Person=3	40	nsubj:pass	_	LT=Kernpapier
+40	eingezogen	einziehen	VERB	VVPP	Aspect=Perf|VerbForm=Part	30	acl	_	LT=einziehen
+41	wird	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	40	aux:pass	_	LT=werden
+42	.	.	PUNCT	$.	PunctType=Peri	7	punct	_	LT=.
+
+# DDC:BREAK.s = 13816594
+# text = Die königlichen Bibliotheken , deren Bücher nicht mehr genutzt werden und in gutem Zustand sind , spielen in der Arbeit der Stiftungswerkstatt eine untergeordnete Rolle .
+1	Die	d	DET	ART	Case=Nom|Number=Plur|PronType=Art	3	det	_	LT=Die
+2	königlichen	königlich	ADJ	ADJA	Degree=Pos|Number=Plur	3	amod	_	LT=königlich
+3	Bibliotheken	Bibliothek	NOUN	NN	Gender=Fem|Number=Plur|Person=3	17	nsubj	_	SpaceAfter=No|LT=Bibliothek
+4	,	,	PUNCT	$,	PunctType=Comm	9	punct	_	LT=,
+5	deren	die	DET	PRELAT	PronType=Rel	6	det	_	LT=deren
+6	Bücher	Buch	NOUN	NN	Gender=Neut|Number=Plur|Person=3	9	nsubj:pass	_	LT=Buch
+7	nicht	nicht	PART	PTKNEG	Polarity=Neg	9	advmod	_	LT=nicht
+8	mehr	mehr	ADV	ADV	_	7	advmod	_	LT=mehr
+9	genutzt	nutzen	VERB	VVPP	Aspect=Perf|VerbForm=Part	3	acl	_	LT=nutzen
+10	werden	werden	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	9	aux:pass	_	LT=werden
+11	und	und	CCONJ	KON	_	14	cc	_	LT=und
+12	in	in	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=in
+13	gutem	gut	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Sing	14	amod	_	LT=gut
+14	Zustand	Zustand	NOUN	NN	Gender=Masc|Number=Sing|Person=3	9	conj	_	LT=Zustand
+15	sind	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	14	cop	_	SpaceAfter=No|LT=sein
+16	,	,	PUNCT	$,	PunctType=Comm	9	punct	_	LT=,
+17	spielen	spielen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=spielen
+18	in	in	ADP	APPR	AdpType=Prep|Case=Dat	20	case	_	LT=in
+19	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	20	det	_	LT=der
+20	Arbeit	Arbeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	obl	_	LT=Arbeit
+21	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	22	det	_	LT=der
+22	Stiftungswerkstatt	Stiftungswerkstatt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	20	nmod	_	LT=Werkstatt
+23	eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	25	det	_	LT=eine
+24	untergeordnete	untergeordnet	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	25	amod	_	LT=untergeordnet
+25	Rolle	Rolle	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	obj	_	LT=Rolle
+26	.	.	PUNCT	$.	PunctType=Peri	17	punct	_	LT=.
+
+# DDC:BREAK.s = 13816620
+# text = Sie konzentriert sich auf die Einzelblattkonservierung und -restaurierung .
+1	Sie	sie	PRON	PPER	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	LT=Sie
+2	konzentriert	konzentrieren	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=konzentrieren
+3	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	2	expl:pv	_	LT=sich
+4	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	6	case	_	LT=auf
+5	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	6	det	_	LT=die
+6	Einzelblattkonservierung	Einzelblattkonservierung	NOUN	NN	Person=3	2	obl	_	LT=Vierung
+7	und	und	CCONJ	KON	_	8	cc	_	LT=und
+8	-restaurierung	-restaurierung	NOUN	TRUNC	Hyph=Yes	6	conj	_	LT=-restaurierung
+9	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13816629
+# text = Davon werden in der Plankammer nicht weniger als 100000 aufbewahrt - Akten und andere Dokumente , Karten , Pläne , Grafiken .
+1	Davon	davon	ADV	PROAV	_	10	advmod	_	LT=Davon
+2	werden	werden	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	10	aux:pass	_	LT=werden
+3	in	in	ADP	APPR	AdpType=Prep|Case=Dat	5	case	_	LT=in
+4	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	5	det	_	LT=der
+5	Plankammer	Plankammer	NOUN	NN	Gender=Fem|Number=Sing|Person=3	10	obl	_	LT=Plankammer
+6	nicht	nicht	PART	PTKNEG	Polarity=Neg	10	advmod	_	LT=nicht
+7	weniger	wenige	ADV	ADV	Degree=Cmp	9	advmod	_	LT=weniger
+8	als	als	CCONJ	KOKOM	ConjType=Comp	7	case	_	LT=als
+9	100000	100000	NUM	CARD	Number=Plur|NumType=Card|Person=3	10	nsubj:pass	_	LT=100000
+10	aufbewahrt	aufbewahren	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=aufbewahren
+11	-	-	PUNCT	$(	PunctType=Brck	12	punct	_	LT=-
+12	Akten	Akte	NOUN	NN	Gender=Fem|Number=Plur|Person=3	9	appos	_	LT=Akte
+13	und	und	CCONJ	KON	_	15	cc	_	LT=und
+14	andere	ander	ADJ	ADJA	Degree=Pos|Number=Plur	15	amod	_	LT=ander
+15	Dokumente	Dokument	NOUN	NN	Gender=Neut|Number=Plur|Person=3	12	conj	_	SpaceAfter=No|LT=Dokument
+16	,	,	PUNCT	$,	PunctType=Comm	17	punct	_	LT=,
+17	Karten	Karte	NOUN	NN	Gender=Fem|Number=Plur|Person=3	15	conj	_	SpaceAfter=No|LT=Karte
+18	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	LT=,
+19	Pläne	Plan	NOUN	NN	Gender=Masc|Number=Plur|Person=3	15	conj	_	SpaceAfter=No|LT=Plan
+20	,	,	PUNCT	$,	PunctType=Comm	21	punct	_	LT=,
+21	Grafiken	Grafik	NOUN	NN	Gender=Fem|Number=Plur|Person=3	15	conj	_	LT=Grafik
+22	.	.	PUNCT	$.	PunctType=Peri	10	punct	_	LT=.
+
+# DDC:BREAK.s = 13816651
+# text = Irene Hesselbarth gab auch praktische Tipps zur Buchpflege .
+1	Irene	Irene	PROPN	NE	Gender=Fem|Number=Sing|Person=3	3	nsubj	_	NER=B-PER|LT=Irene
+2	Hesselbarth	Hesselbarth	PROPN	NE	Person=3	1	flat:name	_	NER=E-PER|LT=Hesselbarth
+3	gab	geben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=geben
+4	auch	auch	ADV	ADV	_	6	advmod	_	LT=auch
+5	praktische	praktisch	ADJ	ADJA	Degree=Pos|Number=Plur	6	amod	_	LT=praktisch
+6	Tipps	Tipp	NOUN	NN	Gender=Masc|Number=Plur|Person=3	3	obj	_	LT=Tipp
+7	zur	zur	ADP	APPRART	AdpType=Prep|Case=Dat|Gender=Fem|PronType=Art	8	case	_	LT=zur
+8	Buchpflege	Buchpflege	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	nmod	_	LT=Pflege
+9	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13816660
+# text = So sollten Risse in den Seiten nicht mit Film , sondern mit hauchzartem Seidenpapier überklebt werden , von dem es vorgefertigte Streifen im Handel gibt .
+1	So	so	ADV	ADV	Degree=Pos	15	advmod	_	LT=so
+2	sollten	sollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	15	aux	_	LT=sollen
+3	Risse	Riß	NOUN	NN	Gender=Masc|Number=Plur|Person=3	15	nsubj:pass	_	LT=Riß
+4	in	in	ADP	APPR	AdpType=Prep|Case=Dat	6	case	_	LT=in
+5	den	d	DET	ART	Case=Dat|Number=Plur|PronType=Art	6	det	_	LT=den
+6	Seiten	Seite	NOUN	NN	Gender=Fem|Number=Plur|Person=3	3	nmod	_	LT=Seite
+7	nicht	nicht	PART	PTKNEG	Polarity=Neg	9	advmod	_	LT=nicht
+8	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	9	case	_	LT=mit
+9	Film	Film	NOUN	NN	Gender=Masc|Number=Sing|Person=3	15	obl	_	SpaceAfter=No|LT=Film
+10	,	,	PUNCT	$,	PunctType=Comm	14	punct	_	LT=,
+11	sondern	sondern	CCONJ	KON	_	14	cc	_	LT=sondern
+12	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=mit
+13	hauchzartem	hauchzart	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Sing	14	amod	_	LT=hauchzart
+14	Seidenpapier	Seidenpapier	NOUN	NN	Gender=Neut|Number=Sing|Person=3	9	conj	_	LT=Papier
+15	überklebt	überkleben	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=überkleben
+16	werden	werden	AUX	VAINF	VerbForm=Inf	15	aux:pass	_	SpaceAfter=No|LT=werden
+17	,	,	PUNCT	$,	PunctType=Comm	25	punct	_	LT=,
+18	von	von	ADP	APPR	AdpType=Prep|Case=Dat	19	case	_	LT=von
+19	dem	die	PRON	PRELS	Case=Dat|Gender=Neut|Number=Sing|Person=3|PronType=Rel	25	obl	_	LT=dem
+20	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	25	nsubj	_	LT=es
+21	vorgefertigte	vorgefertigt	ADJ	ADJA	Degree=Pos|Number=Plur	22	amod	_	LT=vorgefertigt
+22	Streifen	Streifen	NOUN	NN	Gender=Masc|Number=Plur|Person=3	25	obj	_	LT=Streifen
+23	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	24	case	_	LT=im
+24	Handel	Handel	NOUN	NN	Gender=Masc|Number=Sing|Person=3	25	obl	_	LT=Handel
+25	gibt	geben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	14	acl	_	LT=geben
+26	.	.	PUNCT	$.	PunctType=Peri	15	punct	_	LT=.
+
+# DDC:BREAK.s = 13816686
+# text = E. Hohenstein 2000 © Potsdamer Zeitungsverlags GmbH & Zum_Seitenanfang Co .
+1	E.	E.	PROPN	NE	Number=Sing|Person=3	0	root	_	NER=B-PER|LT=E.
+2	Hohenstein	Hohenstein	PROPN	NE	Person=3	1	flat:name	_	NER=E-PER|LT=Hohenstein
+3	2000	2000	NUM	CARD	Number=Plur|NumType=Card|Person=3	1	nmod	_	LT=2000
+4	©	©	X	FM	Foreign=Yes|Person=3	1	appos	_	LT=©
+5	Potsdamer	potsdamer	ADJ	ADJA	Degree=Pos	6	amod	_	NER=B-ORG|LT=Potsdamer
+6	Zeitungsverlags	Zeitungsverlag	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	4	nmod	_	NER=I-ORG|LT=Verlag
+7	GmbH	GmbH	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	appos	_	NER=E-ORG|LT=GmbH
+8	&	&	CCONJ	KON	_	9	cc	_	LT=und
+9	Zum_Seitenanfang	zum_seitenanfang	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	conj	_	NER=B-ORG|LT=Anfang
+10	Co	Co	NOUN	NN	Person=3	9	flat:name	_	NER=E-ORG|LT=Co
+11	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	LT=.
+
+# DDC:tokid.begin = 13833249
+# DDC:tokid.end = 13833591
+# DDC:meta.n_ = 36739
+# DDC:meta.file_ = pnn01/../../ddc_xml/data/27.09.2004/1385251.pnn.tei.cln.ddc.xml
+# DDC:meta.masked_ = 0
+# DDC:meta.date_ = 2004-09-27
+# DDC:meta.page_ = -1
+# DDC:meta.basename = 27.09.2004/1385251.pnn.tei.cln
+# DDC:meta.bibl = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblLex = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblSig = PNN, 27.09.2004
+# DDC:meta.collection = pnn
+# DDC:meta.textClass = Zeitung:Potsdam
+# DDC:meta.timestamp = 2017-05-08T10:30:07Z
+# DDC:meta.title = Ein „nordischer Garten“ vorm sanierten Haus
+# DDC:meta.url = http://premium-link.net/$44926$0$/27.09.200427.09.2004/1385251.pnn
+# DDC:BREAK.s = 13833249
+# DDC:BREAK.c = 13833249
+# DDC:BREAK.p = 13833249
+# DDC:BREAK.file = 13833249
+# DDC:BREAK.textarea = 13833249
+# text = Potsdam 27. 09. 2004 Ein „ nordischer Garten “ vorm sanierten Haus In der Brandenburger Vorstadt bleiben immer wieder Passanten am nördlichen Ende der Nansenstraße vor dem Haus Nummer 9 stehen .
+1	Potsdam	Potsdam	PROPN	NE	Person=3	17	nsubj	_	NER=S-LOC|LT=Potsdam
+2	27.	27.	ADJ	ADJA	Person=3	3	amod	_	SpaceAfter=No|LT=27.
+3	09.	09.	ADJ	ADJA	Person=3	1	appos	_	SpaceAfter=No|LT=09.
+4	2004	2004	NUM	CARD	Number=Plur|NumType=Card|Person=3	3	nmod	_	LT=2004
+5	Ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=Ein
+6	„	„	PUNCT	$(	PunctType=Brck	8	punct	_	SpaceAfter=No|LT=„
+7	nordischer	nordisch	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	8	amod	_	LT=nordisch
+8	Garten	Garten	NOUN	NN	Gender=Masc|Number=Sing|Person=3	1	nsubj	_	SpaceAfter=No|LT=Garten
+9	“	“	PUNCT	$(	PunctType=Brck	8	punct	_	LT=“
+10	vorm	vorm	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	12	case	_	LT=vorm
+11	sanierten	saniert	ADJ	ADJA	Degree=Pos|Number=Sing	12	amod	_	LT=sanieren
+12	Haus	Haus	NOUN	NN	Gender=Neut|Number=Sing|Person=3	8	nmod	_	LT=Haus
+13	In	in	NOUN	NN	Person=3	17	obj	_	LT=In
+14	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	16	det	_	LT=der
+15	Brandenburger	brandenburger	ADJ	ADJA	Degree=Pos	16	amod	_	NER=B-LOC|LT=Brandenburger
+16	Vorstadt	Vorstadt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	obl	_	NER=E-LOC|LT=Vorstadt
+17	bleiben	bleiben	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=bleiben
+18	immer	immer	ADV	ADV	_	19	advmod	_	LT=immer
+19	wieder	wieder	ADV	ADV	_	17	advmod	_	LT=wieder
+20	Passanten	Passante	NOUN	NN	Gender=Masc|Number=Plur|Person=3	17	nsubj	_	LT=Passant
+21	am	am	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	23	case	_	LT=am
+22	nördlichen	nördlich	ADJ	ADJA	Degree=Pos|Number=Sing	23	amod	_	LT=nördlich
+23	Ende	Ende	NOUN	NN	Gender=Neut|Number=Sing|Person=3	20	nmod	_	LT=Ende
+24	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	25	det	_	LT=der
+25	Nansenstraße	Nansenstraße	NOUN	NN	Gender=Fem|Number=Sing|Person=3	23	nmod	_	NER=S-LOC|LT=Straße
+26	vor	vor	ADP	APPR	AdpType=Prep|Case=Dat	28	case	_	LT=vor
+27	dem	d	DET	ART	Case=Dat|Gender=Neut|Number=Sing|PronType=Art	28	det	_	LT=dem
+28	Haus	Haus	NOUN	NN	Gender=Neut|Number=Sing|Person=3	31	obl	_	LT=Haus
+29	Nummer	Nummer	NOUN	NN	Gender=Fem|Number=Sing|Person=3	28	appos	_	LT=Nummer
+30	9	9	NUM	CARD	Number=Plur|NumType=Card|Person=3	29	flat	_	LT=9
+31	stehen	stehen	VERB	VVINF	VerbForm=Inf	17	xcomp	_	LT=stehen
+32	.	.	PUNCT	$.	PunctType=Peri	17	punct	_	LT=.
+
+# DDC:BREAK.s = 13833281
+# text = Das Gebäude wurde vorbildlich saniert und restauriert , dabei ist auch der baukünstlerische Schmuck der Fassade wiederhergestellt worden .
+1	Das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	2	det	_	LT=Das
+2	Gebäude	Gebäude	NOUN	NN	Gender=Neut|Number=Sing|Person=3	5	nsubj:pass	_	LT=Gebäude
+3	wurde	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	5	aux:pass	_	LT=werden
+4	vorbildlich	vorbildlich	ADJ	ADJD	Degree=Pos|Variant=Short	5	advmod	_	LT=vorbildlich
+5	saniert	sanieren	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=sanieren
+6	und	und	CCONJ	KON	_	7	cc	_	LT=und
+7	restauriert	restaurieren	VERB	VVPP	Aspect=Perf|VerbForm=Part	5	conj	_	SpaceAfter=No|LT=restaurieren
+8	,	,	PUNCT	$,	PunctType=Comm	17	punct	_	LT=,
+9	dabei	dabei	ADV	PROAV	_	17	advmod	_	LT=dabei
+10	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	17	aux	_	LT=sein
+11	auch	auch	ADV	ADV	_	14	advmod	_	LT=auch
+12	der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	14	det	_	LT=der
+13	baukünstlerische	baukünstlerisch	ADJ	ADJA	_	14	amod	_	LT=baukünstlerische
+14	Schmuck	Schmuck	NOUN	NN	Gender=Masc|Number=Sing|Person=3	17	nsubj:pass	_	LT=Schmuck
+15	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	16	det	_	LT=der
+16	Fassade	Fassade	NOUN	NN	Gender=Fem|Number=Sing|Person=3	14	nmod	_	LT=Fassade
+17	wiederhergestellt	wiederherstellen	VERB	VVPP	Aspect=Perf|VerbForm=Part	5	conj	_	LT=wiederherstellen
+18	worden	werden	AUX	VAPP	Aspect=Perf|VerbForm=Part	17	aux:pass	_	LT=werden
+19	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13833300
+# text = Es entstand 1895 , als die Bebauung der Vorstadt das Areal zwischen Lenné- und Zeppelinstraße erreichte .
+1	Es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	LT=Es
+2	entstand	entstehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=entstehen
+3	1895	1895	NUM	CARD	Number=Plur|NumType=Card|Person=3	2	obl	_	SpaceAfter=No|LT=1895
+4	,	,	PUNCT	$,	PunctType=Comm	16	punct	_	LT=,
+5	als	als	SCONJ	KOUS	_	16	mark	_	LT=als
+6	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	7	det	_	LT=die
+7	Bebauung	Bebauung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	16	nsubj	_	LT=Bebauung
+8	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	9	det	_	LT=der
+9	Vorstadt	Vorstadt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	7	nmod	_	LT=Vorstadt
+10	das	d	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	11	det	_	LT=das
+11	Areal	Areal	NOUN	NN	Gender=Neut|Number=Sing|Person=3	16	obj	_	LT=Areal
+12	zwischen	zwischen	ADP	APPR	AdpType=Prep|Case=Dat	13	case	_	LT=zwischen
+13	Lenné-	lenné-	NOUN	TRUNC	Hyph=Yes	11	nmod	_	NER=S-LOC|LT=Lenné-
+14	und	und	CCONJ	KON	_	15	cc	_	LT=und
+15	Zeppelinstraße	Zeppelinstraße	NOUN	NN	Gender=Fem|Number=Sing|Person=3	13	conj	_	NER=S-LOC|LT=Straße
+16	erreichte	erreichen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	2	ccomp	_	LT=erreichen
+17	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13833317
+# text = In der damaligen Auguste- Viktoria-Straße , benannt nach der Kaiserin , wohnten finanziell gut gestellte Bürger ; ein Adressbuch aus den 30er Jahren nennt unter anderem einen Architekten , einen Geophysiker , einen Anwalt , einen Regierungsoberinspektor und einen Goldschmied .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	4	case	_	LT=In
+2	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	4	det	_	LT=der
+3	damaligen	damalig	ADJ	ADJA	Degree=Pos|Number=Sing	4	amod	_	LT=damalig
+4	Auguste-	auguste-	NOUN	TRUNC	Hyph=Yes	12	obl	_	NER=B-LOC|LT=Auguste-
+5	Viktoria-Straße	Viktoria-Straße	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	appos	_	SpaceAfter=No|NER=E-LOC|LT=Straße
+6	,	,	PUNCT	$,	PunctType=Comm	7	punct	_	LT=,
+7	benannt	benennen	ADJ	ADJD	Degree=Pos|Variant=Short	5	advmod	_	LT=benennen
+8	nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	10	case	_	LT=nach
+9	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	10	det	_	LT=der
+10	Kaiserin	Kaiserin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	7	obl	_	SpaceAfter=No|LT=Kaiserin
+11	,	,	PUNCT	$,	PunctType=Comm	7	punct	_	LT=,
+12	wohnten	wohnen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=wohnen
+13	finanziell	finanziell	ADJ	ADJD	Degree=Pos|Variant=Short	15	advmod	_	LT=finanziell
+14	gut	gut	ADJ	ADJD	Degree=Pos|Variant=Short	15	advmod	_	LT=gut
+15	gestellte	gestellt	ADJ	ADJA	Degree=Pos|Number=Plur	16	amod	_	LT=stellen
+16	Bürger	Bürger	NOUN	NN	Gender=Masc|Number=Plur|Person=3	12	nsubj	_	SpaceAfter=No|LT=Bürger
+17	;	;	PUNCT	$.	PunctType=Peri	12	punct	_	LT=;
+18	ein	eine	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	19	det	_	LT=ein
+19	Adressbuch	Adreßbuch	NOUN	NN	Gender=Neut|Number=Sing|Person=3	24	nsubj	_	LT=Buch
+20	aus	aus	ADP	APPR	AdpType=Prep|Case=Dat	23	case	_	LT=aus
+21	den	d	DET	ART	Case=Dat|Number=Plur|PronType=Art	23	det	_	LT=den
+22	30er	30er	ADJ	ADJA	_	23	amod	_	LT=30er
+23	Jahren	Jahr	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur|Person=3	19	nmod	_	LT=Jahr
+24	nennt	nennen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	12	parataxis	_	LT=nennen
+25	unter	unter	ADP	APPR	AdpType=Prep|Case=Dat	26	case	_	LT=unter
+26	anderem	ander	PRON	PIS	Case=Dat|Gender=Neut|Number=Sing|Person=3|PronType=Ind,Neg,Tot	28	nmod	_	LT=ander
+27	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	28	det	_	LT=einen
+28	Architekten	Architekt	NOUN	NN	Gender=Masc|Number=Sing|Person=3	24	obj	_	SpaceAfter=No|LT=Architekt
+29	,	,	PUNCT	$,	PunctType=Comm	31	punct	_	LT=,
+30	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	31	det	_	LT=einen
+31	Geophysiker	Geophysiker	NOUN	NN	Gender=Masc|Number=Sing|Person=3	28	conj	_	SpaceAfter=No|LT=Geophysiker
+32	,	,	PUNCT	$,	PunctType=Comm	34	punct	_	LT=,
+33	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	34	det	_	LT=einen
+34	Anwalt	Anwalt	NOUN	NN	Gender=Masc|Number=Sing|Person=3	28	conj	_	SpaceAfter=No|LT=Anwalt
+35	,	,	PUNCT	$,	PunctType=Comm	37	punct	_	LT=,
+36	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	37	det	_	LT=einen
+37	Regierungsoberinspektor	Regierungsoberinspektor	NOUN	NN	Gender=Masc|Number=Sing|Person=3	28	conj	_	LT=Spektor
+38	und	und	CCONJ	KON	_	40	cc	_	LT=und
+39	einen	eine	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	40	det	_	LT=einen
+40	Goldschmied	Goldschmied	NOUN	NN	Gender=Masc|Number=Sing|Person=3	28	conj	_	LT=unknown
+41	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13833358
+# text = Auch heute ist das sanierte Haus wieder voll vermietet .
+1	Auch	auch	ADV	ADV	_	2	advmod	_	LT=Auch
+2	heute	heute	ADV	ADV	_	9	advmod	_	LT=heute
+3	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	9	aux:pass	_	LT=sein
+4	das	die	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	6	det	_	LT=das
+5	sanierte	sanieren	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	6	amod	_	LT=sanieren
+6	Haus	Haus	NOUN	NN	Gender=Neut|Number=Sing|Person=3	9	nsubj:pass	_	LT=Haus
+7	wieder	wieder	ADV	ADV	_	9	advmod	_	LT=wieder
+8	voll	voll	ADJ	ADJD	Degree=Pos|Variant=Short	9	advmod	_	LT=voll
+9	vermietet	vermieten	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=vermieten
+10	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	LT=.
+
+# DDC:BREAK.s = 13833368
+# text = Eine besondere Zierde stellt der lang gestreckte Vorgarten dar , der im Stile eines „ nordischen Gartens “ mit Nadelgehölzen und Bodendeckern bepflanzt ist .
+1	Eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	3	det	_	LT=Eine
+2	besondere	besondere	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	3	amod	_	LT=besondere
+3	Zierde	Zierde	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	obj	_	LT=Zierde
+4	stellt	stellen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=stellen
+5	der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=der
+6	lang	lang	ADJ	ADJD	Degree=Pos|Variant=Short	7	advmod	_	LT=lang
+7	gestreckte	gestreckt	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	8	amod	_	LT=strecken
+8	Vorgarten	Vorgarten	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	nsubj	_	LT=Vorgarten
+9	dar	dar	ADP	PTKVZ	PartType=Vbp	4	compound:prt	_	SpaceAfter=No|LT=dar
+10	,	,	PUNCT	$,	PunctType=Comm	23	punct	_	LT=,
+11	der	die	PRON	PRELS	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Rel	23	nsubj:pass	_	LT=der
+12	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	13	case	_	LT=im
+13	Stile	Stil	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing|Person=3	23	obl	_	LT=Stil
+14	eines	eine	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	17	det	_	LT=eines
+15	„	„	PUNCT	$(	PunctType=Brck	17	punct	_	SpaceAfter=No|LT=„
+16	nordischen	nordisch	ADJ	ADJA	Degree=Pos|Number=Sing	17	amod	_	LT=nordisch
+17	Gartens	Garten	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	13	nmod	_	SpaceAfter=No|LT=Garten
+18	“	“	PUNCT	$(	PunctType=Brck	17	punct	_	LT=“
+19	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	20	case	_	LT=mit
+20	Nadelgehölzen	Nadelgehölz	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	23	obl	_	LT=Gehölz
+21	und	und	CCONJ	KON	_	22	cc	_	LT=und
+22	Bodendeckern	Bodendecker	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	20	conj	_	LT=Decker
+23	bepflanzt	bepflanzen	VERB	VVPP	Aspect=Perf|VerbForm=Part	8	acl	_	LT=bepflanzen
+24	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	23	aux:pass	_	LT=sein
+25	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	LT=.
+
+# DDC:BREAK.s = 13833393
+# text = Für ständige Pflege sorgt im Auftrag des Eigentümers ein Hausbewohner .
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	3	case	_	LT=Für
+2	ständige	ständig	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	3	amod	_	LT=ständig
+3	Pflege	Pflege	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	obj	_	LT=Pflege
+4	sorgt	sorgen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=sorgen
+5	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	6	case	_	LT=im
+6	Auftrag	Auftrag	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	obl	_	LT=Auftrag
+7	des	d	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=des
+8	Eigentümers	Eigentümer	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	6	nmod	_	LT=Eigentümer
+9	ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	10	det	_	LT=ein
+10	Hausbewohner	Hausbewohner	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	nsubj	_	LT=Hausbewohner
+11	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	LT=.
+
+# DDC:BREAK.s = 13833404
+# text = Wer den Garten gestaltet hat , war vom Eigentümer nicht zu erfahren .
+1	Wer	wer	PRON	PWS	Case=Nom|Number=Sing|Person=3|PronType=Int	4	nsubj	_	LT=Wer
+2	den	d	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	3	det	_	LT=den
+3	Garten	Garten	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	obj	_	LT=Garten
+4	gestaltet	gestalten	VERB	VVPP	Aspect=Perf|VerbForm=Part	12	csubj	_	LT=gestalten
+5	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	aux	_	SpaceAfter=No|LT=haben
+6	,	,	PUNCT	$,	PunctType=Comm	4	punct	_	LT=,
+7	war	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	12	aux	_	LT=sein
+8	vom	vom	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	9	case	_	LT=vom
+9	Eigentümer	Eigentümer	NOUN	NN	Gender=Masc|Number=Sing|Person=3	12	obl	_	LT=Eigentümer
+10	nicht	nicht	PART	PTKNEG	Polarity=Neg	12	advmod	_	LT=nicht
+11	zu	zu	PART	PTKZU	PartType=Inf	12	mark	_	LT=zu
+12	erfahren	erfahren	VERB	VVINF	VerbForm=Inf	0	root	_	LT=erfahren
+13	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13833417
+# text = Der Hamburger hat sich wohl während des Baus über die Stadtverwaltung ärgern müssen und war sehr kurz angebunden .
+1	Der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	2	det	_	LT=Der
+2	Hamburger	Hamburger	NOUN	NN	Gender=Masc|Number=Sing|Person=3	12	nsubj	_	NER=S-MISC|LT=Hamburger
+3	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	12	aux	_	LT=haben
+4	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	12	expl:pv	_	LT=sich
+5	wohl	wohl	ADV	ADV	_	12	advmod	_	LT=wohl
+6	während	während	ADP	APPR	AdpType=Prep	8	case	_	LT=während
+7	des	d	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	8	det	_	LT=des
+8	Baus	Bau	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	12	obl	_	LT=Bau
+9	über	über	ADP	APPR	AdpType=Prep|Case=Acc	11	case	_	LT=über
+10	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	11	det	_	LT=die
+11	Stadtverwaltung	Stadtverwaltung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	obl	_	NER=S-ORG|LT=Verwaltung
+12	ärgern	ärgern	VERB	VVINF	VerbForm=Inf	0	root	_	LT=ärgern
+13	müssen	müssen	AUX	VMINF	VerbForm=Inf|VerbType=Mod	12	aux	_	LT=müssen
+14	und	und	CCONJ	KON	_	18	cc	_	LT=und
+15	war	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	aux:pass	_	LT=sein
+16	sehr	sehr	ADV	ADV	Degree=Pos	17	advmod	_	LT=sehr
+17	kurz	kurz	ADJ	ADJD	Degree=Pos|Variant=Short	18	advmod	_	LT=kurz
+18	angebunden	anbinden	VERB	VVPP	Aspect=Perf|VerbForm=Part	12	conj	_	LT=anbinden
+19	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13833436
+# text = Auch für die beiden Vorgartenwettbewerbe , die im „ Gartenjahr “ in der Brandenburger Vorstadt liefen , hat er den Garten nicht angemeldet .
+1	Auch	auch	ADV	ADV	_	5	advmod	_	LT=Auch
+2	für	für	ADP	APPR	AdpType=Prep|Case=Acc	5	case	_	LT=für
+3	die	d	DET	ART	Case=Acc|Number=Plur|PronType=Art	5	det	_	LT=die
+4	beiden	beide	ADJ	PIDAT	Case=Acc|Number=Plur|Person=3	5	amod	_	LT=beide
+5	Vorgartenwettbewerbe	Vorgartenwettbewerb	NOUN	NN	Gender=Masc|Number=Plur|Person=3	23	obl	_	SpaceAfter=No|LT=Wettbewerb
+6	,	,	PUNCT	$,	PunctType=Comm	16	punct	_	LT=,
+7	die	die	PRON	PRELS	Case=Nom|Number=Plur|Person=3|PronType=Rel	16	nsubj	_	LT=die
+8	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	10	case	_	LT=im
+9	„	„	PUNCT	$(	PunctType=Brck	10	punct	_	SpaceAfter=No|LT=„
+10	Gartenjahr	Gartenjahr	NOUN	NN	Gender=Neut|Number=Sing|Person=3	16	obl	_	SpaceAfter=No|NER=S-MISC|LT=Jahr
+11	“	“	PUNCT	$(	PunctType=Brck	10	punct	_	LT=“
+12	in	in	ADP	APPR	AdpType=Prep|Case=Dat	15	case	_	LT=in
+13	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	15	det	_	LT=der
+14	Brandenburger	brandenburger	ADJ	ADJA	Degree=Pos	15	amod	_	NER=S-MISC|LT=Brandenburger
+15	Vorstadt	Vorstadt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	16	obl	_	LT=Vorstadt
+16	liefen	laufen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	5	acl	_	SpaceAfter=No|LT=laufen
+17	,	,	PUNCT	$,	PunctType=Comm	16	punct	_	LT=,
+18	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	23	aux	_	LT=haben
+19	er	er	PRON	PPER	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Prs	23	nsubj	_	LT=er
+20	den	d	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	21	det	_	LT=den
+21	Garten	Garten	NOUN	NN	Gender=Masc|Number=Sing|Person=3	23	obj	_	LT=Garten
+22	nicht	nicht	PART	PTKNEG	Polarity=Neg	23	advmod	_	LT=nicht
+23	angemeldet	anmelden	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=anmelden
+24	.	.	PUNCT	$.	PunctType=Peri	23	punct	_	LT=.
+
+# DDC:BREAK.s = 13833460
+# text = Das ist ein bisschen schade , denn dem Aufruf sind trotz nicht zu verachtender Preisgelder nur wenige Hausbesitzer gefolgt .
+1	Das	die	PRON	PDS	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Dem	5	nsubj	_	LT=Das
+2	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	cop	_	LT=sein
+3	ein	eine	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	4	det	_	LT=ein
+4	bisschen	bißchen	ADV	ADV	Case=Acc|Gender=Neut|Number=Sing	5	advmod	_	LT=bisschen
+5	schade	schade	ADJ	ADJD	Degree=Pos|Variant=Short	0	root	_	SpaceAfter=No|LT=schade
+6	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	LT=,
+7	denn	denn	CCONJ	KON	_	19	cc	_	LT=denn
+8	dem	d	DET	ART	Case=Dat|Gender=Masc|Number=Sing|PronType=Art	9	det	_	LT=dem
+9	Aufruf	Aufruf	NOUN	NN	Gender=Masc|Number=Sing|Person=3	19	obj	_	LT=Aufruf
+10	sind	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	19	aux:pass	_	LT=sein
+11	trotz	trotz	ADP	APPR	AdpType=Prep	15	case	_	LT=trotz
+12	nicht	nicht	PART	PTKNEG	Polarity=Neg	14	advmod	_	LT=nicht
+13	zu	zu	PART	PTKZU	PartType=Inf	14	mark	_	LT=zu
+14	verachtender	verachtend	ADJ	ADJA	Case=Gen|Degree=Pos|Number=Plur	15	amod	_	LT=verachten
+15	Preisgelder	Preisgeld	NOUN	NN	Gender=Neut|Number=Plur|Person=3	19	obl	_	LT=Geld
+16	nur	nur	ADV	ADV	_	18	advmod	_	LT=nur
+17	wenige	wenige	ADJ	PIDAT	Case=Nom|Degree=Pos|Number=Plur|Person=3	18	amod	_	LT=wenig
+18	Hausbesitzer	Hausbesitzer	NOUN	NN	Gender=Masc|Number=Plur|Person=3	19	nsubj:pass	_	LT=Hausbesitzer
+19	gefolgt	folgen	VERB	VVPP	Aspect=Perf|VerbForm=Part	5	conj	_	LT=folgen
+20	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13833480
+# text = Der Stadtdenkmalpflege ging es um Wiederherstellung des historischen Bildes der Anlagen vor den Häusern .
+1	Der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	2	det	_	LT=Der
+2	Stadtdenkmalpflege	Stadtdenkmalpflege	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	obj	_	LT=Pflege
+3	ging	gehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=gehen
+4	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	3	nsubj	_	LT=es
+5	um	um	ADP	APPR	AdpType=Prep|Case=Acc	6	case	_	LT=um
+6	Wiederherstellung	Wiederherstellung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	obl	_	LT=Wiederherstellung
+7	des	d	DET	ART	Case=Gen|Gender=Neut|Number=Sing|PronType=Art	9	det	_	LT=des
+8	historischen	historisch	ADJ	ADJA	Degree=Pos|Number=Sing	9	amod	_	LT=historisch
+9	Bildes	Bild	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing|Person=3	6	nmod	_	LT=Bild
+10	der	d	DET	ART	Case=Gen|Number=Plur|PronType=Art	11	det	_	LT=der
+11	Anlagen	Anlage	NOUN	NN	Gender=Fem|Number=Plur|Person=3	9	nmod	_	LT=Anlage
+12	vor	vor	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=vor
+13	den	d	DET	ART	Case=Dat|Number=Plur|PronType=Art	14	det	_	LT=den
+14	Häusern	Haus	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur|Person=3	11	nmod	_	LT=Haus
+15	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13833495
+# text = Damals verkrochen sich die Bewohner nicht im Hof , sondern setzten sich in die Vorgärten , die deshalb auch mit einer Bank oder Tisch und Stühlen ausgestattet waren .
+1	Damals	damals	ADV	ADV	_	2	advmod	_	LT=Damals
+2	verkrochen	verkriechen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=verkrochen
+3	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	2	expl:pv	_	LT=sich
+4	die	d	DET	ART	Case=Nom|Number=Plur|PronType=Art	5	det	_	LT=die
+5	Bewohner	Bewohner	NOUN	NN	Gender=Masc|Number=Plur|Person=3	2	nsubj	_	LT=Bewohner
+6	nicht	nicht	PART	PTKNEG	Polarity=Neg	2	advmod	_	LT=nicht
+7	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	8	case	_	LT=im
+8	Hof	Hof	NOUN	NN	Gender=Masc|Number=Sing|Person=3	2	obl	_	SpaceAfter=No|LT=Hof
+9	,	,	PUNCT	$,	PunctType=Comm	11	punct	_	LT=,
+10	sondern	sondern	CCONJ	KON	_	11	cc	_	LT=sondern
+11	setzten	setzen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	2	conj	_	LT=setzen
+12	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	11	expl:pv	_	LT=sich
+13	in	in	ADP	APPR	AdpType=Prep|Case=Acc	15	case	_	LT=in
+14	die	d	DET	ART	Case=Acc|Number=Plur|PronType=Art	15	det	_	LT=die
+15	Vorgärten	Vorgarten	NOUN	NN	Gender=Masc|Number=Plur|Person=3	11	obl	_	SpaceAfter=No|LT=Vorgarten
+16	,	,	PUNCT	$,	PunctType=Comm	27	punct	_	LT=,
+17	die	die	PRON	PRELS	Case=Nom|Number=Plur|Person=3|PronType=Rel	27	nsubj:pass	_	LT=die
+18	deshalb	deshalb	ADV	PROAV	_	27	advmod	_	LT=deshalb
+19	auch	auch	ADV	ADV	_	22	advmod	_	LT=auch
+20	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	22	case	_	LT=mit
+21	einer	eine	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	22	det	_	LT=einer
+22	Bank	Bank	NOUN	NN	Gender=Fem|Number=Sing|Person=3	27	obl	_	LT=Bank
+23	oder	oder	CCONJ	KON	_	24	cc	_	LT=oder
+24	Tisch	Tisch	NOUN	NN	Gender=Masc|Number=Sing|Person=3	22	conj	_	LT=Tisch
+25	und	und	CCONJ	KON	_	26	cc	_	LT=und
+26	Stühlen	Stuhl	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	24	conj	_	LT=Stuhl
+27	ausgestattet	ausstatten	VERB	VVPP	Aspect=Perf|VerbForm=Part	15	acl	_	LT=ausstatten
+28	waren	sein	AUX	VAFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	27	aux:pass	_	LT=sein
+29	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13833524
+# text = Der Stadtteilverein Brandenburger Vorstadt wollte mit seinem Wettbewerb dazu beitragen , dass die größtenteils verwilderten und ungepflegten Vorgärten überhaupt wieder ein gepflegtes Gesicht bekommen .
+1	Der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	2	det	_	LT=Der
+2	Stadtteilverein	Stadtteilverein	NOUN	NN	Gender=Masc|Number=Sing|Person=3	10	nsubj	_	NER=B-ORG|LT=Verein
+3	Brandenburger	brandenburger	ADJ	ADJA	Degree=Pos	4	amod	_	NER=I-ORG|LT=Brandenburger
+4	Vorstadt	Vorstadt	PROPN	NE	Gender=Fem|Number=Sing|Person=3	2	nmod	_	NER=E-ORG|LT=Vorstadt
+5	wollte	wollen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin|VerbType=Mod	10	aux	_	LT=wollen
+6	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	LT=mit
+7	seinem	seine	PRON	PPOSAT	Case=Dat|Gender=Masc|Number=Sing|Person=3|Poss=Yes|PronType=Prs	8	det	_	LT=sein
+8	Wettbewerb	Wettbewerb	NOUN	NN	Gender=Masc|Number=Sing|Person=3	10	obl	_	LT=Wettbewerb
+9	dazu	dazu	ADV	PROAV	_	10	obj	_	LT=dazu
+10	beitragen	beitragen	VERB	VVINF	VerbForm=Inf	0	root	_	SpaceAfter=No|LT=beitragen
+11	,	,	PUNCT	$,	PunctType=Comm	24	punct	_	LT=,
+12	dass	dass	SCONJ	KOUS	_	24	mark	_	LT=dass
+13	die	d	DET	ART	Case=Nom|Number=Plur|PronType=Art	18	det	_	LT=die
+14	größtenteils	größtenteils	ADV	ADV	_	15	advmod	_	LT=größtenteils
+15	verwilderten	verwildert	ADJ	ADJA	Degree=Pos|Number=Plur	18	amod	_	LT=verwildern
+16	und	und	CCONJ	KON	_	17	cc	_	LT=und
+17	ungepflegten	ungepflegt	ADJ	ADJA	Degree=Pos|Number=Plur	15	conj	_	LT=ungepflegt
+18	Vorgärten	Vorgarten	NOUN	NN	Gender=Masc|Number=Plur|Person=3	24	nsubj	_	LT=Vorgarten
+19	überhaupt	überhaupt	ADV	ADV	_	24	advmod	_	LT=überhaupt
+20	wieder	wieder	ADV	ADV	_	24	advmod	_	LT=wieder
+21	ein	eine	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	23	det	_	LT=ein
+22	gepflegtes	gepflegt	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	23	amod	_	LT=pflegen
+23	Gesicht	Gesicht	NOUN	NN	Gender=Neut|Number=Sing|Person=3	24	obj	_	LT=Gesicht
+24	bekommen	bekommen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	10	advcl	_	LT=bekommen
+25	.	.	PUNCT	$.	PunctType=Peri	10	punct	_	LT=.
+
+# DDC:BREAK.s = 13833549
+# text = In beiden Fällen blieb der Erfolg äußerst bescheiden .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	3	case	_	LT=In
+2	beiden	beide	DET	PIDAT	Case=Dat|Number=Plur|Person=3	3	det	_	LT=beide
+3	Fällen	Fall	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	4	obl	_	LT=Fall
+4	blieb	bleiben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=bleiben
+5	der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	6	det	_	LT=der
+6	Erfolg	Erfolg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	nsubj	_	LT=Erfolg
+7	äußerst	äußerst	ADV	ADV	_	8	advmod	_	LT=äußerst
+8	bescheiden	bescheiden	ADJ	ADJD	Degree=Pos|Variant=Short	4	xcomp	_	LT=bescheiden
+9	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	LT=.
+
+# DDC:BREAK.s = 13833558
+# text = Die Mehrzahl der Gärten in der für ihre Jugendstilbauten bekannten Vorstadt schreit nach wie vor nach Pflege und einer attraktiven Bepflanzung .
+1	Die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	2	det	_	LT=Die
+2	Mehrzahl	Mehrzahl	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	nsubj	_	LT=Mehrzahl
+3	der	d	DET	ART	Case=Gen|Number=Plur|PronType=Art	4	det	_	LT=der
+4	Gärten	Garten	NOUN	NN	Gender=Masc|Number=Plur|Person=3	2	nmod	_	LT=Gart
+5	in	in	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=in
+6	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	11	det	_	LT=der
+7	für	für	ADP	APPR	AdpType=Prep|Case=Acc	9	case	_	LT=für
+8	ihre	ihr	PRON	PPOSAT	Case=Acc|Number=Plur|Person=3|Poss=Yes|PronType=Prs	9	det	_	LT=sein
+9	Jugendstilbauten	Jugendstilbau	NOUN	NN	Gender=Masc|Number=Plur|Person=3	10	obl	_	LT=Baut
+10	bekannten	bekannt	ADJ	ADJA	Degree=Pos|Number=Sing	11	amod	_	LT=bekennen
+11	Vorstadt	Vorstadt	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	nmod	_	LT=Vorstadt
+12	schreit	schreien	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=schreiten
+13	nach	nach	ADV	ADV	_	12	advmod	_	LT=nach
+14	wie	wie	CCONJ	KOKOM	ConjType=Comp	15	mark	_	LT=wie
+15	vor	vor	ADV	ADV	_	13	advcl	_	LT=vor
+16	nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	17	case	_	LT=nach
+17	Pflege	Pflege	NOUN	NN	Gender=Fem|Number=Sing|Person=3	12	obl	_	LT=Pflege
+18	und	und	CCONJ	KON	_	21	cc	_	LT=und
+19	einer	eine	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	21	det	_	LT=einer
+20	attraktiven	attraktiv	ADJ	ADJA	Degree=Pos|Number=Sing	21	amod	_	LT=attraktiv
+21	Bepflanzung	Bepflanzung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	17	conj	_	LT=Bepflanzung
+22	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13833580
+# text = E. Hoh 2000 © Potsdamer Zeitungsverlags GmbH & Zum_Seitenanfang Co .
+1	E.	E.	PROPN	NE	Number=Sing|Person=3	0	root	_	SpaceAfter=No|NER=B-PER|LT=E.
+2	Hoh	Hoh	PROPN	NE	Number=Sing|Person=3	1	flat:name	_	NER=E-PER|LT=Hoh
+3	2000	2000	NUM	CARD	Number=Plur|NumType=Card|Person=3	1	nmod	_	LT=2000
+4	©	©	X	FM	Foreign=Yes|Person=3	1	appos	_	LT=©
+5	Potsdamer	potsdamer	ADJ	ADJA	Degree=Pos	6	amod	_	NER=B-ORG|LT=Potsdamer
+6	Zeitungsverlags	Zeitungsverlag	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	4	nmod	_	NER=I-ORG|LT=Verlag
+7	GmbH	GmbH	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	flat:name	_	NER=E-ORG|LT=GmbH
+8	&	&	CCONJ	KON	_	9	cc	_	LT=und
+9	Zum_Seitenanfang	zum_seitenanfang	NOUN	NN	Gender=Masc|Number=Sing|Person=3	4	conj	_	NER=B-ORG|LT=Anfang
+10	Co	Co	NOUN	NN	Person=3	9	flat:name	_	NER=E-ORG|LT=Co
+11	.	.	PUNCT	$.	PunctType=Peri	9	flat:name	_	LT=.
+
+# DDC:tokid.begin = 13820843
+# DDC:tokid.end = 13821440
+# DDC:meta.n_ = 36708
+# DDC:meta.file_ = pnn01/../../ddc_xml/data/27.09.2004/1384567.pnn.tei.cln.ddc.xml
+# DDC:meta.masked_ = 0
+# DDC:meta.date_ = 2004-09-27
+# DDC:meta.page_ = -1
+# DDC:meta.basename = 27.09.2004/1384567.pnn.tei.cln
+# DDC:meta.bibl = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblLex = Potsdamer Neueste Nachrichten, 27.09.2004
+# DDC:meta.biblSig = PNN, 27.09.2004
+# DDC:meta.collection = pnn
+# DDC:meta.textClass = Zeitung:Regionalsport
+# DDC:meta.timestamp = 2017-05-08T10:30:07Z
+# DDC:meta.title = Angerer beste Spielerin bei Schaulaufen in Pribram
+# DDC:meta.url = http://premium-link.net/$44926$0$/27.09.200427.09.2004/1384567.pnn
+# DDC:BREAK.s = 13820843
+# DDC:BREAK.c = 13820843
+# DDC:BREAK.p = 13820843
+# DDC:BREAK.file = 13820843
+# DDC:BREAK.textarea = 13820843
+# text = Regionalsport 27. 09. 2004 Angerer beste Spielerin bei Schaulaufen in Pribram 5:0 in Tschechien mit sechs Potsdamerinnen Von Rainer Hennies Es klingt etwas seltsam , wenn man die Torhüterin im eigenen Team bei einem souveränen 5:0- Sieg als beste Spielerin heraushebt .
+1	Regionalsport	Regionalsport	NOUN	NN	Gender=Masc|Number=Sing|Person=3	22	nsubj	_	LT=Sport
+2	27.	27.	ADJ	ADJA	Person=3	3	amod	_	SpaceAfter=No|LT=27.
+3	09.	09.	ADJ	ADJA	Person=3	1	appos	_	SpaceAfter=No|LT=09.
+4	2004	2004	NUM	CARD	Number=Plur|NumType=Card|Person=3	3	nmod	_	LT=2004
+5	Angerer	Angerer	PROPN	NE	Person=3	7	nmod	_	LT=Angerer
+6	beste	gut	ADJ	ADJA	Degree=Sup|Gender=Fem|Number=Sing	7	amod	_	LT=gut
+7	Spielerin	Spielerin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	22	nsubj	_	LT=Spielerin
+8	bei	bei	ADP	APPR	AdpType=Prep|Case=Dat	9	case	_	LT=bei
+9	Schaulaufen	Schaulaufen	NOUN	NN	Gender=Neut|Number=Sing|Person=3	7	nmod	_	LT=Schaulauf
+10	in	in	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=in
+11	Pribram	Pribram	PROPN	NE	Person=3	9	nmod	_	LT=Pribram
+12	5:0	5:0	NUM	CARD	Number=Plur|NumType=Card|Person=3	11	appos	_	LT=5:0
+13	in	in	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=in
+14	Tschechien	Tschechien	NOUN	NN	Person=3	12	nmod	_	NER=S-LOC|LT=unknown
+15	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	17	case	_	LT=mit
+16	sechs	sechs	NUM	CARD	Number=Plur|NumType=Card|Person=3	17	nummod	_	LT=sechs
+17	Potsdamerinnen	Potsdamerin	NOUN	NN	Gender=Fem|Number=Plur|Person=3	7	nmod	_	NER=S-MISC|LT=Damerin
+18	Von	von	PROPN	NE	AdpType=Prep|Case=Dat	19	case	_	LT=Von
+19	Rainer	Rainer	PROPN	NE	Gender=Masc|Number=Sing|Person=3	21	nmod	_	NER=B-PER|LT=Rainer
+20	Hennies	Hennies	PROPN	NE	Case=Gen|Person=3	19	flat:name	_	NER=E-PER|LT=Hennies
+21	Es	es	NOUN	NN	Gender=Neut|Number=Sing|Person=3	22	nsubj	_	LT=Es
+22	klingt	klingen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=klingen
+23	etwas	etwas	ADV	ADV	_	24	advmod	_	LT=etwas
+24	seltsam	seltsam	ADJ	ADJD	Degree=Pos|Variant=Short	22	xcomp	_	SpaceAfter=No|LT=seltsam
+25	,	,	PUNCT	$,	PunctType=Comm	41	punct	_	LT=,
+26	wenn	wenn	SCONJ	KOUS	_	41	mark	_	LT=wenn
+27	man	man	PRON	PIS	Case=Nom|Number=Sing|Person=3|PronType=Ind,Neg,Tot	41	nsubj	_	LT=man
+28	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	29	det	_	LT=die
+29	Torhüterin	Torhüterin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	41	obj	_	LT=Torhüterin
+30	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	32	case	_	LT=im
+31	eigenen	eigen	ADJ	ADJA	Degree=Pos|Number=Sing	32	amod	_	LT=eigen
+32	Team	Team	NOUN	NN	Gender=Neut|Number=Sing|Person=3	29	nmod	_	LT=Team
+33	bei	bei	ADP	APPR	AdpType=Prep|Case=Dat	36	case	_	LT=bei
+34	einem	eine	DET	ART	Case=Dat|Gender=Masc|Number=Sing|PronType=Art	36	det	_	LT=einem
+35	souveränen	souverän	ADJ	ADJA	Degree=Pos|Number=Sing	36	amod	_	LT=souverän
+36	5:0-	5:0-	NOUN	TRUNC	Hyph=Yes	41	obl	_	LT=5:0-
+37	Sieg	Sieg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	36	appos	_	LT=Sieg
+38	als	als	CCONJ	KOKOM	ConjType=Comp	40	case	_	LT=als
+39	beste	gut	ADJ	ADJA	Degree=Sup|Gender=Fem|Number=Sing	40	amod	_	LT=gut
+40	Spielerin	Spielerin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	41	obl	_	LT=Spielerin
+41	heraushebt	herausheben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	22	ccomp	_	LT=herausheben
+42	.	.	PUNCT	$.	PunctType=Peri	22	punct	_	LT=.
+
+# DDC:BREAK.s = 13820885
+# text = Doch genau das ist Nadine Angerer vom 1. FFC Turbine Potsdam beim erwarteten Erfolg über Tschechien in Pribram gewesen .
+1	Doch	doch	CCONJ	KON	_	3	cc	_	LT=Doch
+2	genau	genau	ADJ	ADJD	Degree=Pos|Variant=Short	3	advmod	_	LT=genau
+3	das	die	PRON	PDS	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Dem	0	root	_	LT=das
+4	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	aux	_	LT=sein
+5	Nadine	Nadine	PROPN	NE	Gender=Fem|Number=Sing|Person=3	3	nsubj	_	NER=B-PER|LT=Nadine
+6	Angerer	Angerer	PROPN	NE	Person=3	5	flat:name	_	NER=E-PER|LT=Angerer
+7	vom	vom	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	9	case	_	LT=vom
+8	1.	1.	ADJ	ADJA	Person=3	9	amod	_	NER=B-ORG|LT=1.
+9	FFC	FFC	PROPN	NE	Person=3	5	nmod	_	NER=I-ORG|LT=FFC
+10	Turbine	Turbine	NOUN	NN	Gender=Fem|Number=Sing|Person=3	9	appos	_	NER=I-ORG|LT=Turbine
+11	Potsdam	Potsdam	PROPN	NE	Person=3	9	flat:name	_	NER=E-ORG|LT=Potsdam
+12	beim	beim	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	14	case	_	LT=beim
+13	erwarteten	erwartet	ADJ	ADJA	Degree=Pos|Number=Sing	14	amod	_	LT=erwarten
+14	Erfolg	Erfolg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	3	nmod	_	LT=Erfolg
+15	über	über	ADP	APPR	AdpType=Prep|Case=Dat	16	case	_	LT=über
+16	Tschechien	Tschechien	NOUN	NN	Person=3	14	nmod	_	NER=S-LOC|LT=unknown
+17	in	in	ADP	APPR	AdpType=Prep|Case=Dat	18	case	_	LT=in
+18	Pribram	Pribram	PROPN	NE	Person=3	14	nmod	_	NER=S-LOC|LT=Pribram
+19	gewesen	sein	AUX	VAPP	Aspect=Perf|VerbForm=Part	3	cop	_	LT=sein
+20	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13820905
+# text = Ein glatter Sieg der DFB-Auswahl ohne Gegentor .
+1	Ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	3	det	_	LT=Ein
+2	glatter	glatt	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	3	amod	_	LT=glatt
+3	Sieg	Sieg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	0	root	_	LT=Sieg
+4	der	d	DET	ART	Case=Gen|Gender=Fem|Number=Sing|PronType=Art	5	det	_	LT=der
+5	DFB-Auswahl	Dfb-Auswahl	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	nmod	_	NER=S-MISC|LT=Auswahl
+6	ohne	ohne	ADP	APPR	AdpType=Prep|Case=Acc	7	case	_	LT=ohne
+7	Gegentor	Gegentor	NOUN	NN	Gender=Neut|Number=Sing|Person=3	3	nmod	_	LT=Gegentor
+8	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13820913
+# text = Der EM- Qualifikationsplatz eins in der Gruppe ist mit 24 Punkten und 50:2 Toren ein kaum steigerbarer und befriedigender Abschluss .
+1	Der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	2	det	_	LT=Der
+2	EM-	em-	NOUN	TRUNC	Hyph=Yes	20	nsubj	_	NER=S-MISC|LT=EM-
+3	Qualifikationsplatz	Qualifikationsplatz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	2	appos	_	LT=Platz
+4	eins	eins	NUM	CARD	Number=Sing|NumType=Card|Person=3	3	flat	_	LT=eins
+5	in	in	ADP	APPR	AdpType=Prep|Case=Dat	7	case	_	LT=in
+6	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	7	det	_	LT=der
+7	Gruppe	Gruppe	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	nmod	_	LT=Gruppe
+8	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	20	cop	_	LT=sein
+9	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=mit
+10	24	24	NUM	CARD	Number=Plur|NumType=Card|Person=3	11	nummod	_	LT=24
+11	Punkten	Punkt	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	20	nmod	_	LT=Punkt
+12	und	und	CCONJ	KON	_	14	cc	_	LT=und
+13	50:2	50:2	NUM	CARD	Number=Plur|NumType=Card|Person=3	14	nummod	_	LT=50:2
+14	Toren	Tor	NOUN	NN	Number=Plur|Person=3	11	conj	_	LT=Tor
+15	ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	20	det	_	LT=ein
+16	kaum	kaum	ADV	ADV	_	17	advmod	_	LT=kaum
+17	steigerbarer	steigerbar	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	20	amod	_	LT=steigerbarer
+18	und	und	CCONJ	KON	_	19	cc	_	LT=und
+19	befriedigender	befriedigend	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	17	conj	_	LT=befriedigen
+20	Abschluss	Abschluß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	0	root	_	LT=Abschluß
+21	.	.	PUNCT	$.	PunctType=Peri	20	punct	_	LT=.
+
+# DDC:BREAK.s = 13820934
+# text = Ein souveräner , verdienter Erfolg .
+1	Ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	5	det	_	LT=Ein
+2	souveräner	souverän	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	5	amod	_	SpaceAfter=No|LT=souverän
+3	,	,	PUNCT	$,	PunctType=Comm	4	punct	_	LT=,
+4	verdienter	verdient	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	2	conj	_	LT=verdienen
+5	Erfolg	Erfolg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	0	root	_	LT=Erfolg
+6	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13820940
+# text = Ein Schaulaufen der Vorabqualifizierten , aber kein Hochglanz .
+1	Ein	eine	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	2	det	_	LT=Ein
+2	Schaulaufen	Schaulaufen	NOUN	NN	Gender=Neut|Number=Sing|Person=3	0	root	_	LT=Schaulauf
+3	der	d	DET	ART	Case=Gen|Number=Plur|PronType=Art	4	det	_	LT=der
+4	Vorabqualifizierten	Vorabqualifizierte	NOUN	NN	Person=3	2	nmod	_	SpaceAfter=No|LT=Vorabqualifiziert
+5	,	,	PUNCT	$,	PunctType=Comm	8	punct	_	LT=,
+6	aber	aber	CCONJ	KON	_	8	cc	_	LT=aber
+7	kein	keine	DET	PIAT	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Ind,Neg,Tot	8	det	_	LT=kein
+8	Hochglanz	Hochglanz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	2	conj	_	LT=Hochglanz
+9	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13820949
+# text = Was wäre gewesen , wenn Nadine Angerer beim Stande von 1:0 ( Kerstin Garefrekes , 33. ) gegen Pavlina Scasna nicht pariert und das Solo von Eva Smeralova ( 48. ) nicht mutig beendet hätte .
+1	Was	was	PRON	PWS	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Int	3	nsubj	_	LT=Was
+2	wäre	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	aux	_	LT=sein
+3	gewesen	sein	AUX	VAPP	Aspect=Perf|VerbForm=Part	0	root	_	SpaceAfter=No|LT=sein
+4	,	,	PUNCT	$,	PunctType=Comm	22	punct	_	LT=,
+5	wenn	wenn	SCONJ	KOUS	_	22	mark	_	LT=wenn
+6	Nadine	Nadine	PROPN	NE	Gender=Fem|Number=Sing|Person=3	22	nsubj	_	NER=B-PER|LT=Nadine
+7	Angerer	Angerer	PROPN	NE	Number=Sing|Person=3	6	flat:name	_	NER=E-PER|LT=Angerer
+8	beim	beim	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	9	case	_	LT=beim
+9	Stande	Stand	NOUN	NN	Case=Dat|Gender=Masc|Number=Sing|Person=3	22	obl	_	LT=Stand
+10	von	von	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=von
+11	1:0	1:0	X	FM	Foreign=Yes|Person=3	9	nmod	_	LT=1:0
+12	(	(	PUNCT	$(	PunctType=Brck	13	punct	_	SpaceAfter=No|LT=(
+13	Kerstin	Kerstin	PROPN	NE	Gender=Fem|Number=Sing|Person=3	11	appos	_	NER=B-PER|LT=Kerstin
+14	Garefrekes	Garefrekes	PROPN	NE	Person=3	13	flat:name	_	SpaceAfter=No|NER=E-PER|LT=Garefrekes
+15	,	,	PUNCT	$,	PunctType=Comm	16	punct	_	LT=,
+16	33.	33.	ADJ	ADJA	Person=3	13	appos	_	SpaceAfter=No|LT=33.
+17	)	)	PUNCT	$(	PunctType=Brck	13	punct	_	LT=)
+18	gegen	gegen	ADP	APPR	AdpType=Prep|Case=Acc	19	case	_	LT=gegen
+19	Pavlina	Pavlina	PROPN	NE	Gender=Fem|Number=Sing|Person=3	22	obl	_	NER=B-PER|LT=Pavlina
+20	Scasna	Scasna	PROPN	NE	Person=3	19	flat:name	_	NER=E-PER|LT=Scasna
+21	nicht	nicht	PART	PTKNEG	Polarity=Neg	22	advmod	_	LT=nicht
+22	pariert	parieren	VERB	VVPP	Aspect=Perf|VerbForm=Part	3	advcl	_	LT=parieren
+23	und	und	CCONJ	KON	_	34	cc	_	LT=und
+24	das	d	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	25	det	_	LT=das
+25	Solo	solo	NOUN	NN	Gender=Neut|Number=Sing|Person=3	34	obj	_	LT=Solo
+26	von	von	ADP	APPR	AdpType=Prep|Case=Dat	27	case	_	LT=von
+27	Eva	Eva	PROPN	NE	Gender=Fem|Number=Sing|Person=3	25	nmod	_	NER=B-PER|LT=Eva
+28	Smeralova	Smeralova	PROPN	NE	Person=3	27	flat:name	_	NER=E-PER|LT=Smeralova
+29	(	(	PUNCT	$(	PunctType=Brck	30	punct	_	SpaceAfter=No|LT=(
+30	48.	48.	ADJ	ADJA	Person=3	27	appos	_	SpaceAfter=No|LT=48.
+31	)	)	PUNCT	$(	PunctType=Brck	30	punct	_	LT=)
+32	nicht	nicht	PART	PTKNEG	Polarity=Neg	34	advmod	_	LT=nicht
+33	mutig	mutig	ADJ	ADJD	Degree=Pos|Variant=Short	34	advmod	_	LT=mutig
+34	beendet	beenden	VERB	VVPP	Aspect=Perf|VerbForm=Part	22	conj	_	LT=beenden
+35	hätte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	22	aux	_	LT=haben
+36	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13820985
+# text = So erhöhte Birgit Prinz auf 2:0 ( 52. ) , die eingewechselte Shelley Thompson auf 3 : 0 ( 64. ) und der Sack war zu .
+1	So	so	ADV	ADV	Degree=Pos	2	advmod	_	LT=so
+2	erhöhte	erhöhen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=erhöhen
+3	Birgit	Birgit	PROPN	NE	Gender=Fem|Number=Sing|Person=3	2	nsubj	_	NER=B-PER|LT=Birgit
+4	Prinz	Prinz	PROPN	NE	Case=Nom|Number=Sing|Person=3	3	appos	_	NER=E-PER|LT=Prinz
+5	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	6	case	_	LT=auf
+6	2:0	2:0	NUM	CARD	Number=Plur|NumType=Card|Person=3	2	obl	_	LT=2:0
+7	(	(	PUNCT	$(	PunctType=Brck	8	punct	_	SpaceAfter=No|LT=(
+8	52.	52.	ADJ	ADJA	Person=3	6	appos	_	SpaceAfter=No|LT=52.
+9	)	)	PUNCT	$(	PunctType=Brck	8	punct	_	SpaceAfter=No|LT=)
+10	,	,	PUNCT	$,	PunctType=Comm	13	punct	_	LT=,
+11	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	13	det	_	LT=die
+12	eingewechselte	eingewechselt	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	13	amod	_	LT=einwechseln
+13	Shelley	Shelley	PROPN	NE	Gender=Fem|Number=Sing|Person=3	3	conj	_	NER=B-PER|LT=Shelley
+14	Thompson	Thompson	PROPN	NE	Number=Sing|Person=3	13	flat:name	_	NER=E-PER|LT=Thompson
+15	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	16	case	_	LT=auf
+16	3	3	NUM	CARD	Number=Plur|NumType=Card|Person=3	8	nmod	_	SpaceAfter=No|LT=3
+17	:	:	PUNCT	$.	PunctType=Peri	2	punct	_	LT=:
+18	0	0	NUM	CARD	Number=Plur|NumType=Card|Person=3	16	appos	_	LT=0
+19	(	(	PUNCT	$(	PunctType=Brck	20	punct	_	SpaceAfter=No|LT=(
+20	64.	64.	NOUN	NN	Person=3	18	appos	_	SpaceAfter=No|LT=unknown
+21	)	)	PUNCT	$(	PunctType=Brck	20	punct	_	LT=)
+22	und	und	CCONJ	KON	_	25	cc	_	LT=und
+23	der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	24	det	_	LT=der
+24	Sack	Sack	NOUN	NN	Gender=Masc|Number=Sing|Person=3	25	nsubj	_	LT=Sack
+25	war	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	2	conj	_	LT=sein
+26	zu	zu	ADV	ADV	PartType=Vbp	2	compound:prt	_	LT=zu
+27	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13821012
+# text = Das Traumtor der Neu- Potsdamerin Britta Carlson 18 Minuten nach ihrer Einwechslung zum 4:0 ( 79. ) unterstreicht die Leichtigkeit des Sieges , ebenso wie das 5:0 per Eigentor von Petra Bertholdova ( 83. ) die Überforderung des Gegners belegt , der auf Weltranglistenplatz 20 zu finden ist .
+1	Das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	2	det	_	LT=Das
+2	Traumtor	Traumtor	NOUN	NN	Gender=Neut|Number=Sing|Person=3	18	nsubj	_	LT=Traumtor
+3	der	d	DET	ART	Case=Gen|Number=Plur|PronType=Art	4	det	_	LT=der
+4	Neu-	neu-	NOUN	TRUNC	Hyph=Yes	2	nmod	_	NER=B-MISC|LT=Neu-
+5	Potsdamerin	Potsdamerin	NOUN	NN	Person=3	4	appos	_	NER=E-MISC|LT=Damerin
+6	Britta	Britta	PROPN	NE	Gender=Fem|Number=Sing|Person=3	4	flat:name	_	NER=B-PER|LT=Britta
+7	Carlson	Carlson	PROPN	NE	Number=Sing|Person=3	4	flat:name	_	NER=E-PER|LT=Carlson
+8	18	18	NUM	CARD	Number=Plur|NumType=Card|Person=3	9	nummod	_	LT=18
+9	Minuten	Minute	NOUN	NN	Gender=Fem|Number=Plur|Person=3	18	obl	_	LT=Minute
+10	nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	LT=nach
+11	ihrer	ihr	PRON	PPOSAT	Case=Dat|Gender=Fem|Number=Sing|Person=3|Poss=Yes|PronType=Prs	12	det	_	LT=sein
+12	Einwechslung	Einwechselung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	9	nmod	_	LT=Einwechslung
+13	zum	zum	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	14	case	_	LT=zum
+14	4:0	4:0	X	FM	Foreign=Yes|Person=3	12	nmod	_	LT=4:0
+15	(	(	PUNCT	$(	PunctType=Brck	16	punct	_	SpaceAfter=No|LT=(
+16	79.	79.	NOUN	NN	Person=3	14	appos	_	SpaceAfter=No|LT=79.
+17	)	)	PUNCT	$(	PunctType=Brck	16	punct	_	LT=)
+18	unterstreicht	unterstreichen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=unterstreichen
+19	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	20	det	_	LT=die
+20	Leichtigkeit	Leichtigkeit	NOUN	NN	Gender=Fem|Number=Sing|Person=3	18	obj	_	LT=Leichtigkeit
+21	des	d	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	22	det	_	LT=des
+22	Sieges	Sieg	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	20	nmod	_	SpaceAfter=No|LT=Siege
+23	,	,	PUNCT	$,	PunctType=Comm	40	punct	_	LT=,
+24	ebenso	ebenso	ADV	ADV	_	40	advmod	_	LT=so
+25	wie	wie	ADV	PWAV	PronType=Int	40	advmod	_	LT=wie
+26	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	27	det	_	LT=das
+27	5:0	5:0	NOUN	NN	Foreign=Yes|Person=3	40	nsubj	_	LT=unknown
+28	per	per	ADP	APPR	AdpType=Prep	29	case	_	LT=per
+29	Eigentor	Eigentor	NOUN	NN	Gender=Masc|Number=Sing|Person=3	27	nmod	_	LT=Eigentor
+30	von	von	ADP	APPR	AdpType=Prep|Case=Dat	31	case	_	LT=von
+31	Petra	Petra	PROPN	NE	Gender=Fem|Number=Sing|Person=3	29	nmod	_	NER=B-PER|LT=Petra
+32	Bertholdova	Bertholdovum	PROPN	NE	Person=3	31	flat:name	_	NER=E-PER|LT=Bertholdova
+33	(	(	PUNCT	$(	PunctType=Brck	34	punct	_	SpaceAfter=No|LT=(
+34	83.	83.	ADJ	ADJA	Person=3	27	appos	_	SpaceAfter=No|LT=83.
+35	)	)	PUNCT	$(	PunctType=Brck	34	punct	_	LT=)
+36	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	37	det	_	LT=die
+37	Überforderung	Überforderung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	40	obj	_	LT=Forderung
+38	des	d	DET	ART	Case=Gen|Gender=Masc|Number=Sing|PronType=Art	39	det	_	LT=des
+39	Gegners	Gegner	NOUN	NN	Case=Gen|Gender=Masc|Number=Sing|Person=3	37	nmod	_	LT=Gegner
+40	belegt	belegen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	18	acl	_	SpaceAfter=No|LT=belegen
+41	,	,	PUNCT	$,	PunctType=Comm	47	punct	_	LT=,
+42	der	die	PRON	PRELS	Case=Nom|Gender=Masc|Number=Sing|Person=3|PronType=Rel	47	nsubj	_	LT=der
+43	auf	auf	ADP	APPR	AdpType=Prep|Case=Dat	44	case	_	LT=auf
+44	Weltranglistenplatz	Weltranglistenplatz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	47	obl	_	NER=B-LOC|LT=Platz
+45	20	20	NUM	CARD	Number=Plur|NumType=Card|Person=3	44	flat	_	NER=E-LOC|LT=20
+46	zu	zu	PART	PTKZU	PartType=Inf	47	mark	_	LT=zu
+47	finden	finden	VERB	VVINF	VerbForm=Inf	39	acl	_	LT=finden
+48	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	47	aux	_	LT=sein
+49	.	.	PUNCT	$.	PunctType=Peri	18	punct	_	LT=.
+
+# DDC:BREAK.s = 13821061
+# text = In der 72. Minute zeigte Angerer ein weiteres Mal , dass auf sie Verlass ist .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	4	case	_	LT=In
+2	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	4	det	_	LT=der
+3	72.	72.	ADJ	ADJA	Person=3	4	amod	_	LT=72.
+4	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obl	_	LT=Minute
+5	zeigte	zeigen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=zeigen
+6	Angerer	Angerer	PROPN	NE	Number=Sing|Person=3	5	nsubj	_	NER=S-PER|LT=Angerer
+7	ein	eine	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	9	det	_	LT=ein
+8	weiteres	weit	ADJ	ADJA	Degree=Cmp|Gender=Neut|Number=Sing	9	amod	_	LT=weit
+9	Mal	Mal	NOUN	NN	Gender=Neut|Number=Sing|Person=3	5	obl	_	SpaceAfter=No|LT=Mal
+10	,	,	PUNCT	$,	PunctType=Comm	15	punct	_	LT=,
+11	dass	dass	SCONJ	KOUS	_	15	mark	_	LT=dass
+12	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	13	case	_	LT=auf
+13	sie	sie	PRON	PPER	Case=Acc|Gender=Fem|Number=Sing|Person=3|PronType=Prs	15	obl	_	LT=sie
+14	Verlass	Verlaß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	15	nsubj	_	LT=Verlaß
+15	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	ccomp	_	LT=sein
+16	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13821077
+# text = Auch Conny Pohlers zeigte in ihrem 25. und damit ersten Jubiläumsspiel eine ganz , ganz starke Leistung .
+1	Auch	auch	ADV	ADV	_	2	advmod	_	LT=Auch
+2	Conny	Conny	PROPN	NE	Gender=Fem|Number=Sing|Person=3	4	nsubj	_	NER=B-PER|LT=Conny
+3	Pohlers	Pohlers	PROPN	NE	Case=Gen|Number=Sing|Person=3	2	flat:name	_	NER=E-PER|LT=Pohlers
+4	zeigte	zeigen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=zeigen
+5	in	in	ADP	APPR	AdpType=Prep|Case=Dat	11	case	_	LT=in
+6	ihrem	ihr	PRON	PPOSAT	Case=Dat|Gender=Neut|Number=Sing|Person=3|Poss=Yes|PronType=Prs	11	det	_	LT=sein
+7	25.	25.	ADJ	ADJA	Person=3	11	amod	_	LT=25.
+8	und	und	CCONJ	KON	_	10	cc	_	LT=und
+9	damit	damit	ADV	PROAV	_	10	advmod	_	LT=damit
+10	ersten	erst	ADJ	ADJA	Degree=Sup|Number=Sing	7	conj	_	LT=NULL
+11	Jubiläumsspiel	Jubiläumsspiel	NOUN	NN	Gender=Neut|Number=Sing|Person=3	4	obl	_	LT=Spiel
+12	eine	eine	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	17	det	_	LT=eine
+13	ganz	ganz	ADV	ADV	_	16	advmod	_	SpaceAfter=No|LT=ganz
+14	,	,	PUNCT	$,	PunctType=Comm	15	punct	_	LT=,
+15	ganz	ganz	ADV	ADV	_	16	advmod	_	LT=ganz
+16	starke	stark	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	17	amod	_	LT=stark
+17	Leistung	Leistung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	4	obj	_	LT=Leistung
+18	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	LT=.
+
+# DDC:BREAK.s = 13821095
+# text = Stets anspielbar und beweglich , sorgte sie für Torgefahr .
+1	Stets	stets	ADV	ADV	_	2	advmod	_	LT=Stets
+2	anspielbar	anspielbar	ADJ	ADJD	Degree=Pos|Variant=Short	6	advmod	_	LT=anspielbar
+3	und	und	CCONJ	KON	_	4	cc	_	LT=und
+4	beweglich	beweglich	ADJ	ADJD	Degree=Pos|Variant=Short	2	conj	_	SpaceAfter=No|LT=beweglich
+5	,	,	PUNCT	$,	PunctType=Comm	2	punct	_	LT=,
+6	sorgte	sorgen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=sorgen
+7	sie	sie	PRON	PPER	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	6	nsubj	_	LT=sie
+8	für	für	ADP	APPR	AdpType=Prep|Case=Acc	9	case	_	LT=für
+9	Torgefahr	Torgefahr	NOUN	NN	Gender=Fem|Number=Sing|Person=3	6	obj	_	LT=Torgefahr
+10	.	.	PUNCT	$.	PunctType=Peri	6	punct	_	LT=.
+
+# DDC:BREAK.s = 13821105
+# text = In der zehnten Minute wurde ein Schuss von ihr von der Linie gekratzt , ebenso in der 62. Minute und das 5:0 hätte die Potsdamer Torjägerin gerne selbst gemacht , aber Bertoldhova hatte den kürzeren Weg .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	4	case	_	LT=In
+2	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	4	det	_	LT=der
+3	zehnten	zehnt	ADJ	ADJA	Degree=Pos|Number=Sing	4	amod	_	LT=zehnte
+4	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	13	obl	_	LT=Minute
+5	wurde	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	13	aux:pass	_	LT=werden
+6	ein	eine	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	7	det	_	LT=ein
+7	Schuss	Schuß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	13	nsubj:pass	_	LT=Schuß
+8	von	von	ADP	APPR	AdpType=Prep|Case=Dat	9	case	_	LT=von
+9	ihr	ihr	PRON	PPER	Case=Dat|Gender=Fem|Number=Sing|Person=3|PronType=Prs	13	obl	_	LT=sein
+10	von	von	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	LT=von
+11	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	12	det	_	LT=der
+12	Linie	Linie	NOUN	NN	Gender=Fem|Number=Sing|Person=3	13	obl	_	LT=Linie
+13	gekratzt	kratzen	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	SpaceAfter=No|LT=kratzen
+14	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	LT=,
+15	ebenso	ebenso	ADV	ADV	_	19	advmod	_	LT=so
+16	in	in	ADP	APPR	AdpType=Prep|Case=Dat	19	case	_	LT=in
+17	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	19	det	_	LT=der
+18	62.	62.	ADJ	ADJA	Person=3	19	amod	_	LT=62.
+19	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	13	obl	_	LT=Minute
+20	und	und	CCONJ	KON	_	29	cc	_	LT=und
+21	das	d	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	22	det	_	LT=das
+22	5:0	5:0	X	FM	Foreign=Yes|Person=3	29	nsubj	_	LT=5:0
+23	hätte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	29	aux	_	LT=haben
+24	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	26	det	_	LT=die
+25	Potsdamer	potsdamer	ADJ	ADJA	Degree=Pos	26	amod	_	NER=S-MISC|LT=Potsdamer
+26	Torjägerin	Torjägerin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	29	nsubj	_	LT=Torjägerin
+27	gerne	gerne	ADV	ADV	_	29	advmod	_	LT=gerne
+28	selbst	selbst	ADV	ADV	_	29	advmod	_	LT=selbst
+29	gemacht	machen	VERB	VVPP	Aspect=Perf|VerbForm=Part	13	conj	_	SpaceAfter=No|LT=machen
+30	,	,	PUNCT	$,	PunctType=Comm	33	punct	_	LT=,
+31	aber	aber	CCONJ	KON	_	33	cc	_	LT=aber
+32	Bertoldhova	Bertoldhova	PROPN	NE	Person=3	33	nsubj	_	NER=S-PER|LT=Bertoldhova
+33	hatte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	29	conj	_	LT=haben
+34	den	d	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	36	det	_	LT=den
+35	kürzeren	kurz	ADJ	ADJA	Case=Acc|Degree=Cmp|Gender=Masc|Number=Sing	36	amod	_	LT=kurz
+36	Weg	Weg	NOUN	NN	Gender=Masc|Number=Sing|Person=3	33	obj	_	LT=Weg
+37	.	.	PUNCT	$.	PunctType=Peri	13	punct	_	LT=.
+
+# DDC:BREAK.s = 13821142
+# text = Petra Wimbersky : Ihren Klassepass auf Prinz hätte die Weltfußballerin verwerten müssen ( 13. ) .
+1	Petra	Petra	PROPN	NE	Gender=Fem|Number=Sing|Person=3	0	root	_	NER=B-PER|LT=Petra
+2	Wimbersky	Wimbersky	PROPN	NE	Person=3	1	flat:name	_	SpaceAfter=No|NER=E-PER|LT=Wimbersky
+3	:	:	PUNCT	$.	PunctType=Peri	1	punct	_	LT=:
+4	Ihren	ihr	PRON	PPOSAT	Case=Acc|Gender=Masc|Number=Sing|Person=3|Poss=Yes|PronType=Prs	5	det	_	LT=sein
+5	Klassepass	Klassepaß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	11	obj	_	LT=unknown
+6	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	7	case	_	LT=auf
+7	Prinz	Prinz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	5	nmod	_	LT=Prinz
+8	hätte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	aux	_	LT=haben
+9	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	10	det	_	LT=die
+10	Weltfußballerin	Weltfußballerin	NOUN	NN	Person=3	11	nsubj	_	LT=Lerin
+11	verwerten	verwerten	VERB	VVINF	VerbForm=Inf	1	parataxis	_	LT=verwerten
+12	müssen	müssen	AUX	VMINF	VerbForm=Inf|VerbType=Mod	11	aux	_	LT=müssen
+13	(	(	PUNCT	$(	PunctType=Brck	14	punct	_	SpaceAfter=No|LT=(
+14	13.	13.	ADJ	ADJA	Person=3	11	parataxis	_	SpaceAfter=No|LT=13.
+15	)	)	PUNCT	$(	PunctType=Brck	14	punct	_	LT=)
+16	.	.	PUNCT	$.	PunctType=Peri	1	punct	_	LT=.
+
+# DDC:BREAK.s = 13821158
+# text = Ihr Schuss in der 25. Minute wurde auf der Linie geklärt .
+1	Ihr	ihr	PRON	PPOSAT	Case=Nom|Gender=Masc|Number=Sing|Person=3|Poss=Yes|PronType=Prs	2	det	_	LT=sein
+2	Schuss	Schuß	NOUN	NN	Gender=Masc|Number=Sing|Person=3	11	nsubj:pass	_	LT=Schuß
+3	in	in	ADP	APPR	AdpType=Prep|Case=Dat	6	case	_	LT=in
+4	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	6	det	_	LT=der
+5	25.	25.	ADJ	ADJA	Person=3	6	amod	_	LT=25.
+6	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	2	nmod	_	LT=Minute
+7	wurde	werden	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	11	aux:pass	_	LT=werden
+8	auf	auf	ADP	APPR	AdpType=Prep|Case=Dat	10	case	_	LT=auf
+9	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	10	det	_	LT=der
+10	Linie	Linie	NOUN	NN	Gender=Fem|Number=Sing|Person=3	11	obl	_	LT=Linie
+11	geklärt	klären	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	root	_	LT=klären
+12	.	.	PUNCT	$.	PunctType=Peri	11	punct	_	LT=.
+
+# DDC:BREAK.s = 13821170
+# text = Der Wechsel gegen Joungster Shelley Thompson könnte den Ehrgeiz der bayerischen „ Potsdame “ noch erhöhen .
+1	Der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	2	det	_	LT=Der
+2	Wechsel	Wechsel	NOUN	NN	Gender=Masc|Number=Sing|Person=3	16	nsubj	_	LT=Wechsel
+3	gegen	gegen	ADP	APPR	AdpType=Prep|Case=Acc	4	case	_	LT=gegen
+4	Joungster	Joungster	PROPN	NE	Gender=Masc|Number=Sing|Person=3	2	nmod	_	LT=Joungster
+5	Shelley	Shelley	PROPN	NE	Number=Sing|Person=3	4	flat:name	_	NER=B-PER|LT=Shelley
+6	Thompson	Thompson	PROPN	NE	Number=Sing|Person=3	4	flat:name	_	NER=E-PER|LT=Thompson
+7	könnte	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	16	aux	_	LT=können
+8	den	d	DET	ART	Case=Acc|Gender=Masc|Number=Sing|PronType=Art	9	det	_	LT=den
+9	Ehrgeiz	Ehrgeiz	NOUN	NN	Gender=Masc|Number=Sing|Person=3	16	obj	_	LT=Ehrgeiz
+10	der	d	DET	ART	Case=Gen|Number=Plur|PronType=Art	13	det	_	LT=der
+11	bayerischen	bayerisch	ADJ	ADJA	Degree=Pos|Number=Plur	13	amod	_	NER=S-MISC|LT=bayerisch
+12	„	„	PUNCT	$(	PunctType=Brck	13	punct	_	SpaceAfter=No|LT=„
+13	Potsdame	Potsdame	NOUN	NN	Person=3	9	nmod	_	SpaceAfter=No|NER=S-MISC|LT=Potsdame
+14	“	“	PUNCT	$(	PunctType=Brck	13	punct	_	LT=“
+15	noch	noch	ADV	ADV	_	16	advmod	_	LT=noch
+16	erhöhen	erhöhen	VERB	VVINF	VerbForm=Inf	0	root	_	LT=erhöhen
+17	.	.	PUNCT	$.	PunctType=Peri	16	punct	_	LT=.
+
+# DDC:BREAK.s = 13821187
+# text = Denn die 20-Jährige Duisburgerin zeigte in Ansätzen , dass sie das Sturmspiel an Möglichkeiten erweitern kann .
+1	Denn	denn	CCONJ	KON	_	5	cc	_	LT=Denn
+2	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	4	det	_	LT=die
+3	20-Jährige	20-Jährige	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	4	amod	_	LT=unknown
+4	Duisburgerin	Duisburgerin	NOUN	NN	Person=3	5	nsubj	_	NER=S-MISC|LT=Burgerin
+5	zeigte	zeigen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	root	_	LT=zeigen
+6	in	in	ADP	APPR	AdpType=Prep|Case=Dat	7	case	_	LT=in
+7	Ansätzen	Ansatz	NOUN	NN	Case=Dat|Gender=Masc|Number=Plur|Person=3	5	obl	_	SpaceAfter=No|LT=Ansatz
+8	,	,	PUNCT	$,	PunctType=Comm	15	punct	_	LT=,
+9	dass	dass	SCONJ	KOUS	_	15	mark	_	LT=dass
+10	sie	sie	PRON	PPER	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Prs	15	nsubj	_	LT=sie
+11	das	d	DET	ART	Case=Acc|Gender=Neut|Number=Sing|PronType=Art	12	det	_	LT=das
+12	Sturmspiel	Sturmspiel	NOUN	NN	Gender=Neut|Number=Sing|Person=3	15	obj	_	LT=Spiel
+13	an	an	ADP	APPR	AdpType=Prep|Case=Dat	14	case	_	LT=an
+14	Möglichkeiten	Möglichkeit	NOUN	NN	Gender=Fem|Number=Plur|Person=3	15	obl	_	LT=Möglichkeit
+15	erweitern	erweitern	VERB	VVINF	VerbForm=Inf	5	ccomp	_	LT=erweitern
+16	kann	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	15	aux	_	LT=können
+17	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13821204
+# text = Navina Omilade bestätigte ihre ansteigende Form bis zur Auswechslung in der 61. Minute .
+1	Navina	Navina	PROPN	NE	Gender=Fem|Number=Sing|Person=3	3	nsubj	_	NER=B-PER|LT=Navina
+2	Omilade	Omilade	PROPN	NE	Person=3	1	flat:name	_	NER=E-PER|LT=Omilade
+3	bestätigte	bestätigen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=bestätigen
+4	ihre	ihr	PRON	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Person=3|Poss=Yes|PronType=Prs	6	det	_	LT=sein
+5	ansteigende	ansteigend	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	6	amod	_	LT=ansteigen
+6	Form	Form	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	obj	_	LT=Form
+7	bis	bis	ADP	APPR	AdpType=Prep	9	case	_	LT=bis
+8	zur	zur	ADP	APPRART	AdpType=Prep|Case=Dat|Gender=Fem|PronType=Art	9	case	_	LT=zur
+9	Auswechslung	Auswechselung	NOUN	NN	Gender=Fem|Number=Sing|Person=3	3	obl	_	LT=Auswechslung
+10	in	in	ADP	APPR	AdpType=Prep|Case=Dat	13	case	_	LT=in
+11	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	13	det	_	LT=der
+12	61.	61.	ADJ	ADJA	Person=3	13	amod	_	LT=61.
+13	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	9	nmod	_	LT=Minute
+14	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	LT=.
+
+# DDC:BREAK.s = 13821218
+# text = Sehr fleißig , zusehends selbstbewusster .
+1	Sehr	sehr	ADV	ADV	Degree=Pos	2	advmod	_	LT=Sehr
+2	fleißig	fleißig	ADJ	ADJD	Degree=Pos|Variant=Short	0	root	_	SpaceAfter=No|LT=fleißig
+3	,	,	PUNCT	$,	PunctType=Comm	5	punct	_	LT=,
+4	zusehends	zusehends	ADV	ADV	_	5	advmod	_	LT=zusehends
+5	selbstbewusster	selbstbewußt	ADJ	ADJD	Degree=Cmp|Variant=Short	2	conj	_	LT=selbstbewusster
+6	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	LT=.
+
+# DDC:BREAK.s = 13821224
+# text = Aber Britta Carlson , die für ihre Vereinskameradin Omilade kam , schoss dieses Traumtor .
+1	Aber	aber	CCONJ	KON	_	12	cc	_	LT=Aber
+2	Britta	Britta	PROPN	NE	Gender=Fem|Number=Sing|Person=3	12	nsubj	_	NER=B-PER|LT=Britta
+3	Carlson	Carlson	PROPN	NE	Number=Sing|Person=3	2	flat:name	_	SpaceAfter=No|NER=E-PER|LT=Carlson
+4	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	LT=,
+5	die	die	PRON	PRELS	Case=Nom|Gender=Fem|Number=Sing|Person=3|PronType=Rel	10	nsubj	_	LT=die
+6	für	für	ADP	APPR	AdpType=Prep|Case=Acc	8	case	_	LT=für
+7	ihre	ihr	PRON	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Person=3|Poss=Yes|PronType=Prs	8	det	_	LT=sein
+8	Vereinskameradin	Vereinskameradin	NOUN	NN	Gender=Fem|Number=Sing|Person=3	10	obl	_	LT=unknown
+9	Omilade	Omilade	PROPN	NE	Person=3	8	flat:name	_	NER=S-LOC|LT=Omilade
+10	kam	kommen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	2	acl	_	SpaceAfter=No|LT=kommen
+11	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	LT=,
+12	schoss	schießen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=schießen
+13	dieses	diese	DET	PDAT	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem	14	det	_	LT=dies
+14	Traumtor	Traumtor	NOUN	NN	Gender=Neut|Number=Sing|Person=3	12	obj	_	LT=Traumtor
+15	.	.	PUNCT	$.	PunctType=Peri	12	punct	_	LT=.
+
+# DDC:BREAK.s = 13821239
+# text = Und dann wäre da noch die zu Hause in Potsdam gebliebene Viola Odebrecht .
+1	Und	und	CCONJ	KON	_	4	cc	_	LT=und
+2	dann	dann	ADV	ADV	_	4	advmod	_	LT=dann
+3	wäre	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	4	cop	_	LT=sein
+4	da	da	ADV	ADV	_	0	root	_	LT=da
+5	noch	noch	ADV	ADV	_	4	advmod	_	LT=noch
+6	die	d	DET	ART	Case=Nom|Gender=Fem|Number=Sing|PronType=Art	12	det	_	LT=die
+7	zu	zu	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	LT=zu
+8	Hause	Haus	NOUN	NN	Case=Dat|Gender=Neut|Number=Sing|Person=3	11	obl	_	LT=Haus
+9	in	in	ADP	APPR	AdpType=Prep|Case=Dat	10	case	_	LT=in
+10	Potsdam	Potsdam	PROPN	NE	Person=3	11	obl	_	NER=S-LOC|LT=Potsdam
+11	gebliebene	gebleiben	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	12	amod	_	LT=bleiben
+12	Viola	Viola	PROPN	NE	Gender=Fem|Number=Sing|Person=3	4	nsubj	_	NER=B-PER|LT=Viola
+13	Odebrecht	Odebrecht	PROPN	NE	Person=3	12	flat:name	_	NER=E-PER|LT=Odebrecht
+14	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	LT=.
+
+# DDC:BREAK.s = 13821253
+# text = Konkurrenzkampf im eigenen Haus .
+1	Konkurrenzkampf	Konkurrenzkampf	NOUN	NN	Gender=Masc|Number=Sing|Person=3	0	root	_	LT=Kampf
+2	im	im	ADP	APPRART	AdpType=Prep|Case=Dat|PronType=Art	4	case	_	LT=im
+3	eigenen	eigen	ADJ	ADJA	Degree=Pos|Number=Sing	4	amod	_	LT=eigen
+4	Haus	Haus	NOUN	NN	Gender=Neut|Number=Sing|Person=3	1	nmod	_	LT=Haus
+5	.	.	PUNCT	$.	PunctType=Peri	1	punct	_	LT=.
+
+# DDC:BREAK.s = 13821258
+# text = „ Turbiene Inken Becher kam in der 71. Minute in die Abwehrkette und löste ihre Aufgabe gut .
+1	„	„	PUNCT	$(	PunctType=Brck	5	punct	_	SpaceAfter=No|LT=„
+2	Turbiene	Turbiene	NOUN	NN	Person=3	5	nsubj	_	NER=B-PER|LT=Turbiene
+3	Inken	Inken	NOUN	NN	Person=3	2	appos	_	NER=I-PER|LT=Inken
+4	Becher	Becher	PROPN	NE	Number=Sing|Person=3	3	flat:name	_	NER=E-PER|LT=Becher
+5	kam	kommen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	root	_	LT=kommen
+6	in	in	ADP	APPR	AdpType=Prep|Case=Dat	9	case	_	LT=in
+7	der	d	DET	ART	Case=Dat|Gender=Fem|Number=Sing|PronType=Art	9	det	_	LT=der
+8	71.	71.	ADJ	ADJA	Person=3	9	amod	_	LT=71.
+9	Minute	Minute	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obl	_	LT=Minute
+10	in	in	ADP	APPR	AdpType=Prep|Case=Acc	12	case	_	LT=in
+11	die	d	DET	ART	Case=Acc|Gender=Fem|Number=Sing|PronType=Art	12	det	_	LT=die
+12	Abwehrkette	Abwehrkette	NOUN	NN	Gender=Fem|Number=Sing|Person=3	5	obl	_	LT=Abwehrkette
+13	und	und	CCONJ	KON	_	14	cc	_	LT=und
+14	löste	lösen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	conj	_	LT=lösen
+15	ihre	ihr	PRON	PPOSAT	Case=Acc|Gender=Fem|Number=Sing|Person=3|Poss=Yes|PronType=Prs	16	det	_	LT=sein
+16	Aufgabe	Aufgabe	NOUN	NN	Gender=Fem|Number=Sing|Person=3	14	obj	_	LT=Aufgabe
+17	gut	gut	ADJ	ADJD	Degree=Pos|Variant=Short	14	advmod	_	LT=gut
+18	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	LT=.
+
+# DDC:BREAK.s = 13821276
+# text = Nach sechs Jahren ohne DFB-Auftritt ist das Comeback nicht wirklich bewertbar , weil der Gegner einfach zu schwach war , um die Deutschen ernsthaft unter Druck zu setzen .
+1	Nach	nach	ADP	APPR	AdpType=Prep|Case=Dat	3	case	_	LT=Nach
+2	sechs	sechs	NUM	CARD	Number=Plur|NumType=Card|Person=3	3	nummod	_	LT=sechs
+3	Jahren	Jahr	NOUN	NN	Case=Dat|Gender=Neut|Number=Plur|Person=3	11	obl	_	LT=Jahr
+4	ohne	ohne	ADP	APPR	AdpType=Prep|Case=Acc	5	case	_	LT=ohne
+5	DFB-Auftritt	Dfb-Auftritt	NOUN	NN	Gender=Masc|Number=Sing|Person=3	3	nmod	_	NER=S-MISC|LT=Auftritt
+6	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	11	cop	_	LT=sein
+7	das	d	DET	ART	Case=Nom|Gender=Neut|Number=Sing|PronType=Art	8	det	_	LT=das
+8	Comeback	Comeback	NOUN	NN	Gender=Neut|Number=Sing|Person=3	11	nsubj	_	LT=Comeback
+9	nicht	nicht	PART	PTKNEG	Polarity=Neg	11	advmod	_	LT=nicht
+10	wirklich	wirklich	ADJ	ADJD	Degree=Pos|Variant=Short	11	advmod	_	LT=wirklich
+11	bewertbar	bewertbar	ADJ	ADJD	Degree=Pos|Variant=Short	0	root	_	SpaceAfter=No|LT=bewertbar
+12	,	,	PUNCT	$,	PunctType=Comm	18	punct	_	LT=,
+13	weil	weil	SCONJ	KOUS	_	18	mark	_	LT=weil
+14	der	d	DET	ART	Case=Nom|Gender=Masc|Number=Sing|PronType=Art	15	det	_	LT=der
+15	Gegner	Gegner	NOUN	NN	Gender=Masc|Number=Sing|Person=3	18	nsubj	_	LT=Gegner
+16	einfach	einfach	ADJ	ADJD	Degree=Pos|Variant=Short	18	advmod	_	LT=einfach
+17	zu	zu	ADV	PTKA	_	18	advmod	_	LT=zu
+18	schwach	schwach	ADJ	ADJD	Degree=Pos|Variant=Short	11	ccomp	_	LT=schwach
+19	war	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	cop	_	SpaceAfter=No|LT=sein
+20	,	,	PUNCT	$,	PunctType=Comm	28	punct	_	LT=,
