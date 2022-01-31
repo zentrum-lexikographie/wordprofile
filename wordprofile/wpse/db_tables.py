@@ -126,7 +126,7 @@ def get_table_token_frequencies(meta: MetaData):
         Column('lemma', LEMMA_TYPE),
         Column('tag', Enum(TAG_TYPE)),
         Column('freq', types.Integer),
-        Index('label_index', 'lemma'),
-        Index('label_tag_index', 'lemma', 'tag'),
+        Column('surface', SURFACE_TYPE),
+        Column('surface_freq', types.Integer),
         mysql_engine='Aria',
     )

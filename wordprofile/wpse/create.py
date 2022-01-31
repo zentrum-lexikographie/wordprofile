@@ -16,6 +16,7 @@ def init_word_profile_tables(engine: Engine, database: str):
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)
     wordprofile.wpse.db_tables.get_table_matches(meta)
     wordprofile.wpse.db_tables.get_table_collocations(meta)
+    wordprofile.wpse.db_tables.get_table_token_frequencies(meta)
     wordprofile.wpse.db_tables.get_table_mwe(meta)
     wordprofile.wpse.db_tables.get_table_mwe_match(meta)
     meta.create_all(engine)
@@ -63,11 +64,14 @@ def create_indices(engine: Engine):
     engine.execute("CREATE INDEX colloc_lemma2_tag_index ON collocations (lemma2, lemma2_tag);")
     logging.info("CREATE colloc_lemma_index")
     engine.execute("CREATE INDEX colloc_lemma_index ON collocations (lemma1, lemma2);")
+    logging.info("CREATE token_freq_lemma")
+    engine.execute("CREATE INDEX token_freq_lemma ON token_freqs (lemma);")
+    logging.info("CREATE token_freq_lemma_tag")
+    engine.execute("CREATE INDEX token_freq_lemma_tag ON token_freqs (lemma, tag);")
 
 
 def create_statistics(engine: Engine):
     meta = MetaData()
-    wordprofile.wpse.db_tables.get_table_token_frequencies(meta)
     wordprofile.wpse.db_tables.get_table_corpus_frequencies(meta)
     meta.create_all(engine)
 
@@ -77,11 +81,4 @@ def create_statistics(engine: Engine):
         SELECT label, SUM(frequency) as freq
         FROM collocations c
         GROUP BY label
-    """)
-    logging.info("INSERT token_freqs")
-    engine.execute("""
-        INSERT INTO token_freqs (lemma, tag, freq)
-        SELECT c.lemma1 as lemma, c.lemma1_tag as tag, SUM(c.frequency) freq
-        FROM collocations c
-        GROUP BY c.lemma1, c.lemma1_tag 
     """)

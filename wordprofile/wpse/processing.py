@@ -438,7 +438,13 @@ def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
     return collocs
 
 
-def compute_common_surfaces(fins, fout):
+def compute_token_statistics(fins, fout, collocs):
+    logging.info("-- compute token frequencies")
+    tokens_stats = defaultdict(int)
+    for c in collocs.values():
+        tokens_stats[c.lemma1, c.lemma1_tag] += c.frequency
+        tokens_stats[c.lemma2, c.lemma2_tag] += c.frequency
+    logging.info("-- compute common surfaces")
     common_surfaces = {}
     for fin in fins:
         with open(fin, "r") as fin:
@@ -447,10 +453,11 @@ def compute_common_surfaces(fins, fout):
                 common_surface, common_freq = common_surfaces.get((lemma, tag), ('', 0))
                 if int(freq) > common_freq:
                     common_surfaces[lemma, tag] = surface, freq
-
+    logging.info("-- write token stats with common surfaces")
     with open(fout, 'w') as fh:
-        for (lemma, tag), (surface, freq) in common_surfaces.items():
-            fh.write(f'{lemma}\t{tag}\t{surface}\t{freq}\n')
+        for (lemma, tag), freq in tokens_stats.items():
+            surface, surface_freq = common_surfaces[lemma, tag]
+            fh.write(f'{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n')
 
 
 def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=False):
@@ -470,9 +477,9 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
                                             os.path.join(final_path, 'concord_sentences.duplicate'))
     logging.info('LOAD FILTERED collocations')
     collocs = load_collocations([os.path.join(p, 'collocations') for p in storage_paths], min_rel_freq)
-    logging.info('CALCULATE common surfaces')
-    compute_common_surfaces([os.path.join(p, 'common_surfaces') for p in storage_paths],
-                            os.path.join(final_path, 'common_surfaces'))
+    logging.info('CALCULATE token statistics')
+    compute_token_statistics([os.path.join(p, 'common_surfaces') for p in storage_paths],
+                             os.path.join(final_path, 'token_freqs'), collocs)
     logging.info('FILTER TRANSFORM matches')
     filter_transform_matches([os.path.join(p, 'matches') for p in storage_paths], os.path.join(final_path, 'matches'),
                              corpus_file_idx, sents_idx, collocs)
@@ -488,7 +495,7 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
 def load_files_into_db(engine, storage_path):
     """Load generated data files into their corresponding db tables.
     """
-    for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'matches', 'mwe', 'mwe_match']:
+    for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'token_freqs', 'matches', 'mwe', 'mwe_match']:
         tb_file = os.path.join(storage_path, tb_name)
         if not os.path.exists(tb_file):
             logging.warning(f"Local file '{tb_file}' doe not exist.")
