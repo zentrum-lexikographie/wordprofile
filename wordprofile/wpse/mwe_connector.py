@@ -4,7 +4,7 @@ from typing import List
 import pymysql
 
 import wordprofile.config
-from wordprofile.datatypes import CooccInfo, Coocc, MweConcordance
+from wordprofile.datatypes import Coocc, MweConcordance
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
@@ -103,11 +103,9 @@ class WPMweConnect:
             ORDER BY cf.date DESC 
             LIMIT {},{};
             """.format(mwe_id, start_index, result_number)
-        db_results = self.__fetchall(query)
-        db_results: List[MweConcordance] = list(map(MweConcordance._make, db_results))
-        return db_results
+        return list(map(lambda i: MweConcordance(*i), self.__fetchall(query)))
 
-    def get_relation_by_id(self, mwe_id: int) -> CooccInfo:
+    def get_relation_by_id(self, mwe_id: int) -> Coocc:
         """Fetches MWE information for mwe id from database backend.
 
         Args:
@@ -118,15 +116,15 @@ class WPMweConnect:
         """
         sql = """
         SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag
+            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            IFNULL(mwe.score, 0.0) as log_dice
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
         WHERE mwe.id = {}
         """.format(mwe_id)
-        db_result = self.__fetchall(sql)[0]
-        return CooccInfo(id=db_result[0], rel=db_result[1], lemma1="{}-{}".format(db_result[5], db_result[6]),
-                         lemma2=db_result[2], pos1="{}-{}".format(db_result[7], db_result[8]), pos2=db_result[3], inv=0,
-                         has_mwe=0)
+        res = self.__fetchall(sql)[0]
+        return Coocc(id=res[0], rel=res[1], lemma1="{}-{}".format(res[5], res[6]), lemma2=res[2],
+                     tag1="{}-{}".format(res[7], res[8]), tag2=res[3], freq=res[4], score=res[9], inverse=0, has_mwe=0)
 
     def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> List[Coocc]:
         """Fetches MWE with related statistics for a specific relation from database backend.
@@ -150,10 +148,9 @@ class WPMweConnect:
         WHERE mwe.collocation1_id IN ({}) {} {} 
         ORDER BY log_dice DESC
         """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
-        db_results = self.__fetchall(sql)
-        return [Coocc(RelId=i[0], Rel=i[1], Lemma1="{}-{}".format(i[5], i[6]), Lemma2=i[2],
-                      Pos1="{}-{}".format(i[7], i[8]), Pos2=i[3], Frequency=i[4], LogDice=i[9], inverse=0, has_mwe=0)
-                for i in db_results]
+        return [Coocc(id=i[0], rel=i[1], lemma1="{}-{}".format(i[5], i[6]), lemma2=i[2],
+                      tag1="{}-{}".format(i[7], i[8]), tag2=i[3], freq=i[4], score=i[9], inverse=0, has_mwe=0)
+                for i in self.__fetchall(sql)]
 
     def get_collocations(self, lemma1: str, lemma2: str) -> List[Coocc]:
         """Fetches collocations with related statistics for a specific relation from database backend.
@@ -175,5 +172,4 @@ class WPMweConnect:
             WHERE lemma1='{}' and lemma2='{}';""".format(
             lemma1, lemma2
         )
-        db_results = self.__fetchall(query)
-        return list(filter(lambda c: c.has_mwe == 1, map(Coocc._make, db_results)))
+        return list(filter(lambda c: c.has_mwe == 1, map(lambda i: Coocc(*i), self.__fetchall(query))))

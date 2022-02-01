@@ -141,7 +141,7 @@ class Wordprofile:
         Return:
             Absolute collocation ids.
         """
-        return [abs(c.RelId) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
+        return [abs(c.id) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
 
     def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
                           min_freq: int = 0, min_stat: int = -1000) -> dict:
@@ -165,9 +165,9 @@ class Wordprofile:
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
         for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
-            lemma1 = relation.Lemma1
-            pos1 = relation.Pos1
-            grouped_relations[relation.Rel].append(relation)
+            lemma1 = relation.lemma1
+            pos1 = relation.tag1
+            grouped_relations[relation.rel].append(relation)
         results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
             results[lemma1].append({
@@ -177,8 +177,8 @@ class Wordprofile:
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return {
-            'parts': [{'Lemma': coocc_info.lemma1, 'POS': tag_b2f[coocc_info.pos1]},
-                      {'Lemma': coocc_info.lemma2, 'POS': tag_b2f[coocc_info.pos2]}],
+            'parts': [{'Lemma': coocc_info.lemma1, 'POS': tag_b2f[coocc_info.tag1]},
+                      {'Lemma': coocc_info.lemma2, 'POS': tag_b2f[coocc_info.tag2]}],
             'data': dict(results),
         }
 
@@ -246,19 +246,19 @@ class Wordprofile:
         for i, c in enumerate(diffs):
             if nbest and lemma1_ctr > nbest and lemma2_ctr > nbest:
                 break
-            if c.Lemma1 == lemma1:
+            if c.lemma1 == lemma1:
                 if not nbest or lemma1_ctr <= nbest:
-                    diffs_grouped[c.Lemma2]['coocc_1'] = c
-                    diffs_grouped[c.Lemma2]['rank_1'] = i
-                    diffs_grouped[c.Lemma2]['pos'] = c.Pos1
+                    diffs_grouped[c.lemma2]['coocc_1'] = c
+                    diffs_grouped[c.lemma2]['rank_1'] = i
+                    diffs_grouped[c.lemma2]['pos'] = c.tag1
                 lemma1_ctr += 1
-            elif c.Lemma1 == lemma2:
+            elif c.lemma1 == lemma2:
                 if not nbest or lemma2_ctr <= nbest:
-                    diffs_grouped[c.Lemma2]['coocc_2'] = c
-                    diffs_grouped[c.Lemma2]['rank_2'] = i
-                    diffs_grouped[c.Lemma2]['pos'] = c.Pos1
+                    diffs_grouped[c.lemma2]['coocc_2'] = c
+                    diffs_grouped[c.lemma2]['rank_2'] = i
+                    diffs_grouped[c.lemma2]['pos'] = c.tag1
                 lemma2_ctr += 1
-            elif c.Lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
+            elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
                 continue
             else:
                 raise ValueError("Unexpected lemma")
@@ -270,12 +270,12 @@ class Wordprofile:
         # compute score based on occurring cooccs
         for d in diffs_grouped:
             if 'coocc_1' in d and 'coocc_2' in d:
-                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, d['coocc_2'].LogDice, d['rank_1'],
+                d['score'] = self.__diff_operation(operation, d['coocc_1'].score, d['coocc_2'].score, d['rank_1'],
                                                    d['rank_2'])
             elif 'coocc_1' in d:
-                d['score'] = self.__diff_operation(operation, d['coocc_1'].LogDice, 0, d['rank_1'], 0)
+                d['score'] = self.__diff_operation(operation, d['coocc_1'].score, 0, d['rank_1'], 0)
             elif 'coocc_2' in d:
-                d['score'] = self.__diff_operation(operation, 0, d['coocc_2'].LogDice, 0, d['rank_2'])
+                d['score'] = self.__diff_operation(operation, 0, d['coocc_2'].score, 0, d['rank_2'])
         # final sort and cut after nbest cooccs
         if operation in ["adiff", "ardiff"]:
             diffs_grouped.sort(key=lambda x: math.fabs(x['score']), reverse=True)
@@ -337,7 +337,7 @@ class Wordprofile:
             description = ""
         return {'Description': description, 'Relation': coocc_info.rel,
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
-                'POS1': coocc_info.pos1, 'POS2': coocc_info.pos2}
+                'POS1': coocc_info.tag1, 'POS2': coocc_info.tag2}
 
     def get_concordances_and_relation(self, coocc_id: int, use_context: bool = False, start_index: int = 0,
                                       result_number: int = 20, is_mwe: bool = False):

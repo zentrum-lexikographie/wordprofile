@@ -4,7 +4,7 @@ from typing import List
 import pymysql
 
 import wordprofile.config
-from wordprofile.datatypes import CooccInfo, Coocc, Concordance, LemmaInfo
+from wordprofile.datatypes import Coocc, Concordance, LemmaInfo
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
@@ -47,38 +47,36 @@ class WPConnect:
     def get_db_infos(self):
         query = """SELECT TABLE_NAME, TABLE_ROWS, CREATE_TIME, UPDATE_TIME
                    FROM information_schema.tables WHERE table_schema = DATABASE();"""
-        db_results = [{
+        return [{
             'name': t[0],
             'rows': t[1],
             'create_time': t[2],
             'last_update': t[3]
         } for t in self.__fetchall(query) if t[1]]
-        return db_results
 
     def get_label_frequencies(self):
         query = """SELECT label, freq FROM corpus_freqs"""
-        db_results = {t[0]: t[1] for t in self.__fetchall(query)}
-        return db_results
+        return {t[0]: t[1] for t in self.__fetchall(query)}
 
     def get_tag_frequencies(self):
         query = """
         SELECT tag, SUM(freq) 
         FROM token_freqs tf 
         GROUP BY tag"""
-        db_results = {t[0]: t[1] for t in self.__fetchall(query)}
-        return db_results
+        return {t[0]: t[1] for t in self.__fetchall(query)}
 
     def get_corpus_file_stats(self):
         query = """
         SELECT corpus, COUNT(*), min(`date`) as min_date, MAX(`date`) as max_date
         FROM corpus_files cf
         GROUP BY corpus"""
-        db_results = {t[0]: {
-            "count": t[1],
-            "min_date": t[2],
-            "max_date": t[3],
-        } for t in self.__fetchall(query)}
-        return db_results
+        return {
+            t[0]: {
+                "count": t[1],
+                "min_date": t[2],
+                "max_date": t[3],
+            } for t in self.__fetchall(query)
+        }
 
     def get_concordances(self, coocc_id: int, use_context: bool, start_index: int, result_number: int) -> List[
         Concordance]:
@@ -94,12 +92,12 @@ class WPConnect:
             List of Concordance.
         """
         coocc_info = self.get_relation_by_id(coocc_id)
-        if coocc_info.inv:
-            head_lemma, head_tag = coocc_info.lemma2, coocc_info.pos2
-            dep_lemma, dep_tag = coocc_info.lemma1, coocc_info.pos1
+        if coocc_info.inverse:
+            head_lemma, head_tag = coocc_info.lemma2, coocc_info.tag2
+            dep_lemma, dep_tag = coocc_info.lemma1, coocc_info.tag1
         else:
-            head_lemma, head_tag = coocc_info.lemma1, coocc_info.pos1
-            dep_lemma, dep_tag = coocc_info.lemma2, coocc_info.pos2
+            head_lemma, head_tag = coocc_info.lemma1, coocc_info.tag1
+            dep_lemma, dep_tag = coocc_info.lemma2, coocc_info.tag2
 
         if use_context:
             query = """
@@ -155,9 +153,7 @@ class WPConnect:
             LIMIT {},{};
             """.format(coocc_info.rel, head_lemma, head_tag, dep_lemma, dep_tag,
                        start_index, result_number)
-        db_results = self.__fetchall(query)
-        db_results: List[Concordance] = list(map(Concordance._make, db_results))
-        return db_results
+        return list(map(lambda i: Concordance(*i), self.__fetchall(query)))
 
     def get_lemma_and_pos(self, lemma: str, lemma_tag: str = '') -> List[LemmaInfo]:
         """ Fetches lemma information for valid inputs.
@@ -177,11 +173,10 @@ class WPConnect:
             lemma,
             "and lemma1_tag='{}'".format(lemma_tag) if lemma_tag else "",
         )
-        db_results = self.__fetchall(query)
-        db_results = list(filter(lambda l: l.lemma.lower() == lemma.lower(), map(LemmaInfo._make, db_results)))
-        return db_results
+        return list(filter(lambda l: l.lemma.lower() == lemma.lower(),
+                           map(lambda i: LemmaInfo(*i), self.__fetchall(query))))
 
-    def get_relation_by_id(self, coocc_id: int) -> CooccInfo:
+    def get_relation_by_id(self, coocc_id: int) -> Coocc:
         """Fetches collocation information for collocation id from database backend.
 
         Args:
@@ -193,14 +188,15 @@ class WPConnect:
 
         query = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.inv, 
-            IF(c.id IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         WHERE c.id = {}
         """.format(coocc_id)
-        db_results = self.__fetchall(query)[0]
-        return CooccInfo(*db_results)
+        # TODO add error handling for empty response
+        return Coocc(*self.__fetchall(query)[0])
 
     def get_relation_tuples(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
                             order_by: str, min_freq: int, min_stat: float, relation: str) -> List[Coocc]:
@@ -232,7 +228,7 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         """
@@ -252,8 +248,7 @@ class WPConnect:
                 lemma1, lemma1_tag, lemma2, lemma2_tag, relation, inv, min_freq_sql, min_stat_sql, order_by, start,
                 number
             )
-        db_results = self.__fetchall(select_from_sql + where_sql)
-        return list(map(Coocc._make, db_results))
+        return list(map(lambda i: Coocc(*i), self.__fetchall(select_from_sql + where_sql)))
 
     def get_relation_meta(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
                           order_by: str, min_freq: int, min_stat: float) -> List[Coocc]:
@@ -279,7 +274,7 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= 5), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM 
             collocations c
         """
@@ -302,8 +297,7 @@ class WPConnect:
                 ORDER BY {} DESC LIMIT {},{};""".format(
                 lemma1, lemma1_tag, lemma2, lemma2_tag, min_freq_sql, min_stat_sql, order_by, start, number
             )
-        db_results = self.__fetchall(select_from_sql + where_sql)
-        return list(map(Coocc._make, db_results))
+        return list(map(lambda i: Coocc(*i), self.__fetchall(select_from_sql + where_sql)))
 
     def get_relation_tuples_diff(self, lemma1: str, lemma2: str, lemma_tag: str, relation: str, order_by: str,
                                  min_freq: int, min_stat) -> List[Coocc]:
@@ -330,7 +324,7 @@ class WPConnect:
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
         SELECT 
-            c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
@@ -344,8 +338,7 @@ class WPConnect:
             min_stat_sql,
             order_by
         )
-        db_results = self.__fetchall(query)
-        return list(map(Coocc._make, db_results))
+        return list(map(lambda i: Coocc(*i), self.__fetchall(query)))
 
     def get_relation_tuples_diff_meta(self, lemma1: str, lemma2: str, lemma_tag: str, order_by: str,
                                       min_freq: int, min_stat) -> List[Coocc]:
@@ -366,7 +359,7 @@ class WPConnect:
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
         SELECT 
-            c.id, label, lemma1, lemma2, lemma1_tag, lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
@@ -378,5 +371,4 @@ class WPConnect:
             min_stat_sql,
             order_by
         )
-        db_results = self.__fetchall(query)
-        return list(map(Coocc._make, db_results))
+        return list(map(lambda i: Coocc(*i), self.__fetchall(query)))

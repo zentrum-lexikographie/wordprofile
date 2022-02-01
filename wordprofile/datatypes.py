@@ -1,20 +1,73 @@
+import datetime
 from collections import namedtuple
+from dataclasses import dataclass
 from typing import List
 
-LemmaInfo = namedtuple("LemmaInfo", ["lemma", "tag", "rel", "freq", "inv"])
-CooccInfo = namedtuple("CooccInfo", ["id", "rel", "lemma1", "lemma2", "pos1", "pos2", "inv", "has_mwe"])
-Coocc = namedtuple("Coocc", ["RelId", "Rel", "Lemma1", "Lemma2", "Pos1", "Pos2",
-                             "Frequency", "LogDice", "inverse", "has_mwe"])
-Concordance = namedtuple("Concordance",
-                         ["sentence", "token_position_1", "token_position_2", "prep_position", "corpus", "date",
-                          "textclass", "orig", "scan", "avail", "page", "file", "score", "sentence_left",
-                          "sentence_right"])
-MweConcordance = namedtuple("Concordance",
-                            ["sentence", "token1_position_1", "token1_position_2", "prep1_position",
-                             "token2_position_1", "token2_position_2", "prep2_position",
-                             "corpus", "date", "textclass", "orig", "scan",
-                             "avail", "page", "file", "score",
-                             "sentence_left", "sentence_right"])
+
+@dataclass
+class LemmaInfo:
+    lemma: str
+    tag: str
+    rel: str
+    freq: int
+    inv: int
+
+
+@dataclass
+class Coocc:
+    id: int
+    rel: str
+    lemma1: str
+    lemma2: str
+    tag1: str
+    tag2: str
+    freq: int
+    score: float
+    inverse: int
+    has_mwe: int
+
+
+@dataclass
+class Concordance:
+    sentence: str
+    token_position_1: int
+    token_position_2: int
+    prep_position: int
+    corpus: str
+    date: datetime.date
+    textclass: str
+    orig: str
+    scan: str
+    avail: str
+    page: str
+    file: str
+    score: int
+    sentence_left: str
+    sentence_right: str
+
+
+@dataclass
+class MweConcordance:
+    sentence: str
+    token1_position_1: int
+    token1_position_2: int
+    prep1_position: int
+    token2_position_1: int
+    token2_position_2: int
+    prep2_position: int
+    corpus: str
+    date: datetime.date
+    textclass: str
+    orig: str
+    scan: str
+    avail: str
+    page: str
+    file: str
+    score: int
+    sentence_left: str
+    sentence_right: str
+
+
 DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
 Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
 

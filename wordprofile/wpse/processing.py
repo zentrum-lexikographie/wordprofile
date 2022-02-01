@@ -8,7 +8,7 @@ import sys
 import traceback
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
-from typing import List, Dict, Tuple, Union, Iterator
+from typing import List, Dict, Tuple, Union, Iterator, Set
 
 import conllu
 from conllu.models import TokenList
@@ -23,7 +23,7 @@ Match = namedtuple("Match",
                    ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
                     "doc_id", "sent_id"])
 match_dtypes = [int, int, str, str, int, int, int, int, int]
-Colloc = namedtuple("Collocation",
+Colloc = namedtuple("Colloc",
                     ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"])
 colloc_dtypes = [int, str, str, str, str, str, int, int]
 
@@ -189,7 +189,7 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
     logging.info('ALL JOBS DONE')
 
 
-def reindex_corpus_files(fins: List[str], fout: str):
+def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
     """Iterates over generated corpus file in replaces mongodb index by numeric index.
     """
     corpus_file_idx = {}
@@ -205,11 +205,11 @@ def reindex_corpus_files(fins: List[str], fout: str):
     return corpus_file_idx
 
 
-def reindex_filter_concordances(fins, fout, corpus_file_idx, fout_invalid, fout_duplicate):
+def reindex_filter_concordances(fins, fout, corpus_file_idx, fout_invalid, fout_duplicate) -> Set[Tuple[str, str]]:
     """Filters and removes duplicates from concordances and replaces corpus file index.
     """
 
-    def get_robust_hash(sentence):
+    def get_robust_hash(sentence: str):
         """Generates an md5 sentence hash.
         The sentence string is lowered and all symbols except letters are removed for robustness.
         """
@@ -240,7 +240,7 @@ def reindex_filter_concordances(fins, fout, corpus_file_idx, fout_invalid, fout_
     return set(sents_idx)
 
 
-def filter_transform_matches(fins, fout, corpus_file_idx, sents_idx, collocs: Dict[int, Colloc]):
+def filter_transform_matches(fins: List[str], fout: str, corpus_file_idx, sents_idx, collocs: Dict[int, Colloc]):
     """Filter matches with any missing entry for corpus file, sentence, or collocation,
     then transform using collocation id.
     """
@@ -265,7 +265,7 @@ def filter_transform_matches(fins, fout, corpus_file_idx, sents_idx, collocs: Di
                         match_i += 1
 
 
-def compute_collocation_scores(fout, collocs):
+def compute_collocation_scores(fout: str, collocs: Dict[int, Colloc]):
     """Computes collocation statistics and writes to file.
     """
     f12 = defaultdict(lambda: defaultdict(int))
@@ -294,11 +294,11 @@ def compute_collocation_scores(fout, collocs):
                            "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice))
 
 
-def extract_mwe_from_collocs(match_fin, collocs):
+def extract_mwe_from_collocs(match_fin: str, collocs: Dict[int, Colloc]):
     """Compute MWE from matches and collocations.
     """
 
-    def read_collapsed_sentence_matches(fin) -> Iterator[List[Match]]:
+    def read_collapsed_sentence_matches(fin: str) -> Iterator[List[Match]]:
         """Reads the matches file and returns successively Matches per sentences.
         """
         sent = []
@@ -356,7 +356,7 @@ def extract_mwe_from_collocs(match_fin, collocs):
     return mwe_groups
 
 
-def compute_mwe_scores(mwe_fout, match_fout, mwe_groups):
+def compute_mwe_scores(mwe_fout: str, match_fout: str, mwe_groups: Dict[Tuple, List[Tuple[int,int]]]):
     """Calculates Log Dice score
     """
     f12 = defaultdict(lambda: defaultdict(int))
@@ -381,7 +381,7 @@ def compute_mwe_scores(mwe_fout, match_fout, mwe_groups):
                 mwe_map.write("{}\n".format("\t".join(map(str, (mwe_id,) + (m1_id, m2_id)))))
 
 
-def extract_collocations(match_fin, collocs_fout):
+def extract_collocations(match_fin: str, collocs_fout: str):
     """Iterates over all extracted matches and generates a collocation mapping.
 
     Collocations contain only lemmatized match information and, additionally, frequencies are counted for matches.
@@ -400,7 +400,7 @@ def extract_collocations(match_fin, collocs_fout):
                 fh.write(f'{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{freq}\n')
 
 
-def extract_most_common_surface(match_fin, fout):
+def extract_most_common_surface(match_fin: str, fout: str):
     """Iterates over all extracted matches and generates a mapping from a lemma to its most common surface form.
     """
     common_surfaces = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -418,7 +418,7 @@ def extract_most_common_surface(match_fin, fout):
                 fh.write(f'{lemma}\t{tag}\t{surface}\t{freq}\n')
 
 
-def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
+def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit.
     """
     relation_dict = defaultdict(lambda: defaultdict(int))
@@ -438,7 +438,7 @@ def load_collocations(fins, min_rel_freq=3) -> Dict[int, Colloc]:
     return collocs
 
 
-def compute_token_statistics(fins, fout, collocs):
+def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Colloc]):
     logging.info("-- compute token frequencies")
     tokens_stats = defaultdict(int)
     for c in collocs.values():

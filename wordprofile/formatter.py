@@ -38,20 +38,20 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
     """
     results = []
     for coocc in cooccs:
-        concord_no = coocc.Frequency
-        if coocc.Rel == 'KON' and coocc.Lemma1 == coocc.Lemma2:
+        concord_no = coocc.freq
+        if coocc.rel == 'KON' and coocc.lemma1 == coocc.lemma2:
             concord_no = concord_no // 2
         results.append({
-            'Relation': '~' if coocc.inverse else '' + coocc.Rel,
-            'POS': tag_b2f[coocc.Pos2],
-            'PosId': tag_b2f[coocc.Pos2],
-            'Form': coocc.Lemma2,
-            'Lemma': coocc.Lemma2,
+            'Relation': '~' if coocc.inverse else '' + coocc.rel,
+            'POS': tag_b2f[coocc.tag2],
+            'PosId': tag_b2f[coocc.tag2],
+            'Form': coocc.lemma2,
+            'Lemma': coocc.lemma2,
             'Score': {
-                'Frequency': coocc.Frequency,
-                'logDice': coocc.LogDice,
+                'Frequency': coocc.freq,
+                'logDice': coocc.score,
             },
-            'ConcordId': ('#mwe' if is_mwe else '') + str(coocc.RelId),
+            'ConcordId': ('#mwe' if is_mwe else '') + str(coocc.id),
             'ConcordNo': concord_no,
             'ConcordNoAccessible': concord_no,
             'HasMwe': coocc.has_mwe
@@ -142,33 +142,33 @@ def format_comparison(diffs):
         }
         # complete information for first coocc
         if 'coocc_1' in diff:
-            coocc_diff['Score']['Frequency1'] = diff['coocc_1'].Frequency
-            coocc_diff['Score']['Assoziation1'] = diff['coocc_1'].LogDice
-            coocc_diff['ConcordId1'] = diff['coocc_1'].RelId
-            concord_no = diff['coocc_1'].Frequency
-            if diff['coocc_1'].Rel == "KON" and diff['coocc_1'].Lemma1 == diff['coocc_1'].Lemma2:
+            coocc_diff['Score']['Frequency1'] = diff['coocc_1'].freq
+            coocc_diff['Score']['Assoziation1'] = diff['coocc_1'].score
+            coocc_diff['ConcordId1'] = diff['coocc_1'].id
+            concord_no = diff['coocc_1'].freq
+            if diff['coocc_1'].rel == "KON" and diff['coocc_1'].lemma1 == diff['coocc_1'].lemma2:
                 concord_no = concord_no / 2
             coocc_diff['ConcordNo1'] = concord_no
-            coocc_diff['Relation'] = diff['coocc_1'].Rel
-            coocc_diff['Lemma'] = diff['coocc_1'].Lemma2
-            coocc_diff['Form'] = diff['coocc_1'].Lemma2
+            coocc_diff['Relation'] = diff['coocc_1'].rel
+            coocc_diff['Lemma'] = diff['coocc_1'].lemma2
+            coocc_diff['Form'] = diff['coocc_1'].lemma2
             if 'coocc_2' in diff:
                 coocc_diff['Position'] = 'left'
             else:
                 coocc_diff['Position'] = 'center'
         # complete information for second coocc
         if 'coocc_2' in diff:
-            coocc_diff['Score']['Frequency2'] = diff['coocc_2'].Frequency
-            coocc_diff['Score']['Assoziation2'] = diff['coocc_2'].LogDice
-            coocc_diff['ConcordId2'] = diff['coocc_2'].RelId
-            concord_no = diff['coocc_2'].Frequency
-            if diff['coocc_2'].Rel == "KON" and diff['coocc_2'].Lemma1 == diff['coocc_2'].Lemma2:
+            coocc_diff['Score']['Frequency2'] = diff['coocc_2'].freq
+            coocc_diff['Score']['Assoziation2'] = diff['coocc_2'].score
+            coocc_diff['ConcordId2'] = diff['coocc_2'].id
+            concord_no = diff['coocc_2'].freq
+            if diff['coocc_2'].rel == "KON" and diff['coocc_2'].lemma1 == diff['coocc_2'].lemma2:
                 concord_no = concord_no / 2
             coocc_diff['ConcordNo2'] = concord_no
             if 'coocc_1' not in diff:
-                coocc_diff['Relation'] = diff['coocc_2'].Rel
-                coocc_diff['Lemma'] = diff['coocc_2'].Lemma2
-                coocc_diff['Form'] = diff['coocc_2'].Lemma2
+                coocc_diff['Relation'] = diff['coocc_2'].rel
+                coocc_diff['Lemma'] = diff['coocc_2'].lemma2
+                coocc_diff['Form'] = diff['coocc_2'].lemma2
                 coocc_diff['Position'] = 'right'
         results.append(coocc_diff)
     return results
