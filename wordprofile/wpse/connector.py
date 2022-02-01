@@ -165,13 +165,14 @@ class WPConnect:
             List of LemmaInfo that fits criteria.
         """
         query = """
-            SELECT lemma1, lemma1_tag, label, SUM(frequency), inv
+            SELECT c.lemma1, tf.surface, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
             FROM collocations c
-            WHERE lemma1 = '{}' {}
+            JOIN token_freqs tf on (c.lemma1=tf.lemma && c.lemma1_tag = tf.tag) 
+            WHERE c.lemma1 = '{}' {}
             GROUP BY lemma1, lemma1_tag, label, inv
         """.format(
             lemma,
-            "and lemma1_tag='{}'".format(lemma_tag) if lemma_tag else "",
+            "and c.lemma1_tag='{}'".format(lemma_tag) if lemma_tag else "",
         )
         return list(filter(lambda l: l.lemma.lower() == lemma.lower(),
                            map(lambda i: LemmaInfo(*i), self.__fetchall(query))))
@@ -188,11 +189,12 @@ class WPConnect:
 
         query = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
-        FROM 
-            collocations c
+        FROM collocations c
+        JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         WHERE c.id = {}
         """.format(coocc_id)
         # TODO add error handling for empty response
@@ -226,11 +228,12 @@ class WPConnect:
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
-        FROM 
-            collocations c
+        FROM collocations c
+        JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         """
         if not lemma2_tag or not lemma2:
             where_sql = """
@@ -272,11 +275,12 @@ class WPConnect:
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         select_from_sql = """
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
-        FROM 
-            collocations c
+        FROM collocations c
+        JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         """
         if not lemma2_tag or not lemma2:
             where_sql = """
@@ -323,11 +327,13 @@ class WPConnect:
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
-        SELECT 
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+        SELECT
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
+        JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
         {} {}
         ORDER BY {} DESC""".format(
@@ -358,11 +364,13 @@ class WPConnect:
         min_freq_sql = " and (frequency) >= {} ".format(min_freq) if min_freq > 0 else ""
         min_stat_sql = " and (c.score) >= {} ".format(min_stat) if min_stat > -1000 else ""
         query = """
-        SELECT 
-            c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+        SELECT
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
         FROM collocations c
+        JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}'
         {} {}
         ORDER BY {} DESC""".format(

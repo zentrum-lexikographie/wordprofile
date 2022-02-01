@@ -49,26 +49,18 @@ def get_relation(wp, args):
         "Relations": args.relations or selection["Relations"],
     })
 
-    for rel_ctr, relation in enumerate(relations):
+    for rel_ctr, rel in enumerate(relations):
         print()
-        if 'RelId' in relation:
-            print(colored("{}. {}({}): {}".format(rel_ctr,
-                                                  relation['Relation'],
-                                                  relation['RelId'],
-                                                  relation['Description']),
-                          "green"))
+        if 'RelId' in rel:
+            print(colored(f"{rel_ctr}. {rel['Relation']}({rel['RelId']}): {rel['Description']}", "green"))
         else:
-            print(colored("{}. {}: {}".format(rel_ctr,
-                                              relation['Relation'],
-                                              relation['Description']),
-                          "green"))
+            print(colored(f"{rel_ctr}. {rel['Relation']}: {rel['Description']}", "green"))
 
         table_items = []
-
-        for coocc_ctr, coocc in enumerate(relation['Tuples']):
+        for coocc_ctr, coocc in enumerate(rel['Tuples']):
             table_items.append([
-                str(coocc_ctr + 1), coocc['POS'], coocc["Lemma"], coocc['Score']['Frequency'],
+                str(coocc_ctr + 1), coocc['POS'], coocc['Lemma'], coocc['Form'], coocc['Score']['Frequency'],
                 coocc['Score'][args.order], coocc['ConcordId'], coocc.get('HasMwe', None)
             ])
-        headers = ['Rank', 'POS', "Lemma", 'Frequency', args.order, 'Hit-ID', 'HasMwe']
+        headers = ["Rank", "POS", "Lemma", "Form", "Frequency", args.order, "Hit-ID", "HasMwe"]
         print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))

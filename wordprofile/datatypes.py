@@ -7,6 +7,7 @@ from typing import List
 @dataclass
 class LemmaInfo:
     lemma: str
+    form: str
     tag: str
     rel: str
     freq: int
@@ -19,6 +20,8 @@ class Coocc:
     rel: str
     lemma1: str
     lemma2: str
+    form1: str
+    form2: str
     tag1: str
     tag2: str
     freq: int
