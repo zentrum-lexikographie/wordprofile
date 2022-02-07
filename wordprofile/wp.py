@@ -337,6 +337,7 @@ class Wordprofile:
             description = ""
         return {'Description': description, 'Relation': coocc_info.rel,
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
+                'Form1': coocc_info.form1, 'Form2': coocc_info.form2,
                 'POS1': coocc_info.tag1, 'POS2': coocc_info.tag2}
 
     def get_concordances_and_relation(self, coocc_id: int, use_context: bool = False, start_index: int = 0,

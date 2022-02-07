@@ -3,13 +3,10 @@ from termcolor import colored
 
 
 def compare_lemmas(wp, args):
-    params = {
+    mapping = wp.get_lemma_and_pos_diff({
         "Word1": args.lemma1,
         "Word2": args.lemma2,
-        "Subcorpus": args.corpus,
-        "CaseSensitive": args.case_sensitive
-    }
-    mapping = wp.get_lemma_and_pos_diff(params)
+    })
 
     if len(mapping) == 0:
         print("): Wort nicht enthalten")
@@ -47,7 +44,6 @@ def compare_lemmas(wp, args):
         "OrderBy": args.order,
         "MinFreq": args.min_freq,
         "MinStat": args.min_stat,
-        "Subcorpus": ""
     }
     if args.nbest != -1:
         params["NBest"] = args.nbest
@@ -66,7 +62,8 @@ def compare_lemmas(wp, args):
 
         table_items = []
         for i in relation['Tuples']:
-            table_row = [i["Lemma"], i['Score']['AScomp'], i['Score']['Frequency1'], i['Score']['Frequency2'],
+            table_row = [i["Lemma"], i['Form'],
+                         i['Score']['AScomp'], i['Score']['Frequency1'], i['Score']['Frequency2'],
                          i['Score']['Rank1'], i['Score']['Rank2'], i['Score']['Assoziation1'],
                          i['Score']['Assoziation2']]
             if i['Position'] == "left":
@@ -76,7 +73,8 @@ def compare_lemmas(wp, args):
             else:
                 table_row = list(map(lambda t: colored(t, "red"), table_row))
             table_items.append(table_row)
-
-        # Ausgeben des Vergleiches als Tabelle
-        headers = ['Lemma', 'Score', 'Frequency1', 'Frequency2', 'Rank1', 'Rank2', 'Association1', 'Association2']
+        headers = [
+            'Lemma', 'Form',
+            'Score', 'Frequency1', 'Frequency2', 'Rank1', 'Rank2', 'Association1', 'Association2'
+        ]
         print(tabulate(table_items, headers=headers, tablefmt='fancy_grid'))

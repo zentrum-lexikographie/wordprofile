@@ -15,15 +15,15 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     lemma_pos_mapping = defaultdict(list)
     for i in sorted(db_results, key=lambda x: x.freq, reverse=True):
         relation = "~" + i.rel if i.inv else i.rel
-        lemma_pos_mapping[(i.lemma, i.tag)].append((relation, int(i.freq)))
+        lemma_pos_mapping[(i.lemma, i.form, i.tag)].append((relation, int(i.freq)))
 
     results = []
-    for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
+    for (lemma, form, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
         if len(relations) > 1:
             relations = ['META'] + [r for r in relation_order[tag_b2f.get(pos)] if r in relations]
         results.append({
-            'Form': lemma,
+            'Form': form,
             'Lemma': lemma,
             'POS': tag_b2f[pos],
             'PosId': tag_b2f[pos],
@@ -45,7 +45,7 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
             'Relation': '~' if coocc.inverse else '' + coocc.rel,
             'POS': tag_b2f[coocc.tag2],
             'PosId': tag_b2f[coocc.tag2],
-            'Form': coocc.lemma2,
+            'Form': coocc.form2,
             'Lemma': coocc.lemma2,
             'Score': {
                 'Frequency': coocc.freq,
@@ -151,7 +151,7 @@ def format_comparison(diffs):
             coocc_diff['ConcordNo1'] = concord_no
             coocc_diff['Relation'] = diff['coocc_1'].rel
             coocc_diff['Lemma'] = diff['coocc_1'].lemma2
-            coocc_diff['Form'] = diff['coocc_1'].lemma2
+            coocc_diff['Form'] = diff['coocc_1'].form2
             if 'coocc_2' in diff:
                 coocc_diff['Position'] = 'left'
             else:
@@ -168,7 +168,7 @@ def format_comparison(diffs):
             if 'coocc_1' not in diff:
                 coocc_diff['Relation'] = diff['coocc_2'].rel
                 coocc_diff['Lemma'] = diff['coocc_2'].lemma2
-                coocc_diff['Form'] = diff['coocc_2'].lemma2
+                coocc_diff['Form'] = diff['coocc_2'].form2
                 coocc_diff['Position'] = 'right'
         results.append(coocc_diff)
     return results

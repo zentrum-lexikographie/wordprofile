@@ -27,11 +27,7 @@ def get_hits(wp, args):
         "InfoId": args.info,
         "Start": args.start,
         "Number": args.number,
-        "Subcorpus": args.corpus,
-        "DateDesc": args.dateDesc,
-        "UseScore": args.score,
         "UseContext": args.context,
-        "InternalUser": args.internal_user
     })
 
     table_rows = []
@@ -66,7 +62,7 @@ def get_hits(wp, args):
         table_rows.append((ctr + 1, colored(meta_info, "green") + "\n" + context))
 
     print("{}: {}".format(colored("Relation", "green"), relation_info['Relation']))
-    print("{}: {}".format(colored("Lemma1", "green"), relation_info['Lemma1']))
-    print("{}: {}".format(colored("Lemma2", "green"), relation_info['Lemma2']))
+    print("{}: {} ({})".format(colored("Lemma1", "green"), relation_info['Lemma1'], relation_info['Form1']))
+    print("{}: {} ({})".format(colored("Lemma2", "green"), relation_info['Lemma2'], relation_info['Form2']))
     print("{}: {}".format(colored("Description", "green"), relation_info['Description']))
     print(tabulate(table_rows, tablefmt='grid'))

@@ -5,7 +5,6 @@ from termcolor import colored
 def get_relation(wp, args):
     mapping = wp.get_lemma_and_pos({
         "Word": args.lemma,
-        "Subcorpus": args.corpus,
         "UseVariations": args.variations
     })
     if len(mapping) == 0:
@@ -45,7 +44,6 @@ def get_relation(wp, args):
         "OrderBy": args.order,
         "MinFreq": args.min_freq,
         "MinStat": args.min_stat,
-        "Subcorpus": args.corpus,
         "Relations": args.relations or selection["Relations"],
     })
 

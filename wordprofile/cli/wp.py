@@ -36,15 +36,10 @@ rel_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Rela
 rel_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
 rel_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
 rel_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
-rel_parser.add_argument("-c", dest="corpus", default="", help="Angabe des korpusnamen (zeit,kern,21jhd,etc.)")
 rel_parser.add_argument("-r", dest="relations", nargs="*",
                         help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
 rel_parser.add_argument("-o", dest="order", default="logDice",
                         help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
-rel_parser.add_argument("--cs", action="store_true", dest="case_sensitive", default=False,
-                        help="Case-sensitive Abfrage")
-rel_parser.add_argument("--sf", action="store_true", dest="surface", default=False,
-                        help="Verwenden der Oberflächenform statt der Lemmaform")
 rel_parser.add_argument("-v", action="store_true", dest="variations", default=False,
                         help="Einbeziehung von alternativen Schreibungen zu einem Eingabelemma")
 
@@ -64,33 +59,17 @@ hit_parser = subparsers.add_parser("hit")
 hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
 hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
 hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
-hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
-                        help="host default=http://services.dwds.de:9999")
-hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,
-                        help="interner Benutzer (mit Rechten)")
 hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
                         help="anzeigen der Contexte (rechter, linker Satz)")
-hit_parser.add_argument("--br", dest="width", default=140, help="Breite der Anzeige (default=140)")
-hit_parser.add_argument("--sc", action="store_true", dest="score", default=False,
-                        help="primär nach dem Sentence-Score sortieren")
-hit_parser.add_argument("-a", action="store_false", dest="dateDesc", default=True, help="Datum aufsteigend")
-hit_parser.add_argument("-c", dest="corpus", default="", help="einzelner Korpus, in dem gesucht werden soll")
 
 hit_parser = subparsers.add_parser("mwe-hit")
 hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
 hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
 hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
-hit_parser.add_argument("-x", dest="host", default="http://localhost:9999",
-                        help="host default=http://services.dwds.de:9999")
-hit_parser.add_argument("-u", action="store_true", dest="internal_user", default=False,
-                        help="interner Benutzer (mit Rechten)")
 hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
                         help="anzeigen der Contexte (rechter, linker Satz)")
-hit_parser.add_argument("--br", dest="width", default=140, help="Breite der Anzeige (default=140)")
 hit_parser.add_argument("--sc", action="store_true", dest="score", default=False,
                         help="primär nach dem Sentence-Score sortieren")
-hit_parser.add_argument("-a", action="store_false", dest="dateDesc", default=True, help="Datum aufsteigend")
-hit_parser.add_argument("-c", dest="corpus", default="", help="einzelner Korpus, in dem gesucht werden soll")
 
 status_parser = subparsers.add_parser("status")
 info_parser = subparsers.add_parser("info")
@@ -103,7 +82,6 @@ cmp_parser.add_argument("--nbest", default=-1,
                         help="Die Anzahl der zu vergleichenden Relationstupel beider Wörter von vornherein einschränken")
 cmp_parser.add_argument("--min_freq", type=int, default=0, help="Minimaler Frequenzwert")
 cmp_parser.add_argument("--min_stat", type=float, default=0, help="Minimaler Statistikwert")
-cmp_parser.add_argument("-c", "--corpus", default="", help="Angabe des korpus (zeit,kern,21jhd)")
 cmp_parser.add_argument("-r", "--relations", nargs="*",
                         help="Angabe der gewünschten Relationen (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP)")
 cmp_parser.add_argument("-o", "--order", default="logDice",
@@ -111,9 +89,6 @@ cmp_parser.add_argument("-o", "--order", default="logDice",
 # parser.add_argument("--is",action="store_true", dest="intersection", default=False, help=u"Schnitt berechen")
 cmp_parser.add_argument("--operation", default="adiff",
                         help="Operation (adiff,rmax), Default: adiff")  # diff,adiff,max,min,rmax,avg,havg,gavg
-cmp_parser.add_argument("--case-sensitive", action="store_true", default=False, help="Case-sensitive Abfrage")
-cmp_parser.add_argument("-sf", "--surface", action="store_true", default=False,
-                        help="Verwenden der Oberflächenform statt der Lemmaform")
 
 args = parser.parse_args()
 
