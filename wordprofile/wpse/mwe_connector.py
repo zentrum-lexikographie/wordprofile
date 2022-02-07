@@ -117,13 +117,17 @@ class WPMweConnect:
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(mwe.score, 0.0) as log_dice
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
+        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
+        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag) 
         WHERE mwe.id = {}
         """.format(mwe_id)
         res = self.__fetchall(sql)[0]
         return Coocc(id=res[0], rel=res[1], lemma1="{}-{}".format(res[5], res[6]), lemma2=res[2],
+                     form1="{}-{}".format(res[11], res[12]), form2=res[10],
                      tag1="{}-{}".format(res[7], res[8]), tag2=res[3], freq=res[4], score=res[9], inverse=0, has_mwe=0)
 
     def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> List[Coocc]:
@@ -142,13 +146,17 @@ class WPMweConnect:
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(mwe.score, 0.0) as log_dice
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
+        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
+        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
+        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag) 
         WHERE mwe.collocation1_id IN ({}) {} {} 
         ORDER BY log_dice DESC
         """.format(",".join(map(str, coocc_ids)), min_freq_sql, min_stat_sql)
         return [Coocc(id=i[0], rel=i[1], lemma1="{}-{}".format(i[5], i[6]), lemma2=i[2],
+                      form1="{}-{}".format(i[11], i[12]), form2=i[10],
                       tag1="{}-{}".format(i[7], i[8]), tag2=i[3], freq=i[4], score=i[9], inverse=0, has_mwe=0)
                 for i in self.__fetchall(sql)]
 
@@ -164,11 +172,13 @@ class WPMweConnect:
         """
         query = """
             SELECT
-                c.id, c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+                c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
                 IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
             FROM 
                 collocations c
+            JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
+            JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
             WHERE lemma1='{}' and lemma2='{}';""".format(
             lemma1, lemma2
         )

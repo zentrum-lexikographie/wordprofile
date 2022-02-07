@@ -13,7 +13,6 @@ from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
 from wordprofile.cli.utils.cmp import compare_lemmas
 from wordprofile.cli.utils.hit import get_hits
 from wordprofile.cli.utils.info import get_wordprofile_info
-from wordprofile.cli.utils.mwe_hit import get_mwe_hits
 from wordprofile.cli.utils.mwe_rel import get_mwe_free
 from wordprofile.cli.utils.rel import get_relation
 from wordprofile.utils import configure_logger
@@ -56,20 +55,11 @@ mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
                             help="Angabe der Ordnung (frequency,log_dice,mi_log_freq,mi3) (default=log_dice)")
 
 hit_parser = subparsers.add_parser("hit")
-hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
+hit_parser.add_argument("-i", dest="info", default='', help="die Texttreffer-ID")
 hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
 hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
 hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
                         help="anzeigen der Contexte (rechter, linker Satz)")
-
-hit_parser = subparsers.add_parser("mwe-hit")
-hit_parser.add_argument("-i", dest="info", default=-1, help="die Texttreffer-ID")
-hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
-hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
-hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
-                        help="anzeigen der Contexte (rechter, linker Satz)")
-hit_parser.add_argument("--sc", action="store_true", dest="score", default=False,
-                        help="primär nach dem Sentence-Score sortieren")
 
 status_parser = subparsers.add_parser("status")
 info_parser = subparsers.add_parser("info")
@@ -116,7 +106,5 @@ elif args.subcommand == "mwe-rel":
     get_mwe_free(wp, args)
 elif args.subcommand == "hit":
     get_hits(wp, args)
-elif args.subcommand == "mwe-hit":
-    get_mwe_hits(wp, args)
 elif args.subcommand == "cmp":
     compare_lemmas(wp, args)

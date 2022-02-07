@@ -160,7 +160,7 @@ class Wordprofile:
         """
         if not coocc_ids:
             return {'parts': [], 'data': {}}
-
+        # TODO BUG checks only first coocc id!
         coocc_info = self.db.get_relation_by_id(coocc_ids[0])
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
