@@ -190,7 +190,7 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
 
 
 def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
-    """Iterates over generated corpus file in replaces mongodb index by numeric index.
+    """Iterates over generated corpus file and replaces index by numeric index.
     """
     corpus_file_idx = {}
     c_i = 0
@@ -452,7 +452,7 @@ def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Coll
                 lemma, tag, surface, freq = tuple(line.strip().split('\t'))
                 common_surface, common_freq = common_surfaces.get((lemma, tag), ('', 0))
                 if int(freq) > common_freq:
-                    common_surfaces[lemma, tag] = surface, freq
+                    common_surfaces[lemma, tag] = surface, int(freq)
     logging.info("-- write token stats with common surfaces")
     with open(fout, 'w') as fh:
         for (lemma, tag), freq in tokens_stats.items():
