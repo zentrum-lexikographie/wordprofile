@@ -1,7 +1,7 @@
 version: "3"
 services:
   db:
-    image: mysql:5
+    image: mariadb:10
     environment:
       MYSQL_DATABASE: "wp"
       MYSQL_USER: "wp"
@@ -16,7 +16,7 @@ services:
       - "--character-set-server=utf8mb4"
       - "--collation-server=utf8mb4_unicode_ci"
   api:
-    image: docker-registry.zdl.org/zdl-wordprofile/server
+    image: docker-registry.zdl.org/zdl-wordprofile/api
     build:
       context: .
     environment:
