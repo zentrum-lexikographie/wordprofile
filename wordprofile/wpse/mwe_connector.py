@@ -3,6 +3,7 @@ from typing import List
 
 import pymysql
 
+import wordprofile.config
 from wordprofile.datatypes import CooccInfo, Coocc, MweConcordance
 
 pymysql.install_as_MySQLdb()
@@ -15,11 +16,11 @@ class WPMweConnect:
     """Gives access to word profile database backend, following the repository pattern.
     """
 
-    def __init__(self, host, user, passwd, dbname):
-        self.__host = host
-        self.__user = user
-        self.__passwd = passwd
-        self.__dbname = dbname
+    def __init__(self, host=None, user=None, passwd=None, dbname=None):
+        self.__host = host or wordprofile.config.DB_HOST
+        self.__user = user or wordprofile.config.DB_USER
+        self.__passwd = passwd or str(wordprofile.config.DB_PASSWORD)
+        self.__dbname = dbname or wordprofile.config.DB_NAME
         self.__conn = None
         self.__cursor = None
 

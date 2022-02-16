@@ -1,6 +1,8 @@
 import json
 import logging
 
+import wordprofile.config
+
 logger = logging.getLogger('wordprofile.spec')
 
 
@@ -9,7 +11,7 @@ class WpSeSpec:
     Hilfsklasse für das einlesen der Spezifikation
     """
 
-    def __init__(self, fname):
+    def __init__(self, fname=None):
         self.strRelDesc = ""
         self.strRelDescDetail = ""
         self.mapRelDesc = {}
@@ -18,7 +20,7 @@ class WpSeSpec:
         self.mapRelOrder = {}
         self.mapVariation = {}
 
-        config = json.load(open(fname, 'r'))
+        config = json.load(open(fname or wordprofile.config.SPEC, 'r'))
 
         self.strRelDesc = config['RelDescDefault'][0]
         self.strRelDescDetail = config['RelDescDefault'][1]

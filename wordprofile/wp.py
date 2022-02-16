@@ -4,6 +4,7 @@ from typing import List, Union
 
 import math
 
+import wordprofile.config
 from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
     format_mwe_concordances
 from wordprofile.utils import tag_f2b, tag_b2f
@@ -16,9 +17,9 @@ logger = logging.getLogger('wordprofile')
 
 
 class Wordprofile:
-    def __init__(self, db_host, db_user, db_passwd, db_name, wp_spec_file):
+    def __init__(self, db_host=None, db_user=None, db_passwd=None, db_name=None, wp_spec_file=None):
         logger.info("start init ...")
-        self.db_name = db_name
+        self.db_name = db_name or wordprofile.config.DB_NAME
         self.wp_spec = WpSeSpec(wp_spec_file)
         self.db = WPConnect(db_host, db_user, db_passwd, db_name)
         self.db_mwe = WPMweConnect(db_host, db_user, db_passwd, db_name)
