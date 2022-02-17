@@ -19,4 +19,4 @@ for service in ['api']:
     image_tag = f'{image}:latest'
     release_tag = f'{image}:{version}'
     check_call(['docker', 'tag', image_tag, release_tag])
-    #check_call(['docker', 'push', release_tag])
+    check_call(['docker', 'push', release_tag])
