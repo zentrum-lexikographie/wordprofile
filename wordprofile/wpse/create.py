@@ -8,7 +8,7 @@ import wordprofile.wpse.db_tables
 
 def init_word_profile_tables(engine: Engine, database: str):
     engine.execute("DROP DATABASE IF EXISTS " + database)
-    engine.execute("CREATE DATABASE " + database + " CHARACTER SET utf8")
+    engine.execute("CREATE DATABASE " + database + " CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin")
     engine.execute("USE " + database)
 
     meta = MetaData()

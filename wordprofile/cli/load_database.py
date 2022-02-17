@@ -27,7 +27,7 @@ def main():
     logging.info("init database")
     engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(wp_user, db_password))
     init_word_profile_tables(engine, wp_db)
-    engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8&local_infile=1'.format(
+    engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8mb4&local_infile=1'.format(
         wp_user, db_password, wp_db))
     logging.info("CREATE indices")
     load_files_into_db(engine, args.source)
