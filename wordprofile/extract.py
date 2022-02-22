@@ -34,7 +34,7 @@ RELATION_PATTERNS = {
         ],
     },
     'KON': {
-        'desc': "hat Koordination mit",
+        'desc': "in Koordination mit",
         'inverse': "",
         'rules': [
             ('conj', 'cc', 'noun', 'noun', 'cconj'),
