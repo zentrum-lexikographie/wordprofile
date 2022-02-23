@@ -16,3 +16,6 @@ __pycache__/
 
 # pyenv
 .python-version
+
+.env
+data/
