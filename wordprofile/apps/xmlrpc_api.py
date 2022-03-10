@@ -270,47 +270,12 @@ class WordprofileXMLRPC:
         return self.wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number, is_mwe=True)
 
 
-class RequestHandler(xmlrpc.server.SimpleXMLRPCRequestHandler):
-    # Restrict to a particular path.
-    rpc_paths = ('/RPC2',)
-
-    def do_POST(self):
-        client_ip, port = self.client_address
-        # Log client IP and Port
-        logger.info('%s:%s' % (client_ip, port))
-        try:
-            # get arguments
-            data = self.rfile.read(int(self.headers["content-length"]))
-            # Log client request
-            # logger.info('Client request: \n  %s\n' % data)
-
-            response = self.server._marshaled_dispatch(
-                data, getattr(self, '_dispatch', None)
-            )
-        except:  # This should only happen if the module is buggy
-            # internal error, report as HTTP server error
-            self.send_response(500)
-            self.end_headers()
-        else:
-            # got a valid XML RPC response
-            self.send_response(200)
-            self.send_header("Content-type", "text/xml")
-            self.send_header("Content-length", str(len(response)))
-            self.end_headers()
-            self.wfile.write(response)
-
-            # shut down the connection
-            self.wfile.flush()
-            self.connection.shutdown(1)
-
-
 def main():
     configure_logger(logger, logging.DEBUG)
 
     # Create server
     server = xmlrpc.server.SimpleXMLRPCServer(
         ('', wordprofile.config.XML_RPC_PORT),
-        requestHandler=RequestHandler,
         logRequests=False,
         allow_none=True
     )
