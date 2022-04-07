@@ -1,11 +1,17 @@
 import logging
-import xmlrpc.server
+import socket
+from socketserver import ForkingMixIn
+from xmlrpc.server import SimpleXMLRPCServer
 
 import wordprofile.config
 from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
 logger = logging.getLogger('wordprofile')
+
+
+class ForkingXMLRPCServer(ForkingMixIn, SimpleXMLRPCServer):
+    pass
 
 
 class WordprofileXMLRPC:
@@ -274,11 +280,12 @@ def main():
     configure_logger(logger, logging.DEBUG)
 
     # Create server
-    server = xmlrpc.server.SimpleXMLRPCServer(
+    server = ForkingXMLRPCServer(
         ('', wordprofile.config.XML_RPC_PORT),
         logRequests=False,
         allow_none=True
     )
+    socket.setdefaulttimeout(30)
     # register function information
     server.register_introspection_functions()
     # register wortprofil
