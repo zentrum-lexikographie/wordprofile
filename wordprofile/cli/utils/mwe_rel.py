@@ -5,6 +5,11 @@ from termcolor import colored
 def get_mwe_free(wp, args):
     selection = wp.get_mwe_relations_by_list({
         'Parts': args.LemmaList.split(','),
+        "Start": args.start,
+        "Number": args.number,
+        "OrderBy": args.order,
+        "MinFreq": args.min_freq,
+        "MinStat": args.min_stat,
     })
     for surface, relations in selection['data'].items():
         for rel_ctr, relation in enumerate(relations):

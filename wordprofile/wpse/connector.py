@@ -177,11 +177,12 @@ class WPConnect:
         return list(filter(lambda l: l.lemma.lower() == lemma.lower(),
                            map(lambda i: LemmaInfo(*i), self.__fetchall(query))))
 
-    def get_relation_by_id(self, coocc_id: int) -> Coocc:
+    def get_relation_by_id(self, coocc_id: int, min_freq: int = 1) -> Coocc:
         """Fetches collocation information for collocation id from database backend.
 
         Args:
             coocc_id: Collocation id for concordances.
+            min_freq: Minimal number of occurrences for multi word expression
 
         Return:
             Collocation information.
@@ -191,12 +192,12 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= {}), 1, 0) as has_mwe
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
         JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         WHERE c.id = {}
-        """.format(coocc_id)
+        """.format(min_freq, coocc_id)
         # TODO add error handling for empty response
         return Coocc(*self.__fetchall(query)[0])
 
@@ -230,11 +231,11 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= {}), 1, 0) as has_mwe
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
         JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
-        """
+        """.format(min_freq)
         if not lemma2_tag or not lemma2:
             where_sql = """
                 WHERE (lemma1='{}' and lemma1_tag='{}') and label = '{}' and inv = {} {} {} 
@@ -276,8 +277,7 @@ class WPConnect:
         select_from_sql = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
         JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
@@ -330,13 +330,14 @@ class WPConnect:
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= {}), 1, 0) as has_mwe
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
         JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 
         WHERE lemma1 IN ('{}','{}') and lemma1_tag='{}' and label = '{}' and inv = {}
         {} {}
         ORDER BY {} DESC""".format(
+            min_freq,
             lemma1, lemma2, lemma_tag,
             relation,
             inv,
@@ -366,8 +367,7 @@ class WPConnect:
         query = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1=tf1.lemma && c.lemma1_tag = tf1.tag) 
         JOIN token_freqs tf2 ON (c.lemma2=tf2.lemma && c.lemma2_tag = tf2.tag) 

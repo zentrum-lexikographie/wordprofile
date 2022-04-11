@@ -31,10 +31,10 @@ db_parser.add_argument('--xmlrpc', action="store_true", help="Angabe der Setting
 rel_parser = subparsers.add_parser("rel", help="collocation relations")
 rel_parser.add_argument("-l", dest="lemma", default=None, help="das Eingabelemma")
 rel_parser.add_argument("-p", dest="pos_tag", default="", help="Substantiv,Verb,Adjektiv,Adverb")
-rel_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
-rel_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
-rel_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
-rel_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
+rel_parser.add_argument("-s", dest="start", type=int, default=0, help="Startpunkt der Relationstupel (default=0)")
+rel_parser.add_argument("-n", dest="number", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+rel_parser.add_argument("-f", dest="min_freq", type=int, default=0, help="Minimaler Frequenzwert (default=0)")
+rel_parser.add_argument("-m", dest="min_stat", type=int, default=-9999, help="Minimaler Statistikwert (default=-9999)")
 rel_parser.add_argument("-r", dest="relations", nargs="*",
                         help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
 rel_parser.add_argument("-o", dest="order", default="logDice",
@@ -45,10 +45,10 @@ rel_parser.add_argument("-v", action="store_true", dest="variations", default=Fa
 mwe_rel_parser = subparsers.add_parser("mwe-rel", help="collocation relations")
 mwe_rel_parser.add_argument("-l", dest="LemmaList", default="", type=str, help="die Eingabelemmata")
 mwe_rel_parser.add_argument("-p", dest="pos_tag", default="", help="Substantiv,Verb,Adjektiv,Adverb")
-mwe_rel_parser.add_argument("-s", dest="start", default=0, help="Startpunkt der Relationstupel (default=0)")
-mwe_rel_parser.add_argument("-n", dest="number", default=20, help="Anzahl der Relationstupel (default=20)")
-mwe_rel_parser.add_argument("-f", dest="min_freq", default=0, help="Minimaler Frequenzwert (default=0)")
-mwe_rel_parser.add_argument("-m", dest="min_stat", default=-9999, help="Minimaler Statistikwert (default=-9999)")
+mwe_rel_parser.add_argument("-s", dest="start", type=int, default=0, help="Startpunkt der Relationstupel (default=0)")
+mwe_rel_parser.add_argument("-n", dest="number", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+mwe_rel_parser.add_argument("-f", dest="min_freq", type=int, default=0, help="Minimaler Frequenzwert (default=0)")
+mwe_rel_parser.add_argument("-m", dest="min_stat", type=int, default=-9999, help="Minimaler Statistikwert (default=-9999)")
 mwe_rel_parser.add_argument("-r", dest="relations", nargs="*",
                             help="Gewünschten Relationen in einer Liste (SUBJA,SUBJP,OBJA,OBJD,OBJI,GMOD,ATTR,KON,PP,etc.)")
 mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
@@ -56,8 +56,8 @@ mwe_rel_parser.add_argument("-o", dest="order", default="logDice",
 
 hit_parser = subparsers.add_parser("hit")
 hit_parser.add_argument("-i", dest="info", default='', help="die Texttreffer-ID")
-hit_parser.add_argument("-s", dest="start", default=0, help="Trefferstart")
-hit_parser.add_argument("-n", dest="number", default=20, help="Trefferanzahl (default=20)")
+hit_parser.add_argument("-s", dest="start", type=int, default=0, help="Trefferstart")
+hit_parser.add_argument("-n", dest="number", type=int, default=20, help="Trefferanzahl (default=20)")
 hit_parser.add_argument("--ct", action="store_true", dest="context", default=False,
                         help="anzeigen der Contexte (rechter, linker Satz)")
 
@@ -67,8 +67,8 @@ info_parser = subparsers.add_parser("info")
 cmp_parser = subparsers.add_parser("cmp")
 cmp_parser.add_argument("--lemma1", type=str, required=True, help="das Eingabewort")
 cmp_parser.add_argument("--lemma2", type=str, required=True, help="das Eingabewort")
-cmp_parser.add_argument("--number", default=20, help="Anzahl der Relationstupel (default=20)")
-cmp_parser.add_argument("--nbest", default=-1,
+cmp_parser.add_argument("--number", type=int, default=20, help="Anzahl der Relationstupel (default=20)")
+cmp_parser.add_argument("--nbest", type=int, default=-1,
                         help="Die Anzahl der zu vergleichenden Relationstupel beider Wörter von vornherein einschränken")
 cmp_parser.add_argument("--min_freq", type=int, default=0, help="Minimaler Frequenzwert")
 cmp_parser.add_argument("--min_stat", type=float, default=0, help="Minimaler Statistikwert")
