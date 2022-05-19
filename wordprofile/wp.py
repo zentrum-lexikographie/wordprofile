@@ -1,10 +1,11 @@
 import logging
+import math
+import re
 from collections import defaultdict
 from typing import List, Union
 
-import math
-
 import wordprofile.config
+from wordprofile.errors import InternalError
 from wordprofile.formatter import format_comparison, format_concordances, format_relations, format_lemma_pos, \
     format_mwe_concordances
 from wordprofile.utils import tag_f2b, tag_b2f
@@ -14,6 +15,8 @@ from wordprofile.wpse.variations import generate_orth_variations
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
 logger = logging.getLogger('wordprofile')
+
+RE_LEMMA = re.compile(r"[\w.\-]+")
 
 
 class Wordprofile:
@@ -47,8 +50,9 @@ class Wordprofile:
         Return:
             List of lemma-pos combinations with stats and possible relations.
         """
-        if not all(c.isalpha() or c == '-' or c == '+' for c in lemma):
-            return []
+        if not RE_LEMMA.fullmatch(lemma):
+            raise ValueError(f"Request for invalid lemma: ({lemma})")
+
         lemma = lemma.replace("+", ' ')
         pos = tag_f2b[pos]
         results = self.db.get_lemma_and_pos(lemma, pos)
@@ -114,6 +118,10 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
+        for lemma in [lemma1, lemma2]:
+            if lemma and not RE_LEMMA.fullmatch(lemma):
+                raise ValueError(f"Request for invalid lemma: ({lemma})")
+
         results = []
         for relation in relations:
             # meta relation is a summary of all relations
@@ -141,6 +149,10 @@ class Wordprofile:
         Return:
             Absolute collocation ids.
         """
+        for lemma in [lemma1, lemma2]:
+            if lemma and not RE_LEMMA.fullmatch(lemma):
+                raise ValueError(f"Request for invalid lemma: ({lemma})")
+
         return [abs(c.id) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
 
     def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
@@ -161,7 +173,7 @@ class Wordprofile:
         if not coocc_ids:
             return {'parts': [], 'data': {}}
         # TODO BUG checks only first coocc id!
-        coocc_info = self.db.get_relation_by_id(coocc_ids[0], min_freq)
+        coocc_info = self.db.get_relation_by_id(int(coocc_ids[0]), min_freq)
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
         for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
@@ -202,6 +214,10 @@ class Wordprofile:
         Return:
             List of collocation-diffs grouped by relation.
         """
+        for lemma in [lemma1, lemma2]:
+            if lemma and not RE_LEMMA.fullmatch(lemma):
+                raise ValueError(f"Request for invalid lemma: ({lemma})")
+
         results = []
         pos = tag_f2b[pos]
         for rel in relations:
@@ -261,7 +277,7 @@ class Wordprofile:
             elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
                 continue
             else:
-                raise ValueError("Unexpected lemma")
+                raise InternalError(f"Unexpected lemma {c} for Lemma1 ({lemma1}) and Lemma2 ({lemma2})")
         # for intersection, only a subset is used further
         if use_intersection:
             diffs_grouped = [d for d in diffs_grouped.values() if 'coocc_1' in d and 'coocc_2' in d]
@@ -326,15 +342,15 @@ class Wordprofile:
             Dictionary with collocation information.
         """
         if is_mwe:
-            coocc_info = self.db_mwe.get_relation_by_id(coocc_id)
+            coocc_info = self.db_mwe.get_relation_by_id(int(coocc_id))
         else:
-            coocc_info = self.db.get_relation_by_id(coocc_id)
+            coocc_info = self.db.get_relation_by_id(int(coocc_id))
         if coocc_info.rel in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[coocc_info.rel]
             description = description.replace('$1', coocc_info.lemma1)
             description = description.replace('$2', coocc_info.lemma2)
         else:
-            description = ""
+            description = self.wp_spec.strRelDescDetail
         return {'Description': description, 'Relation': coocc_info.rel,
                 'Lemma1': coocc_info.lemma1, 'Lemma2': coocc_info.lemma2,
                 'Form1': coocc_info.form1, 'Form2': coocc_info.form2,
@@ -357,8 +373,8 @@ class Wordprofile:
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
             relation['Tuples'] = format_mwe_concordances(
-                self.db_mwe.get_concordances(coocc_id, use_context, start_index, result_number))
+                self.db_mwe.get_concordances(int(coocc_id), use_context, start_index, result_number))
         else:
             relation['Tuples'] = format_concordances(
-                self.db.get_concordances(coocc_id, use_context, start_index, result_number))
+                self.db.get_concordances(int(coocc_id), use_context, start_index, result_number))
         return relation

@@ -5,14 +5,13 @@
 #  * word profile comparison
 import json
 import logging
-import os
 import xmlrpc.client
 from argparse import ArgumentParser
+
 
 from wordprofile.apps.xmlrpc_api import WordprofileXMLRPC
 from wordprofile.cli.utils.cmp import compare_lemmas
 from wordprofile.cli.utils.hit import get_hits
-from wordprofile.cli.utils.info import get_wordprofile_info
 from wordprofile.cli.utils.mwe_rel import get_mwe_free
 from wordprofile.cli.utils.rel import get_relation
 from wordprofile.utils import configure_logger
@@ -87,12 +86,7 @@ logger = configure_logger(logging.getLogger('wordprofile'))
 if args.xmlrpc:
     wp: WordprofileXMLRPC = xmlrpc.client.ServerProxy("http://{}:{}".format(args.hostname, args.port))
 else:
-    wp_user = args.user or os.environ['WP_USER']
-    wp_db = args.database or os.environ['WP_DB']
-    db_password = os.environ.get('WP_PASSWORD', wp_user)
-    logger.info('user: ' + wp_user)
-    logger.info('db: ' + wp_db)
-    wp = WordprofileXMLRPC(args.hostname, wp_user, db_password, wp_db, args.port, args.spec)
+    wp = WordprofileXMLRPC(args.hostname, args.user, "", args.database, args.port, args.spec)
 
 if args.subcommand == "status":
     response = wp.status()
