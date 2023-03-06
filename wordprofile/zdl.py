@@ -1,7 +1,22 @@
+import re
 from typing import List, Dict
 
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
+
+
+RE_GK_NORM_ERROR = re.compile(r'^[^-]+-[a-zäüö]+$')
+
+
+def is_valid_token(tok: DBToken):
+    return not any([
+        len(tok.surface) < 2,
+        not tok.surface[0].isalpha(),
+        not tok.surface[-1].isalpha(),
+        any(c.isdigit() for c in tok.lemma),
+        any(c in '"\'@§!?;#*/&<>()_' for c in tok.surface),
+        RE_GK_NORM_ERROR.match(tok.lemma)
+    ])
 
 
 def valid_match(match: Match):
@@ -10,12 +25,7 @@ def valid_match(match: Match):
     """
     # TODO filter inconsistent relations
     #  - 0 is marked by parser
-    return not (len(match.head.surface) < 2 or len(match.dep.surface) < 2
-                or not match.head.surface[0].isalpha() or not match.dep.surface[0].isalpha()
-                or not match.head.surface[-1].isalpha() or not match.dep.surface[-1].isalpha()
-                or any(c.isdigit() for c in match.head.lemma) or any(c.isdigit() for c in match.dep.lemma)
-                or any(c in '"\'@§!?;#*/&<>()' for c in match.head.surface)
-                or any(c in '"\'@§!?;#*/&<>()' for c in match.dep.surface))
+    return is_valid_token(match.head) and is_valid_token(match.dep)
 
 
 def extract_matches_from_doc(parses: List[List[DBToken]]):
