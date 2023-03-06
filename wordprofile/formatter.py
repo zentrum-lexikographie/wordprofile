@@ -153,9 +153,9 @@ def format_comparison(diffs):
             coocc_diff['Lemma'] = diff['coocc_1'].lemma2
             coocc_diff['Form'] = diff['coocc_1'].form2
             if 'coocc_2' in diff:
-                coocc_diff['Position'] = 'left'
-            else:
                 coocc_diff['Position'] = 'center'
+            else:
+                coocc_diff['Position'] = 'left'
         # complete information for second coocc
         if 'coocc_2' in diff:
             coocc_diff['Score']['Frequency2'] = diff['coocc_2'].freq
