@@ -319,7 +319,7 @@ class WPConnect:
             WHERE 
                 lemma1 = %s AND lemma1_tag = %s 
                 AND lemma2 = %s AND lemma2_tag = %s 
-                AND label  NOT REGEXP 'VZ|PP|KON|KOM' 
+                AND label  NOT REGEXP 'VZ|PP' 
                 AND frequency >= %s AND c.score >= %s 
             ORDER BY %s DESC LIMIT %s,%s;
             """
