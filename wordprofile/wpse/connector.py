@@ -211,7 +211,7 @@ class WPConnect:
         if len(res) == 0:
             raise ValueError("Invalid Id")
         elif len(res) > 1:
-            raise InternalError('Too many results.')
+            raise InternalError(f'Too many results for coocc id {coocc_id}.')
         else:
             return Coocc(*res[0])
 
@@ -303,7 +303,7 @@ class WPConnect:
             JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
             WHERE 
                 lemma1 = %s AND lemma1_tag = %s 
-                AND label  NOT REGEXP 'VZ|PP|KON|KOM' 
+                AND label  NOT REGEXP 'VZ|PP' 
                 AND frequency >= %s AND c.score >= %s 
             ORDER BY %s DESC LIMIT %s,%s;
             """

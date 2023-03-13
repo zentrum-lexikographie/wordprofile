@@ -34,22 +34,22 @@ wp = Wordprofile(args.db_hostname, wp_user, db_password, wp_db, args.spec)
 app = FastAPI()
 
 
-@app.get("/")
-@app.get("/status")
+@app.get("/", tags=['info'])
+@app.get("/status", tags=['info'])
 async def status():
     """Let icinga know the word profile is online.
     """
     return "OK"
 
 
-@app.get("/meta")
+@app.get("/api/v1/meta", tags=['info'])
 async def meta():
     """Ask wordprofile for meta information such as table statistics.
     """
     return wp.get_info_stats()
 
 
-@app.get("/info/lemma/")
+@app.get("/api/v1/tags", tags=['wp'])
 async def get_lemma(lemma: str, pos: str = "", use_external_variations: bool = True):
     """Gets lemma information from word-profile.
 
@@ -64,7 +64,7 @@ async def get_lemma(lemma: str, pos: str = "", use_external_variations: bool = T
     return wp.get_lemma_and_pos(lemma, pos, use_external_variations)
 
 
-@app.get("/info/lemmas/")
+@app.get("/api/v1/cmp/tags", tags=['cmp'])
 async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool = True):
     """Get lemma pairs with common pos tags from word-profile.
 
@@ -80,10 +80,39 @@ async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool 
     return wp.get_lemma_and_pos_diff(lemma1, lemma2, use_variations)
 
 
-@app.get("/rel/")
+@app.get("/api/v1/list/tags", tags=['list'])
+def get_lemma_and_pos_by_list(parts: List[str]):
+    """For compatibility to old WP. Just pipes input to output."""
+    return parts
+
+
+@app.get("/api/v1/list/mwe", tags=['list'])
+def get_mwe_relations_by_list(parts: List[str], start: int = 0, number: int = 20, order_by: str = 'logDice',
+                              min_freq: int = 0, min_stat: int = -1000):
+    """Fetches mwe entries for a given list of lemmas.
+
+    Args:
+        <Parts> (optional): List of lemmas.
+        <Start> (optional): Number of collocations to skip.
+        <Number> (optional): Number of collocations to take.
+        <OrderBy> (optional): Metric for ordering, frequency or log_dice.
+        <MinFreq> (optional): Filter collocations with minimal frequency.
+        <MinStat> (optional): Filter collocations with minimal stats score.
+
+    Return:
+        Dictionary of mwe relations for specific collocation parts.
+            <parts>: List of Lemma-POS pairs
+            <data>: Relations specifically for parts of the input.
+    """
+    order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    coocc_ids = wp.get_collocation_ids(parts[0], parts[1])
+    return wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
+
+
+@app.get("/api/v1/profile", tags=['wp'])
 async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = '',
-                        relations: List[str] = Query(["META"]),
-                        start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0,
+                        relations: List[str] = Query([]),
+                        start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
                         min_stat: int = -1000):
     """Get collocations from word-profile.
 
@@ -95,7 +124,7 @@ async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = ''
         relations (optional): List of relation labels.
         start (optional): Number of collocations to skip.
         number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log_dice.
+        order_by (optional): Metric for ordering, frequency or log-dice.
         min_freq (optional): Filter collocations with minimal frequency.
         min_stat (optional): Filter collocations with minimal stats score.
 
@@ -103,23 +132,12 @@ async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = ''
         List of selected collocations grouped by relation.
     """
     order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    if len(relations) == 0:
+        relations = wp.get_lemma_and_pos(lemma1, pos1)[0]['Relations']
     return wp.get_relations(lemma1, pos1, lemma2, pos2, relations, start, number, order_by, min_freq, min_stat)
 
 
-@app.get("/lemma/id/{coocc_id}")
-async def get_relation_by_info_id(coocc_id: int):
-    """Get collocation information for a specific collocation id.
-
-    Args:
-        coocc_id: collocation id.
-
-    Returns:
-        Dictionary with collocation information.
-    """
-    return wp.get_relation_by_info_id(coocc_id)
-
-
-@app.get("/hits/{coocc_id}")
+@app.get("/api/v1/hits", tags=['wp'])
 async def get_concordances_and_relation(coocc_id: int, use_context: bool = False, start_index: int = 0,
                                         result_number: int = 20):
     """Get collocation information and concordances for a specified collocation id.
@@ -136,9 +154,9 @@ async def get_concordances_and_relation(coocc_id: int, use_context: bool = False
     return wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number)
 
 
-@app.get("/cmp/difference/")
-async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query(["META"]), number: int = 20,
-                   order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
+@app.get("/api/v1/cmp/diff", tags=["cmp"])
+async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query([]), number: int = 20,
+                   order_by: str = 'logDice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
                    use_intersection: bool = False, nbest: int = 0):
     """Get collocations of common POS from word-profile database and computes distances for comparison.
 
@@ -148,7 +166,7 @@ async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Qu
         pos: Pos tag for both lemmas.
         relations (optional): List of relation labels.
         number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log_dice.
+        order_by (optional): Metric for ordering, frequency or log-dice.
         min_freq (optional): Filter collocations with minimal frequency.
         min_stat (optional): Filter collocations with minimal stats score.
         operation (optional): Lemma distance metric.
@@ -158,13 +176,15 @@ async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Qu
         List of collocation-diffs grouped by relation.
     """
     order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    if len(relations) == 0:
+        relations = wp.get_lemma_and_pos_diff(lemma1, lemma2)[0]['Relations']
     return wp.get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation,
                        use_intersection, nbest)
 
 
-@app.get("/cmp/intersection/")
-async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query(["META"]), number: int = 20,
-                           order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, nbest: int = 0):
+@app.get("/api/v1/cmp/intersection", tags=["cmp"])
+async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query([]), number: int = 20,
+                           order_by: str = 'logDice', min_freq: int = 0, min_stat: int = -1000, nbest: int = 0):
     """Redirection for get_diff that sets parameters for intersection computation.
 
     Args:
@@ -173,7 +193,7 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
         pos: Pos tag for both lemmas.
         relations (optional): List of relation labels.
         number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log_dice.
+        order_by (optional): Metric for ordering, frequency or log-dice.
         min_freq (optional): Filter collocations with minimal frequency.
         min_stat (optional): Filter collocations with minimal stats score.
         nbest (optional): Checks only the n highest scored lemmas.
@@ -181,8 +201,47 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
         List of collocation-diffs grouped by relation.
     """
     order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    if len(relations) == 0:
+        relations = wp.get_lemma_and_pos_diff(lemma1, lemma2)[0]['Relations']
     return wp.get_diff(lemma1, lemma2, pos, relations, number, order_by, min_freq, min_stat, operation='rmax',
                        use_intersection=True, nbest=nbest)
+
+
+@app.get("/api/v1/mwe/profile", tags=["mwe"])
+def get_mwe_relations(coocc_id: int, start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
+                      min_stat: int = -1000):
+    """Get collocation information and concordances for a specified MWE collocation id.
+
+    Args:
+        coocc_id: MWE collocation id.
+        start (optional): Collocation id.
+        number (optional): Number of collocations to take.
+        order_by (optional): Metric for ordering, frequency or log-dice.
+        min_freq (optional): Filter collocations with minimal frequency.
+        min_stat (optional): Filter collocations with minimal stats score.
+
+    Returns:
+        Dictionary with mwe relations for specific collocation id.
+    """
+    order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
+    return wp.get_mwe_relations([coocc_id], start, number, order_by, min_freq, min_stat)
+
+
+@app.get("/api/v1/mwe/hits", tags=["mwe"])
+def get_mwe_concordances_and_relation(coocc_id: int, use_context: bool = False, start_index: int = 0,
+                                      result_number: int = 20):
+    """Get mwe collocation information and concordances for a specified collocation id.
+
+    Args:
+        coocc_id: Collocation id.
+        use_context (optional): If true, returns surrounding sentences for matched collocation.
+        start_index (optional): Collocation id.
+        result_number (optional): Collocation id.
+
+    Returns:
+        Dictionary with collocation information and their concordances.
+    """
+    return wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number, is_mwe=True)
 
 
 def main():
