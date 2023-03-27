@@ -211,7 +211,7 @@ def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]
             yield Match(
                 t_head_2,
                 t_head_1,
-                t,
+                None,
                 'KOM',
                 sid,
             )
