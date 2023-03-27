@@ -86,7 +86,8 @@ class Wordprofile:
         for i in list1:
             for j in list2:
                 if i['POS'] == j['POS']:
-                    relations = list(set(i['Relations']) | set(j['Relations']))
+                    relations = set(i['Relations']) | set(j['Relations'])
+                    relations = [r for r in self.wp_spec.mapRelOrder[i['POS']] if r in relations]
                     results.append({
                         'LemmaId1': i['Lemma'],
                         'LemmaId2': j['Lemma'],

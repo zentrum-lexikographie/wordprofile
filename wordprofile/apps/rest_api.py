@@ -88,7 +88,7 @@ def get_lemma_and_pos_by_list(parts: List[str]):
 
 @app.get("/api/v1/list/mwe", tags=['list'])
 def get_mwe_relations_by_list(parts: List[str], start: int = 0, number: int = 20, order_by: str = 'logDice',
-                              min_freq: int = 0, min_stat: int = -1000):
+                              min_freq: int = 0, min_stat: float = -1000.0):
     """Fetches mwe entries for a given list of lemmas.
 
     Args:
@@ -113,7 +113,7 @@ def get_mwe_relations_by_list(parts: List[str], start: int = 0, number: int = 20
 async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = '',
                         relations: List[str] = Query([]),
                         start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
-                        min_stat: int = -1000):
+                        min_stat: float = -1000.0):
     """Get collocations from word-profile.
 
     Args:
@@ -156,7 +156,7 @@ async def get_concordances_and_relation(coocc_id: int, use_context: bool = False
 
 @app.get("/api/v1/cmp/diff", tags=["cmp"])
 async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query([]), number: int = 20,
-                   order_by: str = 'logDice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
+                   order_by: str = 'logDice', min_freq: int = 0, min_stat: float = -1000.0, operation: str = 'adiff',
                    use_intersection: bool = False, nbest: int = 0):
     """Get collocations of common POS from word-profile database and computes distances for comparison.
 
@@ -184,7 +184,7 @@ async def get_diff(lemma1: str, lemma2: str, pos: str, relations: List[str] = Qu
 
 @app.get("/api/v1/cmp/intersection", tags=["cmp"])
 async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[str] = Query([]), number: int = 20,
-                           order_by: str = 'logDice', min_freq: int = 0, min_stat: int = -1000, nbest: int = 0):
+                           order_by: str = 'logDice', min_freq: int = 0, min_stat: float = -1000.0, nbest: int = 0):
     """Redirection for get_diff that sets parameters for intersection computation.
 
     Args:
@@ -209,7 +209,7 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
 
 @app.get("/api/v1/mwe/profile", tags=["mwe"])
 def get_mwe_relations(coocc_id: int, start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
-                      min_stat: int = -1000):
+                      min_stat: float = -1000.0):
     """Get collocation information and concordances for a specified MWE collocation id.
 
     Args:
