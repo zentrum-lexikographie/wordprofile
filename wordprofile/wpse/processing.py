@@ -38,9 +38,23 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
     If tags are not found in mapping, they are left empty and recognized later.
     """
 
+    prepositional_contract_map = {
+        'am': 'an',
+        'ans': 'an',
+        'beim': 'bei',
+        'im': 'in',
+        'ins': 'in',
+        'vom': 'von',
+        'zum': 'zu',
+        'zur': 'zu',
+    }
+
     def case_by_tag(w: str, tag: str) -> str:
-        if tag in {"VERB", "ADJ", "ADV", "ADP", "AUX"}:
+        if tag in {"VERB", "ADJ", "ADV", "AUX"}:
             return w.lower()
+        elif tag == "ADP":
+            w = w.lower()
+            return prepositional_contract_map.get(w, w)
         elif tag == "NOUN":
             return w[0].upper() + w[1:]
         else:
@@ -59,7 +73,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
         tag=token['upos'],
         head=token['head'],
         rel=token['deprel'],
-        misc=token['misc'].get('SpaceAfter') == 'No'
+        misc=token['misc'].get('SpaceAfter') == 'No' if token['misc'] else False
     )) for token in sentence]
 
 
