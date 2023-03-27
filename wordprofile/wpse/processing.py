@@ -66,11 +66,18 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
                        lemma=case_by_tag(t.lemma, t.tag),
                        tag=t.tag, head=t.head, rel=t.rel, misc=t.misc)
 
+    def entity_tag_conversion(token):
+        if token['misc'] and 'NER' in token['misc']:
+            ner_tag = token['misc']['NER']
+            if ner_tag.endswith('PER') or ner_tag.endswith('LOC') or ner_tag.endswith('ORG'):
+                return 'PROPN'
+        return token['upos']
+
     return [normalize_caps(DBToken(
         idx=token['id'],
         surface=remove_invalid_chars(token['form']),
         lemma=repair_lemma(remove_invalid_chars(token['lemma']), token['upos']),
-        tag=token['upos'],
+        tag=entity_tag_conversion(token),
         head=token['head'],
         rel=token['deprel'],
         misc=token['misc'].get('SpaceAfter') == 'No' if token['misc'] else False
