@@ -240,7 +240,7 @@ class WPConnect:
         else:
             inv = 0
         if not lemma2_tag or not lemma2:
-            query = """
+            query = f"""
             SELECT
                 c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
@@ -252,11 +252,11 @@ class WPConnect:
                 lemma1 = %s AND lemma1_tag = %s 
                 AND label = %s AND inv = %s 
                 AND frequency >= %s AND c.score >= %s 
-            ORDER BY %s DESC LIMIT %s,%s;
+            ORDER BY {order_by} DESC LIMIT %s,%s;
             """
-            params = (min_freq, lemma1, lemma1_tag, relation, inv, min_freq, min_stat, order_by, start, number)
+            params = (min_freq, lemma1, lemma1_tag, relation, inv, min_freq, min_stat, start, number)
         else:
-            query = """
+            query = f"""
             SELECT
                 c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
@@ -269,10 +269,10 @@ class WPConnect:
                 AND lemma2 = %s AND lemma2_tag = %s 
                 AND label = %s AND inv = %s 
                 AND frequency >= %s AND c.score >= %s 
-            ORDER BY %s DESC LIMIT %s,%s;
+            ORDER BY {order_by} DESC LIMIT %s,%s;
             """
             params = (min_freq, lemma1, lemma1_tag, lemma2, lemma2_tag,
-                      relation, inv, min_freq, min_stat, order_by, start, number)
+                      relation, inv, min_freq, min_stat, start, number)
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_meta(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
@@ -294,7 +294,7 @@ class WPConnect:
             List of Coocc.
         """
         if not lemma2_tag or not lemma2:
-            query = """
+            query = f"""
             SELECT
                 c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0
@@ -305,11 +305,11 @@ class WPConnect:
                 lemma1 = %s AND lemma1_tag = %s 
                 AND label  NOT REGEXP 'VZ|PP' 
                 AND frequency >= %s AND c.score >= %s 
-            ORDER BY %s DESC LIMIT %s,%s;
+            ORDER BY {order_by} DESC LIMIT %s,%s;
             """
-            params = (lemma1, lemma1_tag, min_freq, min_stat, order_by, start, number)
+            params = (lemma1, lemma1_tag, min_freq, min_stat, start, number)
         else:
-            query = """
+            query = f"""
             SELECT
                 c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0
@@ -321,10 +321,10 @@ class WPConnect:
                 AND lemma2 = %s AND lemma2_tag = %s 
                 AND label  NOT REGEXP 'VZ|PP' 
                 AND frequency >= %s AND c.score >= %s 
-            ORDER BY %s DESC LIMIT %s,%s;
+            ORDER BY {order_by} DESC LIMIT %s,%s;
             """
             params = (lemma1, lemma1_tag, lemma2, lemma2_tag,
-                      min_freq, min_stat, order_by, start, number)
+                      min_freq, min_stat, start, number)
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_tuples_diff(self, lemma1: str, lemma2: str, lemma_tag: str, relation: str, order_by: str,
@@ -348,7 +348,7 @@ class WPConnect:
             inv = 1
         else:
             inv = 0
-        query = """
+        query = f"""
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv,
@@ -360,8 +360,8 @@ class WPConnect:
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s 
             AND c.label = %s AND c.inv = %s 
             AND c.frequency >= %s AND c.score >= %s 
-        ORDER BY %s DESC;"""
-        params = (min_freq, lemma1, lemma2, lemma_tag, relation, inv, min_freq, min_stat, order_by)
+        ORDER BY {order_by} DESC;"""
+        params = (min_freq, lemma1, lemma2, lemma_tag, relation, inv, min_freq, min_stat)
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_tuples_diff_meta(self, lemma1: str, lemma2: str, lemma_tag: str, order_by: str,
@@ -379,7 +379,7 @@ class WPConnect:
         Return:
             List of Coocc.
         """
-        query = """
+        query = f"""
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
             IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv, 0
@@ -389,6 +389,6 @@ class WPConnect:
         WHERE 
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s 
             AND c.frequency >= %s AND c.score >= %s
-        ORDER BY %s DESC;"""
-        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat, order_by)
+        ORDER BY {order_by} DESC;"""
+        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))

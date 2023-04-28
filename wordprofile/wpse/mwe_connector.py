@@ -141,7 +141,7 @@ class WPMweConnect:
                          form1="{}-{}".format(c[11], c[12]), form2=c[10],
                          tag1="{}-{}".format(c[7], c[8]), tag2=c[3], freq=c[4], score=c[9], inverse=0, has_mwe=0)
 
-    def get_relation_tuples(self, coocc_ids: List[int], min_freq: int, min_stat: float) -> List[Coocc]:
+    def get_relation_tuples(self, coocc_ids: List[int], order_by: str, min_freq: int, min_stat: float) -> List[Coocc]:
         """Fetches MWE with related statistics for a specific relation from database backend.
 
         Args:
@@ -165,8 +165,8 @@ class WPMweConnect:
             mwe.collocation1_id IN ({})
             AND mwe.frequency >= %s 
             AND mwe.score >= %s
-        ORDER BY log_dice DESC;
-        """.format(",".join('%s' for _ in coocc_ids))
+        ORDER BY {} DESC;
+        """.format(",".join('%s' for _ in coocc_ids), order_by)
         params = coocc_ids + [min_freq, min_stat]
         return [Coocc(id=i[0], rel=i[1], lemma1="{}-{}".format(i[5], i[6]), lemma2=i[2],
                       form1="{}-{}".format(i[11], i[12]), form2=i[10],
