@@ -171,6 +171,15 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
+        def filter_unique_cooccs(cs):
+            res = []
+            used = set()
+            for c in cs:
+                if c.lemma2 not in used:
+                    used.add(c.lemma2)
+                    res.append(c)
+            return res
+
         if not coocc_ids:
             return {'parts': [], 'data': {}}
         # TODO BUG checks only first coocc id!
@@ -186,6 +195,8 @@ class Wordprofile:
             grouped_relations[coocc.rel].append(coocc)
         results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
+            # TODO check origin of MWE duplicates
+            cooccs = filter_unique_cooccs(cooccs)
             results[lemma1].append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
