@@ -87,17 +87,20 @@ def get_lemma_and_pos_by_list(parts: List[str]):
 
 
 @app.get("/api/v1/list/mwe", tags=['list'])
-def get_mwe_relations_by_list(parts: List[str], start: int = 0, number: int = 20, order_by: str = 'logDice',
+def get_mwe_relations_by_list(parts: List[str],
+                              relations: List[str] = Query([]),
+                              start: int = 0, number: int = 20, order_by: str = 'logDice',
                               min_freq: int = 0, min_stat: float = -1000.0):
     """Fetches mwe entries for a given list of lemmas.
 
     Args:
-        <Parts> (optional): List of lemmas.
-        <Start> (optional): Number of collocations to skip.
-        <Number> (optional): Number of collocations to take.
-        <OrderBy> (optional): Metric for ordering, frequency or log_dice.
-        <MinFreq> (optional): Filter collocations with minimal frequency.
-        <MinStat> (optional): Filter collocations with minimal stats score.
+        parts (optional): List of lemmas.
+        relations (optional): List of relation labels.
+        start (optional): Number of collocations to skip.
+        number (optional): Number of collocations to take.
+        order_by (optional): Metric for ordering, frequency or log_dice.
+        min_freq (optional): Filter collocations with minimal frequency.
+        min_stat (optional): Filter collocations with minimal stats score.
 
     Return:
         Dictionary of mwe relations for specific collocation parts.
@@ -106,7 +109,7 @@ def get_mwe_relations_by_list(parts: List[str], start: int = 0, number: int = 20
     """
     order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
     coocc_ids = wp.get_collocation_ids(parts[0], parts[1])
-    return wp.get_mwe_relations(coocc_ids, start, number, order_by, min_freq, min_stat)
+    return wp.get_mwe_relations(coocc_ids, relations, start, number, order_by, min_freq, min_stat)
 
 
 @app.get("/api/v1/profile", tags=['wp'])
@@ -208,12 +211,15 @@ async def get_intersection(lemma1: str, lemma2: str, pos: str, relations: List[s
 
 
 @app.get("/api/v1/mwe/profile", tags=["mwe"])
-def get_mwe_relations(coocc_id: int, start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
+def get_mwe_relations(coocc_id: int,
+                      relations: List[str] = Query([]),
+                      start: int = 0, number: int = 20, order_by: str = 'logDice', min_freq: int = 0,
                       min_stat: float = -1000.0):
     """Get collocation information and concordances for a specified MWE collocation id.
 
     Args:
         coocc_id: MWE collocation id.
+        relations (optional): List of relation labels.
         start (optional): Collocation id.
         number (optional): Number of collocations to take.
         order_by (optional): Metric for ordering, frequency or log-dice.
@@ -224,7 +230,7 @@ def get_mwe_relations(coocc_id: int, start: int = 0, number: int = 20, order_by:
         Dictionary with mwe relations for specific collocation id.
     """
     order_by = 'log_dice' if order_by.lower() == 'logdice' else 'frequency'
-    return wp.get_mwe_relations([coocc_id], start, number, order_by, min_freq, min_stat)
+    return wp.get_mwe_relations([coocc_id], relations, start, number, order_by, min_freq, min_stat)
 
 
 @app.get("/api/v1/mwe/hits", tags=["mwe"])

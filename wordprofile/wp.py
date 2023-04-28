@@ -101,7 +101,7 @@ class Wordprofile:
 
     def get_relations(self, lemma1: str, pos1: str, lemma2: str = '', pos2: str = '', relations: List[str] = (),
                       start: int = 0, number: int = 20, order_by: str = 'log_dice', min_freq: int = 0,
-                      min_stat: int = -1000) -> List[dict]:
+                      min_stat: float = -1000.0) -> List[dict]:
         """Fetches collocations from word-profile database.
 
         Args:
@@ -156,8 +156,8 @@ class Wordprofile:
 
         return [abs(c.id) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
 
-    def get_mwe_relations(self, coocc_ids: List[int], start: int = 0, number: int = 20, order_by: str = 'log_dice',
-                          min_freq: int = 0, min_stat: int = -1000) -> dict:
+    def get_mwe_relations(self, coocc_ids: List[int], relations: List[str] = (), start: int = 0, number: int = 20,
+                          order_by: str = 'log_dice', min_freq: int = 0, min_stat: float = -1000.0) -> dict:
         """Fetches MWE from word-profile database.
 
         Args:
@@ -174,13 +174,16 @@ class Wordprofile:
         if not coocc_ids:
             return {'parts': [], 'data': {}}
         # TODO BUG checks only first coocc id!
-        coocc_info = self.db.get_relation_by_id(int(coocc_ids[0]), min_freq)
+        coocc_ids = [abs(int(i)) for i in coocc_ids]
+        coocc_info = self.db.get_relation_by_id(coocc_ids[0], min_freq)
         grouped_relations = defaultdict(list)
         lemma1 = pos1 = ""
-        for relation in self.db_mwe.get_relation_tuples(coocc_ids, min_freq, min_stat):
-            lemma1 = relation.lemma1
-            pos1 = relation.tag1
-            grouped_relations[relation.rel].append(relation)
+        for coocc in self.db_mwe.get_relation_tuples(coocc_ids, order_by, min_freq, min_stat):
+            if relations and coocc.rel not in relations:
+                continue
+            lemma1 = coocc.lemma1
+            pos1 = coocc.tag1
+            grouped_relations[coocc.rel].append(coocc)
         results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
             results[lemma1].append({
@@ -196,7 +199,7 @@ class Wordprofile:
         }
 
     def get_diff(self, lemma1: str, lemma2: str, pos: str, relations: List[str], number: int = 20,
-                 order_by: str = 'log_dice', min_freq: int = 0, min_stat: int = -1000, operation: str = 'adiff',
+                 order_by: str = 'log_dice', min_freq: int = 0, min_stat: float = -1000.0, operation: str = 'adiff',
                  use_intersection: bool = False, nbest: int = 0) -> List[dict]:
         """Fetches collocations of common POS from word-profile database and computes distances for comparison.
 
