@@ -389,6 +389,7 @@ class WPConnect:
         WHERE 
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s 
             AND c.frequency >= %s AND c.score >= %s
+            AND c.label  NOT REGEXP 'VZ|PP'
         ORDER BY {order_by} DESC;"""
         params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
