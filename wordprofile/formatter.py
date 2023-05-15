@@ -42,7 +42,7 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
         if coocc.rel == 'KON' and coocc.lemma1 == coocc.lemma2:
             concord_no = concord_no // 2
         results.append({
-            'Relation': '~' if coocc.inverse else '' + coocc.rel,
+            'Relation': ('~' if coocc.inverse else '') + coocc.rel,
             'POS': tag_b2f[coocc.tag2],
             'PosId': tag_b2f[coocc.tag2],
             'Form': coocc.form2,

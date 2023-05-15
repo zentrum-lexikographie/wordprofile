@@ -276,7 +276,7 @@ class WPConnect:
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_meta(self, lemma1: str, lemma1_tag: str, lemma2: str, lemma2_tag: str, start: int, number: int,
-                          order_by: str, min_freq: int, min_stat: float) -> List[Coocc]:
+                          order_by: str, min_freq: int, min_stat: float, relations: List[str]) -> List[Coocc]:
         """Fetches collocations with related statistics for all relations from database backend.
 
         Args:
@@ -303,11 +303,12 @@ class WPConnect:
             JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
             WHERE 
                 lemma1 = %s AND lemma1_tag = %s 
-                AND label  NOT REGEXP 'VZ|PP' 
+                AND label NOT REGEXP 'VZ|PP'
+                AND label REGEXP %s 
                 AND frequency >= %s AND c.score >= %s 
             ORDER BY {order_by} DESC LIMIT %s,%s;
             """
-            params = (lemma1, lemma1_tag, min_freq, min_stat, start, number)
+            params = (lemma1, lemma1_tag, '|'.join(relations), min_freq, min_stat, start, number)
         else:
             query = f"""
             SELECT
@@ -365,7 +366,7 @@ class WPConnect:
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_tuples_diff_meta(self, lemma1: str, lemma2: str, lemma_tag: str, order_by: str,
-                                      min_freq: int, min_stat) -> List[Coocc]:
+                                      min_freq: int, min_stat, relations: List[str]) -> List[Coocc]:
         """Fetches collocations for both lemmas with related statistics for all relations from database backend.
 
         Args:
@@ -389,7 +390,8 @@ class WPConnect:
         WHERE 
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s 
             AND c.frequency >= %s AND c.score >= %s
-            AND c.label  NOT REGEXP 'VZ|PP'
+            AND label NOT REGEXP 'VZ|PP'
+            AND label REGEXP %s
         ORDER BY {order_by} DESC;"""
-        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
+        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat, '|'.join(relations))
         return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))

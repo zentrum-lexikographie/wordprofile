@@ -128,7 +128,7 @@ class Wordprofile:
             # meta relation is a summary of all relations
             if relation == 'META':
                 cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
-                                                   order_by, min_freq, min_stat)
+                                                   order_by, min_freq, min_stat, self.wp_spec.mapRelOrder[pos1])
             else:
                 cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
                                                      order_by, min_freq, min_stat, relation)
@@ -234,12 +234,12 @@ class Wordprofile:
                 raise ValueError(f"Request for invalid lemma: ({lemma})")
 
         results = []
-        pos = tag_f2b[pos]
         for rel in relations:
             if rel == "META":
-                diffs = self.db.get_relation_tuples_diff_meta(lemma1, lemma2, pos, order_by, min_freq, min_stat)
+                diffs = self.db.get_relation_tuples_diff_meta(lemma1, lemma2, tag_f2b[pos], order_by, min_freq, min_stat,
+                                                              self.wp_spec.mapRelOrder[pos])
             else:
-                diffs = self.db.get_relation_tuples_diff(lemma1, lemma2, pos, rel, order_by, min_freq, min_stat)
+                diffs = self.db.get_relation_tuples_diff(lemma1, lemma2, tag_f2b[pos], rel, order_by, min_freq, min_stat)
             diffs = self.__calculate_diff(lemma1, lemma2, diffs, number, nbest, use_intersection, operation)
             results.append({
                 'Relation': rel,
