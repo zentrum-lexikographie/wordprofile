@@ -16,7 +16,7 @@ parser.add_argument('--spec', type=str, help="Settings file", default=config.SPE
 parser.add_argument("--db-hostname", type=str, help="database host", default=config.DB_HOST)
 parser.add_argument("--db-name", type=str, help="database name", default=config.DB_NAME)
 parser.add_argument("--db-user", type=str, help="database username", default=config.DB_USER)
-parser.add_argument("--db-password", type=str, help="database password", default=config.DB_PASSWORD)
+parser.add_argument("--db-password", type=str, help="database password", default=str(config.DB_PASSWORD))
 parser.add_argument("--http-hostname", type=str, help="REST API hostname", default=config.HTTP_HOSTNAME)
 parser.add_argument("--http-port", type=int, help="REST API port", default=config.HTTP_PORT)
 
