@@ -3,10 +3,12 @@ FROM python:3.7
 RUN mkdir /app
 WORKDIR /app
 COPY requirements.txt /app/requirements.txt
+COPY requirements-api.txt /app/requirements-api.txt
 
-RUN pip install --no-cache-dir --upgrade -r /app/requirements.txt
+RUN pip install --no-cache-dir --upgrade\
+    -r /app/requirements.txt\
+    -r /app/requirements-api.txt
 
 COPY . /app
 
-EXPOSE 8086
-CMD ["python", "-m", "wordprofile.apps.xmlrpc_api"]
+CMD ["python", "-m", "wordprofile.apps.rest_api"]

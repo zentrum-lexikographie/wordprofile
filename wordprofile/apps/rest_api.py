@@ -7,30 +7,24 @@ from typing import List
 import uvicorn
 from fastapi import FastAPI, Query
 
+import wordprofile.config as config
 from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
 parser = ArgumentParser()
-parser.add_argument("--user", type=str, help="database username", required=True)
-parser.add_argument("--database", type=str, help="database name", required=True)
-parser.add_argument("--hostname", default="localhost", type=str, help="REST API hostname")
-parser.add_argument("--db-hostname", default="localhost", type=str, help="Hostname of the wp database.")
-parser.add_argument("--port", default=8086, type=int, help="REST API port")
-parser.add_argument('--spec', type=str, required=True, help="Settings file (*.xml)")
-parser.add_argument('--log', dest='logfile', type=str,
-                    default="./log/wp_" + time.strftime("%d_%m_%Y") + ".log",
-                    help="Angabe der log-Datei (Default: log/wp_{date}.log)")
+parser.add_argument('--spec', type=str, help="Settings file", default=config.SPEC)
+parser.add_argument("--db-hostname", type=str, help="database host", default=config.DB_HOST)
+parser.add_argument("--db-name", type=str, help="database name", default=config.DB_NAME)
+parser.add_argument("--db-user", type=str, help="database username", default=config.DB_USER)
+parser.add_argument("--db-password", type=str, help="database password", default=config.DB_PASSWORD)
+parser.add_argument("--http-hostname", type=str, help="REST API hostname", default=config.HTTP_HOSTNAME)
+parser.add_argument("--http-port", type=int, help="REST API port", default=config.HTTP_PORT)
+
 args = parser.parse_args()
 
-logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG, args.logfile)
+logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG)
 
-wp_user = args.user or os.environ['WP_USER']
-wp_db = args.database or os.environ['WP_DB']
-db_password = os.environ.get('WP_PASSWORD', wp_user)
-logger.info('user: ' + wp_user)
-logger.info('db: ' + wp_db)
-
-wp = Wordprofile(args.db_hostname, wp_user, db_password, wp_db, args.spec)
+wp = Wordprofile(args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec)
 app = FastAPI()
 
 
@@ -251,7 +245,7 @@ def get_mwe_concordances_and_relation(coocc_id: int, use_context: bool = False, 
 
 
 def main():
-    uvicorn.run("wordprofile.apps.rest_api:app", host=args.hostname, port=args.port, log_level="debug", reload=True)
+    uvicorn.run("wordprofile.apps.rest_api:app", host=args.http_hostname, port=args.http_port, log_level="debug", reload=True)
 
 
 if __name__ == '__main__':
