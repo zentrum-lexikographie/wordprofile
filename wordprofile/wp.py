@@ -107,8 +107,8 @@ class Wordprofile:
         Args:
             lemma1: Lemma of interest, first collocate.
             pos1: Pos tag of first lemma.
-            lemma2 (optional): Second collocate.
-            pos2 (optional): Pos tag of second lemma.
+            lemma2 (deprecated): Second collocate.
+            pos2 (deprecated): Pos tag of second lemma.
             relations (optional): List of relation labels.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
@@ -127,11 +127,11 @@ class Wordprofile:
         for relation in relations:
             # meta relation is a summary of all relations
             if relation == 'META':
-                cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
-                                                   order_by, min_freq, min_stat, self.wp_spec.mapRelOrder[pos1])
+                cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], start, number, order_by, min_freq, min_stat,
+                                                   self.wp_spec.mapRelOrder[pos1])
             else:
-                cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
-                                                     order_by, min_freq, min_stat, relation)
+                cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], start, number, order_by, min_freq, min_stat,
+                                                     relation)
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),

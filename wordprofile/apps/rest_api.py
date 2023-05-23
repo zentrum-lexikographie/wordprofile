@@ -116,8 +116,8 @@ async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = ''
     Args:
         lemma1: Lemma of interest, first collocate.
         pos1: Pos tag of first lemma.
-        lemma2 (optional): Second collocate.
-        pos2 (optional): Pos tag of second lemma.
+        lemma2 (deprecated): Second collocate.
+        pos2 (deprecated): Pos tag of second lemma.
         relations (optional): List of relation labels.
         start (optional): Number of collocations to skip.
         number (optional): Number of collocations to take.

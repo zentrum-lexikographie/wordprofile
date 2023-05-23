@@ -30,3 +30,13 @@ tag_b2f = {
     '': '',
 }
 tag_f2b = {v: k for k, v in tag_b2f.items()}
+
+
+def split_relation_inversion(relation):
+    if relation.startswith('~'):
+        relation = relation[1:]
+        inv = 1
+    else:
+        inv = 0
+    return relation, inv
+
