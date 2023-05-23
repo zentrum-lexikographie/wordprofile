@@ -44,8 +44,8 @@ class Wordprofile:
 
         Args:
             lemma: Lemma of interest.
-            pos: Pos tag of first lemma.
-            use_external_variations: Whether to use variations for either lemmas if not found in database.
+            pos (optional): Pos tag of first lemma.
+            use_external_variations (optional): Whether to use variations for either lemmas if not found in database.
 
         Return:
             List of lemma-pos combinations with stats and possible relations.
@@ -119,9 +119,8 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
-        for lemma in [lemma1, lemma2]:
-            if lemma and not RE_LEMMA.fullmatch(lemma):
-                raise ValueError(f"Request for invalid lemma: ({lemma})")
+        if lemma1 and not RE_LEMMA.fullmatch(lemma1):
+            raise ValueError(f"Request for invalid lemma: ({lemma1})")
 
         results = []
         for relation in relations:
