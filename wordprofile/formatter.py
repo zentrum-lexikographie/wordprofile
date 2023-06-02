@@ -20,13 +20,16 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     results = []
     for (lemma, form, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
+        pos_tag = tag_b2f.get(pos)
+        if pos_tag not in relation_order:
+            continue
         if len(relations) > 1:
-            relations = ['META'] + [r for r in relation_order[tag_b2f.get(pos)] if r in relations]
+            relations = ['META'] + [r for r in relation_order[pos_tag] if r in relations]
         results.append({
             'Form': form,
             'Lemma': lemma,
-            'POS': tag_b2f[pos],
-            'PosId': tag_b2f[pos],
+            'POS': pos_tag,
+            'PosId': pos_tag,
             'Frequency': sum(frequencies),
             'Relations': relations
         })
