@@ -17,6 +17,8 @@ parser.add_argument("--db-user", type=str, help="database username", default=con
 parser.add_argument("--db-password", type=str, help="database password", default=str(config.DB_PASSWORD))
 parser.add_argument("--http-hostname", type=str, help="REST API hostname", default=config.HTTP_HOSTNAME)
 parser.add_argument("--http-port", type=int, help="REST API port", default=config.HTTP_PORT)
+parser.add_argument("--workers", type=int, help="Number of Uvicorn workers", default=config.HTTP_WORKERS)
+parser.add_argument("--debug", action='store_true', help="Activate debug mode.")
 
 args = parser.parse_args()
 
@@ -243,7 +245,8 @@ def get_mwe_concordances_and_relation(coocc_id: int, use_context: bool = False, 
 
 
 def main():
-    uvicorn.run("wordprofile.apps.rest_api:app", host=args.http_hostname, port=args.http_port, log_level="debug", reload=True)
+    uvicorn.run("wordprofile.apps.rest_api:app", host=args.http_hostname, port=args.http_port, workers=args.workers,
+                log_level="debug", reload=args.debug)
 
 
 if __name__ == '__main__':

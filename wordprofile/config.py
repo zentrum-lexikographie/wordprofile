@@ -16,7 +16,7 @@ DB_PASSWORD = config('WP_DB_PASSWORD', cast=Secret, default='wp')
 
 HTTP_HOSTNAME = config('WP_HTTP_HOSTNAME', default='0.0.0.0')
 HTTP_PORT = config('WP_HTTP_PORT', cast=int, default=8086)
-XML_RPC_PORT = config('WP_XML_RPC_PORT', cast=int, default=8086)
+HTTP_WORKERS = config('WP_HTTP_WORKERS', cast=int, default=1)
 
 MIN_REL_FREQ = config('WP_MIN_REL_FREQ', cast=int, default=3)
 
