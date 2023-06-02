@@ -4,6 +4,10 @@ from typing import List
 
 import uvicorn
 from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+
 
 import wordprofile.config as config
 from wordprofile.utils import configure_logger
@@ -26,9 +30,15 @@ logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG)
 
 wp = Wordprofile(args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec)
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="wordprofile/apps/static"), name="static")
+templates = Jinja2Templates(directory="wordprofile/apps/static")
 
 
-@app.get("/", tags=['info'])
+@app.get("/", tags=['view'])
+async def get_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
 @app.get("/status", tags=['info'])
 async def status():
     """Let icinga know the word profile is online.

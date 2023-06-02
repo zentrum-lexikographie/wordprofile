@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta charset="utf-8">
+    <meta content="IE=edge" http-equiv="X-UA-Compatible">
+    <meta content="width=device-width,initial-scale=1.0" name="viewport">
+    <link href="https://www.dwds.de/favicon.ico" rel="icon">
+    <!-- CSS only -->
+    <link rel="stylesheet" href="/static/bootstrap-4.6.2-dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <!-- JS, Popper.js, and jQuery -->
+    <script src="/static/jquery-3.5.1.slim.min.js"></script>
+    <script src="/static/popper.min.js"></script>
+    <script src="/static/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="/static/vue.js"></script>
+    <script src="/static/axios.min.js"></script>
+    <style>
+        .wp-bibl {
+            font-size: smaller;
+            color: #0e0e0e;
+            background: #00000024;
+            font-weight: bolder;
+            padding: 2px 5px;
+        }
+
+        .wp-header {
+            margin: 10px 0;
+        }
+
+        .wp-table-rel {
+            max-height: 30em;
+            font-size: smaller;
+        }
+
+    </style>
+    <title>Wortprofil</title>
+</head>
+<body>
+<div class="container" id="app">
+    <h1>Wordprofile</h1>
+    <div class="wp-header">
+        <div class="input-group mb-3">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Lemma:</span>
+            </div>
+            <input v-model="query" type="text" class="form-control" placeholder="Abfrage-Lemma"
+                   aria-label="Einzelwort oder MWA-Basis" aria-describedby="basic-addon1"
+                   v-on:keyup.enter='loadProfile'>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear"
+                     viewBox="0 0 16 16">
+                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="collapse" id="collapseExample">
+            <div class="card card-body">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Minimale Frequenz</span>
+                    </div>
+                    <input v-model.number="minFreq" type="text" class="form-control"
+                           placeholder="minimale Frequenz"
+                           aria-label="minFreq"
+                           aria-describedby="basic-addon1" value=1>
+                    <div class="input-group-append" id="button-addon4">
+                        <button class="btn btn-outline-secondary" type="button" v-on:click="incMinFreq(1)">+</button>
+                        <button class="btn btn-outline-secondary" type="button" v-on:click="incMinFreq(-1)">-</button>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Anzahl Kollokationen</span>
+                    </div>
+                    <input v-model.number="maxCount" type="text" class="form-control"
+                           placeholder="maximale Ansahl"
+                           aria-label="maxCount"
+                           aria-describedby="basic-addon1" value=20>
+                    <div class="input-group-append" id="button-addon4">
+                        <button class="btn btn-outline-secondary" type="button" v-on:click="incMaxCount(1)">+</button>
+                        <button class="btn btn-outline-secondary" type="button" v-on:click="incMaxCount(-1)">-</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if="loading">
+            <button class="btn btn-secondary btn-block" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Lade Wortprofil...
+            </button>
+            <button class="btn btn-danger btn-block" type="button" v-on:click="stopProfile">
+                Stop
+            </button>
+        </div>
+        <div v-else>
+            <button class="btn btn-primary btn-block" type="button" v-on:click="loadProfile">
+                Wortprofil abfragen
+            </button>
+        </div>
+        <div v-if="collocs.length > 0">
+            <button class="btn btn-warning btn-block" type="button" v-on:click="downloadCsv">
+                Wortprofil herunterladen
+            </button>
+        </div>
+    </div>
+    <div id="wordprofile" class="row">
+        <div v-for="(relation, relIndex) in relations" class="col-md-6">
+            <table class="table table-striped table-bordered table-sm table-hover overflow-auto wp-table-rel">
+                <thead>
+                <tr>
+                    <th scope="col">${ relation.Description }</th>
+                    <th scope="col">Frequenz</th>
+                    <th scope="col">Score</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(c, index) in relation.Tuples" v-on:click="viewSentences(c)">
+                    <td>${ index + 1 }. ${ c.Form } (${ c.Lemma })</td>
+                    <td>${ c.Score.Frequency } (${ c.ConcordNo })</td>
+                    <td>${ Math.round(c.Score.logDice * 100) / 100 }</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div id="exampleSentences">
+        <table class="table table-sm table-striped table-hover" v-if="sentences.length > 0">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">
+                    Belegsätze: ${ concordanceLabel }
+                    <button type="button" class="btn btn-outline-danger float-right" v-on:click="resetSentences">X
+                    </button>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(s, index) in sentences">
+                <th scope="row">${ index + 1 }</th>
+                <td v-html="s"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    var app = new Vue({
+        el: '#app',
+        delimiters: ['${', '}'],
+        data: {
+            query: "",
+            relations: [],
+            collocs: [],
+            sentences: [],
+            loading: false,
+            minFreq: 3,
+            maxCount: 10,
+            concordanceLabel: "",
+        },
+        methods: {
+            loadProfile() {
+                if (this.query.length === 0) {
+                    console.log("Empty query...");
+                } else {
+                    this.loading = true;
+                    this.relations = [];
+                    this.sentences = [];
+                    axios.get('/api/v1/tags', {
+                        params: {
+                            lemma: this.query,
+                        }
+                    }).then((res) => {
+                        if (res.data.length > 0) {
+                            let info = res.data[0];
+                            axios.get('/api/v1/profile', {
+                                params: {
+                                    lemma1: info.Lemma,
+                                    pos1: info.POS,
+                                    relations: info.Relations,
+                                    number: this.maxCount,
+                                }
+                            }).then((res) => {
+                                this.relations = res.data;
+                                console.log(res.data);
+                            }).catch((error) => {
+                                console.error(error);
+                            });
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+
+                    // this.eventSource = new EventSource("/api/stream?query=" + encodeURIComponent(this.query) + "&corpus=" + encodeURIComponent(this.corpus));
+                    // this.eventSource.onmessage = (event) => {
+                    //     var msg = $.parseJSON(event.data);
+                    //     if (msg.status === 'done') {
+                    //         this.stopProfile()
+                    //     }
+                    //     this.collocs = msg.res;
+                    // }
+                    this.loading = false;
+                }
+            },
+            stopProfile() {
+                console.log("Close Event.");
+                this.loading = false;
+            },
+            downloadCsv() {
+                let csvContent = "Kollokation\tRelation\tFrequenz\tSatzbeleg\n" +
+                    this.collocs.map(
+                        e => `${e.lemma} (${e.surface})\t${e.relation}\t${e.frequency}\t${e.sentence[0]}`).join("\n");
+                // TODO problem with encoding csv content (umlaute?)
+                var encodedUri = "data:text/tsv;charset=utf-8,%EF%BB%BF" + encodeURI(csvContent);
+                var link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "data.tsv");
+                document.body.appendChild(link); // Required for FF
+                link.click(); // This will download the data file named "my_data.csv".
+            },
+            viewSentences(c) {
+                axios.get('/api/v1/hits', {
+                    params: {
+                        coocc_id: c.ConcordId,
+                    }
+                }).then((res) => {
+                    this.concordanceLabel = res.data.Description;
+                    this.sentences = res.data.Tuples.map(t => {
+                        let meta = t.Bibl.Orig;
+                        let sent = t.ConcordLine.replaceAll("_&", "<b>").replaceAll("&_", "</b>").replace("&&", "<b>").replace("&&", "</b>");
+                        return "<div class='wp-bibl'>" + meta + "</div>" +
+                        "<div class='wp-concordance'>" + sent + "</div>"
+                    });
+                    console.log(res.data);
+                }).catch((error) => {
+                    console.error(error);
+                });
+
+
+                document.getElementById("exampleSentences").scrollIntoView();
+            },
+            resetSentences() {
+                this.sentences = [];
+                this.concordanceLabel = "";
+                document.body.scrollIntoView();
+            },
+            incMaxCount(i) {
+                this.maxCount += i;
+            },
+            incMinFreq(i) {
+                this.minFreq += i;
+            }
+        },
+        computed: {
+            collocsFiltered() {
+                return this.collocs.filter(c => c.frequency >= this.minFreq)
+            },
+            collocsGrouped() {
+                let collocs = this.collocsFiltered.reduce(function (r, a) {
+                    r[a.relation] = r[a.relation] || [];
+                    r[a.relation].push(a);
+                    return r;
+                }, Object.create(null));
+                for (const property in collocs) {
+                    collocs[property] = collocs[property].slice(0, this.maxCount)
+                }
+                return collocs
+            },
+        },
+    })
+</script>
+</body>
+</html>
