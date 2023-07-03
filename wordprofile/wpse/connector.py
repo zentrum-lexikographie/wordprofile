@@ -283,12 +283,11 @@ class WPConnect:
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE 
             lemma1 = %s AND lemma1_tag = %s 
-            AND label NOT REGEXP 'VZ|PP'
-            AND label REGEXP %s 
+            AND label NOT IN ('VZ', 'PP')
             AND frequency >= %s AND c.score >= %s 
         ORDER BY {order_by} DESC LIMIT %s,%s;
         """
-        params = (lemma1, lemma1_tag, '|'.join(relations), min_freq, min_stat, start, number)
+        params = (lemma1, lemma1_tag, min_freq, min_stat, start, number)
         relation_filter = {split_relation_inversion(relation) for relation in relations}
         return list(filter(lambda c: (c.rel, c.inverse) in relation_filter,
                            map(lambda i: Coocc(*i), self.__fetchall(query, params))))
@@ -353,10 +352,9 @@ class WPConnect:
         WHERE 
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s 
             AND c.frequency >= %s AND c.score >= %s
-            AND label NOT REGEXP 'VZ|PP'
-            AND label REGEXP %s
+            AND label NOT IN ('VZ', 'PP')
         ORDER BY {order_by} DESC;"""
-        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat, '|'.join(relations))
+        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
         relation_filter = {split_relation_inversion(relation) for relation in relations}
         return list(filter(lambda c: (c.rel, c.inverse) in relation_filter,
                            map(lambda i: Coocc(*i), self.__fetchall(query, params))))
