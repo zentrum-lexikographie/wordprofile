@@ -134,7 +134,7 @@ class Wordprofile:
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_relations(cooccs),
+                'Tuples': format_relations(cooccs, self.wp_spec),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results
@@ -199,7 +199,7 @@ class Wordprofile:
             results[lemma1].append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_relations(cooccs[:number], is_mwe=True),
+                'Tuples': format_relations(cooccs[:number], self.wp_spec, is_mwe=True),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return {

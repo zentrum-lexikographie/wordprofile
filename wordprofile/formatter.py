@@ -36,13 +36,14 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     return results
 
 
-def format_relations(cooccs: List[Coocc], is_mwe=False):
+def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     """Converts co-occurrences into output format
     """
     results = []
     for coocc in cooccs:
         results.append({
             'Relation': ('~' if coocc.inverse else '') + coocc.rel,
+            'RelationDescription': wp_spec.mapRelDesc.get(coocc.rel, wp_spec.strRelDesc),
             'POS': tag_b2f[coocc.tag2],
             'PosId': tag_b2f[coocc.tag2],
             'Form': coocc.form2,
