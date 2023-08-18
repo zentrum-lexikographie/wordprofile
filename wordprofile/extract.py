@@ -8,9 +8,7 @@ RELATION_PATTERNS = {
         'desc': "hat Adverbialbestimmung",
         'inverse': "ist Adverbialbestimmung von",
         'rules': [
-            ('advmod', 'verb', 'adj'),
             ('advmod', 'verb', 'adv'),
-            ('advmod', 'adj', 'adj'),
             ('advmod', 'adj', 'adv'),
         ],
     },
