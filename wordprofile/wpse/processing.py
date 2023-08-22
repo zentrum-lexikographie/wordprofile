@@ -14,7 +14,6 @@ import conllu
 from conllu.models import TokenList
 
 from wordprofile.datatypes import DBToken
-from wordprofile.formatter import RE_HIT_DELIMITER2
 from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
 from wordprofile.zdl import repair_lemma, sentence_is_valid, extract_matches_from_doc
@@ -166,15 +165,6 @@ def process_doc_file(file_reader_queue: Queue, db_files_queue: Queue, db_sents_q
             logging.warning(traceback.format_exc())
 
 
-def is_valid_sentence(sentence: str):
-    """Hard constraints for concordances.
-
-    End with sentence delimiter, have a certain length, and start with uppercase letter.
-    """
-    s = RE_HIT_DELIMITER2.split(sentence.strip('\x01\x02'))
-    return s[-1] in '.!?\'"' and 8 <= len(s) <= 25 and s[0][0].isupper()
-
-
 def process_files(file_path: str, storage_path: str, njobs: int = 1):
     """Extract WP related information from given files.
 
@@ -241,25 +231,21 @@ def reindex_filter_concordances(fins, fout, corpus_file_idx, fout_invalid, fout_
 
     sent_hashes = set()
     sents_idx = []
-    with open(fout, 'w') as sents_out, open(fout_invalid, 'w') as invalids_out, open(fout_duplicate, 'w') as dups_out:
+    with open(fout, 'w') as sents_out, open(fout_duplicate, 'w') as dups_out:
         for fin in fins:
             logging.info(f"- {fin}")
             with open(fin, 'r') as sents_in:
                 for item in sents_in:
                     doc_corpus, sent_id, sentence, page = item.split('\t')
                     doc_id = str(corpus_file_idx[doc_corpus])
-                    # checks whether sentence satisfies hard constraints
-                    if is_valid_sentence(sentence):
-                        sent_hash = get_robust_hash(sentence)
-                        # checks for duplicates based on sentence checksum (md5)
-                        if sent_hash not in sent_hashes:
-                            sent_hashes.add(sent_hash)
-                            sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
-                            sents_idx.append((doc_id, sent_id))
-                        else:
-                            dups_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
+                    sent_hash = get_robust_hash(sentence)
+                    # checks for duplicates based on sentence checksum (md5)
+                    if sent_hash not in sent_hashes:
+                        sent_hashes.add(sent_hash)
+                        sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
+                        sents_idx.append((doc_id, sent_id))
                     else:
-                        invalids_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
+                        dups_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
     return set(sents_idx)
 
 
