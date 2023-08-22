@@ -76,6 +76,8 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
     return [normalize_caps(DBToken(
         idx=token['id'],
         surface=remove_invalid_chars(token['form']),
+        # TODO remove lemma repair call
+        # ==> lemma=remove_invalid_chars(token['lemma']),
         lemma=repair_lemma(remove_invalid_chars(token['lemma']), token['upos']),
         tag=entity_tag_conversion(token),
         head=token['head'],
