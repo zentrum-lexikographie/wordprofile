@@ -202,7 +202,7 @@
                 this.loading = false;
             },
             downloadCsv() {
-                let csvContent = "Kollokation\tRelation\tFrequenz\tScore\n" +
+                let csvContent = `Kollokation mit ${this.query}\tRelation\tFrequenz\tScore\n` +
                     this.collocs.map(
                         e => `${e.lemma} (${e.form})\t${e.relation}\t${e.frequency}\t${e.score}`).join("\n");
                 // TODO problem with encoding csv content (umlaute?)
@@ -248,11 +248,11 @@
                 return this.relations.flatMap(relTuples =>
                     relTuples.Tuples.map(c => {
                         return {
-                            relation: relTuples.Relation,
+                            relation: relTuples.Description,
                             form: c.Form,
                             lemma: c.Lemma,
                             frequency: c.Score.Frequency,
-                            score: c.Score.logDice,
+                            score: Math.round(c.Score.logDice * 100) / 100,
                             sentence: "",
                         }
                     }))
