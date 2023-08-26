@@ -28,6 +28,7 @@ class Coocc:
     score: float
     inverse: int
     has_mwe: int
+    num_concords: int
 
 
 @dataclass

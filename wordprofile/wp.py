@@ -11,7 +11,6 @@ from wordprofile.formatter import format_comparison, format_concordances, format
 from wordprofile.utils import tag_f2b, tag_b2f
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
-from wordprofile.wpse.variations import generate_orth_variations
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
 logger = logging.getLogger('wordprofile')
@@ -39,13 +38,12 @@ class Wordprofile:
             "corpora": self.db.get_corpus_file_stats(),
         }
 
-    def get_lemma_and_pos(self, lemma: str, pos: str = '', use_external_variations: bool = True) -> List[dict]:
+    def get_lemma_and_pos(self, lemma: str, pos: str = '') -> List[dict]:
         """Fetches lemma information from word-profile database.
 
         Args:
             lemma: Lemma of interest.
-            pos: Pos tag of first lemma.
-            use_external_variations: Whether to use variations for either lemmas if not found in database.
+            pos (optional): Pos tag of first lemma.
 
         Return:
             List of lemma-pos combinations with stats and possible relations.
@@ -56,31 +54,20 @@ class Wordprofile:
         lemma = lemma.replace("+", ' ')
         pos = tag_f2b[pos]
         results = self.db.get_lemma_and_pos(lemma, pos)
-        # if not found in word-profile database, try variations mapping
-        if not results and use_external_variations and lemma in self.wp_spec.mapVariation:
-            lemma = self.wp_spec.mapVariation[lemma]
-            results = self.db.get_lemma_and_pos(lemma, pos)
-        # if not found in variations mapping, try orthographic variations function
-        if not results and use_external_variations:
-            for lemma in generate_orth_variations(lemma):
-                results = self.db.get_lemma_and_pos(lemma, pos)
-                if results:
-                    break
         return format_lemma_pos(results, self.wp_spec.mapRelOrder)
 
-    def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str, use_variations: bool = True) -> List[dict]:
+    def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str) -> List[dict]:
         """Fetches lemma pairs with common pos tags from word-profile database.
 
         Args:
             lemma1: Lemma of interest.
             lemma2: Lemma for comparison.
-            use_variations: Whether to use variations for either lemmas if not found in database.
 
         Returns:
             List of lemma1–lemma2 combinations with additional information such as frequency and relation.
         """
-        list1 = self.get_lemma_and_pos(lemma1, use_external_variations=use_variations)
-        list2 = self.get_lemma_and_pos(lemma2, use_external_variations=use_variations)
+        list1 = self.get_lemma_and_pos(lemma1)
+        list2 = self.get_lemma_and_pos(lemma2)
         # checks lemma pairs for common pos tags
         results = []
         for i in list1:
@@ -107,8 +94,8 @@ class Wordprofile:
         Args:
             lemma1: Lemma of interest, first collocate.
             pos1: Pos tag of first lemma.
-            lemma2 (optional): Second collocate.
-            pos2 (optional): Pos tag of second lemma.
+            lemma2 (deprecated): Second collocate.
+            pos2 (deprecated): Pos tag of second lemma.
             relations (optional): List of relation labels.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
@@ -119,23 +106,22 @@ class Wordprofile:
         Return:
             List of selected collocations grouped by relation.
         """
-        for lemma in [lemma1, lemma2]:
-            if lemma and not RE_LEMMA.fullmatch(lemma):
-                raise ValueError(f"Request for invalid lemma: ({lemma})")
+        if lemma1 and not RE_LEMMA.fullmatch(lemma1):
+            raise ValueError(f"Request for invalid lemma: ({lemma1})")
 
         results = []
         for relation in relations:
             # meta relation is a summary of all relations
             if relation == 'META':
-                cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
-                                                   order_by, min_freq, min_stat, self.wp_spec.mapRelOrder[pos1])
+                cooccs = self.db.get_relation_meta(lemma1, tag_f2b[pos1], start, number, order_by, min_freq, min_stat,
+                                                   self.wp_spec.mapRelOrder[pos1])
             else:
-                cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], lemma2, pos2, start, number,
-                                                     order_by, min_freq, min_stat, relation)
+                cooccs = self.db.get_relation_tuples(lemma1, tag_f2b[pos1], start, number, order_by, min_freq, min_stat,
+                                                     relation)
             results.append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_relations(cooccs),
+                'Tuples': format_relations(cooccs, self.wp_spec),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return results
@@ -200,7 +186,7 @@ class Wordprofile:
             results[lemma1].append({
                 'Relation': relation,
                 'Description': self.wp_spec.mapRelDesc.get(relation, self.wp_spec.strRelDesc),
-                'Tuples': format_relations(cooccs[:number], is_mwe=True),
+                'Tuples': format_relations(cooccs[:number], self.wp_spec, is_mwe=True),
                 'RelId': "{}#{}#{}".format(lemma1, pos1, relation)
             })
         return {

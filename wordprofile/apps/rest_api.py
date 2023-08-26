@@ -1,11 +1,13 @@
 import logging
-import os
-import time
 from argparse import ArgumentParser
 from typing import List
 
 import uvicorn
 from fastapi import FastAPI, Query
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+from starlette.requests import Request
+
 
 import wordprofile.config as config
 from wordprofile.utils import configure_logger
@@ -19,6 +21,8 @@ parser.add_argument("--db-user", type=str, help="database username", default=con
 parser.add_argument("--db-password", type=str, help="database password", default=str(config.DB_PASSWORD))
 parser.add_argument("--http-hostname", type=str, help="REST API hostname", default=config.HTTP_HOSTNAME)
 parser.add_argument("--http-port", type=int, help="REST API port", default=config.HTTP_PORT)
+parser.add_argument("--workers", type=int, help="Number of Uvicorn workers", default=config.HTTP_WORKERS)
+parser.add_argument("--debug", action='store_true', help="Activate debug mode.")
 
 args = parser.parse_args()
 
@@ -26,9 +30,15 @@ logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG)
 
 wp = Wordprofile(args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec)
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="wordprofile/apps/static"), name="static")
+templates = Jinja2Templates(directory="wordprofile/apps/static")
 
 
-@app.get("/", tags=['info'])
+@app.get("/", tags=['view'])
+async def get_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
 @app.get("/status", tags=['info'])
 async def status():
     """Let icinga know the word profile is online.
@@ -50,12 +60,12 @@ async def get_lemma(lemma: str, pos: str = "", use_external_variations: bool = T
     Args:
         lemma: Lemma of interest.
         pos: Pos tag of first lemma.
-        use_external_variations: Whether to use variations for either lemmas if not found in database.
+        use_external_variations (deprecated): Whether to use variations for either lemmas if not found in database.
 
     Returns:
         List of lemma-pos combinations with stats and possible relations.
     """
-    return wp.get_lemma_and_pos(lemma, pos, use_external_variations)
+    return wp.get_lemma_and_pos(lemma, pos)
 
 
 @app.get("/api/v1/cmp/tags", tags=['cmp'])
@@ -65,13 +75,13 @@ async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool 
     Args:
         lemma1: Lemma of interest.
         lemma2: Lemma for comparison.
-        use_variations: Whether to use variations for either lemmas if not found in database.
+        use_variations (deprecated): Whether to use variations for either lemmas if not found in database.
 
     Returns:
         List of lemma1–lemma2 combinations with additional information such as frequency and relation.
     """
 
-    return wp.get_lemma_and_pos_diff(lemma1, lemma2, use_variations)
+    return wp.get_lemma_and_pos_diff(lemma1, lemma2)
 
 
 @app.get("/api/v1/list/tags", tags=['list'])
@@ -116,8 +126,8 @@ async def get_relations(lemma1: str, pos1: str, lemma2: str = '', pos2: str = ''
     Args:
         lemma1: Lemma of interest, first collocate.
         pos1: Pos tag of first lemma.
-        lemma2 (optional): Second collocate.
-        pos2 (optional): Pos tag of second lemma.
+        lemma2 (deprecated): Second collocate.
+        pos2 (deprecated): Pos tag of second lemma.
         relations (optional): List of relation labels.
         start (optional): Number of collocations to skip.
         number (optional): Number of collocations to take.
@@ -245,7 +255,8 @@ def get_mwe_concordances_and_relation(coocc_id: int, use_context: bool = False, 
 
 
 def main():
-    uvicorn.run("wordprofile.apps.rest_api:app", host=args.http_hostname, port=args.http_port, log_level="debug", reload=True)
+    uvicorn.run("wordprofile.apps.rest_api:app", host=args.http_hostname, port=args.http_port, workers=args.workers,
+                log_level="debug", reload=args.debug)
 
 
 if __name__ == '__main__':

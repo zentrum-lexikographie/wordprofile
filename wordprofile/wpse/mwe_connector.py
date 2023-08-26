@@ -121,7 +121,8 @@ class WPMweConnect:
         query = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
+            (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
@@ -139,7 +140,8 @@ class WPMweConnect:
             c = res[0]
             return Coocc(id=c[0], rel=c[1], lemma1="{}-{}".format(c[5], c[6]), lemma2=c[2],
                          form1="{}-{}".format(c[11], c[12]), form2=c[10],
-                         tag1="{}-{}".format(c[7], c[8]), tag2=c[3], freq=c[4], score=c[9], inverse=0, has_mwe=0)
+                         tag1="{}-{}".format(c[7], c[8]), tag2=c[3], freq=c[4], score=c[9], inverse=0, has_mwe=0,
+                         num_concords=c[13])
 
     def get_relation_tuples(self, coocc_ids: List[int], order_by: str, min_freq: int, min_stat: float) -> List[Coocc]:
         """Fetches MWE with related statistics for a specific relation from database backend.
@@ -155,7 +157,8 @@ class WPMweConnect:
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
-            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
+            (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
@@ -170,7 +173,8 @@ class WPMweConnect:
         params = coocc_ids + [min_freq, min_stat]
         return [Coocc(id=i[0], rel=i[1], lemma1="{}-{}".format(i[5], i[6]), lemma2=i[2],
                       form1="{}-{}".format(i[11], i[12]), form2=i[10],
-                      tag1="{}-{}".format(i[7], i[8]), tag2=i[3], freq=i[4], score=i[9], inverse=0, has_mwe=0)
+                      tag1="{}-{}".format(i[7], i[8]), tag2=i[3], freq=i[4], score=i[9], inverse=0, has_mwe=0,
+                      num_concords=i[13])
                 for i in self.__fetchall(sql, params)]
 
     def get_collocations(self, lemma1: str, lemma2: str) -> List[Coocc]:
@@ -187,7 +191,8 @@ class WPMweConnect:
             SELECT
                 c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-                IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe
+                IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe,
+                (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
             FROM 
                 collocations c
             JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 

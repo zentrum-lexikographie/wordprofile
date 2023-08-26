@@ -7,16 +7,17 @@ from collections import OrderedDict
 import click
 import conllu
 import torch
-import trankit
 from tqdm import tqdm
 
 
-class Parser:
+class TrankitParser:
 
-    def __init__(self, lang='german-hdt', tagbatch=12):
+    def __init__(self, model_type='german-hdt', embedding='xlm-roberta-base', tagbatch=12):
+        import trankit
         tmp_stdout = sys.stdout
         sys.stdout = sys.stderr
-        self.parser = trankit.Pipeline(lang, cache_dir=os.path.expanduser('~/.trankit/'))
+        self.parser = trankit.Pipeline(model_type, embedding=embedding,
+                                       cache_dir=os.path.expanduser('~/.trankit/'))
         self.parser._tagbatchsize = tagbatch
         self.parser("Init")
         sys.stdout = tmp_stdout
@@ -36,7 +37,6 @@ class Parser:
                             token['misc'] = OrderedDict([('NER', words[tok_i].get('ner'))])
                     # stay with the original lemma for better compliance
                     token.update(
-                        # lemma=words[tok_i].get('lemma', '_'),
                         upos=words[tok_i].get('upos', '_'),
                         xpos=words[tok_i].get('xpos', '_'),
                         feats=words[tok_i].get('feats', '_'),
@@ -46,6 +46,76 @@ class Parser:
         except RuntimeError as e:
             sys.stderr.write(f'Runtime Error: {e}')
         return sentences
+
+
+class StanzaParser:
+
+    def __init__(self, model_type="default"):
+        import stanza
+        self.parser = stanza.Pipeline(lang='de',
+                                      package=model_type,
+                                      processors='tokenize,pos,lemma,depparse,ner',
+                                      tokenize_pretokenized=True)
+        self.parser("Init")
+
+    def __call__(self, sentences):
+        sentences_in = [[token['form'] if token['form'] else '---' for token in sentence] for sentence in sentences]
+        doc = self.parser(sentences_in)
+        for sent_i, sent in enumerate(sentences):
+            words = doc.sentences[sent_i].words
+            for tok_i, (token, word) in enumerate(zip(sent, doc.sentences[sent_i].tokens)):
+                ner_pred = word.ner
+                if token['misc'] and 'NER' in token['misc']:
+                    del token['misc']['NER']
+                if token['misc'] and 'LT' in token['misc']:
+                    del token['misc']['LT']
+                if ner_pred and ner_pred != 'O':
+                    if token['misc']:
+                        token['misc']['NER'] = ner_pred
+                    else:
+                        token['misc'] = OrderedDict([('NER', ner_pred)])
+                token.update(
+                    upos=words[tok_i].upos,
+                    xpos=words[tok_i].xpos,
+                    feats=words[tok_i].feats if words[tok_i].feats else "_",
+                    head=words[tok_i].head,
+                    deprel=words[tok_i].deprel
+                )
+        return sentences
+
+
+class SpacyParser:
+
+    def __init__(self, model_path="", batch_size=256):
+        import spacy
+        from spacy.tokens import Doc
+
+        tmp_stdout = sys.stdout
+        sys.stdout = sys.stderr
+        self.nlp = spacy.load(model_path or "de_dep_hdt_sm")
+        self.batch_size = batch_size
+        sys.stdout = tmp_stdout
+        self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
+
+    def custom_tokenizer(self, sentence):
+        return self.make_doc(token['form'] if token['form'] else '---' for token in sentence)
+
+    def __call__(self, sentences):
+        try:
+            docs = self.nlp.pipe(map(self.custom_tokenizer, sentences), batch_size=self.batch_size)
+            for sent_i, (sent, doc) in enumerate(zip(sentences, docs)):
+                for tok_i, (token, word) in enumerate(zip(sent, doc)):
+                    token.update(
+                        upos=word.pos_,
+                        xpos=word.tag_,
+                        feats=word.morph if word.morph else "_",
+                        head=0 if word.dep_ == 'ROOT' else word.head.i + 1,
+                        deprel=word.dep_,
+                    )
+        except RuntimeError as e:
+            sys.stderr.write(f'Runtime Error: {e}')
+        return sentences
+
 
 
 def iter_conll_sentences(file_handle):
@@ -92,15 +162,22 @@ def extract_meta_from_str(doc_str: str):
 @click.option('-i', '--input', default='-', type=click.File('r'))
 @click.option('-o', '--output', default='-', type=click.File('w'))
 @click.option('-c', '--cont', default='.', type=click.Path())
+@click.option('--parser-type', default='trankit', type=str)
 @click.option('--lang', default='german-hdt', type=str)
-@click.option('--tagbatch', default=12, type=int)
 @click.option('--nthreads', default=1, type=int)
-def main(input, output, cont, lang, tagbatch, nthreads):
+def main(input, output, cont, parser_type, lang, nthreads):
     torch.set_num_threads(nthreads)
-    parser = Parser(lang=lang, tagbatch=tagbatch)
-    # We provide the field definition explicitly, so the parser does not seek
-    # through the input stream, looking for a field declaration. The latter
-    # will fail on piped stdin.
+    if parser_type == 'trankit':
+        parser = TrankitParser(model_type=lang)
+    elif parser_type == 'trankit-xl':
+        parser = TrankitParser(model_type=lang, embedding='xlm-roberta-large')
+    elif parser_type == 'stanza':
+        parser = StanzaParser(model_type=lang)
+    elif parser_type == 'spacy':
+        parser = SpacyParser(model_path=lang)
+    else:
+        raise ValueError('Unknown parser!')
+
     if cont != '.':
         if cont.endswith('bz'):
             fh = bz2.open(cont, 'rt')

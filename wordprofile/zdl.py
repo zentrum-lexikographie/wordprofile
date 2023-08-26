@@ -38,6 +38,7 @@ def extract_matches_from_doc(parses: List[List[DBToken]]):
     return matches
 
 
+# TODO: Lemma Repair To Be Removed
 def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
     """
     Load static repair mapping files into dict.
@@ -70,7 +71,7 @@ def repair_lemma(lemma: str, lemma_tag: str) -> str:
     if lemma_tag in LEMMA_REPAIR:
         return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
     return lemma
-
+# REMOVE END
 
 def sent_filter_length(sentence: List[DBToken]) -> bool:
     return 3 <= len(sentence) <= 100
@@ -78,10 +79,6 @@ def sent_filter_length(sentence: List[DBToken]) -> bool:
 
 def sent_filter_endings(sentence: List[DBToken]) -> bool:
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
-
-
-def sent_filter_lower_start(sentence: List[DBToken]) -> bool:
-    return not sentence[0].surface.islower() or sentence[0].tag == 'PRON'
 
 
 def sent_filter_tags(sentence: List[DBToken]) -> bool:

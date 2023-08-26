@@ -6,7 +6,6 @@ from wordprofile.datatypes import Coocc, Concordance, LemmaInfo, MweConcordance
 from wordprofile.utils import tag_b2f
 
 RE_HIT_DELIMITER = re.compile(r'([^\x01\x02]+)([\x01\x02])')
-RE_HIT_DELIMITER2 = re.compile(r'[\x01\x02]')
 
 
 def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
@@ -20,29 +19,30 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     results = []
     for (lemma, form, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
+        pos_tag = tag_b2f.get(pos)
+        if pos_tag not in relation_order:
+            continue
         if len(relations) > 1:
-            relations = ['META'] + [r for r in relation_order[tag_b2f.get(pos)] if r in relations]
+            relations = ['META'] + [r for r in relation_order[pos_tag] if r in relations]
         results.append({
             'Form': form,
             'Lemma': lemma,
-            'POS': tag_b2f[pos],
-            'PosId': tag_b2f[pos],
+            'POS': pos_tag,
+            'PosId': pos_tag,
             'Frequency': sum(frequencies),
             'Relations': relations
         })
     return results
 
 
-def format_relations(cooccs: List[Coocc], is_mwe=False):
+def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     """Converts co-occurrences into output format
     """
     results = []
     for coocc in cooccs:
-        concord_no = coocc.freq
-        if coocc.rel == 'KON' and coocc.lemma1 == coocc.lemma2:
-            concord_no = concord_no // 2
         results.append({
             'Relation': ('~' if coocc.inverse else '') + coocc.rel,
+            'RelationDescription': wp_spec.mapRelDesc.get(coocc.rel, wp_spec.strRelDesc),
             'POS': tag_b2f[coocc.tag2],
             'PosId': tag_b2f[coocc.tag2],
             'Form': coocc.form2,
@@ -52,8 +52,8 @@ def format_relations(cooccs: List[Coocc], is_mwe=False):
                 'logDice': coocc.score,
             },
             'ConcordId': ('#mwe' if is_mwe else '') + str(coocc.id),
-            'ConcordNo': concord_no,
-            'ConcordNoAccessible': concord_no,
+            'ConcordNo': coocc.num_concords,
+            'ConcordNoAccessible': coocc.num_concords,
             'HasMwe': coocc.has_mwe
         })
     return results

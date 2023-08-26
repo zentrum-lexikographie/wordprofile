@@ -1,10 +1,4 @@
 {
-  "Variations": "./spec/lex_variations.csv",
-  "LemmaRepair": {
-    "Substantiv": "./spec/lemma_repair_substantiv.csv",
-    "Verb": "./spec/lemma_repair_verb.csv",
-    "Adjektiv": "./spec/lemma_repair_adjektiv.csv"
-  },
   "RelDescDefault": [
     "tritt auf mit",
     "$1 tritt auf mit $2"

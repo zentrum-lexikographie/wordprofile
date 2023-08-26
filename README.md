@@ -8,137 +8,56 @@ Im Ordner `log` werden Server-Logfiles hinterlegt.
 
 ## Erstellen eines Wortprofils
 Ausgeführte Aufgaben:
-- Initialisieren der Datenbank
-- Extraktion der Relationen
-- Befüllen der DB Tabellen mit extrahierten Matches
-- Berechnung der Statistiken
-- Finden von MWE aus extrahierten Matches
+1. Extraktion der Relationen
+2. Berechnung der Statistiken
+3. Finden von MWE aus extrahierten Matches
+4. Initialisieren der Datenbank
+5. Befüllen der DB Tabellen mit extrahierten Matches
 
-```
-usage: make_wp.py [-h] [--user USER] [--db DB] [--input INPUT] [--create-wp]
-                  [--tmp TMP] [--njobs NJOBS]
+Wortprofile werden in zwei Schritten erstellt: 
+Bevor ein vollständiges Wortprofil erstellt wird, werden die einzelnen Korpora separat verarbeitet, Matches extrahiert und darauf Kollokationen gezählt. Dies reduziert die Arbeit im zweiten Schritt wenn die gesamten Daten verarbeitet werden sollen.
+Im nachfolgenden werden die drei Skripte kurz erklärt, die für die Erstellung genutzt werden und im Skript `make_wp.sh` kombiniert sind.
+Erstellt werden soll ein Test-Wortprofil aus zwei Korpora: `dradio` und `pnn`, welche bereits im CoNLL Format vorliegen und entsprechende Annotationen (POS, NER, DEPREL) besitzen.
 
-optional arguments:
-  -h, --help     show this help message and exit
-  --user USER    database username
-  --db DB        database name
-  --input INPUT  conll input file
-  --create-wp    create wordprofile from tmp data
-  --tmp TMP      temporary storage path
-  --njobs NJOBS  number of process jobs
-```
-Beispielaufruf:
-
-Einlesen von `stdin`, erstellen der Wortprofil Tabellen und speichern unter dem `tmp` Pfad:
-```shell script
-$ cat some.conll | python3 cli/make_wp.py --tmp /mnt/SSD/data/wp_dev
+### Kollokationsextraktion
+In diesem ersten Schritt werden für jeden Korpus (dradio und pnn) die jeweiligen Matches extrahiert, die Satzbelege aufgearbeitet und die Korpus-Kollokationsstatistik berechnet.
+Die Daten liegen in nicht-komprimierter Form vor.
+Dies erleichtert den Schritt der Vereinigung aller Teilkorpora erheblich.
+```shell
+python3.7 -m wordprofile.cli.extract_collocations --input corpora/dradio.conll --dest test_wp/stage/dradio --njobs 4
+python3.7 -m wordprofile.cli.extract_collocations --input corpora/pnn.conll --dest test_wp/stage/pnn --njobs 4
 ```
 
-Erstellt ein Wortprofil aus einer gegebenen *conll* Datei und lädt die in `tmp` erstellten Tabellen in die Datenbank:
-```shell script
-$ python3 cli/make_wp.py --input test.conll --tmp /mnt/SSD/data/wp_dev --njobs 4 --create-wp --user wpuser --db wp_dev 
+### Berechnung Wortprofil
+Als nächstes werden die extrahierten Informationen beider Korpora aus `test_wp/stage` vereint und unter `test_wp/final` gespeichert.
+Weiterhin werden die Daten für die Datenbank vorbereitet und komprimiert bzw. normalisiert.
+Statistiken werden in der jeweiligen Kollokationsdatei ergänzt, bevor diese ausgeschrieben wird.
+
+```shell
+python3.7 wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 3 --mwe
+```
+In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 3 aufweisen.
+Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweiter sich überlappender Kollokationen ergeben.
+
+### DB befüllen
+Im letzten Schritt wird das finale, komprimierte und für die Datenbank vorbereitete Wortprofil in die Datenbank transferiert.
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können.
+Anschließend werden noch notwendige Indizes erstellt, welche eine performante Abfrage der Kollokationen und ihrer Informationen ermöglichen.
+```shell
+python3.7 wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
 ```
 
-Deaktiviert die Eingabe und lädt zuvor erstelle Tabellendateien in die Datenbank:
-```shell script
-$ python3 cli/make_wp.py --input '' --tmp /mnt/SSD/data/wp_dev_ud --create-wp --user wpuser --db wp_dev
-```
+## REST Service
 
-## Service
-
-Ein fertig erstelltes Wortprofil kann als Service (XMLRPC oder REST) bereitgestellt werden.
+Ein fertig erstelltes Wortprofil kann als REST Service bereitgestellt werden.
 Über diesen Service werden alle Funktionen zur Wortprofil Datenbank abgewickelt.
-
-### XMLRPC
-```
-usage: xmlrpc_api.py [-h] --user USER --database DATABASE
-                     [--hostname HOSTNAME] [--db-hostname DB_HOSTNAME]
-                     [--passwd] [--port PORT] --spec SPEC [--log LOGFILE]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --user USER           database username
-  --database DATABASE   database name
-  --hostname HOSTNAME   XML-RPC hostname
-  --db-hostname DB_HOSTNAME
-                        XML-RPC hostname
-  --port PORT           XML-RPC port
-  --spec SPEC           Angabe der Settings-Datei (*.xml)
-  --log LOGFILE         Angabe der log-Datei (Default: log/wp_{date}.log)
-```
-Sowohl für XMLRPC als auch REST können Umgebungsvariablen festgelegt werden, welche entsprchende Kommandozeilenparamter ersetzen:
-- user: `WP_USER`
-- database: `WP_DB`
-- password: `WP_PASSWORD` oder der Username (*wp_user*) falls unbelegt.
-
-Starten des XMLRPC Service:
-```shell script
-python3 apps/xmlrpc_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json
-```
-
-Über die XMLRPC Schnittstelle werden folgende Funktionen (mit den jeweils obligatorischen Argumenten) bereitgestellt:
-- get_lemma_and_pos({Word: str, POS: str, UseVariations: bool})
-- get_lemma_and_pos_diff({ Word1: str, Word2: str, UseVariations: bool})
-- get_relations({Lemma: str, POS: str})
-- get_diff({LemmaId1: str, LemmaId2: str, PosId: str})
-- get_intersection({LemmaId1: str, LemmaId2: str, PosId: str})
-- get_relation_by_info_id({coocc_id: int})
-- get_concordances_and_relation({coocc_id: int})
-
-### REST API
+Parameter wie Nutzername und Passwort der Datenbank sollten über `.env` festgelegt werden.
 
 ```shell script
-python3 apps/rest_api.py --user wpuser --database wp_test --hostname riker --spec spec/config.json
+python3 -m wordprofile.apps.rest_api --http-port 5050 --db-name test_wp
 ```
-
-Über die REST Schnittstellen sollen die gleichen Funktionen über eine URL zur verfügung stehen und so leichter zuganglich gemacht werden.
-- `/info/lemma/`: get_lemma_and_pos
-- `/info/lemmas/`: get_lemma_and_pos_diff
-- `/rel/`: get_relations
-- `/cmp/difference/`: get_diff
-- `/cmp/intersection/`: get_intersection
-- `/lemma/id/{coocc_id}`: get_relation_by_info_id
-- `/hits/{coocc_id}`: get_concordances_and_relation
-
 Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
 
-## CLI
-Zusätzlich für Tests oder ähliches bietet `cli/wp.py` die Möglichkeit, ohne laufenden WP Service die Funktionalität zu testen.
-Hierfür wird ein temporäres WP erstellt.
-
-### Einfache Abfrage
-Abfrage einfacher Kookkurrenzen zu verschiedenen syntaktischen Relationen:
-```shell script
-python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json rel -l Mann
-```
-
-Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
-```shell script
-python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json hit -i 1948509
-```
-
-Vergleich der Wortprofile zweier Lemmata:
-```shell script
-python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json cmp --lemma1 Mann --lemma2 Frau --nbest 5
-```
-
-### MWE Abfrage
-
-```shell script
-python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json mwe-rel -l laufen,schnell
-```
-
-Abfrage von Texttreffern zu einer Kookkurrenz. Für die Abfrage wird die Treffer-ID (hit id) genutzt:
-```shell script
-python3 cli/wp.py --user DBUSER --database DBNAME --hostname localhost --port 8086 --spec spec/config.json mwe-hit -i 1948509
-```
-
-### WP Vergleich
-
-Vergleich von zwei parallel laufenden WP Instanzen (host1, host2):
-```shell script
-python3 cli/cmp_wp.py --host2 riker:8086 --host1 services3.dwds.de:7780 -r META -n 10
-```
 
 ## Build
 
