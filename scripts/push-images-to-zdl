@@ -4,7 +4,7 @@ import os
 from pathlib import Path
 from subprocess import check_call, check_output
 
-check_call(['docker-compose', 'build'])
+check_call(['docker', 'compose', 'build'])
 
 minor_version = check_output(
     ["git", "rev-list", "HEAD", "--count"], encoding='utf8'
