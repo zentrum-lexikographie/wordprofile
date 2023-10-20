@@ -6,6 +6,16 @@ Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-S
 Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
 Im Ordner `log` werden Server-Logfiles hinterlegt.
 
+## Project setup
+
+Dependency management is done via [pipenv](https://pipenv.pypa.io/),
+virtual environments and Python version management is done via
+[pyenv](https://github.com/pyenv/pyenv#getting-pyenv):
+
+    curl https://pyenv.run | bash
+    # add pyenv hooks to ~/.bashrc
+    pip install --user pipenv
+
 ## Erstellen eines Wortprofils
 Ausgeführte Aufgaben:
 1. Extraktion der Relationen
@@ -20,6 +30,27 @@ Im nachfolgenden werden die drei Skripte kurz erklärt, die für die Erstellung 
 Erstellt werden soll ein Test-Wortprofil aus zwei Korpora: `dradio` und `pnn`, welche bereits im CoNLL Format vorliegen und entsprechende Annotationen (POS, NER, DEPREL) besitzen.
 
 ### Kollokationsextraktion
+
+```
+-rw-r--r-- 1 knaebel users  127M Feb 24  2023 sz_regional.conll.bz2
+-rw-r--r-- 1 knaebel users  554M Feb 24  2023 tsp_regional.conll.bz2
+-rw-r--r-- 1 knaebel users  590M Feb 24  2023 noz.conll.bz2
+-rw-r--r-- 1 knaebel users  727M Feb 24  2023 noz_regional.conll.bz2
+-rw-r--r-- 1 knaebel users 1000M Feb 24  2023 nzz_regional.conll.bz2
+-rw-r--r-- 1 knaebel users  931M Feb 24  2023 tsp_legacy.conll.bz2
+-rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 welt.conll.bz2
+-rw-r--r-- 1 knaebel users  1,9G Feb 24  2023 tsp.conll.bz2
+-rw-r--r-- 1 knaebel users  2,2G Feb 24  2023 fr_regional.conll.bz2
+-rw-r--r-- 1 knaebel users  2,9G Feb 24  2023 sz.conll.bz2
+-rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 nzz.conll.bz2
+-rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 sz_legacy.conll.bz2
+-rw-r--r-- 1 knaebel users  3,8G Feb 24  2023 fr.conll.bz2
+-rw-r--r-- 1 knaebel users   60M Mär  7  2023 wikivoyage.conll.bz2
+-rw-r--r-- 1 knaebel users  5,7G Mär  7  2023 wikipedia.conll.bz2
+-rw-r--r-- 1 knaebel users  838M Mär 22  2023 nnzz_regional.conll.bz2
+-rw-r--r-- 1 knaebel users  2,7G Mär 22  2023 nnzz.conll.bz2
+```
+
 In diesem ersten Schritt werden für jeden Korpus (dradio und pnn) die jeweiligen Matches extrahiert, die Satzbelege aufgearbeitet und die Korpus-Kollokationsstatistik berechnet.
 Die Daten liegen in nicht-komprimierter Form vor.
 Dies erleichtert den Schritt der Vereinigung aller Teilkorpora erheblich.
@@ -46,18 +77,6 @@ Anschließend werden noch notwendige Indizes erstellt, welche eine performante A
 ```shell
 python3.7 wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
 ```
-
-## REST Service
-
-Ein fertig erstelltes Wortprofil kann als REST Service bereitgestellt werden.
-Über diesen Service werden alle Funktionen zur Wortprofil Datenbank abgewickelt.
-Parameter wie Nutzername und Passwort der Datenbank sollten über `.env` festgelegt werden.
-
-```shell script
-python3 -m wordprofile.apps.rest_api --http-port 5050 --db-name test_wp
-```
-Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation generiert, welche unter `/docs` bzw. `/redoc` erreichbar ist.
-
 
 ## Build
 
