@@ -1,4 +1,2 @@
 [flake8]
 max_line_length=132
-
-[tool.pytest]

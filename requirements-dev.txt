@@ -1,3 +1,0 @@
-autoflake
-flake8
-pytest

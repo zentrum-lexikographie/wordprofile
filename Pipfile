@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+
+[dev-packages]
+autoflake = "*"
+flake8 = "*"
+pytest = "*"
+
+[requires]
+python_version = "3.8"
+
+[build]
+conllu = "*"
+trankit = "*"
