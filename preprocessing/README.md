@@ -20,6 +20,8 @@ Options:
 
 ```
 
+The option `--remove-invalid-sentences` filters sentences that contain at least four valid tokens. Tokens are valid if they are not POS-tagged as punctuation or as unknown (e.g. foreign-language or truncated tokens and abbreviations).
+
 ## Examples
 
 Converts `filename.tabs` to conllu and prints on console.
