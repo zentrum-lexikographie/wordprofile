@@ -6,15 +6,15 @@ def is_metadata_line(line):
     return line.startswith("%%$DDC")
 
 
-metadata_indexed_key = re.compile(r"^([^\[]+)(?:\[(\d+)\])?$")
-metadata_key_component_sep = re.compile(r"[:.]")
+METADATA_INDEXED_KEY = re.compile(r"^([^\[]+)(?:\[(\d+)\])?$")
+METADATA_KEY_COMPONENT_SEP = re.compile(r"[:.]")
 
-metadata_containers = set(["tokid", "meta", "index", "break"])
+METADATA_CONTAINERS = set(["tokid", "meta", "index", "break"])
 
 
 def parse_metadata_key(k):
-    for comp in itertools.islice(metadata_key_component_sep.split(k), 1, None):
-        m = metadata_indexed_key.match(comp)
+    for comp in itertools.islice(METADATA_KEY_COMPONENT_SEP.split(k), 1, None):
+        m = METADATA_INDEXED_KEY.match(comp)
         if m:
             yield m.group(1)
             idx = m.group(2)
@@ -43,7 +43,7 @@ def parse_metadata(metadata):
 
 def merge_metadata(prev_md, next_md):
     for k, v in next_md.items():
-        if k in metadata_containers:
+        if k in METADATA_CONTAINERS:
             prev_md[k] = merge_metadata(prev_md.get(k, {}), v)
         else:
             prev_md[k] = v

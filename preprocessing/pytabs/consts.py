@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 # Taken from https://universaldependencies.org/tagset-conversion/
-ud_pos_map = {
+UD_POS_MAP = {
     "$(": "PUNCT",  # "	PunctType=Brck	``, '', *RRB*, *LRB*, -
     "$,": "PUNCT",  # "	PunctType=Comm	,
     "$.": "PUNCT",  # "	PunctType=Peri	., :, ?, ;, !

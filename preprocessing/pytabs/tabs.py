@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Iterable
 
-from preprocessing.pytabs.consts import ud_pos_map
+from preprocessing.pytabs.consts import UD_POS_MAP
 
 
 @dataclass
@@ -178,7 +178,7 @@ class TabsDocument:
         """
 
         def is_valid_word(tag):
-            return ud_pos_map.get(tag, "X") not in ["PUNCT", "X"]
+            return UD_POS_MAP.get(tag, "X") not in ["PUNCT", "X"]
 
         sents_valid = []
         for sent in self.sentences:
@@ -262,7 +262,7 @@ class TabsDocument:
             for token_i, token in enumerate(conll_sent):
                 buf.write(
                     "{idx}\t{t.surface}\t{t.lemma}\t{xpos}\t{t.tag}\t_\t{t.head}\t{t.rel}\t_\t{t.misc}\n".format(
-                        idx=token_i + 1, t=token, xpos=ud_pos_map.get(token.tag, "X")
+                        idx=token_i + 1, t=token, xpos=UD_POS_MAP.get(token.tag, "X")
                     )
                 )
             buf.write("\n")
