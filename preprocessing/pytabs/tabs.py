@@ -121,9 +121,9 @@ class TabsDocument:
                     doc.index_short[name] = shortname
                 elif line.startswith("%%$DDC:BREAK"):
                     meta_sent.append(line[len("%%$DDC:BREAK.") :].split("="))
-                elif line.strip() and not line.startswith("%%$DDC"):
+                elif line and not line.startswith("%%$DDC"):
                     tokens.append(tuple(line.split("\t")))
-                elif not line.strip() and tokens and meta_sent:
+                elif not line and tokens and meta_sent:
                     doc.sentences.append(TabsSentence(meta_sent, tokens))
                     meta_sent = []
                     tokens = []
@@ -206,9 +206,9 @@ class TabsDocument:
                     ].strip()
                 elif line.startswith("# DDC:BREAK"):
                     meta_sent.append(line[len("# DDC:BREAK.") :].split(" = "))
-                elif line.strip() and not line.startswith("#"):
+                elif line and not line.startswith("#"):
                     tokens.append(tuple(line.split("\t")))
-                elif not line.strip() and tokens and meta_sent:
+                elif not line and tokens and meta_sent:
                     doc.sentences.append(TabsSentence(meta_sent, tokens))
                     meta_sent = []
                     tokens = []
