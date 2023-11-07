@@ -10,6 +10,7 @@ from preprocessing.pytabs.consts import ud_pos_map
 @dataclass
 class TabsToken:
     """Class for keeping track of tabs token."""
+
     surface: str
     lemma: str
     pos: str
@@ -22,6 +23,7 @@ class TabsToken:
 @dataclass
 class ConllToken:
     """Class for keeping track of tabs token."""
+
     surface: str
     lemma: str
     tag: str
@@ -35,8 +37,8 @@ class ConllToken:
 
 
 class TabsSentence:
-    """Data structure for processing sentences in tabs files - stores also meta data referring to the sentence.
-    """
+    """Data structure for processing sentences in tabs files
+    - stores also meta data referring to the sentence."""
 
     def __init__(self, meta: List[List[str]], tokens: Iterable):
         self.meta = meta
@@ -46,15 +48,30 @@ class TabsSentence:
         self.tokens = [row + (item,) for row, item in zip(self.tokens, column_items)]
 
     def to_tabs_token(self, index):
-        return [TabsToken(t[index["Token"]], t[index["Lemma"]], t[index["Pos"]], int(t[index["WordSep"]]))
-                for t in self.tokens]
+        return [
+            TabsToken(
+                t[index["Token"]],
+                t[index["Lemma"]],
+                t[index["Pos"]],
+                int(t[index["WordSep"]]),
+            )
+            for t in self.tokens
+        ]
 
     def to_conll(self, index):
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
-        tokens = [ConllToken(t[index["Token"]], t[index["Lemma"]], t[index["Pos"]], "",
-                             t[index["Head"]] if "Head" in index else "_",
-                             t[index["Deprel"]] if "Deprel" in index else "_", str(t[index["WordSep"]]))
-                  for t in self.tokens]
+        tokens = [
+            ConllToken(
+                t[index["Token"]],
+                t[index["Lemma"]],
+                t[index["Pos"]],
+                "",
+                t[index["Head"]] if "Head" in index else "_",
+                t[index["Deprel"]] if "Deprel" in index else "_",
+                str(t[index["WordSep"]]),
+            )
+            for t in self.tokens
+        ]
         for t_i, t in enumerate(tokens):
             if t_i > 0 and t.misc == "0":
                 tokens[t_i - 1].misc = "SpaceAfter=No"
@@ -68,8 +85,8 @@ class TabsSentence:
 
 
 class TabsDocument:
-    """Data structure for processing tabs files and generate output in either tabs or conllu format.
-    """
+    """Data structure for processing tabs files and generate output in
+    either tabs or conllu format."""
 
     def __init__(self):
         self.meta = {}
@@ -91,15 +108,19 @@ class TabsDocument:
         for line in tabs_file:
             line = line.strip()
             if line.startswith("%%$DDC:tokid"):
-                doc.tokid[line[len("%%$DDC:tokid."):line.find("=")]] = line[line.find("=") + 1:].strip()
+                doc.tokid[line[len("%%$DDC:tokid.") : line.find("=")]] = line[
+                    line.find("=") + 1 :
+                ].strip()
             if line.startswith("%%$DDC:meta"):
-                doc.meta[line[len("%%$DDC:meta."):line.find("=")]] = line[line.find("=") + 1:].strip()
+                doc.meta[line[len("%%$DDC:meta.") : line.find("=")]] = line[
+                    line.find("=") + 1 :
+                ].strip()
             elif line.startswith("%%$DDC:index"):
-                name, shortname = line[line.find("=") + 1:].split(" ")
-                doc.index[name] = int(line[line.find("[") + 1:line.find("]")])
+                name, shortname = line[line.find("=") + 1 :].split(" ")
+                doc.index[name] = int(line[line.find("[") + 1 : line.find("]")])
                 doc.index_short[name] = shortname
             elif line.startswith("%%$DDC:BREAK"):
-                meta_sent.append(line[len('%%$DDC:BREAK.'):].split("="))
+                meta_sent.append(line[len("%%$DDC:BREAK.") :].split("="))
             elif line.strip() and not line.startswith("%%$DDC"):
                 tokens.append(tuple(line.split("\t")))
             elif not line.strip() and tokens and meta_sent:
@@ -111,27 +132,41 @@ class TabsDocument:
     def remove_xml_tags_from_tabs(self):
         """Removes invalid xml fragments from token.
 
-        Makes comparison on sentence level, e.g. consecutive token with separated parts of xml tags.
+        Makes comparison on sentence level, e.g. consecutive token with
+        separated parts of xml tags.
         """
         for sent in self.sentences:
             tokens = sent.to_tabs_token(self.index)
             tokens_new = []
             for tok_i, tok in enumerate(sent.tokens):
-                if tokens[tok_i].surface in ['<', '/><', 'strong>', 'p>', '>', '/></p><p>', '</p><p>', '/>',
-                                             '/></p><p>', '/><a']:
+                if tokens[tok_i].surface in [
+                    "<",
+                    "/><",
+                    "strong>",
+                    "p>",
+                    ">",
+                    "/></p><p>",
+                    "</p><p>",
+                    "/>",
+                    "/></p><p>",
+                    "/><a",
+                ]:
                     continue
-                if (tok_i > 0 and tokens[tok_i].surface in ['strong', 'p', 'a', 'br', '/'] and
-                        tokens[tok_i - 1].surface[-1] == '<'):
+                if (
+                    tok_i > 0
+                    and tokens[tok_i].surface in ["strong", "p", "a", "br", "/"]
+                    and tokens[tok_i - 1].surface[-1] == "<"
+                ):
                     continue
-                for s in ['<', 'strong>', '></p']:
+                for s in ["<", "strong>", "></p"]:
                     tok = list(tok)
                     if tokens[tok_i].surface.startswith(s):
-                        tok[self.index['Token']] = tok[self.index['Token']][len(s):]
-                        tok[self.index['Lemma']] = tok[self.index['Lemma']][len(s):]
+                        tok[self.index["Token"]] = tok[self.index["Token"]][len(s) :]
+                        tok[self.index["Lemma"]] = tok[self.index["Lemma"]][len(s) :]
                     if tokens[tok_i].surface.endswith(s):
-                        tok[self.index['Token']] = tok[self.index['Token']][:-len(s)]
-                        tok[self.index['Lemma']] = tok[self.index['Lemma']][:-len(s)]
-                    if not tok[self.index['Token']]:
+                        tok[self.index["Token"]] = tok[self.index["Token"]][: -len(s)]
+                        tok[self.index["Lemma"]] = tok[self.index["Lemma"]][: -len(s)]
+                    if not tok[self.index["Token"]]:
                         continue
                 tokens_new.append(tuple(tok))
             sent.tokens = tokens_new
@@ -143,7 +178,7 @@ class TabsDocument:
         """
 
         def is_valid_word(tag):
-            return ud_pos_map.get(tag, "X") not in ['PUNCT', 'X']
+            return ud_pos_map.get(tag, "X") not in ["PUNCT", "X"]
 
         sents_valid = []
         for sent in self.sentences:
@@ -162,11 +197,15 @@ class TabsDocument:
         for line in tabs_file:
             line = line.strip()
             if line.startswith("# DDC:tokid"):
-                doc.tokid[line[len("%%$DDC:tokid."):line.find("=")].strip()] = line[line.find("=") + 2:].strip()
+                doc.tokid[line[len("%%$DDC:tokid.") : line.find("=")].strip()] = line[
+                    line.find("=") + 2 :
+                ].strip()
             if line.startswith("# DDC:meta"):
-                doc.meta[line[len("# DDC:meta."):line.find("=")].strip()] = line[line.find("=") + 2:].strip()
+                doc.meta[line[len("# DDC:meta.") : line.find("=")].strip()] = line[
+                    line.find("=") + 2 :
+                ].strip()
             elif line.startswith("# DDC:BREAK"):
-                meta_sent.append(line[len('# DDC:BREAK.'):].split(" = "))
+                meta_sent.append(line[len("# DDC:BREAK.") :].split(" = "))
             elif line.strip() and not line.startswith("#"):
                 tokens.append(tuple(line.split("\t")))
             elif not line.strip() and tokens and meta_sent:
@@ -174,8 +213,19 @@ class TabsDocument:
                 meta_sent = []
                 tokens = []
         for i, (name, shortname) in enumerate(
-                [("Index", "idx"), ("Token", "t"), ("Lemma", "l"), ("Pos", "pos"), ("XPos", "xpos"), ("Morph", "m"),
-                 ("Head", "hd"), ("Deprel", "rel"), ("Unknown", "ukn"), ("WordSep", "ws")]):
+            [
+                ("Index", "idx"),
+                ("Token", "t"),
+                ("Lemma", "l"),
+                ("Pos", "pos"),
+                ("XPos", "xpos"),
+                ("Morph", "m"),
+                ("Head", "hd"),
+                ("Deprel", "rel"),
+                ("Unknown", "ukn"),
+                ("WordSep", "ws"),
+            ]
+        ):
             doc.index[name] = i
             doc.index_short[name] = shortname
         return doc
@@ -187,7 +237,9 @@ class TabsDocument:
         for name, value in self.meta.items():
             buf.write("%%$DDC:meta.{}={}\n".format(name, value))
         for name, i in self.index.items():
-            buf.write("%%$DDC:index[{}]={} {}\n".format(i, name, self.index_short[name]))
+            buf.write(
+                "%%$DDC:index[{}]={} {}\n".format(i, name, self.index_short[name])
+            )
         for sent in self.sentences:
             for meta_name, meta_val in sent.meta:
                 buf.write("%%$DDC:BREAK.{}={}\n".format(meta_name, meta_val))
@@ -210,7 +262,9 @@ class TabsDocument:
             for token_i, token in enumerate(conll_sent):
                 buf.write(
                     "{idx}\t{t.surface}\t{t.lemma}\t{xpos}\t{t.tag}\t_\t{t.head}\t{t.rel}\t_\t{t.misc}\n".format(
-                        idx=token_i + 1, t=token, xpos=ud_pos_map.get(token.tag, "X")))
+                        idx=token_i + 1, t=token, xpos=ud_pos_map.get(token.tag, "X")
+                    )
+                )
             buf.write("\n")
         return buf.getvalue()
 
@@ -219,12 +273,14 @@ class TabsDocument:
             path = Path(path)
         if not path.parent.exists():
             path.parent.mkdir(parents=True)
-        with open(path, 'w') as fh:
+        with open(path, "w") as fh:
             if as_conll:
                 fh.write(self.as_conllu())
             else:
                 fh.write(self.as_tabs())
 
     def __repr__(self):
-        return (f"TabsDocument(meta={self.meta},index={self.index},index_short={self.index_short},"
-                f"tokid={self.tokid},sentences={self.sentences})")
+        return (
+            f"TabsDocument(meta={self.meta},index={self.index},index_short={self.index_short},"
+            f"tokid={self.tokid},sentences={self.sentences})"
+        )
