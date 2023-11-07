@@ -102,31 +102,31 @@ class TabsDocument:
     @staticmethod
     def from_tabs(tabs_path: str):
         doc = TabsDocument()
-        tabs_file = open(tabs_path, "r")
         meta_sent = []
         tokens = []
-        for line in tabs_file:
-            line = line.strip()
-            if line.startswith("%%$DDC:tokid"):
-                doc.tokid[line[len("%%$DDC:tokid.") : line.find("=")]] = line[
-                    line.find("=") + 1 :
-                ].strip()
-            if line.startswith("%%$DDC:meta"):
-                doc.meta[line[len("%%$DDC:meta.") : line.find("=")]] = line[
-                    line.find("=") + 1 :
-                ].strip()
-            elif line.startswith("%%$DDC:index"):
-                name, shortname = line[line.find("=") + 1 :].split(" ")
-                doc.index[name] = int(line[line.find("[") + 1 : line.find("]")])
-                doc.index_short[name] = shortname
-            elif line.startswith("%%$DDC:BREAK"):
-                meta_sent.append(line[len("%%$DDC:BREAK.") :].split("="))
-            elif line.strip() and not line.startswith("%%$DDC"):
-                tokens.append(tuple(line.split("\t")))
-            elif not line.strip() and tokens and meta_sent:
-                doc.sentences.append(TabsSentence(meta_sent, tokens))
-                meta_sent = []
-                tokens = []
+        with open(tabs_path, "r") as tabs_file:
+            for line in tabs_file:
+                line = line.strip()
+                if line.startswith("%%$DDC:tokid"):
+                    doc.tokid[line[len("%%$DDC:tokid.") : line.find("=")]] = line[
+                        line.find("=") + 1 :
+                    ].strip()
+                if line.startswith("%%$DDC:meta"):
+                    doc.meta[line[len("%%$DDC:meta.") : line.find("=")]] = line[
+                        line.find("=") + 1 :
+                    ].strip()
+                elif line.startswith("%%$DDC:index"):
+                    name, shortname = line[line.find("=") + 1 :].split(" ")
+                    doc.index[name] = int(line[line.find("[") + 1 : line.find("]")])
+                    doc.index_short[name] = shortname
+                elif line.startswith("%%$DDC:BREAK"):
+                    meta_sent.append(line[len("%%$DDC:BREAK.") :].split("="))
+                elif line.strip() and not line.startswith("%%$DDC"):
+                    tokens.append(tuple(line.split("\t")))
+                elif not line.strip() and tokens and meta_sent:
+                    doc.sentences.append(TabsSentence(meta_sent, tokens))
+                    meta_sent = []
+                    tokens = []
         return doc
 
     def remove_xml_tags_from_tabs(self):
@@ -191,27 +191,27 @@ class TabsDocument:
     @staticmethod
     def from_conll(conll_path: str):
         doc = TabsDocument()
-        tabs_file = open(conll_path, "r")
         meta_sent = []
         tokens = []
-        for line in tabs_file:
-            line = line.strip()
-            if line.startswith("# DDC:tokid"):
-                doc.tokid[line[len("%%$DDC:tokid.") : line.find("=")].strip()] = line[
-                    line.find("=") + 2 :
-                ].strip()
-            if line.startswith("# DDC:meta"):
-                doc.meta[line[len("# DDC:meta.") : line.find("=")].strip()] = line[
-                    line.find("=") + 2 :
-                ].strip()
-            elif line.startswith("# DDC:BREAK"):
-                meta_sent.append(line[len("# DDC:BREAK.") :].split(" = "))
-            elif line.strip() and not line.startswith("#"):
-                tokens.append(tuple(line.split("\t")))
-            elif not line.strip() and tokens and meta_sent:
-                doc.sentences.append(TabsSentence(meta_sent, tokens))
-                meta_sent = []
-                tokens = []
+        with open(conll_path, "r") as conll_file:
+            for line in conll_file:
+                line = line.strip()
+                if line.startswith("# DDC:tokid"):
+                    doc.tokid[
+                        line[len("%%$DDC:tokid.") : line.find("=")].strip()
+                    ] = line[line.find("=") + 2 :].strip()
+                if line.startswith("# DDC:meta"):
+                    doc.meta[line[len("# DDC:meta.") : line.find("=")].strip()] = line[
+                        line.find("=") + 2 :
+                    ].strip()
+                elif line.startswith("# DDC:BREAK"):
+                    meta_sent.append(line[len("# DDC:BREAK.") :].split(" = "))
+                elif line.strip() and not line.startswith("#"):
+                    tokens.append(tuple(line.split("\t")))
+                elif not line.strip() and tokens and meta_sent:
+                    doc.sentences.append(TabsSentence(meta_sent, tokens))
+                    meta_sent = []
+                    tokens = []
         for i, (name, shortname) in enumerate(
             [
                 ("Index", "idx"),
