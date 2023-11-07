@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pytabs.tabs import TabsDocument
+from preprocessing.pytabs.tabs import TabsDocument
 
 test_dir = (Path(__file__) / '..').resolve()
 sample_tabs_file = test_dir / 'sample.tabs'
