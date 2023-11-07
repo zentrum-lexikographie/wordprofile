@@ -172,7 +172,7 @@ class TabsDocument:
             sent.tokens = tokens_new
 
     def remove_invalid_sentence(self):
-        """Removes sentences with less than three valid token.
+        """Removes sentences with less than four valid token.
 
         A valid token is defined by any POS tag except punctuation and unknown.
         """
