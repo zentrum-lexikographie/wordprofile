@@ -72,10 +72,7 @@ Für die Umwandlung von `.tabs`-Dateien nach `.conll` kann das Kommandozeilenpro
 ```
 pip install .[pre]
 ```
-Oder für Umwandlung nach FoLia-XML:
-```
-pip install .[pre-folia]
-```
+
 Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis.
 
 ## Entwicklungssetup
