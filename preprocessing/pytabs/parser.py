@@ -85,11 +85,11 @@ def parse_chunk(chunk, prev_metadata, prev_token_fields):
 
 
 def parse(lines):
-    lines = map(lambda l: l.strip(), lines)
+    lines = map(lambda line: line.strip(), lines)
     # partition lines by (non-)/empty lines
     chunks = [
         list(chunk)
-        for is_sep, chunk in itertools.groupby(lines, lambda l: len(l) == 0)
+        for is_sep, chunk in itertools.groupby(lines, lambda line: len(line) == 0)
         if not is_sep
     ]
 
