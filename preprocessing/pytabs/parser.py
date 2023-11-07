@@ -3,11 +3,13 @@ import re
 
 
 def is_metadata_line(line):
-    return line.startswith('%%$DDC')
+    return line.startswith("%%$DDC")
 
 
-metadata_indexed_key = re.compile(r'^([^\[]+)(?:\[(\d+)\])?$')
-metadata_key_component_sep = re.compile(r'[:.]')
+metadata_indexed_key = re.compile(r"^([^\[]+)(?:\[(\d+)\])?$")
+metadata_key_component_sep = re.compile(r"[:.]")
+
+metadata_containers = set(["tokid", "meta", "index", "break"])
 
 
 def parse_metadata_key(k):
@@ -25,7 +27,7 @@ def parse_metadata_key(k):
 def parse_metadata(metadata):
     metadata_dict = {}
     for record in metadata:
-        k, v = record.split('=', 1)
+        k, v = record.split("=", 1)
         k = k.lower()
         v = v.strip()
         if len(v) > 0:
@@ -39,9 +41,6 @@ def parse_metadata(metadata):
     return metadata_dict
 
 
-metadata_containers = set(['tokid', 'meta', 'index', 'break'])
-
-
 def merge_metadata(prev_md, next_md):
     for k, v in next_md.items():
         if k in metadata_containers:
@@ -52,16 +51,16 @@ def merge_metadata(prev_md, next_md):
 
 
 def read_token_fields(metadata):
-    token_fields = metadata.get('index', {})
+    token_fields = metadata.get("index", {})
     ks = list(token_fields.keys())
     ks.sort()
     for k in ks:
-        yield token_fields[k].split(' ')[0]
+        yield token_fields[k].split(" ")[0]
 
 
 def parse_tokens(tokens, token_fields):
     for token in tokens:
-        fields = token.split('\t')
+        fields = token.split("\t")
         yield fields
 
 
@@ -75,17 +74,14 @@ def parse_chunk(chunk, prev_metadata, prev_token_fields):
             tokens.append(line)
 
     metadata = merge_metadata(
-        prev_metadata,
-        parse_metadata(filter(is_metadata_line, metadata))
+        prev_metadata, parse_metadata(filter(is_metadata_line, metadata))
     )
     token_fields = prev_token_fields or list(read_token_fields(metadata))
 
     tokens = itertools.filterfalse(is_metadata_line, tokens)
     tokens = list(parse_tokens(tokens, token_fields))
 
-    return {
-        'metadata': metadata, 'token_fields': token_fields, 'tokens': tokens
-    }
+    return {"metadata": metadata, "token_fields": token_fields, "tokens": tokens}
 
 
 def parse(lines):
@@ -93,9 +89,7 @@ def parse(lines):
     # partition lines by (non-)/empty lines
     chunks = [
         list(chunk)
-        for is_sep, chunk in itertools.groupby(
-                lines, lambda l: len(l) == 0
-        )
+        for is_sep, chunk in itertools.groupby(lines, lambda l: len(l) == 0)
         if not is_sep
     ]
 
@@ -103,8 +97,8 @@ def parse(lines):
     token_fields = []
     for chunk in chunks:
         sentence = parse_chunk(chunk, metadata, token_fields)
-        metadata = sentence['metadata']
-        token_fields = sentence['token_fields']
+        metadata = sentence["metadata"]
+        token_fields = sentence["token_fields"]
         yield sentence
 
 
@@ -120,8 +114,8 @@ def look_ahead(iterable):
 
 def is_space_before(token_fields, token):
     for k, v in zip(token_fields, token):
-        if k == 'WordSep':
-            return v == '1'
+        if k == "WordSep":
+            return v == "1"
     return False
 
 
@@ -131,15 +125,14 @@ def add_space_after(sentences):
         next_sentence_space_before = False
         if next_sentence:
             next_sentence_space_before = is_space_before(
-                next_sentence['token_fields'],
-                next_sentence['tokens'][0]
+                next_sentence["token_fields"], next_sentence["tokens"][0]
             )
-        token_fields = sentence['token_fields']
-        if token_fields[-1] != 'SpaceAfter':
-            token_fields.append('SpaceAfter')
-        for token, next_token in look_ahead(sentence['tokens']):
+        token_fields = sentence["token_fields"]
+        if token_fields[-1] != "SpaceAfter":
+            token_fields.append("SpaceAfter")
+        for token, next_token in look_ahead(sentence["tokens"]):
             space_after = next_sentence_space_before
             if next_token:
                 space_after = is_space_before(token_fields, next_token)
-            token.append('1' if space_after else '0')
+            token.append("1" if space_after else "0")
         yield sentence
