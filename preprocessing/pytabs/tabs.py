@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Iterable
 
-from pytabs.consts import ud_pos_map
+from preprocessing.pytabs.consts import ud_pos_map
 
 
 @dataclass

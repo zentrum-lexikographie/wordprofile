@@ -4,7 +4,7 @@ from glob import glob
 
 import click
 
-from pytabs.tabs import TabsDocument
+from preprocessing.pytabs.tabs import TabsDocument
 
 
 @click.command()
