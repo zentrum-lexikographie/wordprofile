@@ -2,7 +2,7 @@
 
 Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
 Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
-Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation. 
+Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation.
 Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
 Im Ordner `log` werden Server-Logfiles hinterlegt.
 
@@ -14,7 +14,7 @@ Ausgeführte Aufgaben:
 4. Initialisieren der Datenbank
 5. Befüllen der DB Tabellen mit extrahierten Matches
 
-Wortprofile werden in zwei Schritten erstellt: 
+Wortprofile werden in zwei Schritten erstellt:
 Bevor ein vollständiges Wortprofil erstellt wird, werden die einzelnen Korpora separat verarbeitet, Matches extrahiert und darauf Kollokationen gezählt. Dies reduziert die Arbeit im zweiten Schritt wenn die gesamten Daten verarbeitet werden sollen.
 Im nachfolgenden werden die drei Skripte kurz erklärt, die für die Erstellung genutzt werden und im Skript `make_wp.sh` kombiniert sind.
 Erstellt werden soll ein Test-Wortprofil aus zwei Korpora: `dradio` und `pnn`, welche bereits im CoNLL Format vorliegen und entsprechende Annotationen (POS, NER, DEPREL) besitzen.
@@ -64,6 +64,19 @@ Zusätzlich zur REST API wird über das *fastapi* framework eine Dokumentation g
 ```shell
 docker-compose build
 ```
+
+## Vorverarbeitung
+Für die Umwandlung von `.tabs`-Dateien nach `.conll` kann das Kommandozeilenprogramm `tabs2conllu` verwendet werden.
+
+### Installation
+```
+pip install .[pre]
+```
+Oder für Umwandlung nach FoLia-XML:
+```
+pip install .[pre-folia]
+```
+Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis.
 
 ## Entwicklungssetup
 
