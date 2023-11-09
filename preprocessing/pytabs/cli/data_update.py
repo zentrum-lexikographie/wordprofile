@@ -91,7 +91,8 @@ def main(
     corpus_tabs_file = os.path.join(tabs_dump_path, "corpus-tabs.files")
     new_file_basename_map = map_tabs_file_to_basename(corpus_tabs_file)
     files_to_process = filter_new_files(old_basenames, new_file_basename_map)
-
+    if not files_to_process:
+        return
     output_dir = date.today().isoformat()
     output_path = os.path.join(data_root, output_dir)
     os.makedirs(os.path.abspath(output_path), exist_ok=True)
