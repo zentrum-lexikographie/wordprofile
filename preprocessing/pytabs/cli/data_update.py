@@ -5,6 +5,8 @@ import sys
 from datetime import date
 from typing import Dict, Set
 
+import click
+
 from preprocessing.pytabs.tabs import TabsDocument
 
 
@@ -44,15 +46,49 @@ def filter_new_files(old_basenames: Set[str], file_basename_mapping: Dict[str, s
     }
 
 
+@click.command()
+@click.option(
+    "--corpus",
+    "-c",
+    required=True,
+    type=str,
+    help="Name of corpus. Used for detection of .toc files and naming of output files.",
+)
+@click.option(
+    "--data-root",
+    "-d",
+    required=True,
+    type=click.Path(exists=True, file_okay=False),
+    help="""Path to directory containing existing data and .toc files.
+    New data will be written to a subdirectory there.""",
+)
+@click.option(
+    "--tabs-dump-path",
+    "-t",
+    required=True,
+    type=click.Path(exists=True, file_okay=False),
+    help="""Path to 'ddc_dump' directory that contains subdir with .tabs files and
+    'corpus-tabs.files'.""",
+)
+@click.option(
+    "--remove-xml", "-x", is_flag=True, help="Remove invalid xml fragments from tokens."
+)
+@click.option(
+    "--remove-invalid-sentences",
+    "-v",
+    is_flag=True,
+    help="Remove sentences that do not fit hard constraints.",
+)
+@click.help_option("--help", "-h")
 def main(
     corpus: str,
     data_root: str,
-    ddc_dump_path: str,
+    tabs_dump_path: str,
     remove_xml: bool = False,
     remove_invalid_sentences: bool = False,
 ):
     old_basenames = collect_current_basenames(data_root, corpus)
-    corpus_tabs_file = os.path.join(ddc_dump_path, "corpus-tabs.files")
+    corpus_tabs_file = os.path.join(tabs_dump_path, "corpus-tabs.files")
     new_file_basename_map = map_tabs_file_to_basename(corpus_tabs_file)
     files_to_process = filter_new_files(old_basenames, new_file_basename_map)
 
@@ -63,7 +99,7 @@ def main(
     new_basenames = []
     with open(os.path.join(output_path, f"{corpus}.conll"), "w") as fp:
         for file in files_to_process:
-            doc = TabsDocument.from_tabs(os.path.join(ddc_dump_path, file))
+            doc = TabsDocument.from_tabs(os.path.join(tabs_dump_path, file))
             if remove_xml:
                 doc.remove_xml_tags_from_tabs()
             if remove_invalid_sentences:
@@ -76,5 +112,4 @@ def main(
 
 
 if __name__ == "__main__":
-    args = sys.argv[1:]
-    main(*args)
+    main()
