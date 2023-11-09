@@ -30,3 +30,20 @@ def test_current_basename_discovery_with_nested_directory():
         "second/basename4",
         "third/basename5",
     }
+
+
+def test_basename_to_tabs_mapping():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tabs_file = os.path.join(tmpdir, "corpus-tabs.files")
+        with open(tabs_file, "w") as fp:
+            fp.write(
+                "corpus-tabs.d/1996/01/19960101.tabs\n"
+                "corpus-tabs.d/1996/04/19960416.tabs\n"
+                "corpus-tabs.d/1996/04/19960417.tabs"
+            )
+        result = du.map_tabs_file_to_basename(tabs_file)
+    assert result == {
+        "corpus-tabs.d/1996/01/19960101.tabs": "1996/01/19960101",
+        "corpus-tabs.d/1996/04/19960416.tabs": "1996/04/19960416",
+        "corpus-tabs.d/1996/04/19960417.tabs": "1996/04/19960417",
+    }

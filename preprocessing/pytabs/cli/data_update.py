@@ -1,5 +1,6 @@
 import glob
-from typing import Set, Dict
+import re
+from typing import Dict, Set
 
 
 def collect_current_basenames(data_root: str, corpus_name: str) -> Set[str]:
@@ -17,8 +18,17 @@ def collect_current_basenames(data_root: str, corpus_name: str) -> Set[str]:
     return current_basenames
 
 
-def map_basename_to_tabs_file(corpus_tabs_file: str) -> Dict[str, str]:
-    pass
+def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
+    file_basename_mapping = {}
+    with open(corpus_tabs_file) as fp:
+        for line in fp:
+            match = re.match(r"corpus-tabs.d/([\w/]+)\.tabs\n?$", line)
+            if match:
+                basename = match.group(1)
+            else:
+                basename = ""
+            file_basename_mapping[line.strip()] = basename
+    return file_basename_mapping
 
 
 def filter_new_files():
