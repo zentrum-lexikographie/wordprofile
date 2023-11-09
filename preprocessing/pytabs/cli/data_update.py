@@ -29,7 +29,7 @@ def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
     file_basename_mapping = {}
     with open(corpus_tabs_file) as fp:
         for line in fp:
-            match = re.match(r"corpus-tabs.d/([\w/]+)\.tabs\n?$", line)
+            match = re.match(r"corpus-tabs.d/([\w/\.-]+)\.tabs\n?$", line)
             if match:
                 basename = match.group(1)
             else:
