@@ -31,5 +31,9 @@ def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
     return file_basename_mapping
 
 
-def filter_new_files():
-    pass
+def filter_new_files(old_basenames: Set[str], file_basename_mapping: Dict[str, str]):
+    return {
+        file
+        for file, basename in file_basename_mapping.items()
+        if basename not in old_basenames
+    }
