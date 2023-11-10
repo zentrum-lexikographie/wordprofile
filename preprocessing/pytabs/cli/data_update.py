@@ -87,6 +87,16 @@ def main(
     remove_xml: bool = False,
     remove_invalid_sentences: bool = False,
 ):
+    """
+    Generate .conll file for corpus from .tabs files that are not contained
+    in existing data.
+
+    Existing basenames are read from .toc files, new basenames are extracted
+    from list in 'corpus-tabs.files'.
+    New data is written to a subdirectory of the existing data directory,
+    using the current date as name. A .toc file with the new basenames is
+    added there as well.
+    """
     old_basenames = collect_current_basenames(data_root, corpus)
     corpus_tabs_file = os.path.join(tabs_dump_path, "corpus-tabs.files")
     new_file_basename_map = map_tabs_file_to_basename(corpus_tabs_file)
