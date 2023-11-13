@@ -58,4 +58,4 @@ def test_filte_new_files():
         "corpus-tabs.d/e/f.tabs": "e/f",
     }
     result = du.filter_new_files(old_basenames, new_files)
-    assert result == {"corpus-tabs.d/a/b.tabs", "corpus-tabs.d/g/asb.tabs"}
+    assert result == ["corpus-tabs.d/a/b.tabs", "corpus-tabs.d/g/asb.tabs"]

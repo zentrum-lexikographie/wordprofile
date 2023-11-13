@@ -3,7 +3,7 @@ import os
 import re
 import sys
 from datetime import date
-from typing import Dict, Set
+from typing import Dict, List, Set
 
 import click
 
@@ -38,12 +38,14 @@ def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
     return file_basename_mapping
 
 
-def filter_new_files(old_basenames: Set[str], file_basename_mapping: Dict[str, str]):
-    return {
+def filter_new_files(
+    old_basenames: Set[str], file_basename_mapping: Dict[str, str]
+) -> List[str]:
+    return [
         file
         for file, basename in file_basename_mapping.items()
         if basename not in old_basenames
-    }
+    ]
 
 
 @click.command()
