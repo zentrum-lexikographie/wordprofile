@@ -123,9 +123,13 @@ def main(
     with open(os.path.join(output_path, f"{corpus}.conll"), "w") as fp:
         for file in files_to_process:
             file_path = os.path.join(tabs_dump_path, file)
-            doc = TabsDocument.from_tabs(file_path)
-            fp.write(doc.as_conllu())
-            new_basenames.append(doc.meta["basename"])
+            try:
+                doc = TabsDocument.from_tabs(file_path)
+            except UnicodeDecodeError:
+                logger.exception("Couldn't process file: %s" % file_path)
+            else:
+                fp.write(doc.as_conllu())
+                new_basenames.append(doc.meta["basename"])
 
     logger.info("Processed %d documents successfully." % len(new_basenames))
     with open(os.path.join(output_path, f"{corpus}.toc"), "w", encoding="utf-8") as fp:
