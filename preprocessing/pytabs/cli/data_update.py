@@ -72,22 +72,11 @@ def filter_new_files(
     help="""Path to 'ddc_dump' directory that contains subdir with .tabs files and
     'corpus-tabs.files'.""",
 )
-@click.option(
-    "--remove-xml", "-x", is_flag=True, help="Remove invalid xml fragments from tokens."
-)
-@click.option(
-    "--remove-invalid-sentences",
-    "-v",
-    is_flag=True,
-    help="Remove sentences that do not fit hard constraints.",
-)
 @click.help_option("--help", "-h")
 def main(
     corpus: str,
     data_root: str,
     tabs_dump_path: str,
-    remove_xml: bool = False,
-    remove_invalid_sentences: bool = False,
 ):
     """
     Generate .conll file for corpus from .tabs files that are not contained
@@ -113,10 +102,6 @@ def main(
     with open(os.path.join(output_path, f"{corpus}.conll"), "w") as fp:
         for file in files_to_process:
             doc = TabsDocument.from_tabs(os.path.join(tabs_dump_path, file))
-            if remove_xml:
-                doc.remove_xml_tags_from_tabs()
-            if remove_invalid_sentences:
-                doc.remove_invalid_sentence()
             fp.write(doc.as_conllu())
             new_basenames.append(doc.meta["basename"])
 
