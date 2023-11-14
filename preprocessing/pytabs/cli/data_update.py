@@ -1,4 +1,5 @@
 import glob
+import logging
 import os
 import re
 from datetime import date
@@ -47,6 +48,19 @@ def filter_new_files(
     ]
 
 
+def configure_logging():
+    parent = os.path.dirname
+    log_dir = os.path.join(parent(parent(parent(__file__))), "log")
+    os.makedirs(log_dir, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(log_dir, f"{date.today().isoformat()}-data-update.log"),
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(name)s: %(message)s",
+    )
+    logger = logging.getLogger(__name__)
+    return logger
+
+
 @click.command()
 @click.option(
     "--corpus",
@@ -87,10 +101,18 @@ def main(
     using the current date as name. A .toc file with the new basenames is
     added there as well.
     """
+    logger = configure_logging()
     old_basenames = collect_current_basenames(data_root, corpus)
+    logger.info(
+        "Found existing %d existing basenames for corpus %s."
+        % (len(old_basenames), corpus),
+    )
     corpus_tabs_file = os.path.join(tabs_dump_path, "corpus-tabs.files")
     new_file_basename_map = map_tabs_file_to_basename(corpus_tabs_file)
     files_to_process = filter_new_files(old_basenames, new_file_basename_map)
+    logger.info(
+        "%d new documents found for corpus %s." % (len(files_to_process), corpus),
+    )
     if not files_to_process:
         return
     output_dir = date.today().isoformat()
@@ -100,10 +122,12 @@ def main(
     new_basenames = []
     with open(os.path.join(output_path, f"{corpus}.conll"), "w") as fp:
         for file in files_to_process:
-            doc = TabsDocument.from_tabs(os.path.join(tabs_dump_path, file))
+            file_path = os.path.join(tabs_dump_path, file)
+            doc = TabsDocument.from_tabs(file_path)
             fp.write(doc.as_conllu())
             new_basenames.append(doc.meta["basename"])
 
+    logger.info("Processed %d documents successfully." % len(new_basenames))
     with open(os.path.join(output_path, f"{corpus}.toc"), "w", encoding="utf-8") as fp:
         fp.write("\n".join(new_basenames))
 
