@@ -43,6 +43,28 @@ Options:
 
 Log files are stored in a `log` directory under `preprocessing`.
 
+#### Example of directory structure for `data-root`
+Structure of the data directory with existing data.
+```.
+├── 2023-11-01
+│   ├── corpus.conll
+│   └── corpus.toc
+├── corpus.conll
+└── corpus.toc
+```
+After the data update, the directory looks like this:
+```
+.
+├── 2023-11-01
+│   ├── corpus.conll
+│   └── corpus.toc
+├── 2023-xx-xx
+│   ├── corpus.conll
+│   └── corpus.toc
+├── corpus.conll
+└── corpus.toc
+```
+
 ### Convert single or multiple .tabs files
 For conversion of one or more `.tabs` files matching a glob path, the Python script `tabs2conllu.py` can be used. The output can be printed to stdout or written to individual files for each input document.
 
