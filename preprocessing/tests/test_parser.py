@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from preprocessing.pytabs.parser import parse, add_space_after
+from preprocessing.pytabs.parser import add_space_after, parse
 
 test_dir = (Path(__file__) / '..').resolve()
 sample_tabs_file = test_dir / 'sample.tabs'
