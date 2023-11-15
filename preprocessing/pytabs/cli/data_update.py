@@ -36,6 +36,7 @@ def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
                 basename = match.group(1)
             else:
                 basename = ""
+                logger.warning("Couldn't extract basename for %s." % line.strip())
             file_basename_mapping[line.strip()] = basename
     return file_basename_mapping
 
