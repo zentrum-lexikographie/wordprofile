@@ -9,6 +9,8 @@ import click
 
 from preprocessing.pytabs.tabs import TabsDocument
 
+logger = logging.getLogger(__name__)
+
 
 def collect_current_basenames(data_root: str, corpus_name: str) -> Set[str]:
     """
@@ -48,7 +50,7 @@ def filter_new_files(
     ]
 
 
-def configure_logging():
+def configure_logging() -> None:
     parent = os.path.dirname
     log_dir = os.path.join(parent(parent(parent(__file__))), "log")
     os.makedirs(log_dir, exist_ok=True)
@@ -57,8 +59,6 @@ def configure_logging():
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(name)s: %(message)s",
     )
-    logger = logging.getLogger(__name__)
-    return logger
 
 
 @click.command()
@@ -101,7 +101,7 @@ def main(
     using the current date as name. A .toc file with the new basenames is
     added there as well.
     """
-    logger = configure_logging()
+    configure_logging()
     old_basenames = collect_current_basenames(data_root, corpus)
     logger.info(
         "Found existing %d existing basenames for corpus %s."
