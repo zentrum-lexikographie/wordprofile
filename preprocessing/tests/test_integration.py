@@ -63,7 +63,7 @@ class DataUpdateTest(unittest.TestCase):
             rmdir(self.todays_dir)
 
     def test_subdir_with_current_date_created(self):
-        assert self.todays_dir.exists() == False
+        assert self.todays_dir.exists() is False
         self.cli_runner.invoke(
             data_update.main,
             [
