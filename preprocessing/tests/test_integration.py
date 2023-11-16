@@ -1,11 +1,10 @@
 import unittest
-import os
-
 from datetime import date
 from pathlib import Path
 
 from click.testing import CliRunner
-from preprocessing.cli import tabs2conllu, data_update
+
+from preprocessing.cli import data_update, tabs2conllu
 
 
 def rmdir(dir: Path):

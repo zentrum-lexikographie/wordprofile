@@ -2,7 +2,7 @@
 import io
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Iterable
+from typing import Iterable, List
 
 from preprocessing.pytabs.consts import UD_POS_MAP
 
