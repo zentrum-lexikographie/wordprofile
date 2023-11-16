@@ -2,7 +2,7 @@
 import io
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Dict, Union
 
 from preprocessing.pytabs.consts import UD_POS_MAP
 
@@ -16,7 +16,7 @@ class TabsToken:
     pos: str
     word_sep: int
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"TabsToken({self.surface},{self.lemma},{self.pos},{self.word_sep}"
 
 
@@ -32,7 +32,7 @@ class ConllToken:
     rel: str
     misc: str
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ConllToken({self.surface},{self.lemma},{self.tag},{self.morph},{self.head},{self.rel},{self.misc})"
 
 
@@ -40,11 +40,11 @@ class TabsSentence:
     """Data structure for processing sentences in tabs files
     - stores also meta data referring to the sentence."""
 
-    def __init__(self, meta: List[List[str]], tokens: Iterable):
+    def __init__(self, meta: List[List[str]], tokens: Iterable) -> None:
         self.meta = meta
         self.tokens = tuple(tokens)
 
-    def to_conll(self, index):
+    def to_conll(self, index: Dict[str, int]):
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
         tokens = [
             ConllToken(
@@ -66,7 +66,7 @@ class TabsSentence:
             tokens[-1].misc = "_"
         return tokens
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"TabsSentence(meta={self.meta},tokens={self.tokens})"
 
 
@@ -74,15 +74,15 @@ class TabsDocument:
     """Data structure for processing tabs files and generate output in
     either tabs or conllu format."""
 
-    def __init__(self):
-        self.meta = {}
-        self.index = {}
-        self.index_short = {}
-        self.tokid = {}
+    def __init__(self) -> None:
+        self.meta: Dict[str, str] = {}
+        self.index: Dict[str, int] = {}
+        self.index_short: Dict[str, str] = {}
+        self.tokid: Dict[str, str] = {}
         self.sentences: List[TabsSentence] = []
 
     @staticmethod
-    def from_tabs(tabs_path: str):
+    def from_tabs(tabs_path: str) -> TabsDocument:
         doc = TabsDocument()
         meta_sent = []
         tokens = []
@@ -111,7 +111,7 @@ class TabsDocument:
                     tokens = []
         return doc
 
-    def as_conllu(self):
+    def as_conllu(self) -> str:
         buf = io.StringIO()
         for name, value in self.tokid.items():
             buf.write("# DDC:tokid.{} = {}\n".format(name, value))
@@ -131,7 +131,7 @@ class TabsDocument:
             buf.write("\n")
         return buf.getvalue()
 
-    def save(self, path):
+    def save(self, path: Path) -> None:
         if isinstance(path, str):
             path = Path(path)
         if not path.parent.exists():
@@ -139,7 +139,7 @@ class TabsDocument:
         with open(path, "w") as fh:
             fh.write(self.as_conllu())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"TabsDocument(meta={self.meta},index={self.index},index_short={self.index_short},"
             f"tokid={self.tokid},sentences={self.sentences})"
