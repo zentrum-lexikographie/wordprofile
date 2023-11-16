@@ -1,3 +1,5 @@
 autoflake
 flake8
 pytest
+black
+mypy
