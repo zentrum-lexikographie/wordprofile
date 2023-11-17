@@ -2,7 +2,9 @@
 import io
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Dict, Union
+from typing import Dict, Iterable, List, Union
+
+from typing_extensions import Self
 
 from preprocessing.pytabs.consts import UD_POS_MAP
 
@@ -81,9 +83,9 @@ class TabsDocument:
         self.tokid: Dict[str, str] = {}
         self.sentences: List[TabsSentence] = []
 
-    @staticmethod
-    def from_tabs(tabs_path: str) -> TabsDocument:
-        doc = TabsDocument()
+    @classmethod
+    def from_tabs(cls, tabs_path: str) -> Self:
+        doc = cls()
         meta_sent = []
         tokens = []
         with open(tabs_path, "r") as tabs_file:
