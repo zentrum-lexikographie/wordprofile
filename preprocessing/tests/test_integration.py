@@ -49,7 +49,7 @@ class DataUpdateTest(unittest.TestCase):
         self.todays_dir = self.data_dir / date.today().isoformat()
 
     def tearDown(self):
-        if (self.todays_dir).exists():
+        if self.todays_dir.exists():
             rmtree(self.todays_dir)
 
     def test_subdir_with_current_date_created(self):
@@ -60,9 +60,9 @@ class DataUpdateTest(unittest.TestCase):
                 "-c",
                 "corpus",
                 "-d",
-                self.data_dir,
+                str(self.data_dir),
                 "-t",
-                (self.data_dir / "dump"),
+                str(self.data_dir / "dump"),
             ],
         )
         self.assertTrue(self.todays_dir.exists())
@@ -74,9 +74,9 @@ class DataUpdateTest(unittest.TestCase):
                 "-c",
                 "corpus",
                 "-d",
-                self.data_dir,
+                str(self.data_dir),
                 "-t",
-                (self.data_dir / "dump"),
+                str(self.data_dir / "dump"),
             ],
         )
         self.assertTrue((self.todays_dir / "corpus.toc").exists())
@@ -88,9 +88,9 @@ class DataUpdateTest(unittest.TestCase):
                 "-c",
                 "corpus",
                 "-d",
-                self.data_dir,
+                str(self.data_dir),
                 "-t",
-                (self.data_dir / "dump"),
+                str(self.data_dir / "dump"),
             ],
         )
         result = (self.todays_dir / "corpus.toc").read_text()
@@ -104,9 +104,9 @@ class DataUpdateTest(unittest.TestCase):
                 "-c",
                 "corpus",
                 "-d",
-                self.data_dir,
+                str(self.data_dir),
                 "-t",
-                (self.data_dir / "dump"),
+                str(self.data_dir / "dump"),
             ],
         )
         result = (self.todays_dir / "corpus.conll").read_text()
@@ -120,9 +120,9 @@ class DataUpdateTest(unittest.TestCase):
                 "-c",
                 "test",
                 "-d",
-                self.data_dir,
+                str(self.data_dir),
                 "-t",
-                (self.data_dir / "dump"),
+                str(self.data_dir / "dump"),
             ],
         )
         self.assertFalse(self.todays_dir.exists())
