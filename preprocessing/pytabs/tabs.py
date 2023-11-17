@@ -46,7 +46,7 @@ class TabsSentence:
         self.meta = meta
         self.tokens = tuple(tokens)
 
-    def to_conll(self, index: Dict[str, int]):
+    def to_conll(self, index: Dict[str, int]) -> List[ConllToken]:
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
         tokens = [
             ConllToken(
