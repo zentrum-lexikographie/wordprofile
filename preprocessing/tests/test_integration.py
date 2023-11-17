@@ -29,16 +29,14 @@ class Tabs2ConlluTest(unittest.TestCase):
             rmdir(self.output_dir)
 
     def test_conll_written_to_std(self):
-        result = self.cli_runner.invoke(
-            tabs2conllu.main, ["-i", self.tabs_file.as_posix()]
-        )
+        result = self.cli_runner.invoke(tabs2conllu.main, ["-i", str(self.tabs_file)])
         expected = self.conll_file.read_text()
         self.assertEqual(expected, result.output)
 
     def test_conll_written_to_file(self):
         self.cli_runner.invoke(
             tabs2conllu.main,
-            ["-i", self.tabs_file.as_posix(), "-o", self.output_dir.as_posix()],
+            ["-i", str(self.tabs_file), "-o", str(self.output_dir)],
         )
         result = next(self.output_dir.glob("*/sample.conllu")).read_text()
         expected = self.conll_file.read_text()
@@ -47,7 +45,7 @@ class Tabs2ConlluTest(unittest.TestCase):
     def test_output_path_matches_collection_of_input(self):
         self.cli_runner.invoke(
             tabs2conllu.main,
-            ["-i", self.tabs_file.as_posix(), "-o", self.output_dir.as_posix()],
+            ["-i", str(self.tabs_file), "-o", str(self.output_dir)],
         )
         self.assertTrue((self.output_dir / "politische_reden").exists())
 
