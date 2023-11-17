@@ -1,19 +1,11 @@
 import unittest
 from datetime import date
 from pathlib import Path
+from shutil import rmtree
 
 from click.testing import CliRunner
 
 from preprocessing.cli import data_update, tabs2conllu
-
-
-def rmdir(dir: Path):
-    for child in dir.iterdir():
-        if child.is_dir():
-            rmdir(child)
-        else:
-            child.unlink()
-    dir.rmdir()
 
 
 class Tabs2ConlluTest(unittest.TestCase):
@@ -26,7 +18,7 @@ class Tabs2ConlluTest(unittest.TestCase):
 
     def tearDown(self):
         if self.output_dir.exists():
-            rmdir(self.output_dir)
+            rmtree(self.output_dir)
 
     def test_conll_written_to_std(self):
         result = self.cli_runner.invoke(tabs2conllu.main, ["-i", str(self.tabs_file)])
@@ -58,7 +50,7 @@ class DataUpdateTest(unittest.TestCase):
 
     def tearDown(self):
         if (self.todays_dir).exists():
-            rmdir(self.todays_dir)
+            rmtree(self.todays_dir)
 
     def test_subdir_with_current_date_created(self):
         assert self.todays_dir.exists() is False
