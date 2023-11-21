@@ -24,3 +24,8 @@ trankit = "*"
 [prep]
 click = "*"
 typing-extensions = "*"
+
+[api]
+jinja2 = "*"
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
