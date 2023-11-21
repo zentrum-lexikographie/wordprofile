@@ -18,3 +18,7 @@ python_version = "3.8"
 [build]
 conllu = "*"
 trankit = "*"
+
+[prep]
+click = "*"
+typing-extensions = "*"
