@@ -9,6 +9,8 @@ name = "pypi"
 autoflake = "*"
 flake8 = "*"
 pytest = "*"
+black = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.8"
