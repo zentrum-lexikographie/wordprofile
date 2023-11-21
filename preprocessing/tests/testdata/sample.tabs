@@ -1,0 +1,3428 @@
+%%$DDC:tokid.begin=4548239
+%%$DDC:tokid.end=4551166
+%%$DDC:meta.n_=2646
+%%$DDC:meta.file_=politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml
+%%$DDC:meta.scan_=
+%%$DDC:meta.orig_=
+%%$DDC:meta.date_=2009-06-02
+%%$DDC:meta.page_=-1
+%%$DDC:meta.author=Frank-Walter Steinmeier
+%%$DDC:meta.avail=-
+%%$DDC:meta.availability=Distributed under the Creative Commons Attribution-ShareAlike 4.0 International Licence.
+%%$DDC:meta.basename=src/de1/DE1_0999_20090602
+%%$DDC:meta.bibl=Rede von Frank-Walter Steinmeier, 02.06.2009
+%%$DDC:meta.collection=politische_reden
+%%$DDC:meta.country=DE
+%%$DDC:meta.empty=
+%%$DDC:meta.flags=
+%%$DDC:meta.party=SPD
+%%$DDC:meta.role=Bundesminister
+%%$DDC:meta.textClass=gesprochen:Rede
+%%$DDC:meta.timestamp=2020-02-25T18:27:16Z
+%%$DDC:meta.title=Rede von Außenminister Frank-Walter Steinmeier in der Akademie der Wissenschaften in Budapest
+%%$DDC:meta.url=http://www.auswaertiges-amt.de/DE/Infoservice/Presse/Reden/2009/090602-BM-Budapest.html
+%%$DDC:index[0]=Token w
+%%$DDC:index[1]=Pos p
+%%$DDC:index[2]=Lemma l
+%%$DDC:index[3]=WordSep ws
+%%$DDC:BREAK.s[238299]=4548239
+%%$DDC:BREAK.c[2645]=4548239
+%%$DDC:BREAK.p[81870]=4548239
+%%$DDC:BREAK.file[2645]=4548239
+%%$DDC:BREAK.textarea[2645]=4548239
+Sehr	ADV	sehr	1
+geehrter	ADJA	geehrt	1
+Herr	NN	Herr	1
+Präsident	NN	Präsident	1
+Palinkás	NE	Palinkás	1
+,	$,	,	0
+meine	PPOSAT	meine	1
+sehr	ADV	sehr	1
+verehrten	ADJA	verehrt	1
+Damen	NN	Dame	1
+und	KON	und	1
+Herren	NN	Herr	1
+,	$,	,	0
+
+%%$DDC:BREAK.s[238300]=4548252
+%%$DDC:BREAK.p[81871]=4548252
+Exzellenzen	NN	Exzellenz	1
+,	$,	,	0
+
+%%$DDC:BREAK.s[238301]=4548254
+%%$DDC:BREAK.p[81872]=4548254
+vor	APPR	vor	1
+zwanzig	CARD	zwanzig	1
+Jahren	NN	Jahr	1
+ist	VAFIN	sein	1
+in	APPR	in	1
+Europa	NE	Europa	1
+"	$(	"	1
+die	ART	d	0
+Zeit	NN	Zeit	1
+explodiert	VVPP	explodieren	1
+"	$(	"	0
+-	$(	-	1
+so	ADV	so	1
+haben	VAFIN	haben	1
+es	PPER	es	1
+mit	APPR	mit	1
+dem	ART	d	1
+tschechischen	ADJA	tschechisch	1
+Schriftsteller	NN	Schriftsteller	1
+Jáchym	NE	Jáchym	1
+Topol	NE	Topol	1
+wohl	ADV	wohl	1
+alle	PIS	alle	1
+empfunden	VVPP	empfinden	1
+,	$,	,	0
+die	PRELS	die	1
+die	ART	d	1
+Umwälzungen	NN	Umwälzung	1
+des	ART	d	1
+Jahres	NN	Jahr	1
+1989	CARD	1989	1
+unmittelbar	ADJD	unmittelbar	1
+erlebt	VVPP	erleben	1
+haben	VAINF	haben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238302]=4548289
+%%$DDC:BREAK.p[81873]=4548289
+Damals	ADV	damals	1
+ging	VVFIN	gehen	1
+eine	ART	eine	1
+ganze	ADJA	ganz	1
+Epoche	NN	Epoche	1
+zu	APPR	zu	1
+Ende	NN	Ende	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238303]=4548297
+Eine	ART	eine	1
+neue	ADJA	neu	1
+Zeit	NN	Zeit	1
+begann	VVFIN	beginnen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238304]=4548302
+Die	ART	d	1
+Ereignisse	NN	Ereignis	1
+von	APPR	von	1
+1989	CARD	1989	1
+und	KON	und	1
+1990	CARD	1990	1
+sind	VAFIN	sein	1
+heute	ADV	heute	1
+Geschichte	NN	Geschichte	1
+und	KON	und	1
+Gegenwart	NN	Gegenwart	1
+zugleich	ADV	zugleich	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238305]=4548315
+Oder	NE	Oder	1
+,	$,	,	0
+mit	APPR	mit	1
+den	ART	d	1
+Worten	NN	Wort	1
+von	APPR	von	1
+Barbara	NE	Barbara	1
+Tuchmann	NE	Tuchmann	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238306]=4548324
+Es	PPER	es	1
+ist	VAFIN	sein	1
+"	$(	"	1
+Geschichte	NN	Geschichte	0
+,	$,	,	0
+die	PRELS	die	1
+noch	ADV	noch	1
+qualmt	VVFIN	qualmen	1
+"	$(	"	0
+.	$.	.	0
+
+%%$DDC:BREAK.s[238307]=4548334
+%%$DDC:BREAK.p[81874]=4548334
+Geschichte	NN	Geschichte	1
+,	$,	,	0
+an	APPR	an	1
+die	PRELS	die	1
+wir	PPER	wir	1
+uns	PRF	uns	1
+dankbar	ADJD	dankbar	1
+erinnern	VVINF	erinnern	1
+–	$(	–	1
+und	KON	und	1
+die	PRELS	die	1
+uns	PPER	wir	1
+zugleich	ADV	zugleich	1
+weiter	ADV	weiter	1
+fordert	VVFIN	fordern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238308]=4548350
+%%$DDC:BREAK.p[81875]=4548350
+Vor	APPR	vor	1
+zwanzig	CARD	zwanzig	1
+Jahren	NN	Jahr	1
+war	VAFIN	sein	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+von	APPR	von	1
+einer	ART	eine	1
+einzigartigen	ADJA	einzigartig	1
+Aufbruchstimmung	NN	Aufbruchstimmung	1
+erfasst	VVPP	erfassen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238309]=4548362
+Einem	ART	eine	1
+unbändigen	ADJA	unbändig	1
+Drang	NN	Drang	1
+zur	APPRART	zur	1
+Freiheit	NN	Freiheit	1
+,	$,	,	0
+aus	APPR	aus	1
+dem	PRELS	die	1
+wir	PPER	wir	1
+auch	ADV	auch	1
+heute	ADV	heute	1
+noch	ADV	noch	1
+Kraft	NN	Kraft	1
+schöpfen	VVFIN	schöpfen	1
+können	VMFIN	können	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238310]=4548378
+Wenn	KOUS	wenn	1
+wir	PPER	wir	1
+nämlich	ADV	nämlich	1
+fragen	VVINF	fragen	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238311]=4548383
+Welche	PWAT	welche	1
+Lehren	NN	Lehre	1
+halten	VVFIN	halten	1
+die	ART	d	1
+Ereignisse	NN	Ereignis	1
+von	APPR	von	1
+1989	CARD	1989	1
+für	APPR	für	1
+die	ART	d	1
+Zeitenwende	NN	Zeitenwende	1
+bereit	PTKVZ	bereit	1
+,	$,	,	0
+die	PRELS	die	1
+wir	PPER	wir	1
+jetzt	ADV	jetzt	1
+gerade	ADV	gerade	1
+erleben	VVINF	erleben	1
+?	$.	?	0
+
+%%$DDC:BREAK.s[238312]=4548401
+Welche	PWAT	welche	1
+Hoffnungen	NN	Hoffnung	1
+bleiben	VVFIN	bleiben	1
+vielleicht	ADV	vielleicht	1
+noch	ADV	noch	1
+einzulösen	VVIZU	einlösen	1
+?	$.	?	0
+
+%%$DDC:BREAK.s[238313]=4548408
+Was	PWS	was	1
+bleibt	VVFIN	bleiben	1
+zu	PTKZU	zu	1
+tun	VVINF	tun	1
+in	APPR	in	1
+Europa	NE	Europa	1
+?	$.	?	0
+
+%%$DDC:BREAK.s[238314]=4548415
+%%$DDC:BREAK.p[81876]=4548415
+Kaum	ADV	kaum	1
+ein	ART	eine	1
+Ort	NN	Ort	1
+ist	VAFIN	sein	1
+für	APPR	für	1
+ein	ART	eine	1
+Nachdenken	NN	Nachdenken	1
+über	APPR	über	1
+diese	PDAT	diese	1
+Fragen	NN	Frage	1
+besser	ADJD	gut	1
+geeignet	ADJD	geeignet	1
+als	KOKOM	als	1
+Budapest	NE	Budapest	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238315]=4548430
+Hier	ADV	hier	1
+in	APPR	in	1
+Ungarn	NE	Ungarn	1
+hat	VAFIN	haben	1
+der	ART	d	1
+Eiserne	ADJA	eisern	1
+Vorhang	NN	Vorhang	1
+im	APPRART	im	1
+Sommer	NN	Sommer	1
+1989	CARD	1989	1
+seine	PPOSAT	seine	1
+ersten	ADJA	erst	1
+Risse	NN	Riß	1
+bekommen	VVINF	bekommen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238316]=4548445
+Hier	ADV	hier	1
+wurde	VAFIN	werden	1
+erstmals	ADV	erstmals	1
+der	ART	d	1
+Grenzzaun	NN	Grenzezaun	1
+durchtrennt	VVPP	durchtrennen	1
+,	$,	,	0
+der	PRELS	die	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+in	APPR	in	1
+zwei	CARD	zwei	1
+Blöcke	NN	Block	1
+geteilt	VVPP	teilen	1
+hat	VAFIN	haben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238317]=4548461
+%%$DDC:BREAK.p[81877]=4548461
+Die	ART	d	1
+Bilder	NN	Bild	1
+gingen	VVFIN	gehen	1
+damals	ADV	damals	1
+um	APPR	um	1
+die	ART	d	1
+Welt	NN	Welt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238318]=4548469
+Wir	PPER	wir	1
+alle	PIS	alle	1
+haben	VAFIN	haben	1
+sie	PPER	sie	1
+noch	ADV	noch	1
+vor	APPR	vor	1
+Augen	NN	Auge	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238319]=4548477
+Wie	PWAV	wie	1
+der	ART	d	1
+ungarische	ADJA	ungarisch	1
+Außenminister	NN	Außenminister	1
+Gyula	NE	Gyula	1
+Horn	NE	Horn	1
+und	KON	und	1
+sein	PPOSAT	sein	1
+österreichischer	ADJA	österreichisch	1
+Kollege	NN	Kollege	1
+Alois	NE	Alois	1
+Mock	NE	Mock	1
+den	ART	d	1
+Grenzdraht	NN	Grenzedraht	1
+bei	APPR	bei	1
+Sopron	NE	Sopron	1
+durchschnitten	VVPP	durchschneiden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238320]=4548495
+Wie	PWAV	wie	1
+hunderte	ADJA	hundert	1
+von	APPR	von	1
+ostdeutschen	ADJA	ostdeutsch	1
+Urlaubern	NN	Urlauber	1
+durch	APPR	durch	1
+ein	ART	eine	1
+angelehntes	ADJA	angelehnt	1
+Grenztor	NN	Grenzetor	1
+nach	APPR	nach	1
+Österreich	NE	Österreich	1
+fliehen	VVINF	fliehen	1
+konnten	VMFIN	können	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238321]=4548509
+Die	ART	d	1
+unbändige	ADJA	unbändig	1
+Freude	NN	Freude	1
+der	ART	d	1
+Menschen	NN	Mensch	1
+über	APPR	über	1
+ihre	PPOSAT	ihr	1
+neu	ADJD	neu	1
+gewonnene	ADJA	gewinnen	1
+Freiheit	NN	Freiheit	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238322]=4548520
+%%$DDC:BREAK.p[81878]=4548520
+Diese	PDAT	diese	1
+Bilder	NN	Bild	1
+wirkten	VVFIN	wirken	1
+wie	KOKOM	wie	1
+ein	ART	eine	1
+Sog	NN	Sog	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238323]=4548527
+Sie	PPER	sie	1
+zogen	VVFIN	ziehen	1
+immer	ADV	immer	1
+neue	ADJA	neu	1
+Wellen	NN	Welle	1
+von	APPR	von	1
+Ausreisewilligen	NN	Ausreisewillige	1
+nach	APPR	nach	1
+sich	PRF	sich	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238324]=4548537
+Schon	ADV	schon	1
+bald	ADV	bald	1
+ging	VVFIN	gehen	1
+die	ART	d	1
+Flüchtlingskrise	NN	Flüchtlingskrise	1
+in	APPR	in	1
+Ungarn	NE	Ungarn	1
+,	$,	,	0
+später	ADJD	spät	1
+auch	ADV	auch	1
+in	APPR	in	1
+Polen	NE	Polen	1
+und	KON	und	1
+der	ART	d	1
+Tschechoslowakei	NE	Tschechoslowakei	1
+,	$,	,	0
+über	APPR	über	1
+in	APPR	in	1
+eine	ART	eine	1
+Regimekrise	NN	Regimekrise	1
+in	APPR	in	1
+der	ART	d	1
+DDR	NE	DDR	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238325]=4548561
+%%$DDC:BREAK.p[81879]=4548561
+Für	APPR	für	1
+den	ART	d	1
+Gang	NN	Gang	1
+der	ART	d	1
+Ereignisse	NN	Ereignis	1
+in	APPR	in	1
+Deutschland	NE	Deutschland	1
+hatte	VAFIN	haben	1
+die	ART	d	1
+mutige	ADJA	mutig	1
+Entscheidung	NN	Entscheidung	1
+der	ART	d	1
+ungarischen	ADJA	ungarisch	1
+Regierung	NN	Regierung	1
+,	$,	,	0
+die	ART	d	1
+Grenzen	NN	Grenze	1
+zu	PTKZU	zu	1
+öffnen	VVINF	öffnen	1
+,	$,	,	0
+eine	ART	eine	1
+kaum	ADV	kaum	1
+zu	APPR	zu	1
+überschätzende	ADJA	überschätzend	1
+Bedeutung	NN	Bedeutung	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238326]=4548587
+%%$DDC:BREAK.p[81880]=4548587
+Wir	PPER	wir	1
+Deutsche	NN	Deutsche	1
+werden	VAFIN	werden	1
+das	PDS	die	1
+nie	ADV	nie	1
+vergessen	VVPP	vergessen	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238327]=4548594
+Auch	ADV	auch	1
+deshalb	PAV	deshalb	1
+bin	VAFIN	sein	1
+ich	PPER	ich	1
+heute	ADV	heute	1
+hier	ADV	hier	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238328]=4548601
+Deutschland	NE	Deutschland	1
+sagt	VVFIN	sagen	1
+Danke	PTKANT	danke	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238329]=4548605
+%%$DDC:BREAK.p[81881]=4548605
+Denn	KON	denn	1
+wir	PPER	wir	1
+wissen	VVFIN	wissen	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238330]=4548609
+Ohne	APPR	ohne	1
+die	ART	d	1
+Entwicklung	NN	Entwicklung	1
+in	APPR	in	1
+unseren	PPOSAT	unsere	1
+östlichen	ADJA	östlich	1
+Nachbarländern	NN	Nachbarland	1
+wäre	VAFIN	sein	1
+der	ART	d	1
+9.	ADJA	9.	1
+November	NN	November	1
+1989	CARD	1989	1
+nicht	PTKNEG	nicht	1
+denkbar	ADJD	denkbar	1
+gewesen	VAPP	sein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238331]=4548625
+%%$DDC:BREAK.p[81882]=4548625
+Der	ART	d	1
+Fall	NN	Fall	1
+der	ART	d	1
+Berliner	ADJA	Berliner	1
+Mauer	NN	Mauer	1
+an	APPR	an	1
+jenem	PDAT	jen	1
+Tag	NN	Tag	1
+ist	VAFIN	sein	1
+bis	ADV	bis	1
+heute	ADV	heute	1
+weltweit	ADJD	weltweit	1
+das	ART	d	1
+Symbol	NN	Symbol	1
+für	APPR	für	1
+die	ART	d	1
+Überwindung	NN	Überwindung	1
+der	ART	d	1
+gewaltsamen	ADJA	gewaltsam	1
+Teilung	NN	Teilung	1
+Europas	NE	Europa	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238332]=4548647
+Und	KON	und	1
+doch	ADV	doch	1
+war	VAFIN	sein	1
+,	$,	,	0
+wie	PWAV	wie	1
+Karl	NE	Karl	1
+Schlögel	NE	Schlögel	1
+es	PPER	es	1
+nannte	VVFIN	nennen	1
+,	$,	,	0
+der	ART	d	1
+Mauerfall	NN	Mauerfall	1
+nur	ADV	nur	1
+"	$(	"	1
+Beglaubigung	NN	Beglaubigung	0
+"	$(	"	0
+,	$,	,	0
+die	PRELS	die	1
+sanktionierte	VVFIN	sanktionieren	1
+,	$,	,	0
+was	PWS	was	1
+schon	ADV	schon	1
+entschieden	VVPP	entscheiden	1
+war	VAFIN	sein	1
+–	$(	–	1
+vorher	ADV	vorher	1
+und	KON	und	1
+anderswo	ADV	anderswo	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238333]=4548676
+%%$DDC:BREAK.p[81883]=4548676
+Der	ART	d	1
+Keim	NN	Keim	1
+der	ART	d	1
+friedlichen	ADJA	friedlich	1
+Revolution	NN	Revolution	1
+,	$,	,	0
+die	PRELS	die	1
+1989	CARD	1989	1
+schließlich	ADV	schließlich	1
+das	ART	d	1
+ganze	ADJA	ganz	1
+östliche	ADJA	östlich	1
+Mitteleuropa	NE	MittelEuropa	1
+erfasste	VVFIN	erfassen	1
+,	$,	,	0
+war	VAFIN	sein	1
+aber	ADV	aber	1
+schon	ADV	schon	1
+vorher	ADV	vorher	1
+gereift	VVPP	reifen	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238334]=4548697
+In	APPR	in	1
+Ungarn	NE	Ungarn	1
+1956	CARD	1956	1
+,	$,	,	0
+im	APPRART	im	1
+Prager	ADJA	Prager	1
+Frühling	NN	Frühling	1
+1968	CARD	1968	1
+,	$,	,	0
+der	ART	d	1
+Charta	NN	Charta	1
+77	CARD	77	1
+–	$(	–	1
+der	ART	d	1
+Freiheitsagenda	NN	Freiheitsagenda	1
+des	ART	d	1
+großen	ADJA	groß	1
+Vaclav	NE	Vaclav	1
+Havel	NE	Havel	1
+und	KON	und	1
+seiner	PPOSAT	seine	1
+Mitstreiter	NN	Mitstreiter	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238335]=4548720
+Gereift	VVPP	reifen	1
+bei	APPR	bei	1
+den	ART	d	1
+machtvollen	ADJA	machtvoll	1
+Protesten	NN	Protest	1
+der	ART	d	1
+Solidarnosc	NN	Solidarnosc	1
+in	APPR	in	1
+Polen	NE	Polen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238336]=4548730
+%%$DDC:BREAK.p[81884]=4548730
+Diese	PDAT	diese	1
+Proteste	NN	Protest	1
+ließen	VVFIN	lassen	1
+sich	PRF	sich	1
+nicht	PTKNEG	nicht	1
+mehr	ADV	mehr	1
+unterdrücken	VVINF	unterdrücken	1
+,	$,	,	0
+auch	ADV	auch	1
+nicht	PTKNEG	nicht	1
+durch	APPR	durch	1
+Verhängung	NN	Verhängung	1
+des	ART	d	1
+Kriegsrechts	NN	Kriegsrecht	1
+in	APPR	in	1
+Polen	NE	Polen	1
+im	APPRART	im	1
+Dezember	NN	Dezember	1
+1981	CARD	1981	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238337]=4548750
+%%$DDC:BREAK.p[81885]=4548750
+"	$(	"	1
+Dialog	NN	Dialog	0
+statt	APPR	statt	1
+Konfrontation	NN	Konfrontation	1
+"	$(	"	0
+-	$(	-	1
+diese	PDAT	diese	1
+Losung	NN	Losung	1
+Adam	NE	Adam	1
+Michniks	NE	Michnik	1
+ermöglichte	VVFIN	ermöglichen	1
+1989	CARD	1989	1
+jene	PDAT	jen	1
+"	$(	"	1
+Politik	NN	Politik	0
+des	ART	d	1
+Runden	ADJA	rund	1
+Tisches	NN	Tisch	1
+"	$(	"	0
+,	$,	,	0
+die	PRELS	die	1
+dann	ADV	dann	1
+zu	APPR	zu	1
+den	ART	d	1
+ersten	ADJA	erst	1
+halbfreien	ADJA	halbfrei	1
+Wahlen	NN	Wahl	1
+führte	VVFIN	führen	1
+–	$(	–	1
+in	APPR	in	1
+dieser	PDAT	diese	1
+Woche	NN	Woche	1
+jähren	VVFIN	jähren	1
+sie	PPER	sie	1
+sich	PRF	sich	1
+zum	APPRART	zum	1
+zwanzigsten	ADJA	zwanzigst	1
+Mal	NN	Mal	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238338]=4548789
+Wenige	PIAT	wenige	1
+Wochen	NN	Woche	1
+später	ADJD	spät	1
+hatte	VAFIN	haben	1
+Polen	NE	Polen	1
+seine	PPOSAT	seine	1
+erste	ADJA	erst	1
+nichtkommunistische	ADJA	nichtkommunistisch	1
+Regierung	NN	Regierung	1
+unter	APPR	unter	1
+Tadeusz	NE	Tadeusz	1
+Mazowiecki	NE	Mazowiecki	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238339]=4548802
+%%$DDC:BREAK.p[81886]=4548802
+Wie	PWAV	wie	1
+in	APPR	in	1
+Ungarn	NE	Ungarn	1
+,	$,	,	0
+so	ADV	so	1
+hatten	VAFIN	haben	1
+auch	ADV	auch	1
+in	APPR	in	1
+Polen	NE	Polen	1
+die	ART	d	1
+Ereignisse	NN	Ereignis	1
+Bedeutung	NN	Bedeutung	1
+weit	ADJD	weit	1
+über	APPR	über	1
+das	ART	d	1
+Land	NN	Land	1
+hinaus	PTKVZ	hinaus	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238340]=4548820
+%%$DDC:BREAK.p[81887]=4548820
+Innerhalb	APPR	innerhalb	1
+von	APPR	von	1
+zwei	CARD	zwei	1
+Jahren	NN	Jahr	1
+nach	APPR	nach	1
+dem	ART	d	1
+"	$(	"	1
+annus	FM	annus	0
+mirabilis	FM	mirabilis	1
+"	$(	"	0
+1989	CARD	1989	1
+waren	VAFIN	sein	1
+in	APPR	in	1
+Europa	NE	Europa	1
+neun	CARD	neun	1
+kommunistische	ADJA	kommunistisch	1
+Diktaturen	NN	Diktatur	1
+zusammengebrochen	VVPP	zusammenbrechen	1
+,	$,	,	0
+einschließlich	APPR	einschließlich	1
+der	ART	d	1
+sowjetischen	ADJA	sowjetisch	1
+selbst	ADV	selbst	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238341]=4548844
+%%$DDC:BREAK.p[81888]=4548844
+Das	PDS	die	1
+war	VAFIN	sein	1
+gewiss	ADV	gewiß	1
+nicht	PTKNEG	nicht	1
+das	ART	d	1
+Ziel	NN	Ziel	1
+,	$,	,	0
+aber	ADV	aber	1
+eben	ADV	eben	1
+auch	ADV	auch	1
+nicht	PTKNEG	nicht	1
+denkbar	ADJD	denkbar	1
+ohne	APPR	ohne	1
+die	ART	d	1
+Reformpolitik	NN	Reformpolitik	1
+Gorbatschows	NE	Gorbatschow	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238342]=4548861
+Die	ART	d	1
+Aufgabe	NN	Aufgabe	1
+der	ART	d	1
+Breschnew-Doktrin	NN	Breschnew-Doktrin	1
+,	$,	,	0
+auch	ADV	auch	1
+die	ART	d	1
+Politik	NN	Politik	1
+von	APPR	von	1
+Glasnost	NN	Glasnost	1
+und	KON	und	1
+Perestroika	NN	Perestroika	1
+,	$,	,	0
+so	ADV	so	1
+gefährdet	VVFIN	gefährden	1
+diese	PDS	diese	1
+auch	ADV	auch	1
+war	VAFIN	sein	1
+,	$,	,	0
+schufen	VVFIN	schaffen	1
+für	APPR	für	1
+ganz	ADV	ganz	1
+Osteuropa	NE	OstEuropa	1
+neue	ADJA	neu	1
+Möglichkeiten	NN	Möglichkeit	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238343]=4548887
+%%$DDC:BREAK.p[81889]=4548887
+Wenn	KOUS	wenn	1
+wir	PPER	wir	1
+über	APPR	über	1
+die	ART	d	1
+Voraussetzungen	NN	Voraussetzung	1
+von	APPR	von	1
+1989	CARD	1989	1
+reden	VVINF	reden	1
+,	$,	,	0
+dann	ADV	dann	1
+dürfen	VMFIN	dürfen	1
+wir	PPER	wir	1
+aber	ADV	aber	1
+auch	ADV	auch	1
+die	ART	d	1
+Entspannungspolitik	NN	Entspannungspolitik	1
+nicht	PTKNEG	nicht	1
+vergessen	VVINF	vergessen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238344]=4548906
+Der	ART	d	1
+Westen	NN	Westen	1
+hat	VAFIN	haben	1
+gewiss	ADV	gewiß	1
+die	ART	d	1
+Entwicklungen	NN	Entwicklung	1
+im	APPRART	im	1
+Osten	NN	Osten	1
+nicht	PTKNEG	nicht	1
+bewirkt	VVPP	bewirken	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238345]=4548917
+Aber	KON	aber	1
+die	ART	d	1
+Entspannungspolitik	NN	Entspannungspolitik	1
+von	APPR	von	1
+Willy	NE	Willy	1
+Brandt	NE	Brandt	1
+,	$,	,	0
+Egon	NE	Egon	1
+Bahr	NE	Bahr	1
+,	$,	,	0
+Walter	NE	Walter	1
+Scheel	NE	Scheel	1
+und	KON	und	1
+Hans-Dietrich	NE	Hans-Dietrich	1
+Genscher	NE	Genscher	1
+hat	VAFIN	haben	1
+wesentlich	ADJD	wesentlich	1
+zur	APPRART	zur	1
+Überwindung	NN	Überwindung	1
+des	ART	d	1
+Ost-West-Gegensatzes	NN	Ost-West-Gegensatz	1
+,	$,	,	0
+zum	APPRART	zum	1
+Abbau	NN	Abbau	1
+von	APPR	von	1
+Feindbildern	NN	Feindbild	1
+und	KON	und	1
+Spannungen	NN	Spannung	1
+beigetragen	VVPP	beitragen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238346]=4548947
+%%$DDC:BREAK.p[81890]=4548947
+Ohne	APPR	ohne	1
+den	ART	d	1
+Helsinki-Prozess	NN	Helsinki-Prozeß	1
+hätte	VAFIN	haben	1
+es	PPER	es	1
+1989	CARD	1989	1
+nicht	PTKNEG	nicht	1
+gegeben	VVPP	geben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238347]=4548956
+Mit	APPR	mit	1
+seinem	PPOSAT	seine	1
+"	$(	"	1
+goldenen	ADJA	golden	0
+Angelhaken	NN	Angelhaken	1
+"	$(	"	0
+für	APPR	für	1
+Menschen-	TRUNC	menschen-	1
+und	KON	und	1
+Bürgerrechte	NN	Bürgerrecht	1
+,	$,	,	0
+wie	PWAV	wie	1
+das	PDS	die	1
+einmal	ADV	einmal	1
+genannt	VVPP	nennen	1
+wurde	VAFIN	werden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238348]=4548973
+Um	KOUI	um	1
+den	ART	d	1
+Preis	NN	Preis	1
+der	ART	d	1
+politischen	ADJA	politisch	1
+Entspannung	NN	Entspannung	1
+mussten	VMFIN	müssen	1
+sich	PRF	sich	1
+die	ART	d	1
+Unterzeichnerstaaten	NN	Unterzeichnerstaat	1
+zur	APPRART	zur	1
+Achtung	NN	Achtung	1
+der	ART	d	1
+Menschenrechte	NN	Menschenrecht	1
+und	KON	und	1
+Grundfreiheiten	NN	Grundfreiheit	1
+bekennen	VVINF	bekennen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238349]=4548991
+%%$DDC:BREAK.p[81891]=4548991
+Darauf	PAV	darauf	1
+haben	VAFIN	haben	1
+sich	PRF	sich	1
+Dissidenten	NN	Dissident	1
+berufen	VVINF	berufen	1
+,	$,	,	0
+gewiss	ADV	gewiß	1
+nicht	PTKNEG	nicht	1
+immer	ADV	immer	1
+mit	APPR	mit	1
+Erfolg	NN	Erfolg	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238350]=4549003
+Und	KON	und	1
+doch	ADV	doch	1
+stärkte	VVFIN	stärken	1
+Helsinki	NE	Helsinki	1
+die	ART	d	1
+Position	NN	Position	1
+von	APPR	von	1
+Menschen	NN	Mensch	1
+,	$,	,	0
+die	PRELS	die	1
+ihre	PPOSAT	ihr	1
+eigenen	ADJA	eigen	1
+Überzeugungen	NN	Überzeugung	1
+hatten	VAFIN	haben	1
+und	KON	und	1
+diese	PDS	diese	1
+auch	ADV	auch	1
+frei	ADJD	frei	1
+aussprechen	VVINF	aussprechen	1
+und	KON	und	1
+danach	PAV	danach	1
+leben	VVINF	leben	1
+wollten	VMFIN	wollen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238351]=4549027
+%%$DDC:BREAK.p[81892]=4549027
+Keine	PIAT	keine	1
+Frage	NN	Frage	1
+:	$.	:	0
+1989	CARD	1989	1
+ging	VVFIN	gehen	1
+es	PPER	es	1
+um	APPR	um	1
+die	ART	d	1
+Durchsetzung	NN	Durchsetzung	1
+der	ART	d	1
+Menschen-	TRUNC	menschen-	1
+und	KON	und	1
+Bürgerrechte	NN	Bürgerrecht	1
+,	$,	,	0
+der	ART	d	1
+Demokratie	NN	Demokratie	1
+und	KON	und	1
+der	ART	d	1
+Zivilgesellschaft	NN	Zivilgesellschaft	1
+in	APPR	in	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238352]=4549050
+Es	PPER	es	1
+ging	VVFIN	gehen	1
+um	APPR	um	1
+Freiheit	NN	Freiheit	1
+im	APPRART	im	1
+umfassenden	ADJA	umfaßend	1
+Sinne	NN	Sinn	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238353]=4549058
+%%$DDC:BREAK.p[81893]=4549058
+Zweihundert	CARD	zweihundert	1
+Jahre	NN	Jahr	1
+nach	APPR	nach	1
+der	ART	d	1
+Französischen	ADJA	französisch	1
+Revolution	NN	Revolution	1
+von	APPR	von	1
+1789	CARD	1789	1
+sollten	VMFIN	sollen	1
+Freiheit	NN	Freiheit	1
+,	$,	,	0
+Gleichheit	NN	Gleichheit	1
+und	KON	und	1
+Brüderlichkeit	NN	Brüderlichkeit	1
+endlich	ADV	endlich	1
+zur	APPRART	zur	1
+gesamteuropäischen	ADJA	gesamteuropäisch	1
+Wirklichkeit	NN	Wirklichkeit	1
+werden	VAINF	werden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238354]=4549078
+%%$DDC:BREAK.p[81894]=4549078
+Der	ART	d	1
+britische	ADJA	britisch	1
+Historiker	NN	Historiker	1
+Tony	NE	Tony	1
+Judt	NE	Judt	1
+hat	VAFIN	haben	1
+einmal	ADV	einmal	1
+pointiert	ADJD	pointiert	1
+formuliert	VVPP	formulieren	1
+,	$,	,	0
+dass	KOUS	dass	1
+1989	CARD	1989	1
+für	APPR	für	1
+die	ART	d	1
+Menschen	NN	Mensch	1
+im	APPRART	im	1
+Osten	NN	Osten	1
+"	$(	"	1
+das	ART	d	0
+Gegenmodell	NN	Gegenmodell	1
+zum	APPRART	zum	1
+Kommunismus	NN	Kommunismus	1
+nicht	PTKNEG	nicht	1
+der	ART	d	1
+Kapitalismus	NN	Kapitalismus	1
+,	$,	,	0
+sondern	KON	sondern	1
+Europa	NE	Europa	1
+"	$(	"	0
+gewesen	VAPP	sein	1
+sei	VAFIN	sein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238355]=4549110
+Ein	ART	eine	1
+Europa	NE	Europa	1
+,	$,	,	0
+als	KOKOM	als	1
+dessen	PRELAT	die	1
+Kennzeichen	NN	Kennzeichen	1
+man	PIS	man	1
+eine	ART	eine	1
+Kultur	NN	Kultur	1
+der	ART	d	1
+Freiheit	NN	Freiheit	1
+,	$,	,	0
+demokratische	ADJA	demokratisch	1
+Vielfalt	NN	Vielfalt	1
+und	KON	und	1
+eine	ART	eine	1
+bestimmte	ADJA	bestimmt	1
+Lebensweise	NN	Lebensweise	1
+betrachtet	VVPP	betrachten	1
+hat	VAFIN	haben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238356]=4549131
+%%$DDC:BREAK.p[81895]=4549131
+Zu	APPR	zu	1
+diesem	PDAT	diese	1
+Europa	NE	Europa	1
+gehört	VVFIN	gehören	1
+das	ART	d	1
+Verständnis	NN	Verständnis	1
+,	$,	,	1
+dass	KOUS	dass	1
+der	ART	d	1
+Staat	NN	Staat	1
+die	ART	d	1
+Freiheit	NN	Freiheit	1
+garantiert	VVFIN	garantieren	1
+,	$,	,	0
+indem	KOUS	indem	1
+er	PPER	er	1
+rechtsstaatliche	ADJA	rechtsstaatlich	1
+Regeln	NN	Regel	1
+gibt	VVFIN	geben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238357]=4549151
+Dazu	PAV	dazu	1
+gehört	VVFIN	gehören	1
+das	ART	d	1
+Bild	NN	Bild	1
+einer	ART	eine	1
+engagierten	ADJA	engagiert	1
+Gesellschaft	NN	Gesellschaft	1
+der	ART	d	1
+Bürgerinnen	NN	Bürgerin	1
+und	KON	und	1
+Bürger	NN	Bürger	1
+,	$,	,	0
+die	PRELS	die	1
+sich	PRF	sich	1
+einsetzen	VVINF	einsetzen	1
+für	APPR	für	1
+Demokratie	NN	Demokratie	1
+und	KON	und	1
+Gerechtigkeit	NN	Gerechtigkeit	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238358]=4549171
+%%$DDC:BREAK.p[81896]=4549171
+Dieses	PDAT	diese	1
+europäische	ADJA	europäisch	1
+Gesellschaftsmodell	NN	Gesellschaftsmodell	1
+ist	VAFIN	sein	1
+das	ART	d	1
+Ergebnis	NN	Ergebnis	1
+unserer	PPOSAT	unsere	1
+gesamteuropäischen	ADJA	gesamteuropäisch	1
+Geschichte	NN	Geschichte	1
+seit	APPR	seit	1
+der	ART	d	1
+Aufklärung	NN	Aufklärung	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238359]=4549184
+Es	PPER	es	1
+ist	VAFIN	sein	1
+unsere	PPOSAT	unsere	1
+gemeinsame	ADJA	gemeinsam	1
+,	$,	,	0
+oft	ADV	oft	1
+unter	APPR	unter	1
+großen	ADJA	groß	1
+Opfern	NN	Opfer	1
+erkämpfte	ADJA	erkämpft	1
+Errungenschaft	NN	Errungenschaft	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238360]=4549196
+Aber	KON	aber	1
+es	PPER	es	1
+ist	VAFIN	sein	1
+kein	PIAT	keine	1
+ruhiger	ADJA	ruhig	1
+Besitz	NN	Besitz	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238361]=4549203
+Es	PPER	es	1
+muss	VMFIN	müssen	1
+jeden	PIAT	jede	1
+Tag	NN	Tag	1
+aufs	APPRART	aufs	1
+Neue	ADJA	neu	1
+verteidigt	VVPP	verteidigen	1
+und	KON	und	1
+erarbeitet	VVPP	erarbeiten	1
+werden	VAINF	werden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238362]=4549214
+%%$DDC:BREAK.p[81897]=4549214
+Wir	PPER	wir	1
+leben	VVFIN	leben	1
+in	APPR	in	1
+einer	ART	eine	1
+Welt	NN	Welt	1
+,	$,	,	0
+in	APPR	in	1
+der	PRELS	die	1
+sich	PRF	sich	1
+neue	ADJA	neu	1
+Macht-	TRUNC	macht-	1
+und	KON	und	1
+Einflusszentren	NN	Einflußzentrum	1
+mit	APPR	mit	1
+rasanter	ADJA	rasant	1
+Dynamik	NN	Dynamik	1
+entwickeln	VVINF	entwickeln	1
+,	$,	,	0
+in	APPR	in	1
+der	PRELS	die	1
+unser	PPOSAT	unsere	1
+europäisches	ADJA	europäisch	1
+Gesellschaftsmodell	NN	Gesellschaftsmodell	1
+nicht	PTKNEG	nicht	1
+mehr	ADV	mehr	1
+überall	ADV	überall	1
+Flucht-	TRUNC	flucht-	1
+oder	KON	oder	1
+Bezugspunkt	NN	Bezugspunkt	1
+für	APPR	für	1
+gesellschaftliche	ADJA	gesellschaftlich	1
+Entwicklung	NN	Entwicklung	1
+ist	VAFIN	sein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238363]=4549248
+Es	PPER	es	1
+muss	VMFIN	müssen	1
+seine	PPOSAT	seine	1
+Überzeugungskraft	NN	Überzeugungskraft	1
+im	APPRART	im	1
+Vergleich	NN	Vergleich	1
+zu	APPR	zu	1
+anderen	ADJA	ander	1
+Sozialmodellen	NN	Sozialmodell	1
+und	KON	und	1
+gerade	ADV	gerade	1
+in	APPR	in	1
+Zeiten	NN	Zeit	1
+des	ART	d	1
+Umbruchs	NN	Umbruch	1
+beweisen	VVINF	beweisen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238364]=4549265
+%%$DDC:BREAK.p[81898]=4549265
+Denn	KON	denn	1
+was	PWS	was	1
+wir	PPER	wir	1
+gerade	ADV	gerade	1
+erleben	VVINF	erleben	1
+,	$,	,	0
+ist	VAFIN	sein	1
+mehr	PIAT	mehr	1
+als	KOKOM	als	1
+eine	ART	eine	1
+tiefe	ADJA	tief	1
+Wirtschaftskrise	NN	Wirtschaftskrise	1
+,	$,	,	0
+mehr	PIS	mehr	1
+als	KOKOM	als	1
+nur	ADV	nur	1
+der	ART	d	1
+drohende	ADJA	drohend	1
+Zusammenbruch	NN	Zusammenbruch	1
+ganzer	ADJA	ganz	1
+Finanzmärkte	NN	Finanzmarkt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238365]=4549287
+Was	PWS	was	1
+wir	PPER	wir	1
+gerade	ADV	gerade	1
+erleben	VVINF	erleben	1
+,	$,	,	0
+rüttelt	VVFIN	rütteln	1
+an	APPR	an	1
+den	ART	d	1
+Grundfesten	NN	Grundfeste	1
+unserer	PPOSAT	unsere	1
+Gesellschaft	NN	Gesellschaft	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238366]=4549299
+%%$DDC:BREAK.p[81899]=4549299
+In	APPR	in	1
+Teilen	NN	Teil	1
+unseres	PPOSAT	unsere	1
+Wirtschaftssystems	NN	Wirtschaftssystem	1
+hat	VAFIN	haben	1
+sich	PRF	sich	1
+offensichtlich	ADJD	offensichtlich	1
+ein	ART	eine	1
+rein	ADJD	rein	1
+wirtschaftliches	ADJA	wirtschaftlich	1
+Miss-Verständnis	NN	Miß-Verständnis	1
+von	APPR	von	1
+Freiheit	NN	Freiheit	1
+durchgesetzt	VVPP	durchsetzen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238367]=4549314
+In	APPR	in	1
+dem	ART	d	1
+der	ART	d	1
+"	$(	"	1
+homo	FM	homo	0
+oeconomicus	FM	oeconomicus	1
+"	$(	"	0
+zum	APPRART	zum	1
+alleinigen	ADJA	alleinig	1
+Maßstab	NN	Maßstab	1
+des	ART	d	1
+Handelns	NN	Handeln	1
+wurde	VAFIN	werden	1
+,	$,	,	0
+Gier	NN	Gier	1
+über	APPR	über	1
+ökonomische	ADJA	ökonomisch	1
+Vernunft	NN	Vernunft	1
+siegte	VVFIN	siegen	1
+,	$,	,	0
+die	ART	d	1
+kurzfristige	ADJA	kurzfristig	1
+Rendite	NN	Rendite	1
+zum	APPRART	zum	1
+Maßstab	NN	Maßstab	1
+wirtschaftlichen	ADJA	wirtschaftlich	1
+Tuns	NN	Tun	1
+wurde	VAFIN	werden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238368]=4549343
+Maßlosigkeit	NN	Maßlosigkeit	1
+war	VAFIN	sein	1
+die	ART	d	1
+Folge	NN	Folge	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238369]=4549348
+%%$DDC:BREAK.p[81900]=4549348
+Heute	ADV	heute	1
+sehen	VVFIN	sehen	1
+wir	PPER	wir	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238370]=4549352
+Damit	PAV	damit	1
+haben	VAFIN	haben	1
+wir	PPER	wir	1
+nicht	PTKNEG	nicht	1
+nur	ADV	nur	1
+wirtschaftlich	ADJD	wirtschaftlich	1
+über	APPR	über	1
+unsere	PPOSAT	unsere	1
+Verhältnisse	NN	Verhältnis	1
+gelebt	VVPP	leben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238371]=4549363
+%%$DDC:BREAK.p[81901]=4549363
+Denn	KON	denn	1
+mit	APPR	mit	1
+einem	ART	eine	1
+Bild	NN	Bild	1
+vom	APPRART	vom	1
+Menschen	NN	Mensch	1
+als	KOKOM	als	1
+einem	ART	eine	1
+Individuum	NN	Individuum	1
+,	$,	,	0
+das	PRELS	die	1
+sich	PRF	sich	1
+alles	PIS	alle	1
+schafft	VVFIN	schaffen	1
+und	KON	und	1
+alles	PIS	alle	1
+schaffen	VVINF	schaffen	1
+darf	VMFIN	dürfen	1
+,	$,	,	0
+ohne	KOUI	ohne	1
+auf	APPR	auf	1
+die	ART	d	1
+moralischen	ADJA	moralisch	1
+Grenzen	NN	Grenze	1
+und	KON	und	1
+gesellschaftlichen	ADJA	gesellschaftlich	1
+Ressourcen	NN	Ressource	1
+seines	PPOSAT	seine	1
+Handelns	NN	Handeln	1
+zu	PTKZU	zu	1
+achten	VVINF	achten	1
+,	$,	,	0
+drohen	VVFIN	drohen	1
+wir	PPER	wir	1
+insgesamt	ADV	insgesamt	1
+Schiffbruch	NN	Schiffbruch	1
+zu	PTKZU	zu	1
+erleiden	VVINF	erleiden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238372]=4549402
+%%$DDC:BREAK.p[81902]=4549402
+Ein	ART	eine	1
+solches	PIAT	solch	1
+Menschenbild	NN	Menschenbild	1
+und	KON	und	1
+Freiheitsverständnis	NN	Freiheitsverständnis	1
+gefährdet	VVFIN	gefährden	1
+die	ART	d	1
+Grundüberzeugungen	NN	Grundüberzeugung	1
+und	KON	und	1
+den	ART	d	1
+Zusammenhalt	NN	Zusammenhalt	1
+einer	ART	eine	1
+Gesellschaft	NN	Gesellschaft	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238373]=4549416
+Dieses	PDAT	diese	1
+Verständnis	NN	Verständnis	1
+von	APPR	von	1
+Europa	NE	Europa	1
+war	VAFIN	sein	1
+es	PPER	es	1
+gewiss	ADV	gewiß	1
+nicht	PTKNEG	nicht	1
+,	$,	,	0
+das	PRELS	die	1
+die	ART	d	1
+zivilgesellschaftlichen	ADJA	zivilgesellschaftlich	1
+Regungen	NN	Regung	1
+in	APPR	in	1
+Warschau	NE	Warschau	1
+,	$,	,	0
+in	APPR	in	1
+Budapest	NE	Budapest	1
+,	$,	,	0
+In	APPR	in	1
+Ostberlin	NE	OstBerlin	1
+und	KON	und	1
+in	APPR	in	1
+Prag	NE	Prag	1
+beflügelte	VVFIN	beflügeln	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238374]=4549442
+%%$DDC:BREAK.p[81903]=4549442
+Ungezügelte	ADJA	ungezügelt	1
+wirtschaftliche	ADJA	wirtschaftlich	1
+Freiheit	NN	Freiheit	1
+gefährdet	VVFIN	gefährden	1
+jene	PDAT	jen	1
+Freiheit	NN	Freiheit	1
+,	$,	,	0
+die	PRELS	die	1
+das	ART	d	1
+Fundament	NN	Fundament	1
+unserer	PPOSAT	unsere	1
+Gesellschaftsordnung	NN	Gesellschaftsordnung	1
+ist	VAFIN	sein	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238375]=4549456
+%%$DDC:BREAK.p[81904]=4549456
+Es	PPER	es	1
+ist	VAFIN	sein	1
+an	APPR	an	1
+der	ART	d	1
+Zeit	NN	Zeit	1
+,	$,	,	0
+dass	KOUS	dass	1
+wir	PPER	wir	1
+hieraus	PAV	hieraus	1
+die	ART	d	1
+Lehren	NN	Lehre	1
+ziehen	VVINF	ziehen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238376]=4549469
+%%$DDC:BREAK.p[81905]=4549469
+Das	PDS	die	1
+gilt	VVFIN	gelten	1
+für	APPR	für	1
+das	ART	d	1
+europäische	ADJA	europäisch	1
+Gesellschaftsmodell	NN	Gesellschaftsmodell	1
+,	$,	,	0
+das	PDS	die	1
+gilt	VVFIN	gelten	1
+in	APPR	in	1
+einem	ART	eine	1
+besonderen	ADJA	besondere	1
+Maße	NN	Maß	1
+für	APPR	für	1
+mein	PPOSAT	mein	1
+eigenes	ADJA	eigen	1
+Land	NN	Land	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238377]=4549487
+Denn	KON	denn	1
+wir	PPER	wir	1
+Deutsche	NN	Deutsche	1
+haben	VAFIN	haben	1
+in	APPR	in	1
+unserer	PPOSAT	unsere	1
+eigenen	ADJA	eigen	1
+Geschichte	NN	Geschichte	1
+leidvoll	ADJD	leidvoll	1
+erfahren	VVINF	erfahren	1
+:	$.	:	0
+Gerade	ADV	gerade	1
+in	APPR	in	1
+Krisenzeiten	NN	Krisenzeit	1
+entscheidet	VVFIN	entscheiden	1
+sich	PRF	sich	1
+,	$,	,	0
+ob	KOUS	ob	1
+wir	PPER	wir	1
+bereit	ADJD	bereit	1
+sind	VAFIN	sein	1
+,	$,	,	0
+für	APPR	für	1
+unsere	PPOSAT	unsere	1
+Werte	NN	Wert	1
+und	KON	und	1
+Überzeugungen	NN	Überzeugung	1
+einzustehen	VVIZU	einstehen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238378]=4549516
+%%$DDC:BREAK.p[81906]=4549516
+Ob	KOUS	ob	1
+wir	PPER	wir	1
+das	ART	d	1
+Notwendige	NN	Notwendige	1
+tun	VVINF	tun	1
+,	$,	,	0
+um	KOUI	um	1
+Fehlverhalten	NN	Fehlverhalten	1
+abzustellen	VVIZU	abstellen	1
+,	$,	,	0
+einen	ART	eine	1
+besseren	ADJA	gut	1
+Ordnungsrahmen	NN	Ordnungsrahmen	1
+für	APPR	für	1
+das	ART	d	1
+wirtschaftliche	ADJA	wirtschaftlich	1
+Handeln	NN	Handeln	1
+zu	PTKZU	zu	1
+schaffen	VVINF	schaffen	1
+und	KON	und	1
+das	ART	d	1
+Vertrauen	NN	Vertrauen	1
+der	ART	d	1
+Menschen	NN	Mensch	1
+neu	ADJD	neu	1
+zu	PTKZU	zu	1
+gewinnen	VVINF	gewinnen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238379]=4549544
+%%$DDC:BREAK.p[81907]=4549544
+Oder	KON	oder	1
+ob	KOUS	ob	1
+wir	PPER	wir	1
+das	ART	d	1
+Feld	NN	Feld	1
+Populisten	NN	Populist	1
+und	KON	und	1
+Extremisten	NN	Extremist	1
+von	APPR	von	1
+rechts	ADV	rechts	1
+und	KON	und	1
+links	ADV	links	1
+überlassen	VVINF	überlassen	1
+,	$,	,	0
+die	PRELS	die	1
+auf	APPR	auf	1
+komplizierte	ADJA	kompliziert	1
+Fragen	NN	Frage	1
+scheinbar	ADJD	scheinbar	1
+einfache	ADJA	einfach	1
+Antworten	NN	Antwort	1
+,	$,	,	0
+in	APPR	in	1
+Wahrheit	NN	Wahrheit	1
+aber	KON	aber	1
+falsche	ADJA	falsch	1
+Versprechungen	NN	Versprechung	1
+liefern	VVINF	liefern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238380]=4549573
+%%$DDC:BREAK.p[81908]=4549573
+In	APPR	in	1
+diesen	PDAT	diese	1
+Tagen	NN	Tag	1
+stellt	VVFIN	stellen	1
+sich	PRF	sich	1
+diese	PDAT	diese	1
+Frage	NN	Frage	1
+in	APPR	in	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+besonders	ADV	besonders	1
+aktuell	ADJD	aktuell	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238381]=4549586
+Am	APPRART	am	1
+kommenden	ADJA	kommend	1
+Wochenende	NN	Wochenende	1
+finden	VVFIN	finden	1
+in	APPR	in	1
+den	ART	d	1
+27	CARD	27	1
+Mitgliedstaaten	NN	Mitgliedstaat	1
+die	ART	d	1
+Wahlen	NN	Wahl	1
+zum	APPRART	zum	1
+Europäischen	ADJA	europäisch	1
+Parlament	NN	Parlament	1
+statt	PTKVZ	statt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238382]=4549601
+In	APPR	in	1
+den	ART	d	1
+letzten	ADJA	letzte	1
+Jahren	NN	Jahr	1
+hat	VAFIN	haben	1
+das	ART	d	1
+Europäische	ADJA	europäisch	1
+Parlament	NN	Parlament	1
+aus	APPR	aus	1
+gutem	ADJA	gut	1
+Grund	NN	Grund	1
+einen	ART	eine	1
+großen	ADJA	groß	1
+Kompetenzzuwachs	NN	Kompetenzzuwachs	1
+erlebt	VVPP	erleben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238383]=4549617
+Dort	ADV	dort	1
+wird	VAFIN	werden	1
+über	APPR	über	1
+wichtige	ADJA	wichtig	1
+Zukunftsfragen	NN	Zukunftsfrage	1
+für	APPR	für	1
+uns	PPER	wir	1
+Europäer	NN	Europäer	1
+entschieden	VVPP	entscheiden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238384]=4549627
+Und	KON	und	1
+trotzdem	PAV	trotzdem	1
+sinkt	VVFIN	sinken	1
+die	ART	d	1
+Wahlbeteiligung	NN	Wahlbeteiligung	1
+kontinuierlich	ADJD	kontinuierlich	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238385]=4549634
+%%$DDC:BREAK.p[81909]=4549634
+Ich	PPER	ich	1
+sage	VVFIN	sagen	1
+ganz	ADV	ganz	1
+deutlich	ADJD	deutlich	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238386]=4549639
+Sich	PRF	sich	1
+nicht	PTKNEG	nicht	1
+an	APPR	an	1
+den	ART	d	1
+Europawahlen	NN	Europawahl	1
+zu	PTKZU	zu	1
+beteiligen	VVINF	beteiligen	1
+ist	VAFIN	sein	1
+ganz	ADV	ganz	1
+gewiss	ADV	gewiß	1
+der	ART	d	1
+schlechteste	ADJA	schlecht	1
+Dienst	NN	Dienst	1
+,	$,	,	0
+den	PRELS	die	1
+man	PIS	man	1
+dem	ART	d	1
+Gedenken	NN	Gedenken	1
+an	APPR	an	1
+1989	CARD	1989	1
+und	KON	und	1
+unserem	PPOSAT	unsere	1
+europäischen	ADJA	europäisch	1
+Gesellschaftsmodell	NN	Gesellschaftsmodell	1
+erweisen	VVINF	erweisen	1
+kann	VMFIN	können	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238387]=4549666
+%%$DDC:BREAK.p[81910]=4549666
+Gerade	ADV	gerade	1
+jetzt	ADV	jetzt	1
+ist	VAFIN	sein	1
+es	PPER	es	1
+doch	ADV	doch	1
+unsere	PPOSAT	unsere	1
+gemeinsame	ADJA	gemeinsam	1
+Aufgabe	NN	Aufgabe	1
+,	$,	,	0
+dieses	PDAT	diese	1
+Modell	NN	Modell	1
+wieder	ADV	wieder	1
+zukunftsfest	ADJD	zukunftsfest	1
+zu	PTKZU	zu	1
+machen	VVINF	machen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238388]=4549682
+Nicht	PTKNEG	nicht	1
+indem	KOUS	indem	1
+wir	PPER	wir	1
+einen	ART	eine	1
+falschen	ADJA	falsch	1
+Gegensatz	NN	Gegensatz	1
+zwischen	APPR	zwischen	1
+Freiheit	NN	Freiheit	1
+und	KON	und	1
+Staatlichkeit	NN	Staatlichkeit	1
+konstruieren	VVINF	konstruieren	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238389]=4549694
+Sondern	KON	sondern	1
+indem	KOUS	indem	1
+wir	PPER	wir	1
+Politik	NN	Politik	1
+wieder	ADV	wieder	1
+als	KOKOM	als	1
+das	PDS	die	1
+erkennen	VVINF	erkennen	1
+,	$,	,	0
+was	PRELS	was	1
+sie	PPER	sie	1
+sein	VAINF	sein	1
+kann	VMFIN	können	1
+und	KON	und	1
+sein	VAINF	sein	1
+soll	VMFIN	sollen	1
+:	$.	:	0
+Gestaltungsmacht	NN	Gestaltungsmacht	1
+,	$,	,	0
+die	ART	d	1
+Freiheit	NN	Freiheit	1
+sichert	VVFIN	sichern	1
+,	$,	,	0
+indem	KOUS	indem	1
+sie	PPER	sie	1
+dem	ART	d	1
+Markt	NN	Markt	1
+klare	ADJA	klar	1
+Regeln	NN	Regel	1
+gibt	VVFIN	geben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238390]=4549725
+%%$DDC:BREAK.p[81911]=4549725
+Genau	ADJD	genau	1
+daran	PAV	daran	1
+sollte	VMFIN	sollen	1
+uns	PPER	wir	1
+auch	ADV	auch	1
+1989	CARD	1989	1
+erinnern	VVINF	erinnern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238391]=4549733
+Denn	KON	denn	1
+1989	CARD	1989	1
+ist	VAFIN	sein	1
+doch	ADV	doch	1
+vor	APPR	vor	1
+allem	PIS	alle	1
+eines	ART	eine	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238392]=4549741
+Eine	ART	eine	1
+Bürgerbewegung	NN	Bürgerbewegung	1
+,	$,	,	0
+ein	ART	eine	1
+gesellschaftlicher	ADJA	gesellschaftlich	1
+Aufbruch	NN	Aufbruch	1
+in	APPR	in	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238393]=4549751
+Der	ART	d	1
+eng	ADJD	eng	1
+verbunden	VVPP	verbinden	1
+ist	VAFIN	sein	1
+mit	APPR	mit	1
+den	ART	d	1
+Freiheitsräumen	NN	Freiheitsraum	1
+,	$,	,	0
+die	PRELS	die	1
+sich	PRF	sich	1
+unsere	PPOSAT	unsere	1
+Gesellschaften	NN	Gesellschaft	1
+seit	APPR	seit	1
+Ende	NN	Ende	1
+der	ART	d	1
+60er	ADJA	60er	1
+Anfang	NN	Anfang	1
+der	ART	d	1
+70er	ADJA	70er	1
+Jahre	NN	Jahr	1
+neu	ADJD	neu	1
+geschaffen	VVPP	schaffen	1
+haben	VAINF	haben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238394]=4549775
+Und	KON	und	1
+mit	APPR	mit	1
+einem	ART	eine	1
+neuen	ADJA	neu	1
+europäischen	ADJA	europäisch	1
+Bewusstsein	NN	Bewußtsein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238395]=4549782
+%%$DDC:BREAK.p[81912]=4549782
+Bronislaw	NE	Bronislaw	1
+Geremek	NE	Geremek	1
+hat	VAFIN	haben	1
+das	ART	d	1
+Entstehen	NN	Entstehen	1
+von	APPR	von	1
+Zivilgesellschaften	NN	Zivilgesellschaft	1
+in	APPR	in	1
+ganz	ADV	ganz	1
+Europa	NE	Europa	1
+und	KON	und	1
+die	ART	d	1
+"	$(	"	1
+Rückkehr	NN	Rückkehr	0
+der	ART	d	1
+Ostmitteleuropäer	NN	Ostmitteleuropäer	1
+nach	APPR	nach	1
+Europa	NE	Europa	1
+"	$(	"	0
+einmal	ADV	einmal	1
+ganz	ADV	ganz	1
+zu	APPR	zu	1
+Recht	NN	Recht	1
+als	KOKOM	als	1
+einen	ART	eine	1
+"	$(	"	1
+zweiten	ADJA	zweit	0
+Gründungsakt	NN	Gründungsakt	1
+"	$(	"	0
+der	ART	d	1
+europäischen	ADJA	europäisch	1
+Einheit	NN	Einheit	1
+bezeichnet	VVPP	bezeichnen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238396]=4549816
+%%$DDC:BREAK.p[81913]=4549816
+Aber	KON	aber	1
+es	PPER	es	1
+war	VAFIN	sein	1
+eben	ADV	eben	1
+doch	ADV	doch	1
+nur	ADV	nur	1
+der	ART	d	1
+Gründungsakt	NN	Gründungsakt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238397]=4549825
+Die	ART	d	1
+europäische	ADJA	europäisch	1
+Einigung	NN	Einigung	1
+bleibt	VVFIN	bleiben	1
+noch	ADV	noch	1
+zu	PTKZU	zu	1
+vollenden	VVINF	vollenden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238398]=4549833
+Auf	APPR	auf	1
+die	ART	d	1
+äußere	ADJA	äußer	1
+Einheit	NN	Einheit	1
+müssen	VMFIN	müssen	1
+wir	PPER	wir	1
+jetzt	ADV	jetzt	1
+auch	ADV	auch	1
+die	ART	d	1
+innere	ADJA	inner	1
+Einheit	NN	Einheit	1
+folgen	VVINF	folgen	1
+lassen	VVINF	lassen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238399]=4549847
+%%$DDC:BREAK.p[81914]=4549847
+Vor	APPR	vor	1
+fast	ADV	fast	1
+genau	ADJD	genau	1
+fünf	CARD	fünf	1
+Jahren	NN	Jahr	1
+wurden	VAFIN	werden	1
+acht	CARD	acht	1
+mittel-	TRUNC	mittel-	1
+und	KON	und	1
+osteuropäische	ADJA	osteuropäisch	1
+Länder	NN	Land	1
+neben	APPR	neben	1
+Malta	NE	Malta	1
+und	KON	und	1
+Zypern	NE	Zypern	1
+neu	ADJD	neu	1
+in	APPR	in	1
+die	ART	d	1
+Europäische	ADJA	europäisch	1
+Union	NN	Union	1
+aufgenommen	VVPP	aufnehmen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238400]=4549869
+Anfang	NN	Anfang	1
+2007	CARD	2007	1
+folgten	VVFIN	folgen	1
+Rumänien	NE	Rumänien	1
+und	KON	und	1
+Bulgarien	NE	Bulgarien	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238401]=4549876
+%%$DDC:BREAK.p[81915]=4549876
+Ich	PPER	ich	1
+erinnere	VVFIN	erinnern	1
+mich	PPER	ich	1
+noch	ADV	noch	1
+gut	ADJD	gut	1
+an	APPR	an	1
+meine	PPOSAT	meine	1
+Teilnahme	NN	Teilnahme	1
+an	APPR	an	1
+den	ART	d	1
+Beitrittsfeiern	NN	Beitrittsfeiern	1
+in	APPR	in	1
+der	ART	d	1
+Silvesternacht	NN	Silvesternacht	1
+2006	CARD	2006	1
+auf	APPR	auf	1
+dem	ART	d	1
+Universitätsplatz	NN	Universitätsplatz	1
+in	APPR	in	1
+Bukarest	NE	Bukarest	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238402]=4549897
+Dort	ADV	dort	1
+waren	VAFIN	sein	1
+über	APPR	über	1
+200000	CARD	200000	1
+Menschen	NN	Mensch	1
+zusammen	ADV	zusammen	1
+gekommen	VVPP	kommen	1
+,	$,	,	0
+voller	ADJA	voll	1
+Freude	NN	Freude	1
+auf	APPR	auf	1
+die	ART	d	1
+Zukunft	NN	Zukunft	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238403]=4549911
+Es	PPER	es	1
+war	VAFIN	sein	1
+förmlich	ADJD	förmlich	1
+zu	PTKZU	zu	1
+spüren	VVINF	spüren	1
+,	$,	,	0
+wie	PWAV	wie	1
+viel	PIAT	viel	1
+Kraft	NN	Kraft	1
+noch	ADV	noch	1
+immer	ADV	immer	1
+in	APPR	in	1
+der	ART	d	1
+Idee	NN	Idee	1
+der	ART	d	1
+europäischen	ADJA	europäisch	1
+Einigung	NN	Einigung	1
+steckt	VVFIN	stecken	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238404]=4549930
+%%$DDC:BREAK.p[81916]=4549930
+Dabei	PAV	dabei	1
+war	VAFIN	sein	1
+und	KON	und	1
+ist	VAFIN	sein	1
+der	ART	d	1
+Beitritt	NN	Beitritt	1
+für	APPR	für	1
+die	ART	d	1
+Menschen	NN	Mensch	1
+in	APPR	in	1
+den	ART	d	1
+neuen	ADJA	neu	1
+Mitgliedsländern	NN	Mitgliedsland	1
+mit	APPR	mit	1
+vielen	PIAT	viel	1
+Anstrengungen	NN	Anstrengung	1
+verbunden	VVPP	verbinden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238405]=4549948
+Der	ART	d	1
+wirtschaftliche	ADJA	wirtschaftlich	1
+und	KON	und	1
+gesellschaftliche	ADJA	gesellschaftlich	1
+Transformationsprozess	NN	Transformationsprozeß	1
+war	VAFIN	sein	1
+schon	ADV	schon	1
+vor	APPR	vor	1
+der	ART	d	1
+aktuellen	ADJA	aktuell	1
+Krise	NN	Krise	1
+nicht	PTKNEG	nicht	1
+frei	ADJD	frei	1
+von	APPR	von	1
+Zumutungen	NN	Zumutung	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238406]=4549964
+Ihnen	PPER	sie	1
+allen	PIS	alle	1
+wurden	VAFIN	werden	1
+große	ADJA	groß	1
+Anpassungsleistungen	NN	Anpaßungsleistung	1
+abgefordert	VVPP	abfordern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238407]=4549971
+%%$DDC:BREAK.p[81917]=4549971
+Die	ART	d	1
+Integration	NN	Integration	1
+von	APPR	von	1
+zwölf	CARD	zwölf	1
+neuen	ADJA	neu	1
+Mitgliedstaaten	NN	Mitgliedstaat	1
+mit	APPR	mit	1
+zumeist	ADV	zumeist	1
+großem	ADJA	groß	1
+wirtschaftlichem	ADJA	wirtschaftlich	1
+Nachholbedarf	NN	Nachholbedarf	1
+war	VAFIN	sein	1
+aber	ADV	aber	1
+auch	ADV	auch	1
+für	APPR	für	1
+die	ART	d	1
+alten	ADJA	alt	1
+Mitgliedstaaten	NN	Mitgliedstaat	1
+ein	ART	eine	1
+Kraftakt	NN	Kraftakt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238408]=4549992
+Sie	PPER	sie	1
+war	VAFIN	sein	1
+deshalb	PAV	deshalb	1
+auch	ADV	auch	1
+ein	ART	eine	1
+Ausdruck	NN	Ausdruck	1
+gelebter	ADJA	gelebt	1
+europäischer	ADJA	europäisch	1
+Solidarität	NN	Solidarität	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238409]=4550002
+%%$DDC:BREAK.p[81918]=4550002
+Heute	ADV	heute	1
+sehen	VVFIN	sehen	1
+wir	PPER	wir	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238410]=4550006
+Die	ART	d	1
+Erweiterung	NN	Erweiterung	1
+hat	VAFIN	haben	1
+gezeigt	VVPP	zeigen	1
+,	$,	,	0
+wozu	PWAV	wozu	1
+Europa	NE	Europa	1
+im	APPRART	im	1
+Stande	NN	Stand	1
+ist	VAFIN	sein	1
+,	$,	,	0
+wenn	KOUS	wenn	1
+es	PPER	es	1
+solidarisch	ADJD	solidarisch	1
+,	$,	,	0
+gemeinsam	ADJD	gemeinsam	1
+und	KON	und	1
+weitsichtig	ADJD	weitsichtig	1
+handelt	VVFIN	handeln	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238411]=4550026
+%%$DDC:BREAK.p[81919]=4550026
+Und	KON	und	1
+das	PDS	die	1
+müssen	VMFIN	müssen	1
+wir	PPER	wir	1
+auch	ADV	auch	1
+in	APPR	in	1
+der	ART	d	1
+aktuellen	ADJA	aktuell	1
+Bewährungsprobe	NN	Bewährungsprobe	1
+unter	APPR	unter	1
+Beweis	NN	Beweis	1
+stellen	VVINF	stellen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238412]=4550039
+Wir	PPER	wir	1
+müssen	VMFIN	müssen	1
+uns	PPER	wir	1
+als	KOKOM	als	1
+Verantwortungsgemeinschaft	NN	Verantwortungsgemeinschaft	1
+beweisen	VVINF	beweisen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238413]=4550046
+%%$DDC:BREAK.p[81920]=4550046
+Die	ART	d	1
+Zeitenwende	NN	Zeitenwende	1
+von	APPR	von	1
+1989	CARD	1989	1
+hat	VAFIN	haben	1
+uns	PPER	wir	1
+glücklich	ADJD	glücklich	1
+zusammengebracht	VVPP	zusammenbringen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238414]=4550055
+Die	ART	d	1
+Krise	NN	Krise	1
+der	ART	d	1
+Zeitenwende	NN	Zeitenwende	1
+2009	CARD	2009	1
+können	VMFIN	können	1
+wir	PPER	wir	1
+nur	ADV	nur	1
+zusammen	ADV	zusammen	1
+überwinden	VVINF	überwinden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238415]=4550066
+%%$DDC:BREAK.p[81921]=4550066
+Was	PWS	was	1
+wir	PPER	wir	1
+brauchen	VVFIN	brauchen	1
+,	$,	,	0
+sind	VAFIN	sein	1
+Gemeinsinn	NN	Gemeinsinn	1
+und	KON	und	1
+Weitsicht	NN	Weitsicht	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238416]=4550075
+Was	PWS	was	1
+wir	PPER	wir	1
+brauchen	VVFIN	brauchen	1
+ist	VAFIN	sein	1
+mehr	ADV	mehr	1
+,	$,	,	0
+nicht	PTKNEG	nicht	1
+weniger	ADV	wenige	1
+Europa	NE	Europa	1
+–	$(	–	1
+gerade	ADV	gerade	1
+jetzt	ADV	jetzt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238417]=4550088
+%%$DDC:BREAK.p[81922]=4550088
+Das	PDS	die	1
+möchte	VMFIN	mögen	1
+ich	PPER	ich	1
+an	APPR	an	1
+ganz	ADV	ganz	1
+konkreten	ADJA	konkret	1
+Beispielen	NN	Beispiel	1
+illustrieren	VVFIN	illustrieren	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238418]=4550097
+%%$DDC:BREAK.p[81923]=4550097
+Erstens	ADV	erstens	1
+:	$.	:	0
+Aus	APPR	aus	1
+ganz	ADV	ganz	1
+unterschiedlichen	ADJA	unterschiedlich	1
+Gründen	NN	Grund	1
+wurden	VAFIN	werden	1
+gerade	ADV	gerade	1
+die	ART	d	1
+Staaten	NN	Staat	1
+Ostmitteleuropas	NN	Ostmitteleuropa	1
+von	APPR	von	1
+den	ART	d	1
+Folgen	NN	Folge	1
+der	ART	d	1
+Wirtschafts-	TRUNC	wirtschafts-	1
+und	KON	und	1
+Finanzkrise	NN	Finanzkrise	1
+zum	APPRART	zum	1
+Teil	NN	Teil	1
+schwer	ADJD	schwer	1
+getroffen	VVPP	treffen	1
+–	$(	–	1
+auch	ADV	auch	1
+Ungarn	NE	Ungarn	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238419]=4550123
+Einige	PIAT	einige	1
+Medien	NN	Medien	1
+gingen	VVFIN	gehen	1
+deshalb	PAV	deshalb	1
+schon	ADV	schon	1
+so	ADV	so	1
+weit	ADJD	weit	1
+,	$,	,	0
+entlang	APPR	entlang	1
+der	ART	d	1
+ehemaligen	ADJA	ehemalig	1
+Trennlinie	NN	Trennlinie	1
+durch	APPR	durch	1
+Europa	NE	Europa	1
+schon	ADV	schon	1
+wieder	ADV	wieder	1
+eine	ART	eine	1
+neue	ADJA	neu	1
+herbeizureden	VVIZU	herbeireden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238420]=4550143
+%%$DDC:BREAK.p[81924]=4550143
+Ich	PPER	ich	1
+sage	VVFIN	sagen	1
+ganz	ADV	ganz	1
+deutlich	ADJD	deutlich	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238421]=4550148
+Das	PDS	die	1
+werden	VAFIN	werden	1
+wir	PPER	wir	1
+nicht	PTKNEG	nicht	1
+zulassen	VVINF	zulassen	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238422]=4550154
+Wir	PPER	wir	1
+dürfen	VMFIN	dürfen	1
+europäische	ADJA	europäisch	1
+Gemeinsamkeit	NN	Gemeinsamkeit	1
+nicht	PTKNEG	nicht	1
+durch	APPR	durch	1
+Rückfall	NN	Rückfall	1
+in	APPR	in	1
+nationalen	ADJA	national	1
+Egoismus	NN	Egoismus	1
+aufs	APPRART	aufs	1
+Spiel	NN	Spiel	1
+setzen	VVINF	setzen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238423]=4550168
+Solidarität	NN	Solidarität	1
+muss	VMFIN	müssen	1
+sich	PRF	sich	1
+gerade	ADV	gerade	1
+in	APPR	in	1
+der	ART	d	1
+Not	NN	Not	1
+bewähren	VVINF	bewähren	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238424]=4550177
+Sie	PPER	sie	1
+ist	VAFIN	sein	1
+nicht	PTKNEG	nicht	1
+Luxus	NN	Luxus	1
+,	$,	,	0
+sondern	KON	sondern	1
+dringende	ADJA	dringend	1
+Notwendigkeit	NN	Notwendigkeit	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238425]=4550186
+%%$DDC:BREAK.p[81925]=4550186
+Das	PDS	die	1
+haben	VAFIN	haben	1
+wir	PPER	wir	1
+mit	APPR	mit	1
+der	ART	d	1
+Haushaltsunterstützung	NN	Haushaltsunterstützung	1
+für	APPR	für	1
+angeschlagene	ADJA	angeschlagen	1
+Länder	NN	Land	1
+,	$,	,	0
+dem	ART	d	1
+Rettungspaket	NN	Rettungspaket	1
+für	APPR	für	1
+osteuropäische	ADJA	osteuropäisch	1
+Banken	NN	Bank	1
+und	KON	und	1
+mit	APPR	mit	1
+der	ART	d	1
+beschleunigten	ADJA	beschleunigt	1
+Auszahlung	NN	Auszahlung	1
+von	APPR	von	1
+Mitteln	NN	Mittel	1
+für	APPR	für	1
+Infrastrukturprojekte	NN	Infrastrukturprojekt	1
+unter	APPR	unter	1
+Beweis	NN	Beweis	1
+gestellt	VVPP	stellen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238426]=4550214
+%%$DDC:BREAK.p[81926]=4550214
+Und	KON	und	1
+es	PPER	es	1
+bleibt	VVFIN	bleiben	1
+auch	ADV	auch	1
+in	APPR	in	1
+Zukunft	NN	Zukunft	1
+richtig	ADJD	richtig	1
+:	$.	:	0
+Europa	NE	Europa	1
+ist	VAFIN	sein	1
+mehr	PIAT	mehr	1
+als	KOKOM	als	1
+ein	ART	eine	1
+Markt	NN	Markt	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238427]=4550229
+Nur	ADV	nur	1
+als	KOKOM	als	1
+Solidargemeinschaft	NN	Solidargemeinschaft	1
+kann	VMFIN	können	1
+Europa	NE	Europa	1
+seine	PPOSAT	seine	1
+innere	ADJA	inner	1
+Einheit	NN	Einheit	1
+verwirklichen	VVINF	verwirklichen	1
+und	KON	und	1
+sein	PPOSAT	sein	1
+Gesellschaftsmodell	NN	Gesellschaftsmodell	1
+sichern	VVINF	sichern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238428]=4550243
+%%$DDC:BREAK.p[81927]=4550243
+Zweitens	ADV	zweitens	1
+:	$.	:	0
+Der	ART	d	1
+Euro	NN	Euro	1
+war	VAFIN	sein	1
+in	APPR	in	1
+den	ART	d	1
+vergangenen	ADJA	vergangen	1
+Monaten	NN	Monat	1
+ein	ART	eine	1
+echter	ADJA	echt	1
+Stabilitätsanker	NN	Stabilitätsanker	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238429]=4550256
+Aber	KON	aber	1
+wir	PPER	wir	1
+wissen	VVFIN	wissen	1
+auch	ADV	auch	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238430]=4550261
+Das	ART	d	1
+Auseinanderdriften	NN	Auseinanderdriften	1
+der	ART	d	1
+Euroländer	NN	Euroland	1
+bei	APPR	bei	1
+wichtigen	ADJA	wichtig	1
+Wirtschaftskennziffern	NN	Wirtschaftskennziffer	1
+kann	VMFIN	können	1
+diese	PDAT	diese	1
+Stabilität	NN	Stabilität	1
+gefährden	VVINF	gefährden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238431]=4550273
+Wenn	KOUS	wenn	1
+in	APPR	in	1
+einem	ART	eine	1
+Euroland	NN	Euroland	1
+fällige	ADJA	fällig	1
+Strukturanpassungen	NN	Strukturanpaßung	1
+ausbleiben	VVINF	ausbleiben	1
+,	$,	,	0
+bekommen	VVFIN	bekommen	1
+das	PDS	die	1
+auch	ADV	auch	1
+die	ART	d	1
+anderen	ADJA	ander	1
+Partner	NN	Partner	1
+zu	PTKZU	zu	1
+spüren	VVINF	spüren	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238432]=4550290
+%%$DDC:BREAK.p[81928]=4550290
+Deshalb	PAV	deshalb	1
+liegt	VVFIN	liegen	1
+es	PPER	es	1
+nahe	PTKVZ	nahe	1
+,	$,	,	0
+künftig	ADJD	künftig	1
+eine	ART	eine	1
+engere	ADJA	eng	1
+Abstimmung	NN	Abstimmung	1
+in	APPR	in	1
+der	ART	d	1
+Eurozone	NN	Eurozone	1
+zu	APPR	zu	1
+zentralen	ADJA	zentral	1
+wirtschaftlichen	ADJA	wirtschaftlich	1
+Fragen	NN	Frage	1
+,	$,	,	0
+insbesondere	ADV	insbesondere	1
+zur	APPRART	zur	1
+Lohn-	TRUNC	lohn-	1
+,	$,	,	0
+Sozial-	TRUNC	sozial-	1
+und	KON	und	1
+Steuerpolitik	NN	Steuerpolitik	1
+vorzunehmen	VVIZU	vornehmen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238433]=4550316
+%%$DDC:BREAK.p[81929]=4550316
+Alles	PIS	alle	1
+spricht	VVFIN	sprechen	1
+dafür	PAV	dafür	1
+,	$,	,	0
+in	APPR	in	1
+der	ART	d	1
+"	$(	"	1
+Haftungsgemeinschaft	NN	Haftungsgemeinschaft	0
+"	$(	"	0
+Eurozone	NN	Eurozone	1
+Konjunkturimpulse	NN	Konjunkturimpuls	1
+und	KON	und	1
+die	ART	d	1
+Stoßrichtung	NN	Stoßrichtung	1
+beschäftigungspolitischer	ADJA	beschäftigungspolitisch	1
+Maßnahmen	NN	Maßnahme	1
+abzustimmen	VVIZU	abstimmen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238434]=4550334
+Und	KON	und	1
+zerstörerischen	ADJA	zerstörerisch	1
+Dumping-Wettlauf	NN	Dumping-Wettlauf	1
+bei	APPR	bei	1
+Löhnen	NN	Lohn	1
+und	KON	und	1
+Steuern	NN	Steuer	1
+zu	PTKZU	zu	1
+verhindern	VVINF	verhindern	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238435]=4550344
+%%$DDC:BREAK.p[81930]=4550344
+Das	PDS	die	1
+gehört	VVFIN	gehören	1
+zu	APPR	zu	1
+den	ART	d	1
+Lehren	NN	Lehre	1
+,	$,	,	0
+die	PRELS	die	1
+wir	PPER	wir	1
+aus	APPR	aus	1
+der	ART	d	1
+Krise	NN	Krise	1
+ziehen	VVINF	ziehen	1
+müssen	VMINF	müssen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238436]=4550358
+Sie	PPER	sie	1
+liegen	VVFIN	liegen	1
+auch	ADV	auch	1
+im	APPRART	im	1
+Interesse	NN	Interesse	1
+der	ART	d	1
+Länder	NN	Land	1
+,	$,	,	0
+die	PRELS	die	1
+–	$(	–	1
+wie	KOKOM	wie	1
+Ungarn	NE	Ungarn	1
+-	$(	-	1
+nach	APPR	nach	1
+Erfüllung	NN	Erfüllung	1
+der	ART	d	1
+Stabilitätskriterien	NN	Stabilitätskriterium	1
+den	ART	d	1
+Euro	NN	Euro	1
+künftig	ADJD	künftig	1
+übernehmen	VVINF	übernehmen	1
+werden	VAFIN	werden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238437]=4550381
+%%$DDC:BREAK.p[81931]=4550381
+Ich	PPER	ich	1
+bin	VAFIN	sein	1
+mir	PPER	ich	1
+sicher	ADJD	sicher	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238438]=4550386
+Die	ART	d	1
+Menschen	NN	Mensch	1
+in	APPR	in	1
+Europa	NE	Europa	1
+wollen	VMFIN	wollen	1
+mehr	PIAT	mehr	1
+Gemeinsamkeit	NN	Gemeinsamkeit	1
+,	$,	,	0
+auch	ADV	auch	1
+und	KON	und	1
+gerade	ADV	gerade	1
+in	APPR	in	1
+wirtschaftlichen	ADJA	wirtschaftlich	1
+und	KON	und	1
+sozialen	ADJA	sozial	1
+Fragen	NN	Frage	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238439]=4550403
+%%$DDC:BREAK.p[81932]=4550403
+Drittens	ADV	drittens	1
+:	$.	:	0
+Europa	NE	Europa	1
+endet	VVFIN	enden	1
+nicht	PTKNEG	nicht	1
+an	APPR	an	1
+den	ART	d	1
+Außengrenzen	NN	Außengrenze	1
+Polens	NE	Polen	1
+oder	KON	oder	1
+Ungarns	NE	Ungarn	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238440]=4550415
+In	APPR	in	1
+krisenhaften	ADJA	krisenhaft	1
+Zeiten	NN	Zeit	1
+kommt	VVFIN	kommen	1
+es	PPER	es	1
+gerade	ADV	gerade	1
+in	APPR	in	1
+der	ART	d	1
+Politik	NN	Politik	1
+gegenüber	APPR	gegenüber	1
+unseren	PPOSAT	unsere	1
+Nachbarn	NN	Nachbar	1
+mehr	ADV	mehr	1
+denn	ADV	denn	1
+je	ADV	je	1
+auf	APPR	auf	1
+den	ART	d	1
+richtigen	ADJA	richtig	1
+strategischen	ADJA	strategisch	1
+Kompass	NN	Kompaß	1
+an	PTKVZ	an	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238441]=4550437
+%%$DDC:BREAK.p[81933]=4550437
+Unsere	PPOSAT	unsere	1
+eigene	ADJA	eigen	1
+Stabilität	NN	Stabilität	1
+ist	VAFIN	sein	1
+untrennbar	ADJD	untrennbar	1
+mit	APPR	mit	1
+der	ART	d	1
+Stabilität	NN	Stabilität	1
+in	APPR	in	1
+unserer	PPOSAT	unsere	1
+Nachbarschaft	NN	Nachbarschaft	1
+verbunden	VVPP	verbinden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238442]=4550450
+%%$DDC:BREAK.p[81934]=4550450
+Erweiterungs-	TRUNC	erweiterungs-	1
+und	KON	und	1
+Nachbarschaftspolitik	NN	Nachbarschaftspolitik	1
+ist	VAFIN	sein	1
+ganz	ADV	ganz	1
+sicher	ADV	sicher	1
+nicht	PTKNEG	nicht	1
+einfach	ADV	einfach	1
+ein	ART	eine	1
+Instrument	NN	Instrument	1
+der	ART	d	1
+Konfliktbeilegung	NN	Konfliktbeilegung	1
+an	APPR	an	1
+unserer	PPOSAT	unsere	1
+Peripherie	NN	Peripherie	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238443]=4550466
+Gerade	ADV	gerade	1
+bei	APPR	bei	1
+der	ART	d	1
+Erweiterung	NN	Erweiterung	1
+müssen	VMFIN	müssen	1
+wir	PPER	wir	1
+Risiken	NN	Risiko	1
+und	KON	und	1
+Bedingungen	NN	Bedingung	1
+klar	ADJD	klar	1
+benennen	VVINF	benennen	1
+,	$,	,	0
+denn	KON	denn	1
+sie	PPER	sie	1
+verändert	VVFIN	verändern	1
+das	ART	d	1
+Gesicht	NN	Gesicht	1
+der	ART	d	1
+Union	NN	Union	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238444]=4550486
+%%$DDC:BREAK.p[81935]=4550486
+Aber	KON	aber	1
+es	PPER	es	1
+ist	VAFIN	sein	1
+eine	ART	eine	1
+Frage	NN	Frage	1
+unserer	PPOSAT	unsere	1
+eigenen	ADJA	eigen	1
+Glaubwürdigkeit	NN	Glaubwürdigkeit	1
+,	$,	,	0
+dass	KOUS	dass	1
+wir	PPER	wir	1
+zur	APPRART	zur	1
+europäischen	ADJA	europäisch	1
+Perspektive	NN	Perspektive	1
+der	ART	d	1
+Westbalkanländer	NE	WestBalkanländer	1
+stehen	VVFIN	stehen	1
+,	$,	,	0
+dass	KOUS	dass	1
+wir	PPER	wir	1
+die	ART	d	1
+begonnenen	ADJA	beginnen	1
+Beitrittsverhandlungen	NN	Beitrittsverhandlung	1
+mit	APPR	mit	1
+der	ART	d	1
+Türkei	NE	Türkei	1
+in	APPR	in	1
+gutem	ADJA	gut	1
+Glauben	NN	Glauben	1
+weiterführen	VVINF	weiterführen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238445]=4550517
+%%$DDC:BREAK.p[81936]=4550517
+Die	ART	d	1
+Kandidaten	NN	Kandidat	1
+müssen	VMFIN	müssen	1
+ihre	PPOSAT	ihr	1
+Hausaufgaben	NN	Hausaufgabe	1
+machen	VVINF	machen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238446]=4550524
+Genauso	ADV	genauso	1
+wie	KOKOM	wie	1
+die	ART	d	1
+EU	NE	European_Union	1
+selbst	ADV	selbst	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238447]=4550530
+Aber	KON	aber	1
+klar	ADJD	klar	1
+ist	VAFIN	sein	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238448]=4550534
+Die	ART	d	1
+Fortsetzung	NN	Fortsetzung	1
+des	ART	d	1
+Erweiterungsprozesses	NN	Erweiterungsprozeß	1
+im	APPRART	im	1
+Interesse	NN	Interesse	1
+beider	PIAT	beide	1
+Seiten	NN	Seite	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238449]=4550543
+Und	KON	und	1
+nichts	PIS	nichts	1
+anderes	PIS	andere	1
+gilt	VVFIN	gelten	1
+auch	ADV	auch	1
+für	APPR	für	1
+die	ART	d	1
+partnerschaftliche	ADJA	partnerschaftlich	1
+,	$,	,	0
+enge	ADJA	eng	1
+und	KON	und	1
+umfassende	ADJA	umfaßend	1
+Ausgestaltung	NN	Ausgestaltung	1
+der	ART	d	1
+Beziehungen	NN	Beziehung	1
+mit	APPR	mit	1
+den	ART	d	1
+östlichen	ADJA	östlich	1
+Nachbarn	NN	Nachbar	1
+der	ART	d	1
+EU	NE	European_Union	1
+,	$,	,	0
+einschließlich	APPR	einschließlich	1
+Russlands	NN	Rußland	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238450]=4550568
+%%$DDC:BREAK.p[81937]=4550568
+Im	APPRART	im	1
+Umbruch	NN	Umbruch	1
+1989	CARD	1989	1
+steckte	VVFIN	stecken	1
+nicht	PTKNEG	nicht	1
+nur	ADV	nur	1
+die	ART	d	1
+Verheißung	NN	Verheißung	1
+eines	ART	eine	1
+Europas	NE	Europa	1
+der	ART	d	1
+Freiheit	NN	Freiheit	1
+und	KON	und	1
+Demokratie	NN	Demokratie	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238451]=4550583
+Sondern	KON	sondern	1
+auch	ADV	auch	1
+die	ART	d	1
+Hoffnung	NN	Hoffnung	1
+auf	APPR	auf	1
+eine	ART	eine	1
+dauerhafte	ADJA	dauerhaft	1
+und	KON	und	1
+gerechte	ADJA	gerecht	1
+Friedensordnung	NN	Friedensordnung	1
+von	APPR	von	1
+Vancouver	NE	Vancouver	1
+bis	KON	bis	1
+Wladiwostok	NE	Wladiwostok	1
+–	$(	–	1
+eine	ART	eine	1
+Friedensordnung	NN	Friedensordnung	1
+,	$,	,	0
+die	PRELS	die	1
+die	ART	d	1
+nordamerikanischen	ADJA	nordamerikanisch	1
+Demokratien	NN	Demokratie	1
+,	$,	,	0
+Europa	NE	Europa	1
+und	KON	und	1
+Russland	NN	Rußland	1
+umfasst	VVPP	umfassen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238452]=4550611
+%%$DDC:BREAK.p[81938]=4550611
+Der	ART	d	1
+Weg	NN	Weg	1
+dorthin	ADV	dorthin	1
+hat	VAFIN	haben	1
+sich	PRF	sich	1
+,	$,	,	0
+wie	PWAV	wie	1
+wir	PPER	wir	1
+alle	PIS	alle	1
+erfahren	VVINF	erfahren	1
+mussten	VMFIN	müssen	1
+,	$,	,	0
+als	KOKOM	als	1
+schwieriger	ADJD	schwierig	1
+erwiesen	VVPP	erweisen	1
+,	$,	,	0
+als	KOUS	als	1
+wir	PPER	wir	1
+damals	ADV	damals	1
+dachten	VVFIN	denken	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238453]=4550632
+Rückschläge	NN	Rückschlag	1
+,	$,	,	0
+ja	ADV	ja	1
+gar	ADV	gar	1
+der	ART	d	1
+Rückfall	NN	Rückfall	1
+in	APPR	in	1
+alte	ADJA	alt	1
+Denkmuster	NN	Denkmuster	1
+sind	VAFIN	sein	1
+nicht	PTKNEG	nicht	1
+ausgeblieben	VVPP	ausbleiben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238454]=4550645
+%%$DDC:BREAK.p[81939]=4550645
+Dennoch	ADV	dennoch	1
+ist	VAFIN	sein	1
+richtig	ADJD	richtig	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238455]=4550649
+Eine	ART	eine	1
+Partnerschaft	NN	Partnerschaft	1
+,	$,	,	0
+die	PRELS	die	1
+auf	APPR	auf	1
+einer	ART	eine	1
+Verständigung	NN	Verständigung	1
+über	APPR	über	1
+gemeinsame	ADJA	gemeinsam	1
+Interessen	NN	Interesse	1
+,	$,	,	0
+gemeinsame	ADJA	gemeinsam	1
+Werte	NN	Wert	1
+und	KON	und	1
+gemeinsame	ADJA	gemeinsam	1
+Sicherheit	NN	Sicherheit	1
+basiert	VVFIN	basieren	1
+-	$(	-	1
+das	PDS	die	1
+bleibt	VVFIN	bleiben	1
+eine	ART	eine	1
+Aufgabe	NN	Aufgabe	1
+von	APPR	von	1
+wahrlich	ADV	wahrlich	1
+europäischer	ADJA	europäisch	1
+Dimension	NN	Dimension	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238456]=4550676
+%%$DDC:BREAK.p[81940]=4550676
+Wollen	VMFIN	wollen	1
+wir	PPER	wir	1
+erfolgreich	ADJD	erfolgreich	1
+damit	PAV	damit	1
+sein	VAINF	sein	1
+,	$,	,	0
+dieses	PDAT	diese	1
+Vermächtnis	NN	Vermächtnis	1
+von	APPR	von	1
+1989	CARD	1989	1
+einzulösen	VVIZU	einlösen	1
+,	$,	,	0
+dann	ADV	dann	1
+müssen	VMFIN	müssen	1
+wir	PPER	wir	1
+vor	APPR	vor	1
+allem	PIS	alle	1
+das	ART	d	1
+gegenseitige	ADJA	gegenseitig	1
+Vertrauen	NN	Vertrauen	1
+stärken	VVINF	stärken	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238457]=4550698
+Dazu	PAV	dazu	1
+brauchen	VVFIN	brauchen	1
+wir	PPER	wir	1
+steten	ADJA	stet	1
+Dialog	NN	Dialog	1
+und	KON	und	1
+viele	PIAT	viel	1
+kleine	ADJA	klein	1
+Schritte	NN	Schritt	1
+aufeinander	ADV	aufeinander	1
+zu	PTKVZ	zu	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238458]=4550710
+%%$DDC:BREAK.p[81941]=4550710
+Nötig	ADJD	nötig	1
+ist	VAFIN	sein	1
+auch	ADV	auch	1
+,	$,	,	0
+die	ART	d	1
+Unterschiedlichkeit	NN	Unterschiedlichkeit	1
+der	ART	d	1
+Erfahrungen	NN	Erfahrung	1
+anderer	PIS	andere	1
+anzuerkennen	VVIZU	anerkennen	1
+und	KON	und	1
+zu	PTKZU	zu	1
+respektieren	VVINF	respektieren	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238459]=4550724
+Gerade	ADV	gerade	1
+im	APPRART	im	1
+reichen	ADJA	reich	1
+europäischen	ADJA	europäisch	1
+Gedenkjahr	NN	Gedenkjahr	1
+2009	CARD	2009	1
+erscheint	VVFIN	erscheinen	1
+mir	PPER	ich	1
+dieser	PDAT	diese	1
+Gedanke	NN	Gedanke	1
+wichtig	ADJD	wichtig	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238460]=4550736
+%%$DDC:BREAK.p[81942]=4550736
+Denn	KON	denn	1
+:	$.	:	0
+Selbstverständlich	ADV	selbstverständlich	1
+bleiben	VVFIN	bleiben	1
+auch	ADV	auch	1
+im	APPRART	im	1
+vereinigten	ADJA	vereinigt	1
+Europa	NE	Europa	1
+die	ART	d	1
+nationalen	ADJA	national	1
+Erinnerungen	NN	Erinnerung	1
+bedeutsam	ADJD	bedeutsam	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238461]=4550749
+Aber	KON	aber	1
+aus	APPR	aus	1
+meiner	PPOSAT	meine	1
+Sicht	NN	Sicht	1
+kommt	VVFIN	kommen	1
+es	PPER	es	1
+darauf	PAV	darauf	1
+an	PTKVZ	an	1
+,	$,	,	0
+dass	KOUS	dass	1
+wir	PPER	wir	1
+die	ART	d	1
+"	$(	"	1
+nationalen	ADJA	national	0
+Erinnerungshaushalte	NN	Erinnerungshaushalt	1
+"	$(	"	0
+nicht	PTKNEG	nicht	1
+strikt	ADJD	strikt	1
+voneinander	ADV	voneinander	1
+trennen	VVINF	trennen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238462]=4550770
+Es	PPER	es	1
+gilt	VVFIN	gelten	1
+,	$,	,	0
+so	ADV	so	1
+schwierig	ADJD	schwierig	1
+das	PDS	die	1
+ist	VAFIN	sein	1
+,	$,	,	0
+sie	PPER	sie	1
+zueinander	ADV	zueinander	1
+zu	PTKZU	zu	1
+öffnen	VVINF	öffnen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238463]=4550783
+%%$DDC:BREAK.p[81943]=4550783
+Deshalb	PAV	deshalb	1
+habe	VAFIN	haben	1
+ich	PPER	ich	1
+vor	APPR	vor	1
+einem	ART	eine	1
+Jahr	NN	Jahr	1
+angeregt	VVPP	anregen	1
+,	$,	,	0
+anlässlich	APPR	anläßlich	1
+des	ART	d	1
+70.	ADJA	70.	1
+Jahrestages	NN	Jahrestag	1
+des	ART	d	1
+Hitler-Stalin	ADJA	hitler-stalin	1
+Pakts	NN	Pakt	1
+und	KON	und	1
+des	ART	d	1
+Beginns	NN	Beginn	1
+des	ART	d	1
+2.	ADJA	2.	1
+Weltkriegs	NN	Weltkrieg	1
+eine	ART	eine	1
+internationale	ADJA	international	1
+Historikerkonferenz	NN	Historikerkonferenz	1
+durchzuführen	VVIZU	durchführen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238464]=4550809
+Beides	PIS	beide	1
+Ereignisse	NN	Ereignis	1
+,	$,	,	0
+die	PRELS	die	1
+immer	ADV	immer	1
+noch	ADV	noch	1
+lange	ADJA	lang	1
+und	KON	und	1
+schmerzliche	ADJA	schmerzlich	1
+Schatten	NN	Schatten	1
+auf	APPR	auf	1
+die	ART	d	1
+Gegenwart	NN	Gegenwart	1
+werfen	VVFIN	werfen	1
+und	KON	und	1
+auch	ADV	auch	1
+heute	ADV	heute	1
+noch	ADV	noch	1
+Quelle	NN	Quelle	1
+von	APPR	von	1
+Misstrauen	NN	Mißtrauen	1
+sind	VAFIN	sein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238465]=4550832
+%%$DDC:BREAK.p[81944]=4550832
+Solch	PIS	solch	1
+eine	ART	eine	1
+Konferenz	NN	Konferenz	1
+hat	VAFIN	haben	1
+in	APPR	in	1
+der	ART	d	1
+letzten	ADJA	letzte	1
+Woche	NN	Woche	1
+in	APPR	in	1
+Warschau	NE	Warschau	1
+stattgefunden	VVPP	stattfinden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238466]=4550844
+Eine	ART	eine	1
+Konferenz	NN	Konferenz	1
+zur	APPRART	zur	1
+Genese	NN	Genese	1
+des	ART	d	1
+2.	ADJA	2.	1
+Weltkriegs	NN	Weltkrieg	1
+unter	APPR	unter	1
+Beteiligung	NN	Beteiligung	1
+deutscher	ADJA	deutsch	1
+,	$,	,	0
+polnischer	ADJA	polnisch	1
+,	$,	,	0
+russischer	ADJA	russisch	1
+,	$,	,	0
+baltischer	ADJA	baltisch	1
+,	$,	,	0
+ukrainischer	ADJA	ukrainisch	1
+und	KON	und	1
+internationaler	ADJA	international	1
+Historiker	NN	Historiker	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238467]=4550866
+Ich	PPER	ich	1
+denke	VVFIN	denken	1
+,	$,	,	0
+das	PDS	die	1
+ist	VAFIN	sein	1
+ein	ART	eine	1
+ermutigendes	ADJA	ermutigend	1
+Signal	NN	Signal	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238468]=4550875
+%%$DDC:BREAK.p[81945]=4550875
+Klar	ADJD	klar	1
+ist	VAFIN	sein	1
+aber	ADV	aber	1
+auch	ADV	auch	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238469]=4550880
+Die	ART	d	1
+Auslegung	NN	Auslegung	1
+und	KON	und	1
+Deutung	NN	Deutung	1
+historischer	ADJA	historisch	1
+Ereignisse	NN	Ereignis	1
+wird	VAFIN	werden	1
+in	APPR	in	1
+einem	ART	eine	1
+größeren	ADJA	groß	1
+Europa	NE	Europa	1
+,	$,	,	0
+notwendigerweise	ADV	notwendigerweise	1
+immer	ADV	immer	1
+verschieden	ADJD	verschieden	1
+sein	VAINF	sein	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238470]=4550897
+%%$DDC:BREAK.p[81946]=4550897
+Worum	PWAV	worum	1
+es	PPER	es	1
+geht	VVFIN	gehen	1
+ist	VAFIN	sein	1
+,	$,	,	0
+die	ART	d	1
+verschiedenen	ADJA	verschieden	1
+Sichtweisen	NN	Sichtweise	1
+und	KON	und	1
+Erinnerungskulturen	NN	Erinnerungskultur	1
+in	APPR	in	1
+Europa	NE	Europa	1
+in	APPR	in	1
+einem	ART	eine	1
+aufrichtigen	ADJA	aufrichtig	1
+Dialog	NN	Dialog	1
+zusammenzubringen	VVIZU	zusammenbringen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238471]=4550915
+%%$DDC:BREAK.p[81947]=4550915
+In	APPR	in	1
+dem	ART	d	1
+gemeinsamen	ADJA	gemeinsam	1
+Verständnis	NN	Verständnis	1
+,	$,	,	0
+dass	KOUS	dass	1
+das	PDS	die	1
+,	$,	,	0
+was	PRELS	was	1
+uns	PPER	wir	1
+in	APPR	in	1
+der	ART	d	1
+Geschichte	NN	Geschichte	1
+trennt	VVFIN	trennen	1
+und	KON	und	1
+in	APPR	in	1
+unterschiedlichen	ADJA	unterschiedlich	1
+Interpretationen	NN	Interpretation	1
+nachwirkt	VVFIN	nachwirken	1
+,	$,	,	0
+uns	PPER	wir	1
+nicht	PTKNEG	nicht	1
+hindert	VVFIN	hindern	1
+,	$,	,	0
+die	ART	d	1
+gemeinsame	ADJA	gemeinsam	1
+europäische	ADJA	europäisch	1
+Zukunft	NN	Zukunft	1
+zu	PTKZU	zu	1
+gestalten	VVINF	gestalten	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238472]=4550946
+%%$DDC:BREAK.p[81948]=4550946
+Wir	PPER	wir	1
+brauchen	VVFIN	brauchen	1
+beides	PIS	beide	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238473]=4550950
+Die	ART	d	1
+Erinnerung	NN	Erinnerung	1
+an	APPR	an	1
+das	PDS	die	1
+,	$,	,	0
+was	PRELS	was	1
+uns	PPER	wir	1
+lange	ADV	lange	1
+getrennt	VVPP	trennen	1
+hat	VAFIN	haben	1
+,	$,	,	0
+und	KON	und	1
+die	ART	d	1
+Vergegenwärtigung	NN	Vergegenwärtigung	1
+dessen	PDS	die	1
+,	$,	,	0
+was	PRELS	was	1
+uns	PPER	wir	1
+trotz	APPR	trotz	1
+aller	PIAT	alle	1
+nationalen	ADJA	national	1
+Unterschiede	NN	Unterschied	1
+in	APPR	in	1
+Europa	NE	Europa	1
+verbindet	VVFIN	verbinden	1
+:	$.	:	0
+Frieden	NN	Frieden	1
+,	$,	,	0
+Demokratie	NN	Demokratie	1
+,	$,	,	0
+eine	ART	eine	1
+Kultur	NN	Kultur	1
+der	ART	d	1
+Freiheit	NN	Freiheit	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238474]=4550985
+Die	ART	d	1
+Achtung	NN	Achtung	1
+von	APPR	von	1
+Menschen-	TRUNC	menschen-	1
+und	KON	und	1
+Bürgerrechten	NN	Bürgerrecht	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238475]=4550992
+Das	ART	d	1
+Streben	NN	Strebe	1
+nach	APPR	nach	1
+sozialer	ADJA	sozial	1
+Gerechtigkeit	NN	Gerechtigkeit	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238476]=4550998
+Das	PDS	die	1
+sind	VAFIN	sein	1
+die	ART	d	1
+Wurzeln	NN	Wurzel	1
+,	$,	,	0
+aus	APPR	aus	1
+denen	PRELS	die	1
+sich	PRF	sich	1
+auch	ADV	auch	1
+1989	CARD	1989	1
+speist	VVFIN	speisen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238477]=4551010
+%%$DDC:BREAK.p[81949]=4551010
+Und	KON	und	1
+ich	PPER	ich	1
+bin	VAFIN	sein	1
+überzeugt	VVPP	überzeugen	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238478]=4551015
+Aus	APPR	aus	1
+diesen	PDAT	diese	1
+Wurzeln	NN	Wurzel	1
+wächst	VVFIN	wachsen	1
+auch	ADV	auch	1
+die	ART	d	1
+Kraft	NN	Kraft	1
+,	$,	,	0
+um	KOUI	um	1
+die	ART	d	1
+heutige	ADJA	heutig	1
+Krise	NN	Krise	1
+zu	PTKZU	zu	1
+überwinden	VVINF	überwinden	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238479]=4551030
+%%$DDC:BREAK.p[81950]=4551030
+Auf	APPR	auf	1
+sie	PPER	sie	1
+kann	VMFIN	können	1
+und	KON	und	1
+muss	VMFIN	müssen	1
+sich	PRF	sich	1
+ein	ART	eine	1
+europäisches	ADJA	europäisch	1
+Wir-Gefühl	NN	Wir-Gefühl	1
+stützen	VVINF	stützen	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238480]=4551041
+Ohne	APPR	ohne	1
+ein	ART	eine	1
+solches	PIAT	solch	1
+Wir-Gefühl	NN	Wir-Gefühl	1
+,	$,	,	0
+ein	ART	eine	1
+solches	PIAT	solch	1
+Gefühl	NN	Gefühl	1
+der	ART	d	1
+Gemeinsamkeit	NN	Gemeinsamkeit	1
+,	$,	,	0
+kann	VMFIN	können	1
+nicht	PTKNEG	nicht	1
+zusammenwachsen	VVFIN	zusammenwachsen	1
+,	$,	,	0
+was	PWS	was	1
+zusammengehört	VVFIN	zusammengehören	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238481]=4551059
+So	ADV	so	1
+das	ART	d	1
+berühmte	ADJA	berühmt	1
+Wort	NN	Wort	1
+von	APPR	von	1
+Willy	NE	Willy	1
+Brandt	NE	Brandt	1
+am	APPRART	am	1
+10.	ADJA	10.	1
+November	NN	November	1
+1989	CARD	1989	1
+,	$,	,	0
+einen	ART	eine	1
+Tag	NN	Tag	1
+nach	APPR	nach	1
+dem	ART	d	1
+Fall	NN	Fall	1
+der	ART	d	1
+Berliner	ADJA	Berliner	1
+Mauer	NN	Mauer	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238482]=4551080
+Und	KON	und	1
+er	PPER	er	1
+fügte	VVFIN	fügen	1
+schon	ADV	schon	1
+damals	ADV	damals	1
+hinzu	PTKVZ	hinzu	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238483]=4551087
+"	$(	"	1
+Das	PDS	die	0
+gilt	VVFIN	gelten	1
+für	APPR	für	1
+Europa	NE	Europa	1
+im	APPRART	im	1
+Ganzen	NN	Ganze	1
+.	$.	.	0
+"	$(	"	0
+
+%%$DDC:BREAK.s[238484]=4551096
+%%$DDC:BREAK.p[81951]=4551096
+1989	CARD	1989	1
+stießen	VVFIN	stoßen	1
+die	ART	d	1
+Menschen	NN	Mensch	1
+die	ART	d	1
+Tore	NN	Tor	1
+der	ART	d	1
+Freiheit	NN	Freiheit	1
+weit	ADJD	weit	1
+auf	PTKVZ	auf	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238485]=4551107
+Und	KON	und	1
+so	ADV	so	1
+selbstverständlich	ADJD	selbstverständlich	1
+,	$,	,	0
+wie	PWAV	wie	1
+diese	PDAT	diese	1
+Freiheit	NN	Freiheit	1
+heute	ADV	heute	1
+geworden	VAPP	werden	1
+ist	VAFIN	sein	1
+,	$,	,	0
+wir	PPER	wir	1
+werden	VAFIN	werden	1
+sie	PPER	sie	1
+doch	ADV	doch	1
+nur	ADV	nur	1
+erhalten	VVINF	erhalten	1
+,	$,	,	0
+wenn	KOUS	wenn	1
+wir	PPER	wir	1
+täglich	ADJD	täglich	1
+und	KON	und	1
+mutig	ADJD	mutig	1
+für	APPR	für	1
+sie	PPER	sie	1
+eintreten	VVINF	eintreten	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238486]=4551134
+Gemeinsam	ADJD	gemeinsam	1
+dafür	PAV	dafür	1
+streiten	VVINF	streiten	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238487]=4551138
+Verantwortlich	ADJD	verantwortlich	1
+in	APPR	in	1
+ihr	PPER	sie	1
+leben	VVINF	leben	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238488]=4551143
+%%$DDC:BREAK.p[81952]=4551143
+Das	PDS	die	1
+ist	VAFIN	sein	1
+der	ART	d	1
+Geist	NN	Geist	1
+von	APPR	von	1
+1989	CARD	1989	1
+.	$.	.	0
+
+%%$DDC:BREAK.s[238489]=4551150
+%%$DDC:BREAK.p[81953]=4551150
+Meine	PPOSAT	meine	1
+Damen	NN	Dame	1
+und	KON	und	1
+Herren	NN	Herr	1
+:	$.	:	0
+
+%%$DDC:BREAK.s[238490]=4551155
+Er	PPER	er	1
+ist	VAFIN	sein	1
+heute	ADV	heute	1
+so	ADV	so	1
+aktuell	ADJD	aktuell	1
+wie	KOKOM	wie	1
+damals	ADV	damals	1
+!	$.	!	0
+
+%%$DDC:BREAK.s[238491]=4551163
+%%$DDC:BREAK.p[81954]=4551163
+Vielen	PIAT	viel	1
+Dank	NN	Dank	1
+!	$.	!	0
+
