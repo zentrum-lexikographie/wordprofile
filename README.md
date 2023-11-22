@@ -91,6 +91,17 @@ python3.7 wordprofile/cli/load_database.py test_wp/final --user wpuser --db test
 docker-compose build
 ```
 
+## Vorverarbeitung
+Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `preprocessing/data_update.py` oder `perprocessing/tabs2conllu.py` verwendet werden.
+
+Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis.
+
+### Installation
+Die Installation der für die Vorverarbeitung nötigen Pakete erfolgt folgendermaßen:
+```
+pip install .[pre]
+```
+
 ## Entwicklungssetup
 
 ```shell

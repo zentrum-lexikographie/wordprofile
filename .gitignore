@@ -25,3 +25,5 @@ data/
 .nrepl-port
 
 *.temp
+build/
+log/
