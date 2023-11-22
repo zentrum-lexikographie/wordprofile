@@ -2,7 +2,7 @@
 
 Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
 Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
-Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation. 
+Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation.
 Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
 Im Ordner `log` werden Server-Logfiles hinterlegt.
 
@@ -16,6 +16,13 @@ virtual environments and Python version management is done via
     # add pyenv hooks to ~/.bashrc
     pip install --user pipenv
 
+
+To install the full project and dev dependencies, run:
+
+    pipenv install --categories="packages api build prep dev-packages"
+
+If not all parts of the project are necessary, specify the relevant ones using the `categories` option.
+
 ## Erstellen eines Wortprofils
 Ausgeführte Aufgaben:
 1. Extraktion der Relationen
@@ -24,7 +31,7 @@ Ausgeführte Aufgaben:
 4. Initialisieren der Datenbank
 5. Befüllen der DB Tabellen mit extrahierten Matches
 
-Wortprofile werden in zwei Schritten erstellt: 
+Wortprofile werden in zwei Schritten erstellt:
 Bevor ein vollständiges Wortprofil erstellt wird, werden die einzelnen Korpora separat verarbeitet, Matches extrahiert und darauf Kollokationen gezählt. Dies reduziert die Arbeit im zweiten Schritt wenn die gesamten Daten verarbeitet werden sollen.
 Im nachfolgenden werden die drei Skripte kurz erklärt, die für die Erstellung genutzt werden und im Skript `make_wp.sh` kombiniert sind.
 Erstellt werden soll ein Test-Wortprofil aus zwei Korpora: `dradio` und `pnn`, welche bereits im CoNLL Format vorliegen und entsprechende Annotationen (POS, NER, DEPREL) besitzen.
@@ -87,7 +94,7 @@ docker-compose build
 ## Entwicklungssetup
 
 ```shell
-pip install -r requirements.txt -r requirements-dev.txt
+pipenv install --dev
 ```
 
 ### Tests
