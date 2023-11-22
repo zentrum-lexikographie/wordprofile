@@ -99,7 +99,7 @@ Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis
 ### Installation
 Die Installation der für die Vorverarbeitung nötigen Pakete erfolgt folgendermaßen:
 ```
-pip install .[pre]
+pipenv install --categories prep
 ```
 
 ## Entwicklungssetup
