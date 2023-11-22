@@ -28,6 +28,7 @@ tabulate = "*"
 sqlalchemy = "*"
 spacy = "*"
 spacy-transformers = "*"
+six = "*"
 
 [prep]
 click = "*"
