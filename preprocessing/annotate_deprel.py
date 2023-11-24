@@ -100,7 +100,7 @@ class SpacyParser:
         import spacy
         from spacy.tokens import Doc
 
-        spacy.perfer_gpu()
+        spacy.prefer_gpu()
 
         tmp_stdout = sys.stdout
         sys.stdout = sys.stderr
