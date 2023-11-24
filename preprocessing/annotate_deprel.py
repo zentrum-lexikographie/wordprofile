@@ -7,7 +7,6 @@ from collections import OrderedDict
 import click
 import conllu
 import torch
-from tqdm import tqdm
 
 
 class TrankitParser:
@@ -200,13 +199,13 @@ def main(input, output, cont, parser_type, lang, nthreads):
             fh = open(cont, "r")
         else:
             raise ValueError(f"Unknown file ending: {cont}")
-        basenames = {base for base in tqdm(iter_doc_basenames(fh), desc="Basenames")}
+        basenames = {base for base in iter_doc_basenames(fh)}
         fh.close()
     else:
         basenames = {}
     print(f"Loaded basenames: {len(basenames)}", file=sys.stderr)
 
-    for doc_str in tqdm(group_sentences_to_documents(iter_conll_sentences(input))):
+    for doc_str in group_sentences_to_documents(iter_conll_sentences(input)):
         meta = extract_meta_from_str(doc_str)
         if meta["basename"] in basenames:
             continue
