@@ -104,6 +104,8 @@ class SpacyParser:
         import spacy
         from spacy.tokens import Doc
 
+        spacy.perfer_gpu()
+
         tmp_stdout = sys.stdout
         sys.stdout = sys.stderr
         self.nlp = spacy.load(model_path or "de_dep_hdt_sm")
