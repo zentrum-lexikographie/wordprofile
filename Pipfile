@@ -26,9 +26,9 @@ torch = "*"
 termcolor = "*"
 tabulate = "*"
 sqlalchemy = "*"
-spacy = "*"
 spacy-transformers = "*"
 six = "*"
+spacy = {extras = ["cuda12x"], version = "*"}
 
 [prep]
 click = "*"
@@ -37,4 +37,4 @@ typing-extensions = "*"
 [api]
 jinja2 = "*"
 fastapi = "*"
-uvicorn = {extras = ["standard"], version = "*"}
+uvicorn = {extras = ["standard"] }
