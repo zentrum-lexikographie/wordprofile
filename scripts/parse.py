@@ -177,7 +177,7 @@ def extract_meta_from_str(doc_str: str):
 
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
-@click.option("-o", "--output", default="-", type=click.File("w"))
+@click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
 @click.option("-c", "--cont", default=".", type=click.Path())
 @click.option("--parser-type", default="trankit", type=str)
 @click.option("--lang", default="german-hdt", type=str)
