@@ -11,9 +11,7 @@ from tqdm import tqdm
 
 
 class TrankitParser:
-    def __init__(
-        self, model_type="german-hdt", embedding="xlm-roberta-base", tagbatch=12
-    ):
+    def __init__(self, model_type="german-hdt", embedding="xlm-roberta-base"):
         import trankit
 
         tmp_stdout = sys.stdout
@@ -21,7 +19,6 @@ class TrankitParser:
         self.parser = trankit.Pipeline(
             model_type, embedding=embedding, cache_dir=os.path.expanduser("~/.trankit/")
         )
-        self.parser._tagbatchsize = tagbatch
         self.parser("Init")
         sys.stdout = tmp_stdout
 
