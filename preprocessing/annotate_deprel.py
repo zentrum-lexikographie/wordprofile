@@ -143,6 +143,8 @@ def iter_conll_sentences(file_handle):
                 chunk.clear()
         else:
             chunk.append(line)
+    if chunk:
+        yield "".join(chunk)
 
 
 def group_sentences_to_documents(sentences):

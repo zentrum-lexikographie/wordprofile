@@ -1,0 +1,184 @@
+# DDC:tokid.begin = 4548239
+# DDC:tokid.end = 4551166
+# DDC:meta.n_ = 2646
+# DDC:meta.file_ = politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml
+# DDC:meta.scan_ =
+# DDC:meta.orig_ =
+# DDC:meta.date_ = 2009-06-02
+# DDC:meta.page_ = -1
+# DDC:meta.author = Frank-Walter Steinmeier
+# DDC:meta.avail = -
+# DDC:meta.availability = Distributed under the Creative Commons Attribution-ShareAlike 4.0 International Licence.
+# DDC:meta.basename = src/de1/DE1_0999_20090602
+# DDC:meta.bibl = Rede von Frank-Walter Steinmeier, 02.06.2009
+# DDC:meta.collection = politische_reden
+# DDC:meta.country = DE
+# DDC:meta.empty =
+# DDC:meta.flags =
+# DDC:meta.party = SPD
+# DDC:meta.role = Bundesminister
+# DDC:meta.textClass = gesprochen:Rede
+# DDC:meta.timestamp = 2020-02-25T18:27:16Z
+# DDC:meta.title = Rede von Außenminister Frank-Walter Steinmeier in der Akademie der Wissenschaften in Budapest
+# DDC:meta.url = http://www.auswaertiges-amt.de/DE/Infoservice/Presse/Reden/2009/090602-BM-Budapest.html
+# DDC:BREAK.s[238299] = 4548239
+# DDC:BREAK.c[2645] = 4548239
+# DDC:BREAK.p[81870] = 4548239
+# DDC:BREAK.file[2645] = 4548239
+# DDC:BREAK.textarea[2645] = 4548239
+# text = Sehr geehrter Herr Präsident Palinkás , meine sehr verehrten Damen und Herren ,
+1	Sehr	sehr	ADV	ADV	_	_	_	_	_
+2	geehrter	geehrt	ADJ	ADJA	_	_	_	_	_
+3	Herr	Herr	NOUN	NN	_	_	_	_	_
+4	Präsident	Präsident	NOUN	NN	_	_	_	_	_
+5	Palinkás	Palinkás	PROPN	NE	_	_	_	_	SpaceAfter=No
+6	,	,	PUNCT	$,	_	_	_	_	_
+7	meine	meine	DET	PPOSAT	_	_	_	_	_
+8	sehr	sehr	ADV	ADV	_	_	_	_	_
+9	verehrten	verehrt	ADJ	ADJA	_	_	_	_	_
+10	Damen	Dame	NOUN	NN	_	_	_	_	_
+11	und	und	CCONJ	KON	_	_	_	_	_
+12	Herren	Herr	NOUN	NN	_	_	_	_	_
+13	,	,	PUNCT	$,	_	_	_	_	_
+
+# DDC:BREAK.s[238300] = 4548252
+# DDC:BREAK.p[81871] = 4548252
+# text = Exzellenzen ,
+1	Exzellenzen	Exzellenz	NOUN	NN	_	_	_	_	_
+2	,	,	PUNCT	$,	_	_	_	_	_
+
+# DDC:BREAK.s[238301] = 4548254
+# DDC:BREAK.p[81872] = 4548254
+# text = vor zwanzig Jahren ist in Europa " die Zeit explodiert " - so haben es mit dem tschechischen Schriftsteller Jáchym Topol wohl alle empfunden , die die Umwälzungen des Jahres 1989 unmittelbar erlebt haben .
+1	vor	vor	ADP	APPR	_	_	_	_	_
+2	zwanzig	zwanzig	NUM	CARD	_	_	_	_	_
+3	Jahren	Jahr	NOUN	NN	_	_	_	_	_
+4	ist	sein	AUX	VAFIN	_	_	_	_	_
+5	in	in	ADP	APPR	_	_	_	_	_
+6	Europa	Europa	PROPN	NE	_	_	_	_	_
+7	"	"	PUNCT	$(	_	_	_	_	SpaceAfter=No
+8	die	d	DET	ART	_	_	_	_	_
+9	Zeit	Zeit	NOUN	NN	_	_	_	_	_
+10	explodiert	explodieren	VERB	VVPP	_	_	_	_	SpaceAfter=No
+11	"	"	PUNCT	$(	_	_	_	_	_
+12	-	-	PUNCT	$(	_	_	_	_	_
+13	so	so	ADV	ADV	_	_	_	_	_
+14	haben	haben	AUX	VAFIN	_	_	_	_	_
+15	es	es	PRON	PPER	_	_	_	_	_
+16	mit	mit	ADP	APPR	_	_	_	_	_
+17	dem	d	DET	ART	_	_	_	_	_
+18	tschechischen	tschechisch	ADJ	ADJA	_	_	_	_	_
+19	Schriftsteller	Schriftsteller	NOUN	NN	_	_	_	_	_
+20	Jáchym	Jáchym	PROPN	NE	_	_	_	_	_
+21	Topol	Topol	PROPN	NE	_	_	_	_	_
+22	wohl	wohl	ADV	ADV	_	_	_	_	_
+23	alle	alle	PRON	PIS	_	_	_	_	_
+24	empfunden	empfinden	VERB	VVPP	_	_	_	_	SpaceAfter=No
+25	,	,	PUNCT	$,	_	_	_	_	_
+26	die	die	PRON	PRELS	_	_	_	_	_
+27	die	d	DET	ART	_	_	_	_	_
+28	Umwälzungen	Umwälzung	NOUN	NN	_	_	_	_	_
+29	des	d	DET	ART	_	_	_	_	_
+30	Jahres	Jahr	NOUN	NN	_	_	_	_	_
+31	1989	1989	NUM	CARD	_	_	_	_	_
+32	unmittelbar	unmittelbar	ADJ	ADJD	_	_	_	_	_
+33	erlebt	erleben	VERB	VVPP	_	_	_	_	_
+34	haben	haben	AUX	VAINF	_	_	_	_	_
+35	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238302] = 4548289
+# DDC:BREAK.p[81873] = 4548289
+# text = Damals ging eine ganze Epoche zu Ende .
+1	Damals	damals	ADV	ADV	_	_	_	_	_
+2	ging	gehen	VERB	VVFIN	_	_	_	_	_
+3	eine	eine	DET	ART	_	_	_	_	_
+4	ganze	ganz	ADJ	ADJA	_	_	_	_	_
+5	Epoche	Epoche	NOUN	NN	_	_	_	_	_
+6	zu	zu	ADP	APPR	_	_	_	_	_
+7	Ende	Ende	NOUN	NN	_	_	_	_	_
+8	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238303] = 4548297
+# text = Eine neue Zeit begann .
+1	Eine	eine	DET	ART	_	_	_	_	_
+2	neue	neu	ADJ	ADJA	_	_	_	_	_
+3	Zeit	Zeit	NOUN	NN	_	_	_	_	_
+4	begann	beginnen	VERB	VVFIN	_	_	_	_	_
+5	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238304] = 4548302
+# text = Die Ereignisse von 1989 und 1990 sind heute Geschichte und Gegenwart zugleich .
+1	Die	d	DET	ART	_	_	_	_	_
+2	Ereignisse	Ereignis	NOUN	NN	_	_	_	_	_
+3	von	von	ADP	APPR	_	_	_	_	_
+4	1989	1989	NUM	CARD	_	_	_	_	_
+5	und	und	CCONJ	KON	_	_	_	_	_
+6	1990	1990	NUM	CARD	_	_	_	_	_
+7	sind	sein	AUX	VAFIN	_	_	_	_	_
+8	heute	heute	ADV	ADV	_	_	_	_	_
+9	Geschichte	Geschichte	NOUN	NN	_	_	_	_	_
+10	und	und	CCONJ	KON	_	_	_	_	_
+11	Gegenwart	Gegenwart	NOUN	NN	_	_	_	_	_
+12	zugleich	zugleich	ADV	ADV	_	_	_	_	_
+13	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238305] = 4548315
+# text = Oder , mit den Worten von Barbara Tuchmann :
+1	Oder	Oder	PROPN	NE	_	_	_	_	SpaceAfter=No
+2	,	,	PUNCT	$,	_	_	_	_	_
+3	mit	mit	ADP	APPR	_	_	_	_	_
+4	den	d	DET	ART	_	_	_	_	_
+5	Worten	Wort	NOUN	NN	_	_	_	_	_
+6	von	von	ADP	APPR	_	_	_	_	_
+7	Barbara	Barbara	PROPN	NE	_	_	_	_	_
+8	Tuchmann	Tuchmann	PROPN	NE	_	_	_	_	_
+9	:	:	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238306] = 4548324
+# text = Es ist " Geschichte , die noch qualmt " .
+1	Es	es	PRON	PPER	_	_	_	_	_
+2	ist	sein	AUX	VAFIN	_	_	_	_	_
+3	"	"	PUNCT	$(	_	_	_	_	SpaceAfter=No
+4	Geschichte	Geschichte	NOUN	NN	_	_	_	_	SpaceAfter=No
+5	,	,	PUNCT	$,	_	_	_	_	_
+6	die	die	PRON	PRELS	_	_	_	_	_
+7	noch	noch	ADV	ADV	_	_	_	_	_
+8	qualmt	qualmen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
+9	"	"	PUNCT	$(	_	_	_	_	_
+10	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238307] = 4548334
+# DDC:BREAK.p[81874] = 4548334
+# text = Geschichte , an die wir uns dankbar erinnern – und die uns zugleich weiter fordert .
+1	Geschichte	Geschichte	NOUN	NN	_	_	_	_	SpaceAfter=No
+2	,	,	PUNCT	$,	_	_	_	_	_
+3	an	an	ADP	APPR	_	_	_	_	_
+4	die	die	PRON	PRELS	_	_	_	_	_
+5	wir	wir	PRON	PPER	_	_	_	_	_
+6	uns	uns	PRON	PRF	_	_	_	_	_
+7	dankbar	dankbar	ADJ	ADJD	_	_	_	_	_
+8	erinnern	erinnern	VERB	VVINF	_	_	_	_	_
+9	–	–	PUNCT	$(	_	_	_	_	_
+10	und	und	CCONJ	KON	_	_	_	_	_
+11	die	die	PRON	PRELS	_	_	_	_	_
+12	uns	wir	PRON	PPER	_	_	_	_	_
+13	zugleich	zugleich	ADV	ADV	_	_	_	_	_
+14	weiter	weiter	ADV	ADV	_	_	_	_	_
+15	fordert	fordern	VERB	VVFIN	_	_	_	_	_
+16	.	.	PUNCT	$.	_	_	_	_	_
+
+# DDC:BREAK.s[238308] = 4548350
+# DDC:BREAK.p[81875] = 4548350
+# text = Vor zwanzig Jahren war ganz Europa von einer einzigartigen Aufbruchstimmung erfasst .
+1	Vor	vor	ADP	APPR	_	_	_	_	_
+2	zwanzig	zwanzig	NUM	CARD	_	_	_	_	_
+3	Jahren	Jahr	NOUN	NN	_	_	_	_	_
+4	war	sein	AUX	VAFIN	_	_	_	_	_
+5	ganz	ganz	ADV	ADV	_	_	_	_	_
+6	Europa	Europa	PROPN	NE	_	_	_	_	_
+7	von	von	ADP	APPR	_	_	_	_	_
+8	einer	eine	DET	ART	_	_	_	_	_
+9	einzigartigen	einzigartig	ADJ	ADJA	_	_	_	_	_
+10	Aufbruchstimmung	Aufbruchstimmung	NOUN	NN	_	_	_	_	_
+11	erfasst	erfassen	VERB	VVPP	_	_	_	_	_
+12	.	.	PUNCT	$.	_	_	_	_	_
