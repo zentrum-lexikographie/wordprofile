@@ -35,3 +35,14 @@ def test_avoid_yielding_empty_string_if_newline_present(multiple_docs_conll_file
     with open(multiple_docs_conll_file) as fh:
         result = list(deprel.iter_conll_sentences(fh))
         assert result[-1] != ""
+
+
+def test_document_grouping(multiple_docs_conll_file):
+    with open(multiple_docs_conll_file) as fh:
+        sentences = deprel.iter_conll_sentences(fh)
+        docs = list(deprel.group_sentences_to_documents(sentences))
+        assert len(set(docs)) == 1
+        assert len(docs) == 4
+        for doc in docs:
+            assert doc.count("# DDC:meta.file_") == 1
+            assert doc.startswith("# DDC:tokid.begin = 4548239")
