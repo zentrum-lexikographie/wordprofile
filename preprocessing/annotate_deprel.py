@@ -166,7 +166,7 @@ def iter_doc_basenames(file_handle):
             yield line[len("# DDC:meta.basename =") :].strip()
 
 
-RE_META = re.compile(r"# DDC:meta\.(\w+) = (.*)")
+RE_META = re.compile(r"# DDC:meta\.(\w+) = ?(.*)")
 
 
 def extract_meta_from_str(doc_str: str):
