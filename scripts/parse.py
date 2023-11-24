@@ -136,12 +136,9 @@ class SpacyParser:
 
 def iter_conll_sentences(file_handle):
     chunk = []
-    while True:
-        line = file_handle.readline()
-        if len(line) == 0:
-            break
+    for line in file_handle:
         if line == "\n":
-            if chunk != "":
+            if chunk:
                 yield "".join(chunk)
                 chunk.clear()
         else:
