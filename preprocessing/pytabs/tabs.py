@@ -118,7 +118,8 @@ class TabsDocument:
         for name, value in self.tokid.items():
             buf.write("# DDC:tokid.{} = {}\n".format(name, value))
         for name, value in self.meta.items():
-            buf.write("# DDC:meta.{} = {}\n".format(name, value))
+            if value != "":
+                buf.write("# DDC:meta.{} = {}\n".format(name, value))
         for sent in self.sentences:
             for meta_name, meta_val in sent.meta:
                 buf.write("# DDC:BREAK.{} = {}\n".format(meta_name, meta_val))

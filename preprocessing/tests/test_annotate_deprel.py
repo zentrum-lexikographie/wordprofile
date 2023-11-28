@@ -46,11 +46,3 @@ def test_document_grouping(multiple_docs_conll_file):
         for doc in docs:
             assert doc.count("# DDC:meta.file_") == 1
             assert doc.startswith("# DDC:tokid.begin = 4548239")
-
-
-def test_empty_meta_data_elements_not_omitted(short_conll_file):
-    with open(short_conll_file) as fh:
-        doc = fh.read()
-    metadata = deprel.extract_meta_from_str(doc)
-    assert len(metadata) == 21
-    assert metadata["flags"] == ""
