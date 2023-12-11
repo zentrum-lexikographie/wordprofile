@@ -119,8 +119,8 @@ class SpacyParser:
             docs = self.nlp.pipe(
                 map(self.custom_tokenizer, sentences), batch_size=self.batch_size
             )
-            for sent_i, (sent, doc) in enumerate(zip(sentences, docs)):
-                for tok_i, (token, word) in enumerate(zip(sent, doc)):
+            for sent, doc in zip(sentences, docs):
+                for token, word in zip(sent, doc):
                     token.update(
                         upos=word.pos_,
                         xpos=word.tag_,
