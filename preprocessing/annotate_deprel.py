@@ -1,12 +1,18 @@
 import bz2
+import logging
 import os
 import re
 import sys
+import time
 from collections import OrderedDict
+from datetime import date, datetime
 
 import click
 import conllu
 import torch
+
+
+logger = logging.getLogger(__name__)
 
 
 class TrankitParser:
@@ -172,6 +178,18 @@ def extract_meta_from_str(doc_str: str):
     return dict(m.groups() for m in RE_META.finditer(doc_str))
 
 
+def configure_logging():
+    log_directory = os.path.join(os.path.dirname(os.path.dirname(__file__)), "log")
+    os.makedirs(log_directory, exist_ok=True)
+    logging.basicConfig(
+        filename=os.path.join(
+            log_directory, f"{date.today().isoformat()}-annotate-deprel.log"
+        ),
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(name)s: %(message)s",
+    )
+
+
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
@@ -181,6 +199,9 @@ def extract_meta_from_str(doc_str: str):
 @click.option("--nthreads", default=1, type=int)
 def main(input, output, cont, parser_type, lang, nthreads):
     torch.set_num_threads(nthreads)
+    configure_logging()
+    input_file = input.name if input != "-" else "from stdin"
+    logger.info("Processing corpus %s with %s parser." % (input_file, parser_type))
     if parser_type == "trankit":
         parser = TrankitParser(model_type=lang)
     elif parser_type == "trankit-xl":
@@ -203,8 +224,9 @@ def main(input, output, cont, parser_type, lang, nthreads):
         fh.close()
     else:
         basenames = {}
-    print(f"Loaded basenames: {len(basenames)}", file=sys.stderr)
-
+    logger.info("Loaded basenames: %d" % len(basenames))
+    start = time.time()
+    logger.info("Start time: %s" % datetime.fromtimestamp(start))
     for doc_str in group_sentences_to_documents(iter_conll_sentences(input)):
         meta = extract_meta_from_str(doc_str)
         if meta["basename"] in basenames:
@@ -213,6 +235,10 @@ def main(input, output, cont, parser_type, lang, nthreads):
         for sentence in parser(doc):
             output.write(sentence.serialize())
         output.flush()
+    end = time.time()
+    elapsed_time = end - start
+    logger.info("End time: %s" % datetime.fromtimestamp(end))
+    logger.info("Elapsed time: %f s" % elapsed_time)
 
 
 if __name__ == "__main__":
