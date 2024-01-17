@@ -1,27 +1,29 @@
 import re
-from typing import List, Dict
+from typing import Dict, List
 
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
 
-
-RE_GK_NORM_ERROR = re.compile(r'^[^-]+-[a-zäüö]+$')
+RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
 
 
 def is_valid_token(tok: DBToken):
-    return not any([
-        len(tok.surface) < 2,
-        not tok.surface[0].isalpha(),
-        not tok.surface[-1].isalpha(),
-        any(c.isdigit() for c in tok.lemma),
-        any(c in '"\'@§!?;#*/&<>()_' for c in tok.surface),
-        RE_GK_NORM_ERROR.match(tok.lemma)
-    ])
+    return not any(
+        [
+            len(tok.surface) < 2,
+            not tok.surface[0].isalpha(),
+            not tok.surface[-1].isalpha(),
+            any(c.isdigit() for c in tok.lemma),
+            any(c in "\"'@§!?;#*/&<>()_" for c in tok.surface),
+            RE_GK_NORM_ERROR.match(tok.lemma),
+        ]
+    )
 
 
 def valid_match(match: Match):
     """
-    Validates matches by specified criteria (surface form, special symbols, length).
+    Validates matches by specified criteria (surface form, special symbols,
+    digits, valid characters in expected positions, length).
     """
     # TODO filter inconsistent relations
     #  - 0 is marked by parser
@@ -43,20 +45,21 @@ def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
     """
     Load static repair mapping files into dict.
 
-    These mappings are used to repair the poor lemmatizer output (already known problems).
-    The files have tab-separated csv format. Each line contains a mapping of the form:
+    These mappings are used to repair the poor lemmatizer output (already
+    known problems). The files have tab-separated csv format.
+    Each line contains a mapping of the form:
         <bad lemma>\t<correct lemma>
     """
     word_classes_repair = {}
     files = [
-        ('ADJ', 'spec/lemma_repair_adjektiv.csv'),
-        ('NOUN', 'spec/lemma_repair_substantiv.csv'),
-        ('VERB', 'spec/lemma_repair_verb.csv'),
+        ("ADJ", "spec/lemma_repair_adjektiv.csv"),
+        ("NOUN", "spec/lemma_repair_substantiv.csv"),
+        ("VERB", "spec/lemma_repair_verb.csv"),
     ]
     for word_class, path in files:
         word_class_repair = {}
-        for line in open(path, 'r'):
-            line = line.strip().split('\t')
+        for line in open(path, "r"):
+            line = line.strip().split("\t")
             if len(line) == 2:
                 if line[0] not in word_class_repair:
                     word_class_repair[line[0]] = line[1]
@@ -71,7 +74,10 @@ def repair_lemma(lemma: str, lemma_tag: str) -> str:
     if lemma_tag in LEMMA_REPAIR:
         return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
     return lemma
+
+
 # REMOVE END
+
 
 def sent_filter_length(sentence: List[DBToken]) -> bool:
     return 3 <= len(sentence) <= 100
@@ -86,13 +92,15 @@ def sent_filter_tags(sentence: List[DBToken]) -> bool:
 
 
 def sent_filter_invalid_tags(sentence: List[DBToken]) -> bool:
-    return sum(1 for t in sentence if t.tag in {'X', 'SYM'}) < 10
+    return sum(1 for t in sentence if t.tag in {"X", "SYM"}) < 10
 
 
 def sentence_is_valid(s: List[DBToken]) -> bool:
-    return all([
-        sent_filter_length(s),
-        sent_filter_tags(s),
-        sent_filter_endings(s),
-        sent_filter_invalid_tags(s)
-    ])
+    return all(
+        [
+            sent_filter_length(s),
+            sent_filter_tags(s),
+            sent_filter_endings(s),
+            sent_filter_invalid_tags(s),
+        ]
+    )
