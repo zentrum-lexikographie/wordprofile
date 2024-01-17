@@ -16,7 +16,7 @@ from conllu.models import TokenList
 from wordprofile.datatypes import DBToken
 from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import prepare_corpus_file, prepare_concord_sentences, prepare_matches
-from wordprofile.zdl import repair_lemma, sentence_is_valid, extract_matches_from_doc
+from wordprofile.sentence_filter import repair_lemma, sentence_is_valid, extract_matches_from_doc
 
 Match = namedtuple("Match",
                    ["id", "collocation_id", "head_surface", "dep_surface", "head_pos", "dep_pos", "prep_pos",
