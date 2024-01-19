@@ -1,7 +1,7 @@
 import datetime
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
@@ -72,16 +72,18 @@ class MweConcordance:
     sentence_right: str
 
 
-DBToken = namedtuple('DBToken', ['idx', 'surface', 'lemma', 'tag', 'head', 'rel', 'misc'])
-Match = namedtuple('Match', ['head', 'dep', 'prep', 'relation', 'sid'])
+DBToken = namedtuple(
+    "DBToken", ["idx", "surface", "lemma", "tag", "head", "rel", "misc"]
+)
+Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])
 
 
 class DependencyTree:
     class Node:
         def __init__(self, token: DBToken):
             self.token = token
-            self.parent = None
-            self.children = []
+            self.parent: Optional[DependencyTree.Node] = None
+            self.children: List[DependencyTree.Node] = []
 
         def add_child(self, token):
             if token not in self.children:
@@ -92,7 +94,7 @@ class DependencyTree:
 
     def __init__(self, tokens: List[DBToken]):
         self.nodes = [DependencyTree.Node(token) for token in tokens]
-        self.root = None
+        self.root: Optional[DependencyTree.Node] = None
         for n in self.nodes:
             if int(n.token.head) > 0:
                 n.parent = self.nodes[int(n.token.head) - 1]
