@@ -164,7 +164,7 @@ class FileReader:
         super().__init__()  # why?
 
     def run(self):
-        logging.info(f"INIT queue, reading file")
+        logging.info("INIT queue, reading file")
         conll_sentences = conllu.parse_incr(
             self.fh, fields=conllu.parser.DEFAULT_FIELDS
         )
@@ -187,10 +187,10 @@ def process_doc_file(
     db_files_queue: Queue,
     db_sents_queue: Queue,
     db_matches_queue: Queue,
-):
+) -> None:
     """Extracts information from files and forwards to corresponding queue."""
     while True:
-        sentences: TokenList = file_reader_queue.get()
+        sentences: list[TokenList] = file_reader_queue.get()
         if not sentences:
             break
         try:
@@ -263,9 +263,9 @@ def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
         for fin in fins:
             with open(fin, "r") as files_in:
                 for line in files_in:
-                    line = line.split("\t")
-                    corpus_file_idx[line[0]] = c_i
-                    files_out.write("\t".join([str(c_i)] + line[1:]))
+                    tokens = line.split("\t")
+                    corpus_file_idx[tokens[0]] = c_i
+                    files_out.write("\t".join([str(c_i)] + tokens[1:]))
                     c_i += 1
     return corpus_file_idx
 
@@ -336,11 +336,15 @@ def filter_transform_matches(
                         match_i += 1
 
 
-def compute_collocation_scores(fout: str, collocs: Dict[int, Colloc]):
+def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
     """Computes collocation statistics and writes to file."""
-    f12 = defaultdict(lambda: defaultdict(int))
-    f1 = defaultdict(lambda: defaultdict(int))
-    f2 = defaultdict(int)
+    f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
+        lambda: defaultdict(int)
+    )
+    f1: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
+        lambda: defaultdict(int)
+    )
+    f2: defaultdict[str, int] = defaultdict(int)
     for c_id, c in collocs.items():
         w1 = c.lemma1 + "-" + c.lemma1_tag
         w2 = c.lemma2 + "-" + c.lemma2_tag
@@ -351,7 +355,7 @@ def compute_collocation_scores(fout: str, collocs: Dict[int, Colloc]):
         f2[w1] += c.frequency
         f2[w2] += c.frequency
 
-    with open(fout, "w") as fout:
+    with open(fout, "w") as f_out:
         inv_relations = {
             "SUBJ",
             "SUBJA",
@@ -374,12 +378,12 @@ def compute_collocation_scores(fout: str, collocs: Dict[int, Colloc]):
                 * max(1, f12[c.label][(w1, w2)])
                 / (max(1, f1[c.label][w1]) + max(1, f2[w2]))
             )
-            fout.write(
+            f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
                 "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
             )
             if c.label in inv_relations:
-                fout.write(
+                f_out.write(
                     "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
                     "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
                 )
@@ -401,6 +405,7 @@ def extract_mwe_from_collocs(
         with open(fin, "r") as fh:
             for line in fh:
                 m = convert_line(line, Match, match_dtypes)
+                assert isinstance(m, Match)  # to make mypy happy for now
                 if m.doc_id == doc_curr and m.sent_id == sent_curr:
                     sent.append(m)
                 else:
@@ -409,11 +414,11 @@ def extract_mwe_from_collocs(
                     doc_curr = m.doc_id
                     sent_curr = m.sent_id
 
-    def has_one_overlap(*pos: Tuple[int]):
+    def has_one_overlap(*pos: Tuple[int]) -> bool:
         """Checks whether positions have one overlap."""
         return len(set(pos)) == (len(pos) - 1)
 
-    def update(freqs, ids, xs):
+    def update(freqs, ids, xs) -> int:
         mwe_id = ids.get(xs)
         if not mwe_id:
             mwe_id = len(freqs)
@@ -422,8 +427,8 @@ def extract_mwe_from_collocs(
         return mwe_id
 
     with open(mwe_match_fout, "w") as mwe_map:
-        mwe_freqs = defaultdict(int)
-        mwe_ids = {}
+        mwe_freqs: defaultdict[int, int] = defaultdict(int)
+        mwe_ids: dict[tuple, int] = {}
         for sent in read_collapsed_sentence_matches(match_fin):
             for m_i, m1 in enumerate(sent):
                 for m2 in sent[m_i + 1 :]:
@@ -521,11 +526,13 @@ def extract_mwe_from_collocs(
     return mwe_ids, mwe_freqs
 
 
-def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs):
+def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
     """Calculates Log Dice score"""
-    f12 = defaultdict(lambda: defaultdict(int))
-    f1 = defaultdict(lambda: defaultdict(int))
-    f2 = defaultdict(int)
+    f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
+        lambda: defaultdict(int)
+    )
+    f1: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
+    f2: defaultdict[str, int] = defaultdict(int)
     for (w1, w2, label, lemma, tag), mwe_id in mwe_ids.items():
         frequency = mwe_freqs[mwe_id]
         f12[label][(w1, w2)] += frequency
@@ -559,7 +566,9 @@ def extract_collocations(match_fin: str, collocs_fout: str):
     frequencies are counted for matches. The mapping is written to a file
     and used later for simplifying the matches information.
     """
-    relation_dict = defaultdict(lambda: defaultdict(int))
+    relation_dict: defaultdict[
+        str, defaultdict[tuple[str, str, str, str], int]
+    ] = defaultdict(lambda: defaultdict(int))
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
@@ -574,7 +583,9 @@ def extract_collocations(match_fin: str, collocs_fout: str):
 
 def extract_most_common_surface(match_fin: str, fout: str):
     """Generates a mapping from a lemma to its most common surface form."""
-    common_surfaces = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    common_surfaces: defaultdict[
+        str, defaultdict[str, defaultdict[str, int]]
+    ] = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
@@ -595,10 +606,12 @@ def extract_most_common_surface(match_fin: str, fout: str):
 
 def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
-    relation_dict = defaultdict(lambda: defaultdict(int))
+    relation_dict: defaultdict[
+        str, defaultdict[tuple[str, str, str, str], int]
+    ] = defaultdict(lambda: defaultdict(int))
     for fin in fins:
-        with open(fin, "r") as fin:
-            for line in fin:
+        with open(fin, "r") as f_in:
+            for line in f_in:
                 m = tuple(line.strip().split("\t"))
                 rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
                 if freq >= min_rel_freq:
@@ -614,22 +627,22 @@ def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Collo
 
 def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Colloc]):
     logging.info("-- compute token frequencies")
-    tokens_stats = defaultdict(int)
+    tokens_stats: defaultdict[tuple[str, str], int] = defaultdict(int)
     for c in collocs.values():
         tokens_stats[c.lemma1, c.lemma1_tag] += c.frequency
         tokens_stats[c.lemma2, c.lemma2_tag] += c.frequency
     logging.info("-- compute common surfaces")
-    common_surfaces = {}
+    common_surfaces: dict[tuple[str, str], tuple[str, int]] = {}
     for fin in fins:
-        with open(fin, "r") as fin:
-            for line in fin:
+        with open(fin, "r") as f_in:
+            for line in f_in:
                 lemma, tag, surface, freq = tuple(line.strip().split("\t"))
                 common_surface, common_freq = common_surfaces.get((lemma, tag), ("", 0))
                 if int(freq) > common_freq:
                     common_surfaces[lemma, tag] = surface, int(freq)
     logging.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
-        for (lemma, tag), freq in tokens_stats.items():
+        for (lemma, tag), freq in tokens_stats.items():  # type: ignore
             surface, surface_freq = common_surfaces[lemma, tag]
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
