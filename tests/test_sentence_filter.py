@@ -912,3 +912,8 @@ def test_replace_lemma():
     assert sf.repair_lemma("Tag", "NOUN") == "Tag"
     assert sf.repair_lemma("tätig", "VERB") == "tätigen"
     assert sf.repair_lemma("Test", "X") == "Test"
+
+
+def test_remove_invalid_chars():
+    assert sf.remove_invalid_chars("path\\to") == "pathto"
+    assert sf.remove_invalid_chars("abc\udeed") == "abc"
