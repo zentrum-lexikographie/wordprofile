@@ -1,5 +1,4 @@
 import re
-from typing import Dict, List
 
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
@@ -7,7 +6,7 @@ from wordprofile.extract import extract_matches
 RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
 
 
-def is_valid_token(tok: DBToken):
+def is_valid_token(tok: DBToken) -> bool:
     return not any(
         [
             len(tok.surface) < 2,
@@ -20,7 +19,7 @@ def is_valid_token(tok: DBToken):
     )
 
 
-def valid_match(match: Match):
+def valid_match(match: Match) -> bool:
     """
     Validates matches by specified criteria (surface form, special symbols,
     digits, valid characters in expected positions, length).
@@ -30,7 +29,7 @@ def valid_match(match: Match):
     return is_valid_token(match.head) and is_valid_token(match.dep)
 
 
-def extract_matches_from_doc(parses: List[List[DBToken]]):
+def extract_matches_from_doc(parses: list[list[DBToken]]) -> list[Match]:
     """
     Extracts valid matches from a given document (list of token sequences).
     """
@@ -41,7 +40,7 @@ def extract_matches_from_doc(parses: List[List[DBToken]]):
 
 
 # TODO: Lemma Repair To Be Removed
-def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
+def load_lemma_repair_files() -> dict[str, dict[str, str]]:
     """
     Load static repair mapping files into dict.
 
@@ -59,10 +58,10 @@ def load_lemma_repair_files() -> Dict[str, Dict[str, str]]:
     for word_class, path in files:
         word_class_repair = {}
         for line in open(path, "r"):
-            line = line.strip().split("\t")
-            if len(line) == 2:
-                if line[0] not in word_class_repair:
-                    word_class_repair[line[0]] = line[1]
+            entry = line.strip().split("\t")
+            if len(entry) == 2:
+                if entry[0] not in word_class_repair:
+                    word_class_repair[entry[0]] = entry[1]
         word_classes_repair[word_class] = word_class_repair
     return word_classes_repair
 
@@ -79,25 +78,25 @@ def repair_lemma(lemma: str, lemma_tag: str) -> str:
 # REMOVE END
 
 
-def sent_filter_length(sentence: List[DBToken]) -> bool:
+def sent_filter_length(sentence: list[DBToken]) -> bool:
     return 3 <= len(sentence) <= 100
 
 
-def sent_filter_endings(sentence: List[DBToken]) -> bool:
+def sent_filter_endings(sentence: list[DBToken]) -> bool:
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
 
 
-def sent_filter_tags(sentence: List[DBToken]) -> bool:
+def sent_filter_tags(sentence: list[DBToken]) -> bool:
     return any(t.tag in ["NOUN", "VERB", "AUX"] for t in sentence)
 
 
-def sent_filter_invalid_tags(sentence: List[DBToken]) -> bool:
+def sent_filter_invalid_tags(sentence: list[DBToken]) -> bool:
     return sum(1 for t in sentence if t.tag in {"X", "SYM"}) < min(
         10, len(sentence) / 3
     )
 
 
-def sentence_is_valid(s: List[DBToken]) -> bool:
+def sentence_is_valid(s: list[DBToken]) -> bool:
     return all(
         [
             sent_filter_length(s),
