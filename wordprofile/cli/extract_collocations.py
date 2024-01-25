@@ -3,12 +3,18 @@ import os
 import sys
 from argparse import ArgumentParser
 
-from wordprofile.wpse.processing import process_files, extract_collocations, extract_most_common_surface
+from wordprofile.wpse.processing import (
+    extract_collocations,
+    extract_most_common_surface,
+    process_files,
+)
 
 
 def main():
-    lformat = '[%(levelname)s] %(asctime)s # %(message)s'
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt='%H:%M:%S')
+    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
+    logging.basicConfig(
+        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
+    )
 
     parser = ArgumentParser()
     parser.add_argument("--input", default="-", type=str, help="conll input file")
@@ -18,12 +24,16 @@ def main():
 
     os.makedirs(args.dest, exist_ok=True)
     process_files(args.input, args.dest, args.njobs)
-    logging.info(f'EXTRACT collocations from matches')
-    extract_collocations(os.path.join(args.dest, 'matches'), os.path.join(args.dest, 'collocations'))
-    logging.info(f'EXTRACT most common surface form')
-    extract_most_common_surface(os.path.join(args.dest, 'matches'), os.path.join(args.dest, 'common_surfaces'))
-    logging.info(f'DONE {args.dest}')
+    logging.info("EXTRACT collocations from matches")
+    extract_collocations(
+        os.path.join(args.dest, "matches"), os.path.join(args.dest, "collocations")
+    )
+    logging.info("EXTRACT most common surface form")
+    extract_most_common_surface(
+        os.path.join(args.dest, "matches"), os.path.join(args.dest, "common_surfaces")
+    )
+    logging.info(f"DONE {args.dest}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
