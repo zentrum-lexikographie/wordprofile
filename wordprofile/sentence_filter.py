@@ -7,6 +7,8 @@ from wordprofile.extract import extract_matches
 RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
 INVALID_CHARS = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
 
+LEMMA_REPAIR = load_lemma_repair_files()
+
 
 def remove_invalid_chars(unicode_string):
     return INVALID_CHARS.sub("", unicode_string)
@@ -67,9 +69,6 @@ def load_lemma_repair_files() -> dict[str, dict[str, str]]:
                     word_class_repair[entry[0]] = entry[1]
         word_classes_repair[word_class] = word_class_repair
     return word_classes_repair
-
-
-LEMMA_REPAIR = load_lemma_repair_files()
 
 
 def repair_lemma(lemma: str, lemma_tag: str) -> str:
