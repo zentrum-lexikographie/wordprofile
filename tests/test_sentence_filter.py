@@ -897,9 +897,9 @@ def test_valid_match():
 
 
 def test_extraction_of_matches_from_doc(invalid_sentences, valid_sentences):
-    assert sf.extract_matches_from_doc(invalid_sentences[:1]) == []
-    assert sf.extract_matches_from_doc(invalid_sentences[2:3]) == []
-    assert len(sf.extract_matches_from_doc(valid_sentences[:1])) == 2
+    assert list(sf.extract_matches_from_doc(invalid_sentences[:1])) == []
+    assert list(sf.extract_matches_from_doc(invalid_sentences[2:3])) == []
+    assert len(list(sf.extract_matches_from_doc(valid_sentences[:1]))) == 2
 
 
 def test_lemma_repair_load():

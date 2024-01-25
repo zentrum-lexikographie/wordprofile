@@ -1,4 +1,5 @@
 import re
+from collections.abc import Iterator
 
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
@@ -29,14 +30,11 @@ def valid_match(match: Match) -> bool:
     return is_valid_token(match.head) and is_valid_token(match.dep)
 
 
-def extract_matches_from_doc(parses: list[list[DBToken]]) -> list[Match]:
+def extract_matches_from_doc(parses: list[list[DBToken]]) -> Iterator[Match]:
     """
     Extracts valid matches from a given document (list of token sequences).
     """
-    matches = []
-    for match in filter(valid_match, extract_matches(parses)):
-        matches.append(match)
-    return matches
+    return filter(valid_match, extract_matches(parses))
 
 
 # TODO: Lemma Repair To Be Removed
