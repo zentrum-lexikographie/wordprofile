@@ -16,10 +16,10 @@ from conllu.models import TokenList
 from wordprofile.datatypes import DBToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
+    remove_invalid_chars,
     repair_lemma,
     sentence_is_valid,
 )
-from wordprofile.wpse.db_tables import remove_invalid_chars
 from wordprofile.wpse.prepare import (
     prepare_concord_sentences,
     prepare_corpus_file,
