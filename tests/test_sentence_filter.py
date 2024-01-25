@@ -1,7 +1,7 @@
 import random
 import pytest
 
-from wordprofile.datatypes import DBToken
+from wordprofile.datatypes import DBToken, Match
 import wordprofile.sentence_filter as sf
 
 
@@ -878,3 +878,37 @@ def test_invalid_sentences_filtered(invalid_sentences):
 def test_valid_sentences_not_filtered(valid_sentences):
     for sent in valid_sentences:
         assert sf.sentence_is_valid(sent)
+
+
+def test_valid_match():
+    tok1 = DBToken(
+        idx=1, surface="Test", lemma="<", tag="Noun", head=0, rel="", misc=True
+    )
+    tok2 = DBToken(idx=2, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True)
+    assert sf.valid_match(Match(head=tok1, dep=tok1, prep=None, relation="", sid=0))
+    assert (
+        sf.valid_match(Match(head=tok1, dep=tok2, prep=None, relation="", sid=0))
+        is False
+    )
+    assert (
+        sf.valid_match(Match(head=tok2, dep=tok2, prep=None, relation="", sid=0))
+        is False
+    )
+
+
+def test_extraction_of_matches_from_doc(invalid_sentences, valid_sentences):
+    assert sf.extract_matches_from_doc(invalid_sentences[:1]) == []
+    assert sf.extract_matches_from_doc(invalid_sentences[2:3]) == []
+    assert len(sf.extract_matches_from_doc(valid_sentences[:1])) == 2
+
+
+def test_lemma_repair_load():
+    repair_dict = sf.load_lemma_repair_files()
+    assert len(repair_dict) == 3
+    assert repair_dict["ADJ"]["mißinformiert"] == "missinformiert"
+
+
+def test_replace_lemma():
+    assert sf.repair_lemma("Tag", "NOUN") == "Tag"
+    assert sf.repair_lemma("tätig", "VERB") == "tätigen"
+    assert sf.repair_lemma("Test", "X") == "Test"
