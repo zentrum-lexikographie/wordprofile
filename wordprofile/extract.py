@@ -122,10 +122,12 @@ def get_word_classes() -> list[str]:
 def get_inverted_relation_patterns() -> (
     dict[str | tuple[str, ...], dict[tuple[str, ...], str]]
 ):
-    """Generates inverted search structure for relation pattern matching.
+    """
+    Generates inverted search structure for relation pattern matching.
 
     Returns:
-        2 level dictionary which maps from dependency relations over pos tags to the wordprofile relation.
+        2 level dictionary which maps from dependency relations over
+        pos tags to the wordprofile relation.
     """
     relations_inv: defaultdict[
         str | tuple[str, ...], defaultdict[tuple[str, ...], str]
@@ -152,7 +154,8 @@ def extract_matches_by_pattern(
     tokens: list[DBToken],
     sid: int,
 ) -> Iterator[Match]:
-    """Extracts matches from a sequence of tokens by using a generated relation dictionary.
+    """Extracts matches from a sequence of tokens by using a generated
+    relation dictionary.
 
     Args:
         relations_inv: relation pattern dictionary
@@ -196,7 +199,8 @@ def extract_matches_by_pattern(
 
 
 def extract_comparing_groups(tokens: list[DBToken], sid: int) -> Iterator[Match]:
-    """Extracts matches for comparison relation from a sequence of tokens.
+    """
+    Extracts matches for comparison relation from a sequence of tokens.
 
     Args:
         tokens: sequence of tokens representing a single sentence
@@ -239,8 +243,12 @@ def extract_comparing_groups(tokens: list[DBToken], sid: int) -> Iterator[Match]
 
 
 def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for subject predicative relation from a dependency tree of a sentence.
-    TODO: extend for object predicative relations (https://www.deutschplus.net/pages/Pradikativ)
+    """
+    Extracts matches for subject predicative relation from a dependency
+    tree of a sentence.
+
+    TODO: extend for object predicative relations
+    (https://www.deutschplus.net/pages/Pradikativ)
 
     Args:
         dtree: dependency tree of a single sentence
@@ -282,7 +290,9 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for genitive modification relation from a dependency tree of a sentence.
+    """
+    Extracts matches for genitive modification relation from a dependency
+    tree of a sentence.
 
     Args:
         dtree: dependency tree of a single sentence
@@ -309,7 +319,9 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for active subject relation from a dependency tree of a sentence.
+    """
+    Extracts matches for active subject relation from a dependency
+    tree of a sentence.
 
     Args:
         dtree: dependency tree of a single sentence
