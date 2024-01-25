@@ -77,7 +77,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
             w = w.lower()
             return prepositional_contract_map.get(w, w)
         elif tag == "NOUN":
-            return w[0].upper() + w[1:]
+            return w.capitalize()
         else:
             return w
 
@@ -92,6 +92,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
             misc=t.misc,
         )
 
+    # this can *probably* be removed since spacy only returns "PROPN" anyway
     def entity_tag_conversion(token):
         if token["misc"] and "NER" in token["misc"]:
             ner_tag = token["misc"]["NER"]
