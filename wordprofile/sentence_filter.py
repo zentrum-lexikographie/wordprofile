@@ -5,6 +5,11 @@ from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
 
 RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
+INVALID_CHARS = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
+
+
+def remove_invalid_chars(unicode_string):
+    return INVALID_CHARS.sub("", unicode_string)
 
 
 def is_valid_token(tok: DBToken) -> bool:

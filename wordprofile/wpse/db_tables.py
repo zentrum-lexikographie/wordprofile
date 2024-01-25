@@ -1,5 +1,4 @@
 import enum
-import re
 from collections import namedtuple
 
 from sqlalchemy import Table, Column, types, MetaData, Enum
@@ -36,13 +35,6 @@ DBMatch = namedtuple(
         "sentence_id",
     ],
 )
-
-re_pattern = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
-re2_pattern = re.compile(r"(^\W+)|(\W+$)")
-
-
-def remove_invalid_chars(unicode_string):
-    return re_pattern.sub("", unicode_string)
 
 
 def get_table_corpus_files(meta: MetaData):
