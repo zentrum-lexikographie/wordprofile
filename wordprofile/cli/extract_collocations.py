@@ -32,7 +32,7 @@ def main():
     extract_most_common_surface(
         os.path.join(args.dest, "matches"), os.path.join(args.dest, "common_surfaces")
     )
-    logger.info(f"DONE {args.dest}")
+    logger.info("DONE %s" % args.dest)
 
 
 if __name__ == "__main__":

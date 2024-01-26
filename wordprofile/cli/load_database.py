@@ -29,8 +29,8 @@ def main():
     wp_user = args.user or os.environ["WP_USER"]
     wp_db = args.db or os.environ["WP_DB"]
     db_password = os.environ.get("WP_PASSWORD", wp_user)
-    logger.info("USER: " + wp_user)
-    logger.info("DB: " + wp_db)
+    logger.info("USER: %s" % wp_user)
+    logger.info("DB: %s" % wp_db)
     logger.info("init database")
     engine = create_engine(
         "mysql+pymysql://{}:{}@localhost".format(wp_user, db_password)

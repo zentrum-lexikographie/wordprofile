@@ -293,7 +293,7 @@ def reindex_filter_concordances(
     sents_idx = []
     with open(fout, "w") as sents_out, open(fout_duplicate, "w") as dups_out:
         for fin in fins:
-            logger.info(f"- {fin}")
+            logger.info("- %s" % fin)
             with open(fin, "r") as sents_in:
                 for item in sents_in:
                     doc_corpus, sent_id, sentence, page = item.split("\t")
@@ -325,7 +325,7 @@ def filter_transform_matches(
     match_i = 0
     with open(fout, "w") as matches_out:
         for fin in fins:
-            logger.info(f"- {fin}")
+            logger.info("- %s" % fin)
             with open(fin, "r") as matches_in:
                 for line in matches_in:
                     match = line.strip().split("\t")
@@ -717,7 +717,7 @@ def load_files_into_db(engine, storage_path):
     ]:
         tb_file = os.path.join(storage_path, tb_name)
         if not os.path.exists(tb_file):
-            logger.warning(f"Local file '{tb_file}' doe not exist.")
+            logger.warning("Local file '%s' doe not exist." % tb_file)
         else:
             logger.info("LOAD DATA FILE: {}".format(tb_name))
             engine.execute(
