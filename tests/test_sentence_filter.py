@@ -1,8 +1,9 @@
 import random
+
 import pytest
 
-from wordprofile.datatypes import DBToken, Match
 import wordprofile.sentence_filter as sf
+from wordprofile.datatypes import DBToken, Match
 
 
 @pytest.fixture
