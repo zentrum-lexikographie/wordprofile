@@ -6,11 +6,13 @@ import os
 import re
 import sys
 from collections import defaultdict, namedtuple
+from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
-from typing import Dict, Iterator, List, Set, Tuple, Union
+from typing import Union
 
 import conllu
-from conllu.models import TokenList
+from conllu.models import Token, TokenList
+from sqlalchemy.engine import Engine
 
 from wordprofile.datatypes import DBToken
 from wordprofile.sentence_filter import (
@@ -49,18 +51,18 @@ Colloc = namedtuple(
 colloc_dtypes = [int, str, str, str, str, str, int, int]
 
 
-def convert_line(line, cls, dtypes) -> Union[Match, Colloc]:
+def convert_line(line: str, cls: Callable, dtypes: list[type]) -> Union[Match, Colloc]:
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split("\t"))])
 
 
-def convert_sentence(sentence: TokenList) -> List[DBToken]:
+def convert_sentence(sentence: TokenList) -> list[DBToken]:
     """Convert sentence into list of token.
 
     Sentences are normalized and filtered during this process.
     If tags are not found in mapping, they are left empty.
     """
 
-    prepositional_contract_map = {
+    prepositional_contract_map: dict[str, str] = {
         "am": "an",
         "ans": "an",
         "beim": "bei",
@@ -94,7 +96,7 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
         )
 
     # this can *probably* be removed since spacy only returns "PROPN" anyway
-    def entity_tag_conversion(token):
+    def entity_tag_conversion(token: Token) -> str:
         if token["misc"] and "NER" in token["misc"]:
             ner_tag = token["misc"]["NER"]
             if (
@@ -126,14 +128,14 @@ def convert_sentence(sentence: TokenList) -> List[DBToken]:
 
 
 class FileWorker(multiprocessing.Process):
-    def __init__(self, path, fname, flush_limit=100):
+    def __init__(self, path: str, fname: str, flush_limit: int = 100) -> None:
         self.q = multiprocessing.Manager().Queue(maxsize=1000)
         self.path = path
         self.fname = fname
         self.flush_limit = flush_limit
         super().__init__()
 
-    def run(self):
+    def run(self) -> None:
         logger.info("INIT queue, wait for jobs")
         flush_ctr = 0
         with open(os.path.join(self.path, self.fname), "w") as fh:
@@ -149,15 +151,15 @@ class FileWorker(multiprocessing.Process):
                     if flush_ctr >= self.flush_limit:
                         fh.flush()
                         flush_ctr = 0
-                except Exception:
-                    logger.exception()
+                except Exception as e:
+                    logger.exception(e)
 
-    def stop(self):
+    def stop(self) -> None:
         self.q.put(None)
 
 
 class FileReader:
-    def __init__(self, path, q_size=100):
+    def __init__(self, path: str, q_size: int = 100) -> None:
         self.q = multiprocessing.Manager().Queue(maxsize=q_size)
         if path == "-":
             self.fh = sys.stdin
@@ -165,12 +167,12 @@ class FileReader:
             self.fh = open(path)  # should this be closed somewhere?
         super().__init__()  # why?
 
-    def run(self):
+    def run(self) -> None:
         logger.info("INIT queue, reading file")
         conll_sentences = conllu.parse_incr(
             self.fh, fields=conllu.parser.DEFAULT_FIELDS
         )
-        doc = []
+        doc: list[TokenList] = []
         for sent in conll_sentences:
             if "DDC:meta.file_" in sent.metadata:
                 if doc:
@@ -179,7 +181,7 @@ class FileReader:
             doc.append(sent)
         self.q.put(doc)
 
-    def stop(self, n_procs: int):
+    def stop(self, n_procs: int) -> None:
         for _ in range(n_procs):
             self.q.put(None)
 
@@ -212,7 +214,7 @@ def process_doc_file(
             logger.exception("Couldn't process document: %s" % doc_id)
 
 
-def process_files(file_path: str, storage_path: str, njobs: int = 1):
+def process_files(file_path: str, storage_path: str, njobs: int = 1) -> None:
     """Extract WP related information from given files.
 
     This method processes a given list of files in parallel.
@@ -258,7 +260,7 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
     logger.info("ALL JOBS DONE")
 
 
-def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
+def reindex_corpus_files(fins: list[str], fout: str) -> dict[str, int]:
     """Iterates over generated corpus file and replaces index by numeric index."""
     corpus_file_idx = {}
     c_i = 0
@@ -274,14 +276,17 @@ def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
 
 
 def reindex_filter_concordances(
-    fins, fout, corpus_file_idx, fout_invalid, fout_duplicate
-) -> Set[Tuple[str, str]]:
+    fins: list[str],
+    fout: str,
+    corpus_file_idx: dict[str, int],
+    fout_duplicate: str,
+) -> set[tuple[str, str]]:
     """
     Filters and removes duplicates from concordances and replaces corpus
     file index.
     """
 
-    def get_robust_hash(sentence: str):
+    def get_robust_hash(sentence: str) -> str:
         """Generates an md5 sentence hash.
         The sentence string is converted to lowercase and all symbols
         except letters are removed for robustness.
@@ -310,8 +315,12 @@ def reindex_filter_concordances(
 
 
 def filter_transform_matches(
-    fins: List[str], fout: str, corpus_file_idx, sents_idx, collocs: Dict[int, Colloc]
-):
+    fins: list[str],
+    fout: str,
+    corpus_file_idx: dict[str, int],
+    sents_idx: set[tuple[str, str]],
+    collocs: dict[int, Colloc],
+) -> None:
     """
     Filter matches with any missing entry for corpus file, sentence,
     or collocation, then transform using collocation id.
@@ -393,14 +402,14 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
 
 
 def extract_mwe_from_collocs(
-    match_fin: str, mwe_match_fout: str, collocs: Dict[int, Colloc]
-):
+    match_fin: str, mwe_match_fout: str, collocs: dict[int, Colloc]
+) -> tuple[dict[tuple, int], defaultdict[int, int]]:
     """
     Compute MWE from matches and collocations.
 
     MWE matches are stored directly on disk."""
 
-    def read_collapsed_sentence_matches(fin: str) -> Iterator[List[Match]]:
+    def read_collapsed_sentence_matches(fin: str) -> Iterator[list[Match]]:
         """Reads Matches per sentences from file."""
         sent = []
         sent_curr = 0
@@ -417,11 +426,11 @@ def extract_mwe_from_collocs(
                     doc_curr = m.doc_id
                     sent_curr = m.sent_id
 
-    def has_one_overlap(*pos: Tuple[int]) -> bool:
+    def has_one_overlap(*pos: tuple[int]) -> bool:
         """Checks whether positions have one overlap."""
         return len(set(pos)) == (len(pos) - 1)
 
-    def update(freqs, ids, xs) -> int:
+    def update(freqs: dict, ids: dict[tuple, int], xs: tuple) -> int:
         mwe_id = ids.get(xs)
         if not mwe_id:
             mwe_id = len(freqs)
@@ -561,7 +570,7 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
             )
 
 
-def extract_collocations(match_fin: str, collocs_fout: str):
+def extract_collocations(match_fin: str, collocs_fout: str) -> None:
     """
     Iterates over all extracted matches and generates a collocation mapping.
 
@@ -584,7 +593,7 @@ def extract_collocations(match_fin: str, collocs_fout: str):
                 fh.write(f"{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{freq}\n")
 
 
-def extract_most_common_surface(match_fin: str, fout: str):
+def extract_most_common_surface(match_fin: str, fout: str) -> None:
     """Generates a mapping from a lemma to its most common surface form."""
     common_surfaces: defaultdict[
         str, defaultdict[str, defaultdict[str, int]]
@@ -607,7 +616,7 @@ def extract_most_common_surface(match_fin: str, fout: str):
                 fh.write(f"{lemma}\t{tag}\t{surface}\t{freq}\n")
 
 
-def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Colloc]:
+def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
     relation_dict: defaultdict[
         str, defaultdict[tuple[str, str, str, str], int]
@@ -628,7 +637,9 @@ def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Collo
     return collocs
 
 
-def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Colloc]):
+def compute_token_statistics(
+    fins: list[str], fout: str, collocs: dict[int, Colloc]
+) -> None:
     logger.info("-- compute token frequencies")
     tokens_stats: defaultdict[tuple[str, str], int] = defaultdict(int)
     for c in collocs.values():
@@ -650,7 +661,12 @@ def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Coll
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
 
-def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=False):
+def post_process_db_files(
+    storage_paths: list[str],
+    final_path: str,
+    min_rel_freq: int = 3,
+    with_mwe: bool = False,
+) -> None:
     """Post-processing of generated data files.
 
     Filter concordances that satisfy sentence form and remove duplicate
@@ -668,7 +684,7 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
         [os.path.join(p, "concord_sentences") for p in storage_paths],
         os.path.join(final_path, "concord_sentences"),
         corpus_file_idx,
-        os.path.join(final_path, "concord_sentences.invalid"),
+        # os.path.join(final_path, "concord_sentences.invalid"),
         os.path.join(final_path, "concord_sentences.duplicate"),
     )
     logger.info("LOAD FILTERED collocations")
@@ -704,7 +720,7 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
         compute_mwe_scores(os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs)
 
 
-def load_files_into_db(engine, storage_path):
+def load_files_into_db(engine: Engine, storage_path: str) -> None:
     """Load generated data files into their corresponding db tables."""
     for tb_name in [
         "corpus_files",
@@ -722,4 +738,4 @@ def load_files_into_db(engine, storage_path):
             logger.info("LOAD DATA FILE: {}".format(tb_name))
             engine.execute(
                 "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(tb_file, tb_name)
-            )
+            )  # update this to sqlalchemy 2.
