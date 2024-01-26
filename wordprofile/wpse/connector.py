@@ -41,7 +41,7 @@ class WPConnect:
             self.__cursor.execute(query, params)
             res = self.__cursor.fetchall()
         except (MySQLdb.Error, MySQLdb.Warning) as e:
-            logger.error(e)
+            logger.exception(e)
             return []
         finally:
             self.__close_connection()
