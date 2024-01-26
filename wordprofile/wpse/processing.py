@@ -5,7 +5,6 @@ import multiprocessing
 import os
 import re
 import sys
-import traceback
 from collections import defaultdict, namedtuple
 from multiprocessing.queues import Queue
 from typing import Dict, Iterator, List, Set, Tuple, Union
@@ -25,6 +24,8 @@ from wordprofile.wpse.prepare import (
     prepare_corpus_file,
     prepare_matches,
 )
+
+logger = logging.getLogger(__name__)
 
 Match = namedtuple(
     "Match",
@@ -133,13 +134,13 @@ class FileWorker(multiprocessing.Process):
         super().__init__()
 
     def run(self):
-        logging.info("INIT queue, wait for jobs")
+        logger.info("INIT queue, wait for jobs")
         flush_ctr = 0
         with open(os.path.join(self.path, self.fname), "w") as fh:
             while True:
                 db_batch = self.q.get()
                 if db_batch is None:
-                    logging.info("{:10} - CLOSE queue".format(self.fname))
+                    logger.info("{:10} - CLOSE queue".format(self.fname))
                     break
                 try:
                     items = ["\t".join(map(str, x)) + "\n" for x in db_batch]
@@ -148,8 +149,8 @@ class FileWorker(multiprocessing.Process):
                     if flush_ctr >= self.flush_limit:
                         fh.flush()
                         flush_ctr = 0
-                except Exception as e:
-                    logging.warning(e)  # use logging.exception ?
+                except Exception:
+                    logger.exception()
 
     def stop(self):
         self.q.put(None)
@@ -165,7 +166,7 @@ class FileReader:
         super().__init__()  # why?
 
     def run(self):
-        logging.info("INIT queue, reading file")
+        logger.info("INIT queue, reading file")
         conll_sentences = conllu.parse_incr(
             self.fh, fields=conllu.parser.DEFAULT_FIELDS
         )
@@ -204,10 +205,11 @@ def process_doc_file(
             db_sents_queue.put(db_concord_sentences)
             db_matches_queue.put(db_matches)
         except TypeError:
-            logging.warning("Type Conversion Error: invalid sentence parse")
-        except Exception as e:
-            logging.warning(e)
-            logging.warning(traceback.format_exc())  # use logging.exception ?
+            logger.exception(
+                "Type Conversion Error: invalid sentence parse in document: %s" % doc_id
+            )
+        except Exception:
+            logger.exception("Couldn't process document: %s" % doc_id)
 
 
 def process_files(file_path: str, storage_path: str, njobs: int = 1):
@@ -240,20 +242,20 @@ def process_files(file_path: str, storage_path: str, njobs: int = 1):
         p.start()
         pool.append(p)
     file_reader.run()
-    logging.info("STOP file reader queue...")
+    logger.info("STOP file reader queue...")
     file_reader.stop(njobs)
-    logging.info("JOIN processes...")
+    logger.info("JOIN processes...")
     for p in pool:
         p.join()
-    logging.info("STOP first queues and wait...")
+    logger.info("STOP first queues and wait...")
     db_files_worker.stop()
     db_sents_worker.stop()
     db_files_worker.join()
     db_sents_worker.join()
-    logging.info("STOP final matches queue and wait...")
+    logger.info("STOP final matches queue and wait...")
     db_matches_worker.stop()
     db_matches_worker.join()
-    logging.info("ALL JOBS DONE")
+    logger.info("ALL JOBS DONE")
 
 
 def reindex_corpus_files(fins: List[str], fout: str) -> Dict[str, int]:
@@ -291,7 +293,7 @@ def reindex_filter_concordances(
     sents_idx = []
     with open(fout, "w") as sents_out, open(fout_duplicate, "w") as dups_out:
         for fin in fins:
-            logging.info(f"- {fin}")
+            logger.info(f"- {fin}")
             with open(fin, "r") as sents_in:
                 for item in sents_in:
                     doc_corpus, sent_id, sentence, page = item.split("\t")
@@ -323,7 +325,7 @@ def filter_transform_matches(
     match_i = 0
     with open(fout, "w") as matches_out:
         for fin in fins:
-            logging.info(f"- {fin}")
+            logger.info(f"- {fin}")
             with open(fin, "r") as matches_in:
                 for line in matches_in:
                     match = line.strip().split("\t")
@@ -627,12 +629,12 @@ def load_collocations(fins: List[str], min_rel_freq: int = 3) -> Dict[int, Collo
 
 
 def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Colloc]):
-    logging.info("-- compute token frequencies")
+    logger.info("-- compute token frequencies")
     tokens_stats: defaultdict[tuple[str, str], int] = defaultdict(int)
     for c in collocs.values():
         tokens_stats[c.lemma1, c.lemma1_tag] += c.frequency
         tokens_stats[c.lemma2, c.lemma2_tag] += c.frequency
-    logging.info("-- compute common surfaces")
+    logger.info("-- compute common surfaces")
     common_surfaces: dict[tuple[str, str], tuple[str, int]] = {}
     for fin in fins:
         with open(fin, "r") as f_in:
@@ -641,7 +643,7 @@ def compute_token_statistics(fins: List[str], fout: str, collocs: Dict[int, Coll
                 common_surface, common_freq = common_surfaces.get((lemma, tag), ("", 0))
                 if int(freq) > common_freq:
                     common_surfaces[lemma, tag] = surface, int(freq)
-    logging.info("-- write token stats with common surfaces")
+    logger.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
         for (lemma, tag), freq in tokens_stats.items():  # type: ignore
             surface, surface_freq = common_surfaces[lemma, tag]
@@ -656,12 +658,12 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
     Filter collocations with too little occurrences.
     Filter matches with respect to available concordances and collocations.
     """
-    logging.info("REPLACE INDEX corpus files")
+    logger.info("REPLACE INDEX corpus files")
     corpus_file_idx = reindex_corpus_files(
         [os.path.join(p, "corpus_files") for p in storage_paths],
         os.path.join(final_path, "corpus_files"),
     )
-    logging.info("FILTER concordances")
+    logger.info("FILTER concordances")
     sents_idx = reindex_filter_concordances(
         [os.path.join(p, "concord_sentences") for p in storage_paths],
         os.path.join(final_path, "concord_sentences"),
@@ -669,11 +671,11 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
         os.path.join(final_path, "concord_sentences.invalid"),
         os.path.join(final_path, "concord_sentences.duplicate"),
     )
-    logging.info("LOAD FILTERED collocations")
+    logger.info("LOAD FILTERED collocations")
     collocs = load_collocations(
         [os.path.join(p, "collocations") for p in storage_paths], min_rel_freq
     )
-    logging.info("FILTER TRANSFORM matches")
+    logger.info("FILTER TRANSFORM matches")
     filter_transform_matches(
         [os.path.join(p, "matches") for p in storage_paths],
         os.path.join(final_path, "matches"),
@@ -683,22 +685,22 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
     )
     del corpus_file_idx
     del sents_idx
-    logging.info("CALCULATE token statistics")
+    logger.info("CALCULATE token statistics")
     compute_token_statistics(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
         os.path.join(final_path, "token_freqs"),
         collocs,
     )
-    logging.info("CALCULATE AND WRITE log dice scores")
+    logger.info("CALCULATE AND WRITE log dice scores")
     compute_collocation_scores(os.path.join(final_path, "collocations"), collocs)
     if with_mwe:
-        logging.info("MAKE MWE LVL 1")
+        logger.info("MAKE MWE LVL 1")
         mwe_ids, mwe_freqs = extract_mwe_from_collocs(
             os.path.join(final_path, "matches"),
             os.path.join(final_path, "mwe_match"),
             collocs,
         )
-        logging.info("CALCULATE log dice mwe lvl 1")
+        logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs)
 
 
@@ -715,9 +717,9 @@ def load_files_into_db(engine, storage_path):
     ]:
         tb_file = os.path.join(storage_path, tb_name)
         if not os.path.exists(tb_file):
-            logging.warning(f"Local file '{tb_file}' doe not exist.")
+            logger.warning(f"Local file '{tb_file}' doe not exist.")
         else:
-            logging.info("LOAD DATA FILE: {}".format(tb_name))
+            logger.info("LOAD DATA FILE: {}".format(tb_name))
             engine.execute(
                 "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(tb_file, tb_name)
             )
