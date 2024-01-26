@@ -1,7 +1,40 @@
-from conllu.models import TokenList, Token
+import pathlib
+
+import conllu
+import pytest
+from conllu.models import Token, TokenList
 
 import wordprofile.wpse.processing as pro
 from wordprofile.datatypes import DBToken
+
+
+class MockQueue:
+    def __init__(self):
+        self.queue = []
+
+    def get(self):
+        if self.queue:
+            return self.queue.pop(0)
+        return None
+
+    def put(self, item):
+        self.queue.append(item)
+
+
+class MockQueueWithError(MockQueue):
+    def __init__(self, error=TypeError):
+        self.error = error
+        super().__init__()
+
+    def put(self, item):
+        raise self.error
+
+
+@pytest.fixture
+def conll_sentences():
+    testdata_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
+    with open(testdata_file, "r") as fh:
+        return conllu.parse(fh.read(), fields=conllu.parser.DEFAULT_FIELDS)
 
 
 def test_sentence_conversion_to_dbtoken():
@@ -176,3 +209,61 @@ def test_sentence_conversion_to_dbtoken_invalid_chars_removed():
             misc=True,
         )
     ]
+
+
+def test_process_doc_file_queues_filled(conll_sentences):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueue()
+    pro.process_doc_file(
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+    )
+    assert len(db_files_queue.queue) == 1
+    db_file = db_files_queue.get()[0]
+    assert (
+        db_file.id,
+        db_file.corpus,
+        db_file.orig,
+        db_file.date,
+        db_file.text_class,
+    ) == (
+        "politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml",
+        "politische_reden",
+        "Rede von Frank-Walter Steinmeier, 02.06.2009",
+        "2009-06-02",
+        "gesprochen:Rede",
+    )
+    sentences = db_sents_queue.get()
+    assert len(sentences) == 3
+    assert sentences[2].sentence == "Eine\x02neue\x02Zeit\x02begann\x02."
+    matches = db_matches_queue.get()
+    assert len(matches) == 12
+    assert (matches[0].head_lemma, matches[0].dep_lemma) == ("geehrt", "sehr")
+    assert (matches[-1].relation_label, matches[-1].head_surface) == ("SUBJA", "begann")
+
+
+def test_process_doc_file_errors_logged(conll_sentences, caplog):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueueWithError()
+    pro.process_doc_file(
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+    )
+    assert "Type Conversion Error:" in caplog.text
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueueWithError(ValueError)
+    pro.process_doc_file(
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+    )
+    assert "ValueError" in caplog.text
+    assert (
+        "politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml"
+        in caplog.text
+    )
