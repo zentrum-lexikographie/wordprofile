@@ -57,7 +57,7 @@ def prepare_concord_sentences(
     return [
         DBConcordance(
             corpus_file_id=doc_id,
-            sentence_id=sent_i + 1,
+            sentence_id=sent_i,
             sentence="".join(
                 "{}{}".format(
                     tok.surface,
@@ -67,7 +67,7 @@ def prepare_concord_sentences(
             ),
             page="-",
         )
-        for sent_i, parse in enumerate(parses)
+        for sent_i, parse in enumerate(parses, 1)
     ]
 
 
