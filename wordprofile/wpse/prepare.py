@@ -1,5 +1,5 @@
 import logging
-from collections.abc import Iterator
+from collections.abc import Iterable
 
 from conllu.models import Metadata
 
@@ -71,12 +71,12 @@ def prepare_concord_sentences(
     ]
 
 
-def prepare_matches(doc_id: str, matches: Iterator[Match]) -> list[DBMatch]:
+def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
     """Converts extracted matches into DB entries.
 
     Args:
         doc_id: document id
-        matches: list of extracted matches for document
+        matches: iterable of extracted matches for document
 
     Returns:
         List of corresponding database matches, length might be increased
