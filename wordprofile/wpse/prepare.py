@@ -90,7 +90,7 @@ def prepare_matches(doc_id: str, matches: Iterator[Match]) -> list[DBMatch]:
             or len(m.head.lemma) > LEMMA_TYPE.length
             or len(m.dep.lemma) > LEMMA_TYPE.length
         ):
-            logger.warning(f"SKIP LOONG MATCH {doc_id} {m}")
+            logger.warning(f"SKIP LONG MATCH {doc_id} {m}")
             continue
         if m.prep:
             if (
@@ -99,7 +99,7 @@ def prepare_matches(doc_id: str, matches: Iterator[Match]) -> list[DBMatch]:
                 or len(m.head.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length
                 or len(m.dep.lemma) + len(m.prep.surface) + 1 > LEMMA_TYPE.length
             ):
-                logger.warning(f"SKIP LOONG MATCH {doc_id[:7]}...{doc_id[-15:-8]} {m}")
+                logger.warning(f"SKIP LONG MATCH {doc_id[:7]}...{doc_id[-15:-8]} {m}")
                 continue
             db_matches.append(
                 DBMatch(
