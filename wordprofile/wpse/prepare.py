@@ -44,8 +44,8 @@ def prepare_concord_sentences(
     """Converts concordances into DB entries.
 
     Sentence tokens are encoded such that whitespaces (misc=1) are
-    encoded into \x02 and no-whitespaces (misc=0) are encoded into
-    \x01, respectively.
+    encoded into \x01 and non-whitespaces (misc=0) are encoded into
+    \x02, respectively.
 
     Args:
         doc_id: document id
