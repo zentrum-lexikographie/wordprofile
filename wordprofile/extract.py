@@ -265,7 +265,36 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     Returns:
         Generator over extracted matches from sentence.
     """
-    determiners = {"des", "der", "eines", "einer"}
+    determiners = {
+            "des",
+            "der",
+            "eines",
+            "einer",
+            "meiner",
+            "meines",
+            "deiner",
+            "deines",
+            "ihrer",
+            "ihres",
+            "seines",
+            "seiner",
+            "unseres",
+            "unserer",
+            "eurer",
+            "eures",
+            "dieser",
+            "dieses",
+            "jener",
+            "jenes",
+            "welcher",
+            "welches",
+            "selbiger",
+            "selbiges",
+            "einiger",
+            "mehrerer",
+            "solcher",
+            "mancher",
+        }
     for n in dtree.nodes:
         if n.token.tag == 'NOUN':
             for nmod in n.children:
