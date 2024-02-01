@@ -38,7 +38,7 @@ def get_table_corpus_files(meta: MetaData):
         Column('date', types.DateTime),
         Column('text_class', types.Text),
         Column('available', types.Text),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -49,7 +49,7 @@ def get_table_concord_sentences(meta: MetaData):
         Column('sentence_id', types.Integer),
         Column('sentence', types.Text),
         Column('page', types.VARCHAR(10)),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -65,7 +65,7 @@ def get_table_matches(meta: MetaData):
         Column('prep_position', types.Integer),
         Column('corpus_file_id', CORPUS_FILE_TYPE),
         Column('sentence_id', types.Integer),
-        mysql_engine='Aria'
+        mysql_engine='MyISAM'
     )
 
 
@@ -81,7 +81,7 @@ def get_table_collocations(meta: MetaData):
         Column('inv', types.Boolean, default=0),
         Column('frequency', types.Integer, default=1),
         Column('score', types.Float),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -96,7 +96,7 @@ def get_table_mwe(meta: MetaData):
         Column('lemma_tag', Enum(TAG_TYPE)),
         Column('frequency', types.Integer, default=1),
         Column('score', types.Float),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -106,7 +106,7 @@ def get_table_mwe_match(meta: MetaData):
         Column('mwe_id', types.Integer),
         Column('match1_id', types.Integer),
         Column('match2_id', types.Integer),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -116,7 +116,7 @@ def get_table_corpus_frequencies(meta: MetaData):
         Column('label', Enum(RELATION_TYPE)),
         Column('freq', types.Integer),
         Index('label_index', 'label'),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
 
 
@@ -128,5 +128,5 @@ def get_table_token_frequencies(meta: MetaData):
         Column('freq', types.Integer),
         Column('surface', SURFACE_TYPE),
         Column('surface_freq', types.Integer),
-        mysql_engine='Aria',
+        mysql_engine='MyISAM',
     )
