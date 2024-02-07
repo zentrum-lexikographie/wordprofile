@@ -25,7 +25,7 @@ def main():
     logging.info('USER: ' + wp_user)
     logging.info('DB: ' + wp_db)
     logging.info("init database")
-    engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(wp_user, db_password))
+    engine = create_engine('mysql+pymysql://{}:{}@localhost:3306/wp'.format(wp_user, db_password))
     with engine.connect() as conn:
         init_word_profile_tables(conn, wp_db)
     engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8mb4&local_infile=1'.format(
