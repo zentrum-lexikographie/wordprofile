@@ -1,9 +1,8 @@
 *
 
-!/requirements.txt
-!/requirements-api.txt
 !/spec
 !/wordprofile
+!/Pipfile*
 
 **/__pycache__
 **/*.py[cod]

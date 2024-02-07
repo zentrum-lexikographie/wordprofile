@@ -12,6 +12,7 @@ from typing import List, Dict, Tuple, Union, Iterator, Set
 
 import conllu
 from conllu.models import TokenList
+from sqlalchemy import text, Connection
 
 from wordprofile.datatypes import DBToken
 from wordprofile.wpse.db_tables import remove_invalid_chars
@@ -517,7 +518,7 @@ def post_process_db_files(storage_paths, final_path, min_rel_freq=3, with_mwe=Fa
         compute_mwe_scores(os.path.join(final_path, 'mwe'), mwe_ids, mwe_freqs)
 
 
-def load_files_into_db(engine, storage_path):
+def load_files_into_db(connection:Connection, storage_path:str)-> None:
     """Load generated data files into their corresponding db tables.
     """
     for tb_name in ['corpus_files', 'concord_sentences', 'collocations', 'token_freqs', 'matches', 'mwe', 'mwe_match']:
@@ -526,4 +527,4 @@ def load_files_into_db(engine, storage_path):
             logging.warning(f"Local file '{tb_file}' doe not exist.")
         else:
             logging.info('LOAD DATA FILE: {}'.format(tb_name))
-            engine.execute("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(tb_file, tb_name))
+            connection.execute(text("LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(tb_file, tb_name)))

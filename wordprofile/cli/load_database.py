@@ -25,15 +25,17 @@ def main():
     logging.info('USER: ' + wp_user)
     logging.info('DB: ' + wp_db)
     logging.info("init database")
-    engine = create_engine('mysql+pymysql://{}:{}@localhost'.format(wp_user, db_password))
-    init_word_profile_tables(engine, wp_db)
+    engine = create_engine('mysql+pymysql://{}:{}@localhost:3306/wp'.format(wp_user, db_password))
+    with engine.connect() as conn:
+        init_word_profile_tables(conn, wp_db)
     engine = create_engine('mysql+pymysql://{}:{}@localhost/{}?charset=utf8mb4&local_infile=1'.format(
         wp_user, db_password, wp_db))
     logging.info("CREATE indices")
-    load_files_into_db(engine, args.source)
-    create_indices(engine)
-    logging.info("CREATE word profile stats")
-    create_statistics(engine)
+    with engine.connect() as conn:
+        load_files_into_db(conn, args.source)
+        create_indices(conn)
+        logging.info("CREATE word profile stats")
+        create_statistics(conn)
 
 
 if __name__ == '__main__':
