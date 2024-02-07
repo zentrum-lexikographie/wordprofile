@@ -7,6 +7,7 @@ services:
       MYSQL_USER: "wp"
       MYSQL_PASSWORD: "wp"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+    user: ${USER_GROUP}
     volumes:
       - ../db:/var/lib/mysql
     ports:
