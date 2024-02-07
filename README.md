@@ -79,7 +79,20 @@ Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombi
 
 ### DB befüllen
 Im letzten Schritt wird das finale, komprimierte und für die Datenbank vorbereitete Wortprofil in die Datenbank transferiert.
-Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können.
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Diese Dateien werden in ein lokales Verzeichnis (`data/db`) geschrieben, dass in den Dockercontainer gemountet wird.
+Bevor der Dockercontainer gestartet wird, sollte sichergestellt werden, dass dieses Verzeichnis existiert und dem korrekten User gehört, z.B.:
+```sh
+mkdir -p data/db
+```
+Der Dockercontainer wird unter dem entsprechenden User gestartet; dazu muss die Umgebungsvariable `USER_GROUP` gesetzt sein:
+```sh
+export USER_GROUP=$(id -u):$(id -g)
+```
+Danach kann der Container gestartet werden mit
+```sh
+docker compose up
+```
+
 Anschließend werden noch notwendige Indizes erstellt, welche eine performante Abfrage der Kollokationen und ihrer Informationen ermöglichen.
 ```shell
 python wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
