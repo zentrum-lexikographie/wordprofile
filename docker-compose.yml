@@ -8,7 +8,7 @@ services:
       MYSQL_PASSWORD: "wp"
       MYSQL_RANDOM_ROOT_PASSWORD: "yes"
     volumes:
-      - db:/var/lib/mysql
+      - ../db:/var/lib/mysql
     ports:
       - "3306:3306"
     command:
