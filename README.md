@@ -62,8 +62,8 @@ In diesem ersten Schritt werden für jeden Korpus (dradio und pnn) die jeweilige
 Die Daten liegen in nicht-komprimierter Form vor.
 Dies erleichtert den Schritt der Vereinigung aller Teilkorpora erheblich.
 ```shell
-python3.7 -m wordprofile.cli.extract_collocations --input corpora/dradio.conll --dest test_wp/stage/dradio --njobs 4
-python3.7 -m wordprofile.cli.extract_collocations --input corpora/pnn.conll --dest test_wp/stage/pnn --njobs 4
+python -m wordprofile.cli.extract_collocations --input corpora/dradio.conll --dest test_wp/stage/dradio --njobs 4
+python -m wordprofile.cli.extract_collocations --input corpora/pnn.conll --dest test_wp/stage/pnn --njobs 4
 ```
 
 ### Berechnung Wortprofil
@@ -72,17 +72,30 @@ Weiterhin werden die Daten für die Datenbank vorbereitet und komprimiert bzw. n
 Statistiken werden in der jeweiligen Kollokationsdatei ergänzt, bevor diese ausgeschrieben wird.
 
 ```shell
-python3.7 wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 3 --mwe
+python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 3 --mwe
 ```
 In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 3 aufweisen.
 Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweiter sich überlappender Kollokationen ergeben.
 
 ### DB befüllen
 Im letzten Schritt wird das finale, komprimierte und für die Datenbank vorbereitete Wortprofil in die Datenbank transferiert.
-Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können.
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Diese Dateien werden in ein lokales Verzeichnis (`data/db`) geschrieben, dass in den Dockercontainer gemountet wird.
+Bevor der Dockercontainer gestartet wird, sollte sichergestellt werden, dass dieses Verzeichnis existiert und dem korrekten User gehört, z.B.:
+```sh
+mkdir -p data/db
+```
+Der Dockercontainer wird unter dem entsprechenden User gestartet; dazu muss die Umgebungsvariable `USER_GROUP` gesetzt sein:
+```sh
+export USER_GROUP=$(id -u):$(id -g)
+```
+Danach kann der Container gestartet werden mit
+```sh
+docker compose up
+```
+
 Anschließend werden noch notwendige Indizes erstellt, welche eine performante Abfrage der Kollokationen und ihrer Informationen ermöglichen.
 ```shell
-python3.7 wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
+python wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
 ```
 
 ## Build

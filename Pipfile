@@ -5,7 +5,7 @@ name = "pypi"
 
 [packages]
 pymysql = "*"
-starlette = "*"
+starlette = "0.35.0"
 
 [dev-packages]
 autoflake = "*"
@@ -35,5 +35,5 @@ typing-extensions = "*"
 
 [api]
 jinja2 = "*"
-fastapi = "*"
+fastapi = "0.109.0"
 uvicorn = {extras = ["standard"], version = "*"}

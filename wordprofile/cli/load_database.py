@@ -29,23 +29,25 @@ def main():
     wp_user = args.user or os.environ["WP_USER"]
     wp_db = args.db or os.environ["WP_DB"]
     db_password = os.environ.get("WP_PASSWORD", wp_user)
-    logger.info("USER: %s" % wp_user)
-    logger.info("DB: %s" % wp_db)
-    logger.info("init database")
+    logging.info("USER: " + wp_user)
+    logging.info("DB: " + wp_db)
+    logging.info("init database")
     engine = create_engine(
-        "mysql+pymysql://{}:{}@localhost".format(wp_user, db_password)
+        "mysql+pymysql://{}:{}@localhost:3306/wp".format(wp_user, db_password)
     )
-    init_word_profile_tables(engine, wp_db)
+    with engine.connect() as conn:
+        init_word_profile_tables(conn, wp_db)
     engine = create_engine(
         "mysql+pymysql://{}:{}@localhost/{}?charset=utf8mb4&local_infile=1".format(
             wp_user, db_password, wp_db
         )
     )
-    logger.info("CREATE indices")
-    load_files_into_db(engine, args.source)
-    create_indices(engine)
-    logger.info("CREATE word profile stats")
-    create_statistics(engine)
+    logging.info("CREATE indices")
+    with engine.connect() as conn:
+        load_files_into_db(conn, args.source)
+        create_indices(conn)
+        logging.info("CREATE word profile stats")
+        create_statistics(conn)
 
 
 if __name__ == "__main__":

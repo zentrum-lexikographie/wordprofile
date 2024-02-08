@@ -11,8 +11,8 @@ from multiprocessing.queues import Queue
 from typing import Union
 
 import conllu
-from conllu.models import Token, TokenList
-from sqlalchemy.engine import Engine
+from conllu.models import TokenList
+from sqlalchemy import text, Connection
 
 from wordprofile.datatypes import DBToken
 from wordprofile.sentence_filter import (
@@ -720,7 +720,7 @@ def post_process_db_files(
         compute_mwe_scores(os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs)
 
 
-def load_files_into_db(engine: Engine, storage_path: str) -> None:
+def load_files_into_db(connection: Connection, storage_path: str) -> None:
     """Load generated data files into their corresponding db tables."""
     for tb_name in [
         "corpus_files",
@@ -735,7 +735,11 @@ def load_files_into_db(engine: Engine, storage_path: str) -> None:
         if not os.path.exists(tb_file):
             logger.warning("Local file '%s' doe not exist." % tb_file)
         else:
-            logger.info("LOAD DATA FILE: {}".format(tb_name))
-            engine.execute(
-                "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(tb_file, tb_name)
-            )  # update this to sqlalchemy 2.
+            logging.info("LOAD DATA FILE: {}".format(tb_name))
+            connection.execute(
+                text(
+                    "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
+                        tb_file, tb_name
+                    )
+                )
+            )
