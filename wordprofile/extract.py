@@ -432,15 +432,15 @@ def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
         Generator over extracted matches from sentences.
     """
     relations_inv = get_inverted_relation_patterns()
-    for sid, sentence in enumerate(parses):
-        for match in extract_matches_by_pattern(relations_inv, sentence, sid + 1):
+    for sid, sentence in enumerate(parses, 1):
+        for match in extract_matches_by_pattern(relations_inv, sentence, sid):
             yield match
         dtree = DependencyTree(sentence)
-        for match in extract_predicatives(dtree, sid + 1):
+        for match in extract_predicatives(dtree, sid):
             yield match
-        for match in extract_genitives(dtree, sid + 1):
+        for match in extract_genitives(dtree, sid):
             yield match
-        for match in extract_comparing_groups(sentence, sid + 1):
+        for match in extract_comparing_groups(sentence, sid):
             yield match
-        for match in extract_active_subjects(dtree, sid + 1):
+        for match in extract_active_subjects(dtree, sid):
             yield match
