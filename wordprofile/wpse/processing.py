@@ -11,7 +11,7 @@ from multiprocessing.queues import Queue
 from typing import Union
 
 import conllu
-from conllu.models import TokenList
+from conllu.models import Token, TokenList
 from sqlalchemy import text, Connection
 
 from wordprofile.datatypes import DBToken
