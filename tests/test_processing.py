@@ -1,3 +1,4 @@
+import io
 import pathlib
 import queue
 
@@ -311,3 +312,28 @@ def test_file_reader_multiple_files():
         "Eine",
         "Exzellenzen",
     }
+
+
+def test_file_reader_with_std_input(monkeypatch):
+    with open(
+        pathlib.Path(__file__).parent / "testdata" / "corpus" / "file1.conll"
+    ) as fh:
+        data = io.StringIO()
+        for line in fh:
+            data.write(line)
+    data.seek(0)
+    monkeypatch.setattr("sys.stdin", data)
+    file_reader = pro.FileReader("-", 1)
+    file_reader.q = queue.Queue()
+    file_reader.run()
+    file_reader.stop(1)
+    result = []
+    while True:
+        doc = file_reader.q.get()
+        if doc is None:
+            break
+        result.append(doc)
+    assert (
+        " ".join(token["form"] for token in result[0][0])
+        == "Damals ging eine ganze Epoche zu Ende ."
+    )

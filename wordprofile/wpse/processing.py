@@ -179,8 +179,11 @@ class FileReader:
     def run(self) -> None:
         logger.info("INIT queue, reading files")
         for file in self.paths:
-            with open(file, "r", encoding="utf-8") as fh:
-                self._process_content(fh)
+            if file == "-":
+                self._process_content(sys.stdin)
+            else:
+                with open(file, "r", encoding="utf-8") as fh:
+                    self._process_content(fh)
 
     def stop(self, n_procs: int) -> None:
         for _ in range(n_procs):
