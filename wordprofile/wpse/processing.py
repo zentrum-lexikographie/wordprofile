@@ -8,7 +8,7 @@ import sys
 from collections import defaultdict, namedtuple
 from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
-from typing import Union
+from typing import Any, Protocol, Union
 
 import conllu
 from conllu.models import Token, TokenList
@@ -127,6 +127,14 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
     ]
 
 
+class FileReaderQueue(Protocol):
+    def get(self) -> Any:
+        ...
+
+    def put(self, item: Any) -> None:
+        ...
+
+
 class FileWorker(multiprocessing.Process):
     def __init__(self, path: str, fname: str, flush_limit: int = 100) -> None:
         self.q = multiprocessing.Manager().Queue(maxsize=1000)
@@ -159,8 +167,8 @@ class FileWorker(multiprocessing.Process):
 
 
 class FileReader:
-    def __init__(self, paths: list[str], q_size: int = 100) -> None:
-        self.q = multiprocessing.Manager().Queue(maxsize=q_size)
+    def __init__(self, paths: list[str], queue: FileReaderQueue) -> None:
+        self.q = queue
         self.paths = paths
 
     def _process_content(self, file_handle) -> None:
@@ -227,7 +235,8 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     split into several chunks for parallel processing. The extracted
     results are sent to the workers.
     """
-    file_reader = FileReader(file_path, q_size=2 * njobs)
+    fr_queue = multiprocessing.Manager().Queue(maxsize=2 * njobs)
+    file_reader = FileReader(file_path, fr_queue)
     db_files_worker = FileWorker(storage_path, "corpus_files")
     db_sents_worker = FileWorker(storage_path, "concord_sentences", flush_limit=1000)
     db_matches_worker = FileWorker(storage_path, "matches", flush_limit=10000)

@@ -1,6 +1,5 @@
 import io
 import pathlib
-import queue
 
 import conllu
 import pytest
@@ -273,9 +272,7 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
 
 def test_file_reader_single_file():
     conll_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
-    file_reader = pro.FileReader([conll_file])
-    # don't use multiprocessing.queue to avoid test hanging
-    file_reader.q = queue.Queue()
+    file_reader = pro.FileReader([conll_file], MockQueue())
     file_reader.run()
     file_reader.stop(1)
     result = []
@@ -295,8 +292,7 @@ def test_file_reader_single_file():
 def test_file_reader_multiple_files():
     corpus_dir = pathlib.Path(__file__).parent / "testdata" / "corpus"
     files = list(corpus_dir.glob("*"))
-    file_reader = pro.FileReader(files)
-    file_reader.q = queue.Queue()
+    file_reader = pro.FileReader(files, MockQueue())
     file_reader.run()
     file_reader.stop(1)
     result = []
@@ -323,8 +319,7 @@ def test_file_reader_with_std_input(monkeypatch):
             data.write(line)
     data.seek(0)
     monkeypatch.setattr("sys.stdin", data)
-    file_reader = pro.FileReader("-", 1)
-    file_reader.q = queue.Queue()
+    file_reader = pro.FileReader("-", MockQueue())
     file_reader.run()
     file_reader.stop(1)
     result = []
