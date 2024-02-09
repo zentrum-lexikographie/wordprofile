@@ -159,18 +159,13 @@ class FileWorker(multiprocessing.Process):
 
 
 class FileReader:
-    def __init__(self, path: str, q_size: int = 100) -> None:
+    def __init__(self, paths: list[str], q_size: int = 100) -> None:
         self.q = multiprocessing.Manager().Queue(maxsize=q_size)
-        if path == "-":
-            self.fh = sys.stdin
-        else:
-            self.fh = open(path)  # should this be closed somewhere?
-        super().__init__()  # why?
+        self.paths = paths
 
-    def run(self) -> None:
-        logger.info("INIT queue, reading file")
+    def _process_content(self, file_handle) -> None:
         conll_sentences = conllu.parse_incr(
-            self.fh, fields=conllu.parser.DEFAULT_FIELDS
+            file_handle, fields=conllu.parser.DEFAULT_FIELDS
         )
         doc: list[TokenList] = []
         for sent in conll_sentences:
@@ -180,6 +175,12 @@ class FileReader:
                 doc = []
             doc.append(sent)
         self.q.put(doc)
+
+    def run(self) -> None:
+        logger.info("INIT queue, reading files")
+        for file in self.paths:
+            with open(file, "r", encoding="utf-8") as fh:
+                self._process_content(fh)
 
     def stop(self, n_procs: int) -> None:
         for _ in range(n_procs):
@@ -214,7 +215,7 @@ def process_doc_file(
             logger.exception("Couldn't process document: %s" % doc_id)
 
 
-def process_files(file_path: str, storage_path: str, njobs: int = 1) -> None:
+def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> None:
     """Extract WP related information from given files.
 
     This method processes a given list of files in parallel.

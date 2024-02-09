@@ -1,4 +1,5 @@
 import pathlib
+import queue
 
 import conllu
 import pytest
@@ -267,3 +268,46 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
         "politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml"
         in caplog.text
     )
+
+
+def test_file_reader_single_file():
+    conll_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
+    file_reader = pro.FileReader([conll_file])
+    # don't use multiprocessing.queue to avoid test hanging
+    file_reader.q = queue.Queue()
+    file_reader.run()
+    file_reader.stop(1)
+    result = []
+    while True:
+        doc = file_reader.q.get()
+        if doc is None:
+            break
+        result.append(doc)
+    assert len(result) == 1
+    assert (
+        " ".join([token["form"] for sent in result[0] for token in sent])
+        == "Sehr geehrter Herr Präsident Palinkás , meine sehr verehrten Damen und Herren ,"
+        " Exzellenzen , Damals ging eine ganze Epoche zu Ende . Eine neue Zeit begann ."
+    )
+
+
+def test_file_reader_multiple_files():
+    corpus_dir = pathlib.Path(__file__).parent / "testdata" / "corpus"
+    files = list(corpus_dir.glob("*"))
+    file_reader = pro.FileReader(files)
+    file_reader.q = queue.Queue()
+    file_reader.run()
+    file_reader.stop(1)
+    result = []
+    while True:
+        doc = file_reader.q.get()
+        if doc is None:
+            break
+        result.append(doc)
+    assert len(result) == 4
+    assert {sent[0]["form"] for doc in result for sent in doc} == {
+        "Damals",
+        "Sehr",
+        "Eine",
+        "Exzellenzen",
+    }
