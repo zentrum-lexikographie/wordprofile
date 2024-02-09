@@ -1,7 +1,7 @@
 import pytest
 
 import wordprofile.extract as ex
-from wordprofile.datatypes import DBToken, Match, DependencyTree
+from wordprofile.datatypes import DBToken, DependencyTree
 
 
 @pytest.fixture
