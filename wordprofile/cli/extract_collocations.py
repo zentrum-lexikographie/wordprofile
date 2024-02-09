@@ -18,7 +18,11 @@ def main():
     logger = logging.getLogger(__name__)
     parser = ArgumentParser()
     parser.add_argument(
-        "--input", default="-", type=str, help="conll input file", nargs="*"
+        "--input",
+        default="-",
+        type=str,
+        help="conll input file(s). As default stdin is used, if this option is not used.",
+        nargs="*",
     )
     parser.add_argument("--dest", help="temporary storage path")
     parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
