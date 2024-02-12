@@ -94,7 +94,7 @@ class DependencyTree:
 
     def __init__(self, tokens: list[DBToken]) -> None:
         self.nodes = [DependencyTree.Node(token) for token in tokens]
-        self.root = None
+        self.root: Optional[DependencyTree.Node] = None
         for n in self.nodes:
             if int(n.token.head) > 0:
                 n.parent = self.nodes[int(n.token.head) - 1]

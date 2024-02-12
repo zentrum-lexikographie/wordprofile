@@ -1,9 +1,9 @@
 from collections import defaultdict
-from typing import List, Iterator
+from collections.abc import Iterator
 
-from wordprofile.datatypes import DBToken, Match, DependencyTree
+from wordprofile.datatypes import DBToken, DependencyTree, Match
 
-RELATION_PATTERNS = {
+RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     "ADV": {
         "desc": "hat Adverbialbestimmung",
         "inverse": "ist Adverbialbestimmung von",
@@ -85,7 +85,7 @@ RELATION_PATTERNS = {
 }
 
 
-def get_relation_types() -> List[str]:
+def get_relation_types() -> list[str]:
     """Extract wordprofile relation types from relation patterns.
 
     Returns:
@@ -94,7 +94,7 @@ def get_relation_types() -> List[str]:
     return sorted(list(RELATION_PATTERNS.keys()))
 
 
-def get_word_classes() -> List[str]:
+def get_word_classes() -> list[str]:
     """Extract word classes from relation patterns.
 
     Returns:
@@ -119,22 +119,28 @@ def get_word_classes() -> List[str]:
     )
 
 
-def get_inverted_relation_patterns() -> dict:
-    """Generates inverted search structure for relation pattern matching.
+def get_inverted_relation_patterns() -> (
+    dict[str | tuple[str, ...], dict[tuple[str, ...], str]]
+):
+    """
+    Generates inverted search structure for relation pattern matching.
 
     Returns:
-        2 level dictionary which maps from dependency relations over pos tags to the wordprofile relation.
+        2 level dictionary which maps from dependency relations over
+        pos tags to the wordprofile relation.
     """
-    relations_inv = defaultdict(lambda: defaultdict(str))
-    for relation_dest, relation_patters in RELATION_PATTERNS.items():
-        for p in relation_patters["rules"]:
+    relations_inv: defaultdict[
+        str | tuple[str, ...], defaultdict[tuple[str, ...], str]
+    ] = defaultdict(lambda: defaultdict(str))
+    for relation_dest, relation_patterns in RELATION_PATTERNS.items():
+        for p in relation_patterns["rules"]:
             if len(p) == 3:
-                relation_src, head_pos, dep_pos = p
+                relation_src, head_pos, dep_pos = p  # type: ignore
                 relations_inv[relation_src][
                     (head_pos.upper(), dep_pos.upper())
                 ] = relation_dest
             elif len(p) == 5:
-                r1, r2, t1, t2, t3 = p
+                r1, r2, t1, t2, t3 = p  # type: ignore
                 relations_inv[(r1, r2)][
                     (t1.upper(), t2.upper(), t3.upper())
                 ] = relation_dest
@@ -144,9 +150,12 @@ def get_inverted_relation_patterns() -> dict:
 
 
 def extract_matches_by_pattern(
-    relations_inv: dict, tokens: List[DBToken], sid: int
+    relations_inv: dict[str | tuple[str, ...], dict[tuple[str, ...], str]],
+    tokens: list[DBToken],
+    sid: int,
 ) -> Iterator[Match]:
-    """Extracts matches from a sequence of tokens by using a generated relation dictionary.
+    """Extracts matches from a sequence of tokens by using a generated
+    relation dictionary.
 
     Args:
         relations_inv: relation pattern dictionary
@@ -189,8 +198,9 @@ def extract_matches_by_pattern(
                 )
 
 
-def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]:
-    """Extracts matches for comparison relation from a sequence of tokens.
+def extract_comparing_groups(tokens: list[DBToken], sid: int) -> Iterator[Match]:
+    """
+    Extracts matches for comparison relation from a sequence of tokens.
 
     Args:
         tokens: sequence of tokens representing a single sentence
@@ -233,8 +243,12 @@ def extract_comparing_groups(tokens: List[DBToken], sid: int) -> Iterator[Match]
 
 
 def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for subject predicative relation from a dependency tree of a sentence.
-    TODO: extend for object predicative relations (https://www.deutschplus.net/pages/Pradikativ)
+    """
+    Extracts matches for subject predicative relation from a dependency
+    tree of a sentence.
+
+    TODO: extend for object predicative relations
+    (https://www.deutschplus.net/pages/Pradikativ)
 
     Args:
         dtree: dependency tree of a single sentence
@@ -276,7 +290,9 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for genitive modification relation from a dependency tree of a sentence.
+    """
+    Extracts matches for genitive modification relation from a dependency
+    tree of a sentence.
 
     Args:
         dtree: dependency tree of a single sentence
@@ -380,7 +396,9 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
-    """Extracts matches for active subject relation from a dependency tree of a sentence.
+    """
+    Extracts matches for active subject relation from a dependency
+    tree of a sentence.
 
     Args:
         dtree: dependency tree of a single sentence
@@ -404,7 +422,7 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                     )
 
 
-def extract_matches(parses: List[List[DBToken]]) -> Iterator[Match]:
+def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
     """Extracts various matches from a given list of sentences.
 
     Args:
@@ -414,15 +432,15 @@ def extract_matches(parses: List[List[DBToken]]) -> Iterator[Match]:
         Generator over extracted matches from sentences.
     """
     relations_inv = get_inverted_relation_patterns()
-    for sid, sentence in enumerate(parses):
-        for match in extract_matches_by_pattern(relations_inv, sentence, sid + 1):
+    for sid, sentence in enumerate(parses, 1):
+        for match in extract_matches_by_pattern(relations_inv, sentence, sid):
             yield match
         dtree = DependencyTree(sentence)
-        for match in extract_predicatives(dtree, sid + 1):
+        for match in extract_predicatives(dtree, sid):
             yield match
-        for match in extract_genitives(dtree, sid + 1):
+        for match in extract_genitives(dtree, sid):
             yield match
-        for match in extract_comparing_groups(sentence, sid + 1):
+        for match in extract_comparing_groups(sentence, sid):
             yield match
-        for match in extract_active_subjects(dtree, sid + 1):
+        for match in extract_active_subjects(dtree, sid):
             yield match
