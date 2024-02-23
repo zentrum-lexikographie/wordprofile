@@ -339,3 +339,33 @@ def test_load_collocations_with_underscore_filtered():
     collocs = pro.load_collocations([colloc_file], 1)
     assert len(collocs) == 2
     assert "Commerzbank_ag" not in {col.lemma2 for col in collocs.values()}
+
+
+def test_sentence_conversion_casing_with_multi_part_token():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Kopf-an-Kopf-Rennen",
+                lemma="kopf-an-Kopf-Rennen",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    assert pro.convert_sentence(token_list) == [
+        DBToken(
+            idx=1,
+            surface="Kopf-an-Kopf-Rennen",
+            lemma="Kopf-an-Kopf-Rennen",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        )
+    ]

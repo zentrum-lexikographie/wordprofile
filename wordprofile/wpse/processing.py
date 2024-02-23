@@ -80,7 +80,7 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
             w = w.lower()
             return prepositional_contract_map.get(w, w)
         elif tag == "NOUN":
-            return w.capitalize()
+            return w[0].upper() + w[1:]
         else:
             return w
 
