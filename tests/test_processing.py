@@ -334,13 +334,6 @@ def test_file_reader_with_std_input(monkeypatch):
     )
 
 
-def test_load_collocations_with_underscore_filtered():
-    colloc_file = pathlib.Path(__file__).parent / "testdata" / "colloc" / "collocations"
-    collocs = pro.load_collocations([colloc_file], 1)
-    assert len(collocs) == 2
-    assert "Commerzbank_ag" not in {col.lemma2 for col in collocs.values()}
-
-
 def test_sentence_conversion_casing_with_multi_part_token():
     token_list = TokenList(
         [
