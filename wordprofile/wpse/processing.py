@@ -748,7 +748,7 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
         if not os.path.exists(tb_file):
             logger.warning("Local file '%s' doe not exist." % tb_file)
         else:
-            logging.info("LOAD DATA FILE: {}".format(tb_name))
+            logger.info("LOAD DATA FILE: %s" % tb_name)
             connection.execute(
                 text(
                     "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
