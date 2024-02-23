@@ -741,6 +741,15 @@ def test_invalid_token_rejected():
             rel="obl",
             misc=False,
         ),
+        DBToken(
+            idx=0,
+            surface="UBS",
+            lemma="Ubs_ag",
+            tag="NOUN",
+            head=1,
+            rel="subj",
+            misc=False,
+        ),
     ]
     for token in tokens:
         assert sf.is_valid_token(token) is False

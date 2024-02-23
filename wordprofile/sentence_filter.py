@@ -20,6 +20,7 @@ def is_valid_token(tok: DBToken) -> bool:
             not tok.surface[-1].isalpha(),
             any(c.isdigit() for c in tok.lemma),
             any(c in "\"'@§!?;#*/&<>()_" for c in tok.surface),
+            any(c in "\"'@§!?;#*/&<>()_" for c in tok.lemma),
             RE_GK_NORM_ERROR.match(tok.lemma),
         ]
     )
