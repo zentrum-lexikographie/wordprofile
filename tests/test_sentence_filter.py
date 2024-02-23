@@ -892,7 +892,7 @@ def test_valid_sentences_not_filtered(valid_sentences):
 
 def test_valid_match():
     tok1 = DBToken(
-        idx=1, surface="Test", lemma="<", tag="Noun", head=0, rel="", misc=True
+        idx=1, surface="Test", lemma="Test", tag="Noun", head=0, rel="", misc=True
     )
     tok2 = DBToken(idx=2, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True)
     assert sf.valid_match(Match(head=tok1, dep=tok1, prep=None, relation="", sid=0))
