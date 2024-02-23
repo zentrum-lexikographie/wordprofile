@@ -1,8 +1,8 @@
 import logging
 import os
-import sys
 from argparse import ArgumentParser
 
+from wordprofile.utils import configure_logs_to_file
 from wordprofile.wpse.processing import (
     extract_collocations,
     extract_most_common_surface,
@@ -11,11 +11,10 @@ from wordprofile.wpse.processing import (
 
 
 def main():
-    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
-    logging.basicConfig(
-        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
-    )
     logger = logging.getLogger(__name__)
+    configure_logs_to_file(
+        level=logging.INFO, log_file_identifier="extract-collocations"
+    )
     parser = ArgumentParser()
     parser.add_argument(
         "--input",
