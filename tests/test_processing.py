@@ -332,3 +332,10 @@ def test_file_reader_with_std_input(monkeypatch):
         " ".join(token["form"] for token in result[0][0])
         == "Damals ging eine ganze Epoche zu Ende ."
     )
+
+
+def test_load_collocations_with_underscore_filtered():
+    colloc_file = pathlib.Path(__file__).parent / "testdata" / "colloc" / "collocations"
+    collocs = pro.load_collocations([colloc_file], 1)
+    assert len(collocs) == 2
+    assert "Commerzbank_ag" not in {col.lemma2 for col in collocs.values()}

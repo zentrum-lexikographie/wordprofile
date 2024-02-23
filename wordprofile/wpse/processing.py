@@ -639,6 +639,8 @@ def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Collo
             for line in f_in:
                 m = tuple(line.strip().split("\t"))
                 rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
+                if "_" in lemma1 or "_" in lemma2:
+                    continue
                 if freq >= min_rel_freq:
                     relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
     collocs = {}
