@@ -4,7 +4,7 @@ from collections.abc import Iterator
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
 
-RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
+RE_GK_NORM_ERROR = re.compile(r"^([^-]+-)+[a-zäüöß]+$")
 INVALID_CHARS = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
 
 

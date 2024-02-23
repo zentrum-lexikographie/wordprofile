@@ -918,3 +918,32 @@ def test_replace_lemma():
 def test_remove_invalid_chars():
     assert sf.remove_invalid_chars("path\\to") == "pathto"
     assert sf.remove_invalid_chars("abc\udeed") == "abc"
+
+
+def test_case_normalisation_regex_invalid_lemmata_matched():
+    invalid_lemmata = [
+        "Kopf-an-kopf-rennen",
+        "E-mail",
+        "Social-media-expertin",
+        "US-dollar",
+        "Bertha-von-suttner-straße"
+        # theoretisch nicht falsch s. https://git.zdl.org/zdl/wordprofile/issues/44
+        "Prêt-à-porter",
+        "CDU-regiert",
+        "Coming-out",
+    ]
+    for lemma in invalid_lemmata:
+        assert sf.RE_GK_NORM_ERROR.match(lemma) is not None
+
+
+def test_case_normalisation_regex_valid_lemmata_not_matched():
+    valid_lemmata = [
+        "Kopf-an-Kopf-Rennen",
+        "Tour-de-France",
+        "US-Amerikanerin",
+        "Berlin",
+        "Bertha-von-Suttner-Straße",
+        "Champs-Élysées",
+    ]
+    for lemma in valid_lemmata:
+        assert sf.RE_GK_NORM_ERROR.match(lemma) is None
