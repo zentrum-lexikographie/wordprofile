@@ -956,3 +956,11 @@ def test_case_normalisation_regex_valid_lemmata_not_matched():
     ]
     for lemma in valid_lemmata:
         assert sf.RE_GK_NORM_ERROR.match(lemma) is None
+
+
+def test_sentence_is_invalid_if_no_token():
+    assert sf.sentence_is_valid([]) is False
+
+
+def test_sent_filter_endings_returns_false_if_sentence_contains_no_token():
+    assert sf.sent_filter_endings([]) is False

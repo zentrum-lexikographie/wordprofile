@@ -87,6 +87,8 @@ def sent_filter_length(sentence: list[DBToken]) -> bool:
 
 
 def sent_filter_endings(sentence: list[DBToken]) -> bool:
+    if not sentence:
+        return False
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
 
 
