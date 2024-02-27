@@ -10,12 +10,7 @@ from wordprofile.wpse.processing import (
 )
 
 
-def main():
-    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
-    logging.basicConfig(
-        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
-    )
-    logger = logging.getLogger(__name__)
+def parse_arguments(args):
     parser = ArgumentParser()
     parser.add_argument(
         "--input",
@@ -26,7 +21,16 @@ def main():
     )
     parser.add_argument("--dest", help="temporary storage path")
     parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main(arguments: list):
+    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
+    logging.basicConfig(
+        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
+    )
+    logger = logging.getLogger(__name__)
+    args = parse_arguments(arguments)
     os.makedirs(args.dest, exist_ok=True)
     process_files(args.input, args.dest, args.njobs)
     logger.info("EXTRACT collocations from matches")
@@ -41,4 +45,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])
