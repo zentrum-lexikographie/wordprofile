@@ -362,3 +362,66 @@ def test_sentence_conversion_casing_with_multi_part_token():
             misc=True,
         )
     ]
+
+
+def test_sentence_conversion_token_only_contains_invalid_chars():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Anfang",
+                lemma="Anfang",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+            Token(
+                id=2,
+                form="\\",
+                lemma="\\",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+            Token(
+                id=3,
+                form="Ende",
+                lemma="Ende",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    assert pro.convert_sentence(token_list) == [
+        DBToken(
+            idx=1,
+            surface="Anfang",
+            lemma="Anfang",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+        DBToken(
+            idx=3,
+            surface="Ende",
+            lemma="Ende",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+    ]
