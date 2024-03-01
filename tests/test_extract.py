@@ -418,7 +418,7 @@ def test_extract_active_subjects():
     )
 
 
-def test_all():
+def test_all_extractions():
     sentences = [
         [
             DBToken(
