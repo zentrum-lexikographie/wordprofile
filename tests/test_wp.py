@@ -5,8 +5,25 @@ from wordprofile.wp import Wordprofile
 
 
 class MockDb:
-    def __init__(self):
-        self.db = {
+    def __init__(self, db):
+        self.db = db
+
+    def get_relation_by_id(self, coocc_id, is_mwe=False):
+        return self.db[coocc_id]
+
+    def get_lemma_and_pos(self, lemma, pos):
+        return [
+            LemmaInfo(
+                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
+            )
+            for item in self.db.values()
+            if item.lemma1 == lemma
+        ]
+
+
+class WordprofileTest(unittest.TestCase):
+    def setUp(self):
+        self.cooc_data = {
             -1: Coocc(
                 id=-1,
                 rel="SUBJA",
@@ -98,24 +115,10 @@ class MockDb:
                 num_concords=8,
             ),
         }
-
-    def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.db[coocc_id]
-
-    def get_lemma_and_pos(self, lemma, pos):
-        return [
-            LemmaInfo(
-                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
-            )
-            for item in self.db.values()
-            if item.lemma1 == lemma
-        ]
-
-
-class WordprofileTest(unittest.TestCase):
-    def setUp(self):
+        self.mwe_data = {}
         self.wp = Wordprofile()
-        self.wp.db = MockDb()
+        self.wp.db = MockDb(self.cooc_data)
+        self.wp.db_mwe = MockDb(self.mwe_data)
 
     def test_invalid_lemma_raises_error(self):
         invalid_lemmata = ["test+", "string;", "select'", "dot,dot", "U_u\\", "other%"]
