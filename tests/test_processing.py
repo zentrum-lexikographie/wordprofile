@@ -416,6 +416,15 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             misc=True,
         ),
         DBToken(
+            idx=2,
+            surface="_",
+            lemma="_",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+        DBToken(
             idx=3,
             surface="Ende",
             lemma="Ende",

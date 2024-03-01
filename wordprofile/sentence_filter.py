@@ -9,7 +9,7 @@ INVALID_CHARS = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
 
 
 def remove_invalid_chars(unicode_string):
-    return INVALID_CHARS.sub("", unicode_string)
+    return INVALID_CHARS.sub("", unicode_string) or "_"
 
 
 def is_valid_token(tok: DBToken) -> bool:
