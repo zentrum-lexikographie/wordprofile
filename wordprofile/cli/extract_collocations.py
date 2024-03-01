@@ -3,6 +3,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
+from wordprofile.utils import configure_logs_to_file
 from wordprofile.wpse.processing import (
     extract_collocations,
     extract_most_common_surface,
@@ -25,11 +26,10 @@ def parse_arguments(args):
 
 
 def main(arguments: list):
-    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
-    logging.basicConfig(
-        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
-    )
     logger = logging.getLogger(__name__)
+    configure_logs_to_file(
+        level=logging.INFO, log_file_identifier="extract-collocations"
+    )
     args = parse_arguments(arguments)
     os.makedirs(args.dest, exist_ok=True)
     process_files(args.input, args.dest, args.njobs)

@@ -3,6 +3,7 @@ import os
 import sys
 from argparse import ArgumentParser
 
+from wordprofile.utils import configure_logs_to_file
 from wordprofile.wpse.processing import post_process_db_files
 
 
@@ -18,15 +19,14 @@ def parse_arguments(args):
 
 
 def main(arguments: list):
-    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
-    logging.basicConfig(
-        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
-    )
+    logger = logging.getLogger(__name__)
+    configure_logs_to_file(level=logging.INFO, log_file_identifier="compute-statistics")
     args = parse_arguments(arguments)
     os.makedirs(args.dest, exist_ok=True)
     post_process_db_files(
         args.src, args.dest, min_rel_freq=args.min_rel_freq, with_mwe=args.mwe
     )
+    logger.info("DONE compute statistics.")
 
 
 if __name__ == "__main__":

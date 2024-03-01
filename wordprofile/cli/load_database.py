@@ -1,10 +1,10 @@
 import logging
 import os
-import sys
 from argparse import ArgumentParser
 
 from sqlalchemy import create_engine
 
+from wordprofile.utils import configure_logs_to_file
 from wordprofile.wpse.create import (
     create_indices,
     create_statistics,
@@ -14,12 +14,8 @@ from wordprofile.wpse.processing import load_files_into_db
 
 
 def main():
-    lformat = "[%(levelname)s] %(asctime)s # %(message)s"
-    logging.basicConfig(
-        stream=sys.stdout, level=logging.DEBUG, format=lformat, datefmt="%H:%M:%S"
-    )
     logger = logging.getLogger(__name__)
-
+    configure_logs_to_file(logging.INFO, "load-database")
     parser = ArgumentParser()
     parser.add_argument("source", help="temporary storage path")
     parser.add_argument("--user", type=str, help="database username")
