@@ -936,6 +936,7 @@ def test_case_normalisation_regex_invalid_lemmata_matched():
         "Social-media-expertin",
         "US-dollar",
         "Bertha-von-suttner-straße"
+        "Jäger-straße",
         # theoretisch nicht falsch s. https://git.zdl.org/zdl/wordprofile/issues/44
         "Prêt-à-porter",
         "CDU-regiert",
