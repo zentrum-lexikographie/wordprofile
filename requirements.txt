@@ -1,2 +1,0 @@
-PyMySQL==1.0.2
-starlette==0.17.1

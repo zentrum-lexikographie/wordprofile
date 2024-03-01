@@ -1,0 +1,408 @@
+# DDC:tokid.begin = 4991770
+# DDC:tokid.end = 4993771
+# DDC:meta.n_ = 3042
+# DDC:meta.file_ = politische_reden01/../../ddc_xml/data/BP_output/20080601_Rede.ddc.xml
+# DDC:meta.masked_ = 0
+# DDC:meta.date_ = 2008-06-01
+# DDC:meta.page_ = -1
+# DDC:meta.basename = BP_output/20080601_Rede
+# DDC:meta.bibl = http://www.bundespraesident.de/SharedDocs/Reden/DE/Horst-Koehler/Reden/2008/06/20080601_Rede.html 01.06.2008
+# DDC:meta.biblLex = http://www.bundespraesident.de/SharedDocs/Reden/DE/Horst-Koehler/Reden/2008/06/20080601_Rede.html 01.06.2008
+# DDC:meta.biblSig = Bundespräsidialamt, 01.06.2008
+# DDC:meta.collection = politische_reden
+# DDC:meta.textClass = gesprochen
+# DDC:meta.timestamp = 2018-02-23T13:15:43Z
+# DDC:meta.title = Grußwort von Bundespräsident Horst Köhler beim 38. Bundestreffen der Bessarabiendeutschen:
+# DDC:meta.url = http://www.bundespraesident.de/SharedDocs/Reden/DE/Horst-Koehler/Reden/2008/06/20080601_Rede.html
+# DDC:BREAK.s[268724] = 4991859
+# text = Eine lange Zeit - mehr als die Hälfte jener Zeitspanne , die diese ebenso entbehrungs- wie erfolgreiche Siedlungsgeschichte angedauert hatte .
+1	Eine	eine	DET	ART	Case=Nom|Definite=Ind|Gender=Fem|NumType=Card|Number=Sing|PronType=Art	3	det	_	_
+2	lange	lang	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	3	amod	_	_
+3	Zeit	Zeit	NOUN	NN	Gender=Fem|Number=Sing	0	ROOT	_	_
+4	-	-	PUNCT	$(	PunctType=Brck	8	punct	_	_
+5	mehr	mehr	ADV	ADV	Degree=Cmp	8	advmod	_	_
+6	als	als	CCONJ	KOKOM	ConjType=Comp	5	case	_	_
+7	die	d	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	8	det	_	_
+8	Hälfte	Hälfte	NOUN	NN	Gender=Fem|Number=Sing	3	appos	_	_
+9	jener	jen	DET	PDAT	Case=Gen|Gender=Fem|Number=Sing|PronType=Dem	10	det	_	_
+10	Zeitspanne	Zeitspanne	NOUN	NN	Gender=Fem|Number=Sing	8	nmod	_	SpaceAfter=No
+11	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	_
+12	die	die	PRON	PRELS	Case=Acc|Gender=Fem|Number=Sing|PronType=Dem,Rel	19	obj	_	_
+13	diese	diese	DET	PDS	Case=Nom|Number=Plur|PronType=Dem	19	nsubj	_	_
+14	ebenso	ebenso	ADV	ADV	_	15	advmod	_	_
+15	entbehrungs-	entbehrungs-	NOUN	TRUNC	Hyph=Yes	18	amod	_	_
+16	wie	wie	CCONJ	KOKOM	ConjType=Comp	17	mark	_	_
+17	erfolgreiche	erfolgreich	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	15	advcl	_	_
+18	Siedlungsgeschichte	Siedlungsgeschichte	NOUN	NN	Gender=Fem|Number=Sing	13	nmod	_	_
+19	angedauert	andauern	VERB	VVPP	Aspect=Perf|VerbForm=Part	10	acl	_	_
+20	hatte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	19	aux	_	_
+21	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	_
+
+# DDC:BREAK.s[172287] = 3196041
+# text = Denn : Wie wir uns erinnern und was wir erinnern , das hat Einfluss auf hier und heute , auf unser Verständnis der Demokratie und auch darauf , wie wir die Demokratie gestalten wollen .
+1	Denn	denn	CCONJ	KON	_	0	ROOT	_	SpaceAfter=No
+2	:	:	PUNCT	$.	PunctType=Peri	1	punct	_	_
+3	Wie	wie	ADV	PWAV	PronType=Int	6	advmod	_	_
+4	wir	wir	PRON	PPER	Case=Nom|Number=Plur|Person=1|PronType=Prs	6	nsubj	_	_
+5	uns	wir	PRON	PRF	Case=Acc|Number=Plur|Person=1|PronType=Prs|Reflex=Yes	6	expl:pv	_	_
+6	erinnern	erinnern	VERB	VVFIN	VerbForm=Inf	0	ROOT	_	_
+7	und	und	CCONJ	KON	_	10	cc	_	_
+8	was	was	PRON	PWS	Case=Acc|Gender=Neut|Number=Sing|PronType=Int,Rel	10	obj	_	_
+9	wir	wir	PRON	PPER	Case=Nom|Number=Plur|Person=1|PronType=Prs	10	nsubj	_	_
+10	erinnern	erinnern	VERB	VVFIN	Mood=Ind|Number=Plur|Person=1|Tense=Pres|VerbForm=Fin	6	conj	_	SpaceAfter=No
+11	,	,	PUNCT	$,	PunctType=Comm	13	punct	_	_
+12	das	die	PRON	PDS	Case=Nom|Gender=Neut|Number=Sing|PronType=Dem,Rel	13	nsubj	_	_
+13	hat	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	10	ccomp	_	_
+14	Einfluss	Einfluß	NOUN	NN	Gender=Masc|Number=Sing	13	obj	_	_
+15	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	16	case	_	_
+16	hier	hier	ADV	ADV	_	14	advmod	_	_
+17	und	und	CCONJ	KON	_	18	cc	_	_
+18	heute	heute	ADV	ADV	_	16	conj	_	SpaceAfter=No
+19	,	,	PUNCT	$,	PunctType=Comm	22	punct	_	_
+20	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	22	case	_	_
+21	unser	unsere	DET	PPOSAT	Case=Acc|Gender=Neut|Number=Sing|Number[psor]=Plur|Person=1|Poss=Yes|PronType=Prs	22	det	_	_
+22	Verständnis	Verständnis	NOUN	NN	Gender=Neut|Number=Sing	6	conj	_	_
+23	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	24	det	_	_
+24	Demokratie	Demokratie	NOUN	NN	Gender=Fem|Number=Sing	22	nmod	_	_
+25	und	und	CCONJ	KON	_	27	cc	_	_
+26	auch	auch	ADV	ADV	_	27	advmod	_	_
+27	darauf	darauf	ADV	PROAV	PronType=Dem	22	conj	_	SpaceAfter=No
+28	,	,	PUNCT	$,	PunctType=Comm	33	punct	_	_
+29	wie	wie	ADV	PWAV	PronType=Int	33	advmod	_	_
+30	wir	wir	PRON	PPER	Case=Nom|Number=Plur|Person=1|PronType=Prs	33	nsubj	_	_
+31	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	32	det	_	_
+32	Demokratie	Demokratie	NOUN	NN	Gender=Fem|Number=Sing	33	obj	_	_
+33	gestalten	gestalten	VERB	VVINF	VerbForm=Inf	22	acl	_	_
+34	wollen	wollen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	33	aux	_	_
+35	.	.	PUNCT	$.	PunctType=Peri	6	punct	_	_
+
+# DDC:BREAK.s[268777] = 4993422
+# text = Für all das möchte ich Ihnen heute meinen aufrichtigen Dank aussprechen .
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	3	case	_	_
+2	all	all	DET	PIDAT	PronType=Tot	3	det	_	_
+3	das	die	PRON	PDS	Case=Acc|Gender=Neut|Number=Sing|PronType=Dem,Rel	11	obl	_	_
+4	möchte	mögen	AUX	VMFIN	Mood=Ind|Number=Sing|Person=1|Tense=Pres|VerbForm=Fin|VerbType=Mod	11	aux	_	_
+5	ich	ich	PRON	PPER	Case=Nom|Number=Sing|Person=1|PronType=Prs	11	nsubj	_	_
+6	Ihnen	sie	PRON	PRF	Case=Dat|Person=2|Polite=Form|PronType=Prs	11	obl:arg	_	_
+7	heute	heute	ADV	ADV	_	11	advmod	_	_
+8	meinen	meine	DET	PPOSAT	Case=Acc|Gender=Masc|Number=Sing|Number[psor]=Sing|Person=1|Poss=Yes|PronType=Prs	10	det	_	_
+9	aufrichtigen	aufrichtig	ADJ	ADJA	Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	10	amod	_	_
+10	Dank	Dank	NOUN	NN	Gender=Masc|Number=Sing	11	obj	_	_
+11	aussprechen	aussprechen	VERB	VVINF	VerbForm=Inf	0	ROOT	_	_
+12	.	.	PUNCT	$.	PunctType=Peri	11	punct	_	_
+
+# DDC:BREAK.s[172289] = 3196096
+# text = Als Minister ohne Geschäftsbereich traten diese Menschen im Januar 1990 in die DDR-Regierung ein .
+1	Als	als	CCONJ	KOKOM	ConjType=Comp	2	case	_	_
+2	Minister	Minister	NOUN	NN	Gender=Masc|Number=Sing	5	obl	_	_
+3	ohne	ohne	ADP	APPR	AdpType=Prep|Case=Acc	4	case	_	_
+4	Geschäftsbereich	Geschäftsbereich	NOUN	NN	Gender=Masc|Number=Sing	2	nmod	_	_
+5	traten	treten	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Past|VerbForm=Fin	0	ROOT	_	_
+6	diese	diese	DET	PDAT	Case=Nom|Number=Plur|PronType=Dem	7	det	_	_
+7	Menschen	Mensch	NOUN	NN	Gender=Masc|Number=Plur	5	nsubj	_	_
+8	im	im	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	9	case	_	_
+9	Januar	Januar	NOUN	NN	Gender=Masc|Number=Sing	5	obl	_	_
+10	1990	1990	NUM	CARD	NumType=Card|Number=Plur	9	nmod	_	_
+11	in	in	ADP	APPR	AdpType=Prep|Case=Acc	13	case	_	_
+12	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	13	det	_	_
+13	DDR-Regierung	Ddr-Regierung	NOUN	NN	Gender=Fem|Number=Sing	5	obl	_	_
+14	ein	ein	ADP	PTKVZ	PartType=Vbp	5	compound:prt	_	_
+15	.	.	PUNCT	$.	PunctType=Peri	5	punct	_	_
+
+# DDC:BREAK.s[3920104] = 62553681
+# text = Bevor die Nachtwächterrundgänge beginnen , kann man sich auch in diesem Jahr an der legendären " Original-Dieboijer-Nachtwächter-Rundgang-Kartoffelsupp " am Gewerbevereinshäuschen stärken .
+1	Bevor	bevor	SCONJ	KOUS	_	4	mark	_	_
+2	die	d	DET	ART	Case=Nom|Definite=Def|Number=Plur|PronType=Art	3	det	_	_
+3	Nachtwächterrundgänge	Nachtwächterrundgang	NOUN	NN	Gender=Masc|Number=Plur	4	nsubj	_	_
+4	beginnen	beginnen	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	21	advcl	_	SpaceAfter=No
+5	,	,	PUNCT	$,	PunctType=Comm	4	punct	_	_
+6	kann	können	AUX	VMFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	21	aux	_	_
+7	man	man	PRON	PIS	Case=Nom|Number=Sing|PronType=Ind	21	nsubj	_	_
+8	sich	sich	PRON	PRF	Case=Acc|Person=3|PronType=Prs|Reflex=Yes	21	expl:pv	_	_
+9	auch	auch	ADV	ADV	_	12	advmod	_	_
+10	in	in	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	_
+11	diesem	diese	DET	PDAT	Case=Dat|Gender=Neut|Number=Sing|PronType=Dem	12	det	_	_
+12	Jahr	Jahr	NOUN	NN	Gender=Neut|Number=Sing	21	obl	_	_
+13	an	an	ADP	APPR	AdpType=Prep|Case=Dat	17	case	_	_
+14	der	d	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	17	det	_	_
+15	legendären	legendär	ADJ	ADJA	Degree=Pos|Number=Sing	17	amod	_	_
+16	"	"	PUNCT	$(	PunctType=Brck	17	punct	_	SpaceAfter=No
+17	Original-Dieboijer-Nachtwächter-Rundgang-Kartoffelsupp	Original-Dieboijer-Nachtwächter-Rundgang-Kartoffelsupp	NOUN	NN	Gender=Masc|Number=Sing	21	obl	_	SpaceAfter=No
+18	"	"	PUNCT	$(	PunctType=Brck	17	punct	_	_
+19	am	am	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	20	case	_	_
+20	Gewerbevereinshäuschen	Gewerbevereinshauschen	NOUN	NN	Gender=Neut|Number=Sing	17	nmod	_	_
+21	stärken	stärken	VERB	VVINF	VerbForm=Inf	0	ROOT	_	_
+22	.	.	PUNCT	$.	PunctType=Peri	21	punct	_	_
+
+# DDC:BREAK.s[4849677] = 91670461
+# text = Diese Kompromißlösung entspricht den Richtlinien der UNESCO , die 1968 das internationale Programm " Mensch und Biosphäre " ( MAB ) gestartet hatte ; als frischernanntes Biosphärenreservat erfüllt Dana die Kriterien " eines für die jeweilige Lebensgemeinschaft repräsentativen Naturgebiets " .
+1	Diese	diese	DET	PDAT	Case=Nom|Gender=Fem|Number=Sing|PronType=Dem	2	det	_	_
+2	Kompromißlösung	Kompromißlösung	NOUN	NN	Gender=Fem|Number=Sing	3	nsubj	_	_
+3	entspricht	entsprechen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+4	den	d	DET	ART	Case=Dat|Definite=Def|Number=Plur|PronType=Art	5	det	_	_
+5	Richtlinien	Richtlinie	NOUN	NN	Gender=Fem|Number=Plur	3	obj	_	_
+6	der	d	DET	ART	Case=Gen|Definite=Def|Number=Plur|PronType=Art	7	det	_	_
+7	UNESCO	Organisation_Der_Vereinten_Nationen_Für_Erziehung,_Wissenschaft_Und_Kultur	NOUN	NN	_	5	nmod	_	SpaceAfter=No
+8	,	,	PUNCT	$,	PunctType=Comm	22	punct	_	_
+9	die	die	PRON	PRELS	Case=Nom|Gender=Fem|Number=Sing|PronType=Dem,Rel	22	obj	_	_
+10	1968	1968	NUM	CARD	NumType=Card|Number=Plur	22	obl	_	_
+11	das	d	DET	ART	Case=Nom|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	13	det	_	_
+12	internationale	international	ADJ	ADJA	Degree=Pos|Gender=Neut|Number=Sing	13	amod	_	_
+13	Programm	Programm	NOUN	NN	Gender=Neut|Number=Sing	22	obj	_	_
+14	"	"	PUNCT	$(	PunctType=Brck	15	punct	_	SpaceAfter=No
+15	Mensch	Mensch	NOUN	NN	Gender=Masc|Number=Sing	13	appos	_	_
+16	und	und	CCONJ	KON	_	17	cc	_	_
+17	Biosphäre	Biosphäre	NOUN	NN	Gender=Fem|Number=Sing	15	conj	_	SpaceAfter=No
+18	"	"	PUNCT	$(	PunctType=Brck	15	punct	_	_
+19	(	(	PUNCT	$(	PunctType=Brck	20	punct	_	SpaceAfter=No
+20	MAB	MAB	PROPN	NE	_	15	appos	_	SpaceAfter=No
+21	)	)	PUNCT	$(	PunctType=Brck	20	punct	_	_
+22	gestartet	starten	VERB	VVPP	Aspect=Perf|VerbForm=Part	7	acl	_	_
+23	hatte	haben	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	22	aux	_	SpaceAfter=No
+24	;	;	PUNCT	$.	PunctType=Peri	3	punct	_	_
+25	als	als	CCONJ	KOKOM	ConjType=Comp	27	case	_	_
+26	frischernanntes	frischernennt	ADJ	ADJA	Gender=Neut|Number=Sing	27	amod	_	_
+27	Biosphärenreservat	Biosphärenreservat	NOUN	NN	Gender=Neut|Number=Sing	28	obl	_	_
+28	erfüllt	erfüllen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	3	parataxis	_	_
+29	Dana	Dana	PROPN	NE	Number=Sing	28	nsubj	_	_
+30	die	d	DET	ART	Case=Acc|Definite=Def|Number=Plur|PronType=Art	31	det	_	_
+31	Kriterien	Kriterium	NOUN	NN	Gender=Neut|Number=Plur	28	obj	_	_
+32	"	"	PUNCT	$(	PunctType=Brck	39	punct	_	SpaceAfter=No
+33	eines	eine	DET	ART	Case=Gen|Definite=Ind|Gender=Neut|NumType=Card|Number=Sing|PronType=Art	39	det	_	_
+34	für	für	ADP	APPR	AdpType=Prep|Case=Acc	37	case	_	_
+35	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	37	det	_	_
+36	jeweilige	jeweilig	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	37	amod	_	_
+37	Lebensgemeinschaft	Lebensgemeinschaft	NOUN	NN	Gender=Fem|Number=Sing	38	obl	_	_
+38	repräsentativen	repräsentativ	ADJ	ADJA	Degree=Pos|Number=Sing	39	amod	_	_
+39	Naturgebiets	Naturgebiet	NOUN	NN	Case=Gen|Gender=Neut|Number=Sing	31	nmod	_	SpaceAfter=No
+40	"	"	PUNCT	$(	PunctType=Brck	39	punct	_	_
+41	.	.	PUNCT	$.	PunctType=Peri	3	punct	_	_
+
+# DDC:BREAK.s[4426672] = 74155711
+# DDC:BREAK.p[1568343] = 74155711
+# text = *
+1	*	*	X	FM	Foreign=Yes	0	ROOT	_	_
+
+# DDC:BREAK.s[4426681] = 74155809
+# text = Wer' \ 's glaubt .
+1	Wer'	Wer'	NOUN	NN	_	4	nsubj	_	SpaceAfter=No
+2	\	\	NOUN	NN	_	4	obj	_	SpaceAfter=No
+3	's	d	NOUN	NN	_	4	obj	_	_
+4	glaubt	glauben	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+5	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	_
+
+# DDC:BREAK.s[6876873] = 92937217
+# DDC:BREAK.p[3078827] = 92937217
+# text = < fett>Sergio Ermotti</fett > ( 62 ) , früherer Chef der Schweizer Großbank UBS , kehrt zurück :
+1	<	<	X	FM	Foreign=Yes	0	ROOT	_	SpaceAfter=No
+2	fett>Sergio	fett>sergio	X	FM	Foreign=Yes	0	ROOT	_	_
+3	Ermotti</fett	ermotti</fett	X	FM	Foreign=Yes	2	flat	_	SpaceAfter=No
+4	>	>	X	FM	Foreign=Yes	16	nsubj	_	_
+5	(	(	PUNCT	$(	PunctType=Brck	6	punct	_	SpaceAfter=No
+6	62	62	NUM	CARD	NumType=Card|Number=Plur	16	nsubj	_	SpaceAfter=No
+7	)	)	PUNCT	$(	PunctType=Brck	6	punct	_	SpaceAfter=No
+8	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	_
+9	früherer	früh	ADJ	ADJA	Case=Nom|Degree=Cmp|Gender=Masc|Number=Sing	10	amod	_	_
+10	Chef	Chef	NOUN	NN	Gender=Masc|Number=Sing	6	appos	_	_
+11	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	13	det	_	_
+12	Schweizer	Schweizer	ADJ	ADJA	Degree=Pos	13	amod	_	_
+13	Großbank	Großbank	NOUN	NN	Gender=Fem|Number=Sing	10	nmod	_	_
+14	UBS	UBS_AG	PROPN	NE	_	13	flat:name	_	SpaceAfter=No
+15	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	_
+16	kehrt	kehren	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+17	zurück	zurück	ADP	PTKVZ	PartType=Vbp	16	compound:prt	_	_
+18	:	:	PUNCT	$.	PunctType=Peri	16	punct	_	_
+
+# DDC:BREAK.s[6876874] = 92937235
+# text = Für die heikle Übernahme der Skandalbank Credit Suisse holt UBS ihren früheren Chef zurück .
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	4	case	_	_
+2	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
+3	heikle	heikel	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	4	amod	_	_
+4	Übernahme	Übernahme	NOUN	NN	Gender=Fem|Number=Sing	9	obl	_	_
+5	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Skandalbank	Skandalbank	NOUN	NN	Gender=Fem|Number=Sing	4	nmod	_	_
+7	Credit	credit	NOUN	NN	_	6	appos	_	_
+8	Suisse	suisse	NOUN	NN	_	7	appos	_	_
+9	holt	holen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+10	UBS	UBS_AG	PROPN	NE	_	9	nsubj	_	_
+11	ihren	ihr	DET	PPOSAT	Case=Acc|Gender=Masc|Gender[psor]=Fem|Number=Sing|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs	13	det	_	_
+12	früheren	früh	ADJ	ADJA	Case=Acc|Degree=Cmp|Gender=Masc|Number=Sing	13	amod	_	_
+13	Chef	Chef	NOUN	NN	Gender=Masc|Number=Sing	9	obj	_	_
+14	zurück	zurück	ADP	PTKVZ	PartType=Vbp	9	compound:prt	_	_
+15	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	_
+
+# DDC:tokid.begin = 3195918
+# DDC:tokid.end = 3197260
+# DDC:meta.n_ = 1975
+# DDC:meta.file_ = politische_reden01/../../ddc_xml/data/BP_output/161207_SED_Podiumdiskussion.ddc.xml
+# DDC:meta.masked_ = 0
+# DDC:meta.date_ = 2016-12-07
+# DDC:meta.page_ = -1
+# DDC:meta.basename = BP_output/161207_SED_Podiumdiskussion
+# DDC:meta.bibl = http://www.bundespraesident.de/SharedDocs/Reden/DE/Joachim-Gauck/Reden/2016/12/161207-SED-Podiumdiskussion.html 07.12.2016
+# DDC:meta.biblLex = http://www.bundespraesident.de/SharedDocs/Reden/DE/Joachim-Gauck/Reden/2016/12/161207-SED-Podiumdiskussion.html 07.12.2016
+# DDC:meta.biblSig = Bundespräsidialamt, 07.12.2016
+# DDC:meta.collection = politische_reden
+# DDC:meta.textClass = gesprochen
+# DDC:meta.timestamp = 2018-02-23T13:15:26Z
+# DDC:meta.title = Podiumsdiskussion \"Vereint und doch getrennt? Die Einheit Europas und das Erbe der Geschichte\" im Rahmen der Veranstaltungsreihe \"Vergangenheit erinnern – Demokratie gestalten\":Der Bundespräsident hat am 7. Dezember die Podiumsdiskussion \"Vereint und doch getrennt? Die Einheit Europas und das Erbe der Geschichte\" im Rahmen der Veranstaltungsreihe \"Vergangenheit erinnern – Demokratie gestalten\" mit einer Ansprache eröffnet: \"Das geeinte Europa ist keine Laune der Geschichte. Es ist vielmehr die Institution gewordene Lehre aus der Geschichte. Deshalb danke ich Ihnen, liebe Gäste, dass Sie sich mit Europa und seiner Vergangenheit auseinandersetzen und ich bin gespannt auf unseren Austausch im Anschluss an die Podiumsdiskussion.\"
+# DDC:meta.url = http://www.bundespraesident.de/SharedDocs/Reden/DE/Joachim-Gauck/Reden/2016/12/161207-SED-Podiumdiskussion.html
+# DDC:BREAK.s[172281] = 3195936
+# DDC:BREAK.p[53201] = 3195936
+1	Herzlichen	herzlich	ADJ	ADJA	Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	2	amod	_	_
+2	Dank	Dank	NOUN	NN	Gender=Masc|Number=Sing	0	ROOT	_	SpaceAfter=No
+3	,	,	PUNCT	$,	PunctType=Comm	5	punct	_	_
+4	alles	alle	DET	PIS	Case=Nom|Gender=Neut|Number=Sing|PronType=Tot	5	det	_	_
+5	Gute	Gut	NOUN	NN	Gender=Neut|Number=Sing	2	appos	_	SpaceAfter=No
+6	,	,	PUNCT	$,	PunctType=Comm	9	punct	_	_
+7	und	und	CCONJ	KON	_	9	cc	_	_
+8	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	9	case	_	_
+9	Wiedersehen	Wiedersehen	NOUN	NN	Gender=Neut|Number=Sing	2	conj	_	_
+10	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	_
+1	Herzlich	herzlich	ADJ	ADJD	Degree=Pos|Variant=Short	12	advmod	_	_
+2	willkommen	willkommen	ADJ	ADJD	Degree=Pos|Variant=Short	0	ROOT	_	_
+3	hier	hier	ADV	ADV	_	12	advmod	_	_
+4	im	im	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	15	case	_	_
+5	Schloss	Schloß	NOUN	NN	Gender=Neut|Number=Sing	12	obl	_	_
+6	Bellevue	Bellevue	PROPN	NE	_	15	flat:name	_	_
+7	und	und	CCONJ	KON	_	23	cc	_	_
+8	wo	wo	ADV	PWAV	PronType=Int	19	advmod	_	_
+9	immer	immer	ADV	ADV	_	23	advmod	_	_
+10	Sie	sie	PRON	PPER	Case=Nom|Number=Plur|Person=3|PronType=Prs	23	nsubj	_	_
+11	uns	uns	PRON	PPER	Case=Dat|Number=Plur|Person=1|PronType=Prs	23	obj	_	_
+12	gerade	gerade	ADV	ADV	_	23	advmod	_	_
+13	zuhören	zuhören	VERB	VVINF	VerbForm=Inf	12	conj	_	_
+14	!	!	PUNCT	$.	PunctType=Peri	12	punct	_	_
+
+# DDC:BREAK.s[7010371] = 95048976
+# DDC:BREAK.p[3121772] = 95048976
+# text = Bei der vorgezogenen Parlamentswahl in Spanien liefern sich die sozialdemokratische PSOE von Ministerpräsident Pedro Sánchez und die konservative Partei Partido Popular ( PP ) unter Alberto Núñez Feijóo ( Bild ) ein Kopf-an-Kopf-Rennen .
+1	Bei	bei	ADP	APPR	AdpType=Prep|Case=Dat	4	case	_	_
+2	der	d	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
+3	vorgezogenen	vorgeziehen	ADJ	ADJA	Degree=Pos|Number=Sing	4	amod	_	_
+4	Parlamentswahl	Parlamentswahl	NOUN	NN	Gender=Fem|Number=Sing	7	obl	_	_
+5	in	in	ADP	APPR	AdpType=Prep|Case=Dat	6	case	_	_
+6	Spanien	Spanien	PROPN	NE	Number=Sing	4	nmod	_	_
+7	liefern	liefern	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+8	sich	sich	PRON	PRF	Case=Dat|Person=3|PronType=Prs|Reflex=Yes	7	obl:arg	_	_
+9	die	d	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	11	det	_	_
+10	sozialdemokratische	sozialdemokratisch	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	11	amod	_	_
+11	PSOE	PSOE	NOUN	NN	_	7	nsubj	_	_
+12	von	von	ADP	APPR	AdpType=Prep|Case=Dat	13	case	_	_
+13	Ministerpräsident	Ministerpräsident	NOUN	NN	Gender=Masc|Number=Sing	11	nmod	_	_
+14	Pedro	Pedro	PROPN	NE	Gender=Masc|Number=Sing	13	flat:name	_	_
+15	Sánchez	Sánchez	PROPN	NE	Case=Nom|Number=Sing	13	flat:name	_	_
+16	und	und	CCONJ	KON	_	19	cc	_	_
+17	die	d	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	19	det	_	_
+18	konservative	konservativ	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	19	amod	_	_
+19	Partei	Partei	NOUN	NN	Gender=Fem|Number=Sing	13	conj	_	_
+20	Partido	Partido	X	FM	Foreign=Yes	19	appos	_	_
+21	Popular	Popular	X	FM	Foreign=Yes	20	flat	_	_
+22	(	(	PUNCT	$(	PunctType=Brck	23	punct	_	SpaceAfter=No
+23	PP	PP	PROPN	NE	_	20	appos	_	SpaceAfter=No
+24	)	)	PUNCT	$(	PunctType=Brck	23	punct	_	_
+25	unter	unter	ADP	APPR	AdpType=Prep|Case=Dat	26	case	_	_
+26	Alberto	Alberto	PROPN	NE	Gender=Masc|Number=Sing	19	nmod	_	_
+27	Núñez	Núñez	PROPN	NE	_	26	flat:name	_	_
+28	Feijóo	Feijóo	PROPN	NE	_	26	flat:name	_	_
+29	(	(	PUNCT	$(	PunctType=Brck	30	punct	_	SpaceAfter=No
+30	Bild	Bild	NOUN	NN	Gender=Neut|Number=Sing	26	appos	_	SpaceAfter=No
+31	)	)	PUNCT	$(	PunctType=Brck	30	punct	_	_
+32	ein	eine	DET	ART	Case=Acc|Definite=Ind|Gender=Neut|NumType=Card|Number=Sing|PronType=Art	33	det	_	_
+33	Kopf-an-Kopf-Rennen	Kopf-An-Kopf-Rennen	NOUN	NN	Gender=Neut|Number=Sing	7	obj	_	_
+34	.	.	PUNCT	$.	PunctType=Peri	7	punct	_	_
+
+# DDC:BREAK.s[172283] = 3195965
+# text = Es ist die sechste Gesprächsrunde unserer Reihe " Vergangenheit erinnern – Demokratie gestalten "
+1	Es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	5	nsubj	_	_
+2	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	5	cop	_	_
+3	die	d	DET	ART	Case=Nom|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	5	det	_	_
+4	sechste	sechst	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	5	amod	_	_
+5	Gesprächsrunde	Gesprächsrunde	NOUN	NN	Gender=Fem|Number=Sing	10	nsubj	_	_
+6	unserer	unsere	DET	PPOSAT	Case=Gen|Gender=Fem|Number=Sing|Number[psor]=Plur|Person=1|Poss=Yes|PronType=Prs	7	det	_	_
+7	Reihe	Reihe	NOUN	NN	Gender=Fem|Number=Sing	5	nmod	_	_
+8	"	"	PUNCT	$(	PunctType=Brck	5	punct	_	SpaceAfter=No
+9	Vergangenheit	Vergangenheit	NOUN	NN	Gender=Fem|Number=Sing	10	obj	_	_
+10	erinnern	erinnern	VERB	VVINF	VerbForm=Inf	0	ROOT	_	_
+11	–	–	PUNCT	$(	PunctType=Brck	13	punct	_	_
+12	Demokratie	Demokratie	NOUN	NN	Gender=Fem|Number=Sing	13	obj	_	_
+13	gestalten	gestalten	VERB	VVINF	VerbForm=Inf	10	xcomp	_	_
+14	"	"	PUNCT	$(	PunctType=Brck	13	punct	_	_
+
+# DDC:BREAK.s[172285] = 3195992
+# text = Mit diesem Titel ist zugleich ein Anspruch formuliert : Erinnerung und Aufarbeitung der Geschichte , sie müssen verbunden sein mit dem Streiten für die Demokratie .
+1	Mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	3	case	_	_
+2	diesem	diese	DET	PDAT	Case=Dat|Gender=Masc|Number=Sing|PronType=Dem	3	det	_	_
+3	Titel	Titel	NOUN	NN	Gender=Masc|Number=Sing	8	obl	_	_
+4	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	8	aux:pass	_	_
+5	zugleich	zugleich	ADV	ADV	_	8	advmod	_	_
+6	ein	eine	DET	ART	Case=Nom|Definite=Ind|Gender=Masc|NumType=Card|Number=Sing|PronType=Art	7	det	_	_
+7	Anspruch	Anspruch	NOUN	NN	Gender=Masc|Number=Sing	8	nsubj:pass	_	_
+8	formuliert	formulieren	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	ROOT	_	SpaceAfter=No
+9	:	:	PUNCT	$.	PunctType=Peri	8	punct	_	_
+10	Erinnerung	Erinnerung	NOUN	NN	Gender=Fem|Number=Sing	0	ROOT	_	_
+11	und	und	CCONJ	KON	_	12	cc	_	_
+12	Aufarbeitung	Aufarbeitung	NOUN	NN	Gender=Fem|Number=Sing	10	conj	_	_
+13	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	14	det	_	_
+14	Geschichte	Geschichte	NOUN	NN	Gender=Fem|Number=Sing	12	nmod	_	SpaceAfter=No
+15	,	,	PUNCT	$,	PunctType=Comm	18	punct	_	_
+16	sie	sie	PRON	PPER	Case=Nom|Number=Plur|Person=3|PronType=Prs	18	nsubj:pass	_	_
+17	müssen	müssen	AUX	VMFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin|VerbType=Mod	18	aux	_	_
+18	verbunden	verbinden	VERB	VVPP	Aspect=Perf|VerbForm=Part	10	conj	_	_
+19	sein	sein	AUX	VAINF	VerbForm=Inf	18	aux:pass	_	_
+20	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	22	case	_	_
+21	dem	d	DET	ART	Case=Dat|Definite=Def|Gender=Neut|Number=Sing|PronType=Art	22	det	_	_
+22	Streiten	Streiten	NOUN	NN	Gender=Neut|Number=Sing	18	obl	_	_
+23	für	für	ADP	APPR	AdpType=Prep|Case=Acc	25	case	_	_
+24	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	25	det	_	_
+25	Demokratie	Demokratie	NOUN	NN	Gender=Fem|Number=Sing	22	nmod	_	_
+26	.	.	PUNCT	$.	PunctType=Peri	10	punct	_	_
+
+# DDC:BREAK.s[5954819] = 93967618
+# text = Der umstrittene tschechoslowakische Präsident Edvard Benes ( 1884-1948 ) ist vom tschechischen Abgeordnetenhaus mit einem eigenen Gesetz für seine " Verdienste um den Staat ” gewürdigt	worden	.
+1	Der	d	DET	ART	Case=Nom|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	4	det	_	_
+2	umstrittene	umstritten	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	4	amod	_	_
+3	tschechoslowakische	tschechoslowakisch	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	4	amod	_	_
+4	Präsident	Präsident	NOUN	NN	Gender=Masc|Number=Sing	26	nsubj:pass	_	_
+5	Edvard	Edvard	PROPN	NE	Gender=Masc|Number=Sing	4	flat:name	_	_
+6	Benes	Benes	PROPN	NE	Case=Gen|Number=Sing	5	flat:name	_	_
+7	(	(	PUNCT	$(	PunctType=Brck	8	punct	_	SpaceAfter=No
+8	1884-1948	1884-1948	NUM	CARD	NumType=Card|Number=Plur	4	nmod	_	SpaceAfter=No
+9	)	)	PUNCT	$(	PunctType=Brck	8	punct	_	_
+10	ist	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	26	aux	_	_
+11	vom	vom	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	13	case	_	_
+12	tschechischen	tschechisch	ADJ	ADJA	Degree=Pos|Number=Sing	13	amod	_	_
+13	Abgeordnetenhaus	Abgeordnetenhaus	NOUN	NN	Gender=Neut|Number=Sing	26	obl	_	_
+14	mit	mit	ADP	APPR	AdpType=Prep|Case=Dat	17	case	_	_
+15	einem	eine	DET	ART	Case=Dat|Definite=Ind|Gender=Neut|NumType=Card|Number=Sing|PronType=Art	17	det	_	_
+16	eigenen	eigen	ADJ	ADJA	Degree=Pos|Number=Sing	17	amod	_	_
+17	Gesetz	Gesetz	NOUN	NN	Gender=Neut|Number=Sing	26	obl	_	_
+18	für	für	ADP	APPR	AdpType=Prep|Case=Acc	21	case	_	_
+19	seine	seine	DET	PPOSAT	Case=Acc|Gender[psor]=Masc,Neut|Number=Plur|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs	21	det	_	_
+20	"	"	PUNCT	$(	PunctType=Brck	21	punct	_	SpaceAfter=No
+21	Verdienste	Verdienst	NOUN	NN	Gender=Masc|Number=Plur	17	nmod	_	_
+22	um	um	ADP	APPR	AdpType=Prep|Case=Acc	24	case	_	_
+23	den	d	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	24	det	_	_
+24	Staat	Staat	NOUN	NN	Gender=Masc|Number=Sing	21	nmod	_	SpaceAfter=No
+25	”	”	PUNCT	$(	PunctType=Brck	21	punct	_	_
+26	gewürdigt	würdigen	VERB	VVPP	Aspect=Perf|VerbForm=Part	0	ROOT	_	_
+27	worden	werden	AUX	VAPP	Aspect=Perf|VerbForm=Part	26	aux:pass	_	_
+28	.	.	PUNCT	$.	PunctType=Peri	26	punct	_	_
+
+# DDC:BREAK.s[6876874] = 92937235
+# text = Für die heikle Übernahme der Skandalbank Credit Suisse holt UBS ihren früheren Chef zurück .
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	4	case	_	_
+2	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
+3	heikle	heikel	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	4	amod	_	_
+4	Übernahme	Übernahme	NOUN	NN	Gender=Fem|Number=Sing	9	obl	_	_
+5	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Skandalbank	Skandalbank	NOUN	NN	Gender=Fem|Number=Sing	4	nmod	_	_
+7	Credit	credit	NOUN	NN	_	6	appos	_	_
+8	Suisse	suisse	NOUN	NN	_	7	appos	_	_
+9	holt	holen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+10	UBS	UBS_AG	PROPN	NE	_	9	nsubj	_	_
+11	ihren	ihr	DET	PPOSAT	Case=Acc|Gender=Masc|Gender[psor]=Fem|Number=Sing|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs	13	det	_	_
+12	früheren	früh	ADJ	ADJA	Case=Acc|Degree=Cmp|Gender=Masc|Number=Sing	13	amod	_	_
+13	Chef	Chef	NOUN	NN	Gender=Masc|Number=Sing	9	obj	_	_
+14	zurück	zurück	ADP	PTKVZ	PartType=Vbp	9	compound:prt	_	_
+15	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	_
