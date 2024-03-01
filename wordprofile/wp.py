@@ -465,10 +465,10 @@ class Wordprofile:
             relation_identifier = f"~{relation_identifier}"
         if relation_identifier in self.wp_spec.mapRelDescDetail:
             description = self.wp_spec.mapRelDescDetail[relation_identifier]
-            description = description.replace("$1", coocc_info.lemma1)
-            description = description.replace("$2", coocc_info.lemma2)
         else:
             description = self.wp_spec.strRelDescDetail
+        description = description.replace("$1", coocc_info.lemma1)
+        description = description.replace("$2", coocc_info.lemma2)
         return {
             "Description": description,
             "Relation": coocc_info.rel,
