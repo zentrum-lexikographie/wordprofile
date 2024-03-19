@@ -202,6 +202,7 @@ class Wordprofile:
 
         Args:
             coocc_ids: List of collocation ids.
+            relations (optional): List of relation labels to filter results.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
