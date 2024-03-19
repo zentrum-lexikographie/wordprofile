@@ -21,6 +21,20 @@ class MockDb:
         ]
 
 
+class MockMweDb(MockDb):
+    def get_relation_tuples(
+        self,
+        coocc_ids: list[int],
+        by_order: str = "log_dice",
+        min_freq: int = 0,
+        min_stat: float = -1000.0,
+    ):
+        mwe_cooccs = []
+        for coocc_id in coocc_ids:
+            mwe_cooccs.extend(self.db.get(coocc_id, []))
+        return mwe_cooccs
+
+
 class WordprofileTest(unittest.TestCase):
     def setUp(self):
         self.cooc_data = {
@@ -114,11 +128,106 @@ class WordprofileTest(unittest.TestCase):
                 has_mwe=1,
                 num_concords=8,
             ),
+            10: Coocc(
+                id=10,
+                rel="ATTR",
+                lemma1="Arbeit",
+                lemma2="gemeinnützig",
+                form1="Arbeit",
+                form2="gemeinnützige",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=10.0,
+                inverse=0,
+                has_mwe=1,
+                num_concords=10,
+            ),
+            14: Coocc(
+                id=141,
+                rel="ATTR",
+                lemma1="Grammatik",
+                lemma2="lateinisch",
+                form1="Grammatik",
+                form2="lateinischen",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=1,
+                score=13.41,
+                inverse=0,
+                has_mwe=1,
+                num_concords=1,
+            ),
         }
-        self.mwe_data = {}
+        self.mwe_data = {
+            10: [
+                Coocc(
+                    id=101,
+                    rel="SUBJP",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="aufbrummen",
+                    form1="Arbeit-gemeinnützige",
+                    form2="aufgebrummt",
+                    tag1="NOUN-ADJ",
+                    tag2="VERB",
+                    freq=1,
+                    score=12.67,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
+                ),
+                Coocc(
+                    id=11,
+                    rel="KON",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="Meditation",
+                    form1="Arbeit-gemeinnützige",
+                    form2="Meditation",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=1,
+                    score=12.67,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
+                ),
+                Coocc(
+                    id=12,
+                    rel="PRED",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="sinnvoll",
+                    form1="Arbeit-gemeinnützige",
+                    form2="sinnvoller",
+                    tag1="NOUN-ADJ",
+                    tag2="ADJ",
+                    freq=1,
+                    score=12.0,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
+                ),
+            ],
+            14: [
+                Coocc(
+                    id=141,
+                    rel="SUBJP",
+                    lemma1="Grammatik-lateinisch",
+                    lemma2="büffeln",
+                    form1="Grammatik-lateinischen",
+                    form2="büffeln",
+                    tag1="NOUN-ADJ",
+                    tag2="VERB",
+                    freq=1,
+                    score=13.41,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
+                )
+            ],
+        }
         self.wp = Wordprofile()
         self.wp.db = MockDb(self.cooc_data)
-        self.wp.db_mwe = MockDb(self.mwe_data)
+        self.wp.db_mwe = MockMweDb(self.mwe_data)
 
     def test_invalid_lemma_raises_error(self):
         invalid_lemmata = ["test+", "string;", "select'", "dot,dot", "U_u\\", "other%"]
@@ -173,3 +282,8 @@ class WordprofileTest(unittest.TestCase):
             }
         ]
         self.assertEqual(result, expected)
+
+    def test_retrieval_of_relation_description_for_mwe(self):
+        mwe_data = self.wp.get_mwe_relations([14])["data"]
+        result = mwe_data["Grammatik-lateinisch"][0]["Description"]
+        self.assertEqual(result, "ist Passivsubjekt von")
