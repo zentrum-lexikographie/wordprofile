@@ -332,3 +332,105 @@ def test_file_reader_with_std_input(monkeypatch):
         " ".join(token["form"] for token in result[0][0])
         == "Damals ging eine ganze Epoche zu Ende ."
     )
+
+
+def test_sentence_conversion_casing_with_multi_part_token():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Kopf-an-Kopf-Rennen",
+                lemma="kopf-an-Kopf-Rennen",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    assert pro.convert_sentence(token_list) == [
+        DBToken(
+            idx=1,
+            surface="Kopf-an-Kopf-Rennen",
+            lemma="Kopf-an-Kopf-Rennen",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        )
+    ]
+
+
+def test_sentence_conversion_token_only_contains_invalid_chars():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Anfang",
+                lemma="Anfang",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+            Token(
+                id=2,
+                form="\\",
+                lemma="\\",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+            Token(
+                id=3,
+                form="Ende",
+                lemma="Ende",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    assert pro.convert_sentence(token_list) == [
+        DBToken(
+            idx=1,
+            surface="Anfang",
+            lemma="Anfang",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+        DBToken(
+            idx=2,
+            surface="_",
+            lemma="_",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+        DBToken(
+            idx=3,
+            surface="Ende",
+            lemma="Ende",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+        ),
+    ]

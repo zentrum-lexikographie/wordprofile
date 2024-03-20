@@ -741,6 +741,15 @@ def test_invalid_token_rejected():
             rel="obl",
             misc=False,
         ),
+        DBToken(
+            idx=0,
+            surface="UBS",
+            lemma="Ubs_ag",
+            tag="NOUN",
+            head=1,
+            rel="subj",
+            misc=False,
+        ),
     ]
     for token in tokens:
         assert sf.is_valid_token(token) is False
@@ -883,7 +892,7 @@ def test_valid_sentences_not_filtered(valid_sentences):
 
 def test_valid_match():
     tok1 = DBToken(
-        idx=1, surface="Test", lemma="<", tag="Noun", head=0, rel="", misc=True
+        idx=1, surface="Test", lemma="Test", tag="Noun", head=0, rel="", misc=True
     )
     tok2 = DBToken(idx=2, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True)
     assert sf.valid_match(Match(head=tok1, dep=tok1, prep=None, relation="", sid=0))
@@ -918,3 +927,41 @@ def test_replace_lemma():
 def test_remove_invalid_chars():
     assert sf.remove_invalid_chars("path\\to") == "pathto"
     assert sf.remove_invalid_chars("abc\udeed") == "abc"
+
+
+def test_case_normalisation_regex_invalid_lemmata_matched():
+    invalid_lemmata = [
+        "Kopf-an-kopf-rennen",
+        "E-mail",
+        "Social-media-expertin",
+        "US-dollar",
+        "Bertha-von-suttner-straße"
+        "Jäger-straße",
+        # theoretisch nicht falsch s. https://git.zdl.org/zdl/wordprofile/issues/44
+        "Prêt-à-porter",
+        "CDU-regiert",
+        "Coming-out",
+    ]
+    for lemma in invalid_lemmata:
+        assert sf.RE_GK_NORM_ERROR.match(lemma) is not None
+
+
+def test_case_normalisation_regex_valid_lemmata_not_matched():
+    valid_lemmata = [
+        "Kopf-an-Kopf-Rennen",
+        "Tour-de-France",
+        "US-Amerikanerin",
+        "Berlin",
+        "Bertha-von-Suttner-Straße",
+        "Champs-Élysées",
+    ]
+    for lemma in valid_lemmata:
+        assert sf.RE_GK_NORM_ERROR.match(lemma) is None
+
+
+def test_sentence_is_invalid_if_no_token():
+    assert sf.sentence_is_valid([]) is False
+
+
+def test_sent_filter_endings_returns_false_if_sentence_contains_no_token():
+    assert sf.sent_filter_endings([]) is False

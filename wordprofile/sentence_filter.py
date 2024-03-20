@@ -4,12 +4,12 @@ from collections.abc import Iterator
 from wordprofile.datatypes import DBToken, Match
 from wordprofile.extract import extract_matches
 
-RE_GK_NORM_ERROR = re.compile(r"^[^-]+-[a-zäüö]+$")
+RE_GK_NORM_ERROR = re.compile(r"^([^-]+-)+[a-zäüöß]+$")
 INVALID_CHARS = re.compile(r"[^\u0000-\uD7FF\uE000-\uFFFF]|\\", re.UNICODE)
 
 
 def remove_invalid_chars(unicode_string):
-    return INVALID_CHARS.sub("", unicode_string)
+    return INVALID_CHARS.sub("", unicode_string) or "_"
 
 
 def is_valid_token(tok: DBToken) -> bool:
@@ -20,6 +20,7 @@ def is_valid_token(tok: DBToken) -> bool:
             not tok.surface[-1].isalpha(),
             any(c.isdigit() for c in tok.lemma),
             any(c in "\"'@§!?;#*/&<>()_" for c in tok.surface),
+            any(c in "\"'@§!?;#*/&<>()_" for c in tok.lemma),
             RE_GK_NORM_ERROR.match(tok.lemma),
         ]
     )
@@ -86,6 +87,8 @@ def sent_filter_length(sentence: list[DBToken]) -> bool:
 
 
 def sent_filter_endings(sentence: list[DBToken]) -> bool:
+    if not sentence:
+        return False
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
 
 
