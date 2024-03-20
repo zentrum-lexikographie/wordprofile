@@ -70,7 +70,7 @@
     ],
     "SUBJP": [
       "hat Passivsubjekt",
-      "$1 hat Passivsubjekt $2,"
+      "$1 hat Passivsubjekt $2"
     ],
     "~SUBJP": [
       "ist Passivsubjekt von",
@@ -85,7 +85,7 @@
       "$1 ist Genitivattribut von $2"
     ],
     "KON": [
-      "hat in Koordination mit",
+      "ist in Koordination mit",
       "$1 ist in Koordination mit $2"
     ],
     "META": [
@@ -160,4 +160,3 @@
     ]
   }
 }
-
