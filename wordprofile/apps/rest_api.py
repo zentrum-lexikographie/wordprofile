@@ -1,3 +1,5 @@
+import http
+import time
 import logging
 from argparse import ArgumentParser
 from typing import List
@@ -13,6 +15,7 @@ import wordprofile.config as config
 from wordprofile.utils import configure_logger
 from wordprofile.wp import Wordprofile
 
+
 parser = ArgumentParser()
 parser.add_argument('--spec', type=str, help="Settings file", default=config.SPEC)
 parser.add_argument("--db-hostname", type=str, help="database host", default=config.DB_HOST)
@@ -26,7 +29,9 @@ parser.add_argument("--debug", action='store_true', help="Activate debug mode.")
 
 args = parser.parse_args()
 
-logger = configure_logger(logging.getLogger('wordprofile'), logging.DEBUG)
+uvicorn_access = logging.getLogger("uvicorn.access")
+uvicorn_access.disabled = True
+logger = configure_logger(logging.getLogger('wordprofile'), logging.INFO)
 
 wp = Wordprofile(args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec)
 app = FastAPI()
@@ -252,6 +257,23 @@ def get_mwe_concordances_and_relation(coocc_id: int, use_context: bool = False, 
         Dictionary with collocation information and their concordances.
     """
     return wp.get_concordances_and_relation(coocc_id, use_context, start_index, result_number, is_mwe=True)
+
+
+@app.middleware("http")
+async def log_process_time(request: Request, call_next):
+    url = f"{request.url.path}?{request.query_params}" if request.query_params else request.url.path
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = (time.time() - start_time) * 1000
+    formatted_process_time = "{0:.2f}".format(process_time)
+    host = getattr(getattr(request, "client", None), "host", None)
+    port = getattr(getattr(request, "client", None), "port", None)
+    try:
+        status_phrase = http.HTTPStatus(response.status_code).phrase
+    except ValueError:
+        status_phrase=""
+    logger.info(f'{host}:{port} - "{request.method} {url}" {response.status_code} {status_phrase} {formatted_process_time}ms')
+    return response
 
 
 def main():
