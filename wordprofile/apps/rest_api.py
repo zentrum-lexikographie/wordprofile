@@ -355,6 +355,7 @@ def get_mwe_concordances_and_relation(
     )
 
 
+# Adapted from https://medium.com/@roy-pstr/fastapi-server-errors-and-logs-take-back-control-696405437983
 @app.middleware("http")
 async def log_process_time(request: Request, call_next):
     url = (
