@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from argparse import ArgumentParser
 
 from wordprofile.utils import configure_logs_to_file
@@ -10,11 +11,7 @@ from wordprofile.wpse.processing import (
 )
 
 
-def main():
-    logger = logging.getLogger(__name__)
-    configure_logs_to_file(
-        level=logging.INFO, log_file_identifier="extract-collocations"
-    )
+def parse_arguments(args):
     parser = ArgumentParser()
     parser.add_argument(
         "--input",
@@ -25,7 +22,15 @@ def main():
     )
     parser.add_argument("--dest", help="temporary storage path")
     parser.add_argument("--njobs", type=int, default=1, help="number of process jobs")
-    args = parser.parse_args()
+    return parser.parse_args(args)
+
+
+def main(arguments: list):
+    logger = logging.getLogger(__name__)
+    configure_logs_to_file(
+        level=logging.INFO, log_file_identifier="extract-collocations"
+    )
+    args = parse_arguments(arguments)
     os.makedirs(args.dest, exist_ok=True)
     process_files(args.input, args.dest, args.njobs)
     logger.info("EXTRACT collocations from matches")
@@ -40,4 +45,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

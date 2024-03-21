@@ -1497,4 +1497,4 @@
 17	zu	zu	ADV	PTKA	_	18	advmod	_	LT=zu
 18	schwach	schwach	ADJ	ADJD	Degree=Pos|Variant=Short	11	ccomp	_	LT=schwach
 19	war	sein	AUX	VAFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	18	cop	_	SpaceAfter=No|LT=sein
-20	,	,	PUNCT	$,	PunctType=Comm	28	punct	_	LT=,
+20	,	,	PUNCT	$,	PunctType=Comm	19	punct	_	LT=,
