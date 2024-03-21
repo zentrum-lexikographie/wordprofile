@@ -61,11 +61,14 @@ class WPMweConnect:
         """
         if use_context:
             query = """
-            SELECT
-                s_center.sentence, m1.head_position, m1.dep_position, m1.prep_position,
-                m2.head_position, m2.dep_position, m2.prep_position, cf.corpus, 
-                cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
-                s_center.page, cf.file, 1, s_left.sentence, s_right.sentence 
+            SELECT * FROM
+            (SELECT
+                s_center.sentence AS sent, m1.head_position AS m1_head_pos,
+                m1.dep_position AS m1_dep_pos, m1.prep_position AS m1_prep_pos,
+                m2.head_position AS m2_head_pos, m2.dep_position AS m2_dep_pos,
+                m2.prep_position AS m2_prep_pos, cf.corpus,
+                cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
+                s_center.page, cf.file, 1, s_left.sentence AS 'left', s_right.sentence AS 'right'
             FROM
                 mwe_match
             INNER JOIN matches as m1 ON (mwe_match.match1_id = m1.id)
@@ -80,19 +83,25 @@ class WPMweConnect:
             LEFT JOIN concord_sentences as s_right ON
                 (s_right.corpus_file_id = cf.id
                 and s_right.sentence_id =(m1.sentence_id + 1))
-            WHERE 
-                mwe_match.mwe_id = %s  
-            ORDER BY cf.date DESC 
-            LIMIT %s,%s;
+            WHERE
+                mwe_match.mwe_id = %s
+            ORDER BY RAND(42)
+            LIMIT %s,%s)
+            AS sample
+            ORDER BY date DESC;
             """
             params = (mwe_id, start_index, result_number)
         else:
             query = """
-            SELECT
-                s_center.sentence, m1.head_position, m1.dep_position, m1.prep_position,
-                m2.head_position, m2.dep_position, m2.prep_position, 
-                cf.corpus, cf.date, cf.text_class, cf.orig, cf.scan, cf.available, 
-                s_center.page, cf.file, 1, '', ''
+            SELECT *, '', ''
+            FROM
+            (SELECT
+                s_center.sentence, m1.head_position AS m1_head_pos,
+                m1.dep_position AS m1_dep_pos, m1.prep_position AS m1_prep_pos,
+                m2.head_position AS m2_head_pos, m2.dep_position AS m2_dep_pos,
+                m2.prep_position AS m2_prep_pos,
+                cf.corpus, cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
+                s_center.page, cf.file, 1
             FROM
                 mwe_match
             INNER JOIN matches as m1 ON (mwe_match.match1_id = m1.id)
@@ -101,10 +110,12 @@ class WPMweConnect:
             INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 and s_center.sentence_id = m1.sentence_id)
-            WHERE 
-                mwe_match.mwe_id = %s  
-            ORDER BY cf.date DESC 
-            LIMIT %s,%s;
+            WHERE
+                mwe_match.mwe_id = %s
+            ORDER BY RAND(42)
+            LIMIT %s,%s)
+            as sample
+            ORDER BY date DESC ;
             """
             params = (mwe_id, start_index, result_number)
         return list(map(lambda i: MweConcordance(*i), self.__fetchall(query, params)))
@@ -120,14 +131,14 @@ class WPMweConnect:
         """
         query = """
         SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
             IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
-        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
-        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag) 
+        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
+        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
+        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag)
         WHERE mwe.id = %s;
         """
         params = (mwe_id,)
@@ -156,17 +167,17 @@ class WPMweConnect:
         """
         sql = """
         SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, 
+            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
             IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
-        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
-        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
-        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag) 
-        WHERE 
+        JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
+        JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
+        JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag)
+        WHERE
             mwe.collocation1_id IN ({})
-            AND mwe.frequency >= %s 
+            AND mwe.frequency >= %s
             AND mwe.score >= %s
         ORDER BY {} DESC;
         """.format(",".join('%s' for _ in coocc_ids), order_by)
@@ -189,15 +200,15 @@ class WPMweConnect:
         """
         query = """
             SELECT
-                c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag, 
+                c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
                 IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
                 IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe,
                 (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
-            FROM 
+            FROM
                 collocations c
-            JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag) 
-            JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag) 
-            WHERE 
+            JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
+            JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
+            WHERE
                 lemma1 = %s AND lemma2 = %s;"""
         params = (lemma1, lemma2)
         return list(filter(lambda c: c.has_mwe == 1, map(lambda i: Coocc(*i), self.__fetchall(query, params))))
