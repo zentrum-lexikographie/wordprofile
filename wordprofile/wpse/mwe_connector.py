@@ -83,7 +83,7 @@ class WPMweConnect:
                 and s_right.sentence_id =(m1.sentence_id + 1))
             WHERE
                 mwe_match.mwe_id = %s
-            ORDER BY RAND(42)
+            ORDER BY s_center.random_val
             LIMIT %s,%s)
             AS sample
             ORDER BY date DESC;
@@ -110,7 +110,7 @@ class WPMweConnect:
                 and s_center.sentence_id = m1.sentence_id)
             WHERE
                 mwe_match.mwe_id = %s
-            ORDER BY RAND(42)
+            ORDER BY s_center.random_val
             LIMIT %s,%s)
             as sample
             ORDER BY date DESC ;

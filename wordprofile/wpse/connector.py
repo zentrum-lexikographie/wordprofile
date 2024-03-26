@@ -4,7 +4,7 @@ from typing import List
 import pymysql
 
 import wordprofile.config
-from wordprofile.datatypes import Coocc, Concordance, LemmaInfo
+from wordprofile.datatypes import Concordance, Coocc, LemmaInfo
 from wordprofile.errors import InternalError
 from wordprofile.utils import split_relation_inversion
 
@@ -130,7 +130,7 @@ class WPConnect:
                 c.lemma2 = %s AND
                 c.lemma2_tag = %s
             )
-            ORDER BY RAND(42)
+            ORDER BY s_center.random_val
             LIMIT %s,%s)
             AS sample
             ORDER BY date DESC;
@@ -156,7 +156,7 @@ class WPConnect:
                 c.lemma2 = %s AND
                 c.lemma2_tag = %s
             )
-            ORDER BY RAND(42)
+            ORDER BY s_center.random_val
             LIMIT %s,%s)
             as sample
             ORDER BY date DESC;
