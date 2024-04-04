@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import io
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, List
@@ -108,7 +109,7 @@ class TabsDocument:
                 elif line and not line.startswith("%%$DDC"):
                     tokens.append(tuple(line.split("\t")))
                 elif not line and tokens and meta_sent:
-                    doc.sentences.append(TabsSentence(meta_sent, tokens))
+                    doc.sentences.append(TabsSentence(meta_sent, _clean_tokens(tokens)))
                     meta_sent = []
                     tokens = []
         return doc
@@ -146,3 +147,21 @@ class TabsDocument:
             f"TabsDocument(meta={self.meta},index={self.index},index_short={self.index_short},"
             f"tokid={self.tokid},sentences={self.sentences})"
         )
+
+
+def _clean_tokens(tokens: list[tuple[str]]) -> list[tuple[str]]:
+    cleaned = []
+    for i, token in enumerate(tokens):
+        if token[0] in {">", "<"}:
+            continue
+        elif match := re.match(r"<?\w+>(\w*)", token[0]):
+            if clean_tok := match.group(1):
+                new_token = (clean_tok, token[1], clean_tok, token[3])
+                cleaned.append(new_token)
+        elif match := re.match(r"([\w!?,.;:(){}\[\]\"]*)<(/\w+>)?", token[0]):
+            if clean_tok := match.group(1):
+                new_token = (clean_tok, token[1], clean_tok, token[3])
+                cleaned.append(new_token)
+        else:
+            cleaned.append(token)
+    return cleaned
