@@ -83,6 +83,11 @@ Options:
 
 If the `--output` option is used, the `.conll` files will be sorted into subdirectories in the destination according to the `collection` attribute in the document metadata.
 
+You may have to set the `PYTHONPATH` environment variable for correct path resolution, e.g. :
+```sh
+export PYTHONPATH="$PYTHONPATH:wordprofile"
+```
+
 #### Examples
 
 Converts `filename.tabs` to conllu and prints on console.
