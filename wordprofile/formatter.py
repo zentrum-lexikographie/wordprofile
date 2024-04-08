@@ -44,12 +44,12 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     """Converts co-occurrences into output format"""
     results = []
     for coocc in cooccs:
+        relation = ("~" if coocc.inverse else "") + coocc.rel
         results.append(
             {
-                # correct description here
-                "Relation": ("~" if coocc.inverse else "") + coocc.rel,
+                "Relation": relation,
                 "RelationDescription": wp_spec.mapRelDesc.get(
-                    coocc.rel, wp_spec.strRelDesc
+                    relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f[coocc.tag2],
                 "PosId": tag_b2f[coocc.tag2],
