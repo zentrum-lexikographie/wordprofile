@@ -1,7 +1,8 @@
 import enum
 from collections import namedtuple
 
-from sqlalchemy import Table, Column, types, MetaData, Enum
+from sqlalchemy import Column, Enum, MetaData, Table, types
+from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Index
 
 from wordprofile.extract import get_relation_types, get_word_classes
@@ -61,6 +62,7 @@ def get_table_concord_sentences(meta: MetaData):
         Column("sentence_id", types.Integer),
         Column("sentence", types.Text),
         Column("page", types.VARCHAR(10)),
+        Column("random_val", types.Float, server_default=func.rand()),
         mysql_engine="Aria",
     )
 

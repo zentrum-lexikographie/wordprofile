@@ -12,7 +12,7 @@ from typing import Any, Protocol, Union
 
 import conllu
 from conllu.models import Token, TokenList
-from sqlalchemy import text, Connection
+from sqlalchemy import Connection, text
 
 from wordprofile.datatypes import DBToken
 from wordprofile.sentence_filter import (
@@ -749,10 +749,9 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
             logger.warning("Local file '%s' doe not exist." % tb_file)
         else:
             logger.info("LOAD DATA FILE: %s" % tb_name)
-            connection.execute(
-                text(
-                    "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
-                        tb_file, tb_name
-                    )
-                )
-            )
+            if tb_name == "concord_sentences":
+                query = f"""LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name}
+                (corpus_file_id, sentence_id, sentence, page);"""
+            else:
+                query = f"LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name};"
+            connection.execute(text(query))
