@@ -172,7 +172,7 @@ class WordprofileTest(unittest.TestCase):
                     tag2="VERB",
                     freq=1,
                     score=12.67,
-                    inverse=0,
+                    inverse=1,
                     has_mwe=0,
                     num_concords=1,
                 ),
@@ -219,7 +219,7 @@ class WordprofileTest(unittest.TestCase):
                     tag2="VERB",
                     freq=1,
                     score=13.41,
-                    inverse=0,
+                    inverse=1,
                     has_mwe=0,
                     num_concords=1,
                 )
@@ -283,7 +283,32 @@ class WordprofileTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    def test_retrieval_of_relation_description_for_mwe(self):
+    def test_retrieval_of_relation_description_for_mwe_if_inverse(self):
         mwe_data = self.wp.get_mwe_relations([14])["data"]
         result = mwe_data["Grammatik-lateinisch"][0]["Description"]
         self.assertEqual(result, "ist Passivsubjekt von")
+
+    def test_retrieval_of_relation_description_if_not_inverse(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]
+        result = mwe_data["Arbeit-gemeinnützig"][-1]["Description"]
+        self.assertEqual(result, "hat Prädikativ")
+
+    def test_relation_grouping(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]["Arbeit-gemeinnützig"]
+        result = [(group["Relation"], group["Description"]) for group in mwe_data]
+        expected = [
+            ("~SUBJP", "ist Passivsubjekt von"),
+            ("KON", "ist in Koordination mit"),
+            ("PRED", "hat Prädikativ"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_concatenation_of_rel_id(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]["Arbeit-gemeinnützig"]
+        result = [group["RelId"] for group in mwe_data]
+        expected = [
+            ("Arbeit-gemeinnützig#NOUN-ADJ#~SUBJP"),
+            ("Arbeit-gemeinnützig#NOUN-ADJ#KON"),
+            ("Arbeit-gemeinnützig#NOUN-ADJ#PRED"),
+        ]
+        self.assertEqual(result, expected)
