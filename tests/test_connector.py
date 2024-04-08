@@ -1,10 +1,10 @@
-import datetime
 import pathlib
 import unittest
 
 import sqlalchemy as sq
 
 import wordprofile.wpse.create as wc
+from wordprofile.datatypes import Coocc
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.processing import load_files_into_db
@@ -131,3 +131,68 @@ class WPMweConnectTest(unittest.TestCase):
             )
         ]
         self.assertEqual(result, sorted(result, reverse=True))
+
+    def test_retrieval_of_inverse_attribute_from_database_by_id(self):
+        result = self.connector.get_relation_by_id(512)
+        expected = Coocc(
+            id=512,
+            rel="VZ",
+            lemma1="nehmen-Polizei",
+            lemma2="fest",
+            form1="nehmen-Polizei",
+            form2="fest",
+            tag1="VERB-NOUN",
+            tag2="ADP",
+            freq=164,
+            score=11.0,
+            inverse=1,
+            has_mwe=0,
+            num_concords=164,
+        )
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_mwe_relation_tuples(self):
+        result = self.connector.get_relation_tuples(
+            [2367256], order_by="log_dice", min_freq=1, min_stat=1
+        )
+        expected = [
+            Coocc(
+                id=513,
+                rel="SUBJA",
+                lemma1="nehmen-fest",
+                lemma2="Polizei",
+                form1="nehmen-fest",
+                form2="Polizei",
+                tag1="VERB-ADP",
+                tag2="NOUN",
+                freq=164,
+                score=11.0,
+                inverse=0,
+                has_mwe=0,
+                num_concords=0,
+            )
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_mwe_relation_tuples_if_inverse(self):
+        result = self.connector.get_relation_tuples(
+            [2373301], order_by="log_dice", min_freq=1, min_stat=1
+        )
+        expected = [
+            Coocc(
+                id=512,
+                rel="VZ",
+                lemma1="nehmen-Polizei",
+                lemma2="fest",
+                form1="nehmen-Polizei",
+                form2="fest",
+                tag1="VERB-NOUN",
+                tag2="ADP",
+                freq=164,
+                score=11.0,
+                inverse=1,
+                has_mwe=0,
+                num_concords=164,
+            )
+        ]
+        self.assertEqual(result, expected)
