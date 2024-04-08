@@ -111,6 +111,7 @@ def get_table_mwe(meta: MetaData):
         Column("lemma_tag", Enum(TAG_TYPE)),
         Column("frequency", types.Integer, default=1),
         Column("score", types.Float),
+        Column("inv", types.Boolean, default=0),
         mysql_engine="Aria",
     )
 
