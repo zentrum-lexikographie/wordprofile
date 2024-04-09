@@ -1,5 +1,6 @@
 import io
 import pathlib
+import tempfile
 
 import conllu
 import pytest
@@ -36,6 +37,22 @@ def conll_sentences():
     testdata_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
     with open(testdata_file, "r") as fh:
         return conllu.parse(fh.read(), fields=conllu.parser.DEFAULT_FIELDS)
+
+
+@pytest.fixture
+def collocations():
+    return {
+        30601: pro.Colloc(
+            30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15
+        ),
+        368: pro.Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
+        2006644: pro.Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
+        3406416: pro.Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
+        2367256: pro.Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
+        2373301: pro.Colloc(
+            2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
+        ),
+    }
 
 
 def test_sentence_conversion_to_dbtoken():
@@ -434,3 +451,38 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             misc=True,
         ),
     ]
+
+
+def test_inverse_attribute_written_to_mwe_file():
+    mwe_freqs = {1: 1}
+    mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = tmpdir + "file"
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs)
+        with open(file) as fp:
+            result = fp.read().split()
+    assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
+
+
+def test_extraction_of_inverse_attribute_for_mwe(collocations):
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = tmpdir + "file"
+        mwe_ids, _ = pro.extract_mwe_from_collocs(
+            "tests/testdata/test_db/matches", file, collocations
+        )
+    assert mwe_ids == {
+        (2373301, 2367256, "VZ", "fest", "ADP", 0): 2,
+        (2367256, 2373301, "SUBJA", "Polizei", "NOUN", 1): 1,
+    }
+
+
+def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
+    collocations[2373301] = pro.Colloc(
+        2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
+    )
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = tmpdir + "file"
+        mwe_ids, _ = pro.extract_mwe_from_collocs(
+            "tests/testdata/test_db/matches", file, collocations
+        )
+    assert (2367256, 2373301, "KON", "Polizei", "NOUN", 0) in mwe_ids
