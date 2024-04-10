@@ -434,3 +434,15 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             misc=True,
         ),
     ]
+
+
+def test_load_collocations_freq_filter_applied_to_aggregated_collocations():
+    input_files = list(
+        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
+    )
+    collocations = pro.load_collocations(input_files, min_rel_freq=3)
+    result = [col[1:] for col in collocations.values()]
+    assert len(result) == 3
+    assert ("GMOD", "Thema", "Gegenwart", "NOUN", "NOUN", 0, 2) not in result
+    assert ("ATTR", "Familienpolitik", "modern", "NOUN", "ADJ", 0, 12) in result
+    assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", 0, 3) in result

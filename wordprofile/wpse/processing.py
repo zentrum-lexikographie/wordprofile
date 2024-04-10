@@ -639,14 +639,14 @@ def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Collo
             for line in f_in:
                 m = tuple(line.strip().split("\t"))
                 rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
-                if freq >= min_rel_freq:
-                    relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
+                relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
     collocs = {}
     c_id = 0
     for rel, cols_dict in relation_dict.items():
         for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
-            collocs[c_id] = Colloc(c_id, rel, lemma1, lemma2, tag1, tag2, 0, freq)
-            c_id += 1
+            if freq >= min_rel_freq:
+                collocs[c_id] = Colloc(c_id, rel, lemma1, lemma2, tag1, tag2, 0, freq)
+                c_id += 1
     return collocs
 
 
