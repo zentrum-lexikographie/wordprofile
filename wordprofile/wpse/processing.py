@@ -355,7 +355,9 @@ def filter_transform_matches(
                     match[10] = str(corpus_file_idx[match[10]])
                     # check whether concordances and collocations still exist for match
                     colloc_id = relation_dict.get(colloc_val)
-                    if colloc_id and tuple(match[10:12]) in sents_idx:
+                    if colloc_id is None:
+                        continue
+                    if tuple(match[10:12]) in sents_idx:
                         match = [str(match_i), str(colloc_id)] + match[5:]
                         matches_out.write("\t".join(match) + "\n")
                         match_i += 1
