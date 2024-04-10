@@ -457,7 +457,7 @@ def test_inverse_attribute_written_to_mwe_file():
     mwe_freqs = {1: 1}
     mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
     with tempfile.TemporaryDirectory() as tmpdir:
-        file = tmpdir + "file"
+        file = pathlib.Path(tmpdir) / "file"
         pro.compute_mwe_scores(file, mwe_ids, mwe_freqs)
         with open(file) as fp:
             result = fp.read().split()
@@ -466,7 +466,7 @@ def test_inverse_attribute_written_to_mwe_file():
 
 def test_extraction_of_inverse_attribute_for_mwe(collocations):
     with tempfile.TemporaryDirectory() as tmpdir:
-        file = tmpdir + "file"
+        file = pathlib.Path(tmpdir) / "file"
         mwe_ids, _ = pro.extract_mwe_from_collocs(
             "tests/testdata/test_db/matches", file, collocations
         )
@@ -481,7 +481,7 @@ def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
         2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
     )
     with tempfile.TemporaryDirectory() as tmpdir:
-        file = tmpdir + "file"
+        file = pathlib.Path(tmpdir) / "file"
         mwe_ids, _ = pro.extract_mwe_from_collocs(
             "tests/testdata/test_db/matches", file, collocations
         )
