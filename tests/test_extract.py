@@ -20,10 +20,10 @@ def test_inverting_of_relation_patterns():
         "advmod",
         "amod",
         ("conj", "cc"),
-        "obj",
         "iobj",
         ("nmod", "case"),
         ("obl", "case"),
+        ("obj", "case"),
         "nsubj:pass",
         "compound:prt",
     ]
