@@ -9,12 +9,15 @@ from wordprofile.wpse.processing import post_process_db_files
 
 def parse_arguments(args):
     parser = ArgumentParser()
-    parser.add_argument("src", type=str, nargs="+", help="temporary storage path")
-    parser.add_argument("--dest", type=str, help="temporary storage path")
+    parser.add_argument("src", type=str, nargs="+", help="Path to input data")
+    parser.add_argument("--dest", type=str, help="Output path")
     parser.add_argument(
-        "--min-rel-freq", type=int, default=3, help="number of process jobs"
+        "--min-rel-freq",
+        type=int,
+        default=3,
+        help="Minimal frequency filter for aggregated collocations",
     )
-    parser.add_argument("--mwe", action="store_true")
+    parser.add_argument("--mwe", action="store_true", help="Extract MWE collocations")
     return parser.parse_args(args)
 
 
