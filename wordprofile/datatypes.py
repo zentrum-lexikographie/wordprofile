@@ -72,9 +72,17 @@ class MweConcordance:
     sentence_right: str
 
 
-DBToken = namedtuple(
-    "DBToken", ["idx", "surface", "lemma", "tag", "head", "rel", "misc"]
-)
+@dataclass
+class DBToken:
+    idx: int
+    surface: str
+    lemma: str
+    tag: str
+    head: int
+    rel: str
+    misc: bool
+
+
 Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])
 
 
