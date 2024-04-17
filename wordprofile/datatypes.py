@@ -81,6 +81,7 @@ class DBToken:
     head: int
     rel: str
     misc: bool
+    prt_pos: Optional[int] = None
 
 
 Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])

@@ -127,6 +127,17 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
     ]
 
 
+def collapse_phrasal_verbs(sentence: list[DBToken]) -> None:
+    for token in sentence:
+        # preliminary implementation
+        # should be refined to avoid wrong concatenation of lemmata
+        if token.rel == "compound:prt" and token.tag == "ADP":
+            head = sentence[token.head - 1]
+            if head.tag in {"VERB", "AUX"}:
+                head.prt_pos = token.idx
+                head.lemma = f"{token.surface}{head.lemma}"
+
+
 class FileReaderQueue(Protocol):
     def get(self) -> Any:
         ...
