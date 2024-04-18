@@ -666,3 +666,109 @@ def test_particle_not_collapsed_if_head_not_verb():
         rel="ROOT",
         misc=True,
     )
+
+
+def test_lemma_of_phrasal_verb_collapsed_during_conll_conversion():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Test",
+                lemma="Test",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head=2,
+                deprel="nsubj",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+            Token(
+                id=2,
+                form="schlägt",
+                lemma="schlagen",
+                upos="VERB",
+                xpos="",
+                feats={},
+                head=0,
+                deprel="ROOT",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+            Token(
+                id=3,
+                form="fehl",
+                lemma="fehl",
+                upos="ADP",
+                xpos="",
+                feats={},
+                head=2,
+                deprel="compound:prt",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    result = pro.convert_sentence(token_list)
+    assert result[1].lemma == "fehlschlagen"
+
+
+def test_case_normalization_and_phrasal_verb_lemmatization():
+    token_list = TokenList(
+        [
+            Token(
+                id=1,
+                form="Test",
+                lemma="Test",
+                upos="NOUN",
+                xpos="",
+                feats={},
+                head=2,
+                deprel="nsubj",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+            Token(
+                id=2,
+                form="Schlägt",
+                lemma="Schlagen",
+                upos="VERB",
+                xpos="",
+                feats={},
+                head=0,
+                deprel="ROOT",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+            Token(
+                id=3,
+                form="fehl",
+                lemma="fehl",
+                upos="ADP",
+                xpos="",
+                feats={},
+                head=2,
+                deprel="compound:prt",
+                deps=None,
+                misc={"SpaceAfter": "No"},
+            ),
+        ]
+    )
+    result = pro.convert_sentence(token_list)
+    assert result[1].lemma == "fehlschlagen"
+
+
+def test_collapse_lemma_of_phrasal_verbs_from_file():
+    conll_file = pathlib.Path(__file__).parent / "testdata" / "phrasal_verbs.conll"
+    with open(conll_file) as fh:
+        doc = conllu.parse(fh.read())
+    sentences = [pro.convert_sentence(sent) for sent in doc]
+    result = [tok.lemma for sent in sentences for tok in sent if tok.tag == "VERB"]
+    assert result == [
+        "bereithalten",
+        "erleben",
+        "stattfinden",
+        "naheliegen",
+        "vornehmen",
+        "ankommen",
+    ]
