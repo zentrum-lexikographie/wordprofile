@@ -465,7 +465,8 @@ def test_matches_with_collocation_id_zero_not_discarded():
         with open(output_file) as fh:
             result = [line.split()[1:4] for line in fh]
     assert len(result) == 2
-    assert ["0", "Zeitung", "süddeutsche"] in result
+    assert ["Zeitung", "süddeutsche"] in [collocation[1:] for collocation in result]
+    assert {"0", "1"} == {collocation[0] for collocation in result}
 
 
 def test_collapse_lemma_of_phrasal_verbs():
