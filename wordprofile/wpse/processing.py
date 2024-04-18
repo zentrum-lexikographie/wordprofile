@@ -107,27 +107,31 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
                 return "PROPN"
         return token["upos"]
 
-    return [
-        normalize_caps(
-            DBToken(
-                idx=token["id"],
-                surface=remove_invalid_chars(token["form"]),
-                # TODO remove lemma repair call
-                # ==> lemma=remove_invalid_chars(token['lemma']),
-                lemma=repair_lemma(remove_invalid_chars(token["lemma"]), token["upos"]),
-                tag=entity_tag_conversion(token),
-                head=token["head"],
-                rel=token["deprel"],
-                misc=token["misc"].get("SpaceAfter") == "No"
-                if token["misc"]
-                else False,
+    return collapse_phrasal_verbs(
+        [
+            normalize_caps(
+                DBToken(
+                    idx=token["id"],
+                    surface=remove_invalid_chars(token["form"]),
+                    # TODO remove lemma repair call
+                    # ==> lemma=remove_invalid_chars(token['lemma']),
+                    lemma=repair_lemma(
+                        remove_invalid_chars(token["lemma"]), token["upos"]
+                    ),
+                    tag=entity_tag_conversion(token),
+                    head=token["head"],
+                    rel=token["deprel"],
+                    misc=token["misc"].get("SpaceAfter") == "No"
+                    if token["misc"]
+                    else False,
+                )
             )
-        )
-        for token in sentence
-    ]
+            for token in sentence
+        ]
+    )
 
 
-def collapse_phrasal_verbs(sentence: list[DBToken]) -> None:
+def collapse_phrasal_verbs(sentence: list[DBToken]) -> list[DBToken]:
     for token in sentence:
         # preliminary implementation
         # should be refined to avoid wrong concatenation of lemmata
@@ -136,6 +140,7 @@ def collapse_phrasal_verbs(sentence: list[DBToken]) -> None:
             if head.tag in {"VERB", "AUX"}:
                 head.prt_pos = token.idx
                 head.lemma = f"{token.surface}{head.lemma}"
+    return sentence
 
 
 class FileReaderQueue(Protocol):
