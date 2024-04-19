@@ -29,10 +29,10 @@ from wordprofile.wpse.prepare import (
 
 logger = logging.getLogger(__name__)
 
-MATCH_DTYPES = [int, int, str, str, int, int, int, int, int]
+COLLOC_INSTANCE_DTYPES = [int, int, str, str, int, int, int, int, int]
 
-Match = namedtuple(
-    "Match",
+CollocInstance = namedtuple(
+    "CollocInstance",
     [
         "id",
         "collocation_id",
@@ -51,7 +51,9 @@ Colloc = namedtuple(
 )
 
 
-def convert_line(line: str, cls: Callable, dtypes: list[type]) -> Union[Match, Colloc]:
+def convert_line(
+    line: str, cls: Callable, dtypes: list[type]
+) -> Union[CollocInstance, Colloc]:
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split("\t"))])
 
 
@@ -440,15 +442,15 @@ def extract_mwe_from_collocs(
 
     MWE matches are stored directly on disk."""
 
-    def read_collapsed_sentence_matches(fin: str) -> Iterator[list[Match]]:
-        """Reads Matches per sentences from file."""
+    def read_collapsed_sentence_matches(fin: str) -> Iterator[list[CollocInstance]]:
+        """Reads matches for collcations per sentences from file."""
         sent = []
         sent_curr = 0
         doc_curr = 0
         with open(fin, "r") as fh:
             for line in fh:
-                m = convert_line(line, Match, MATCH_DTYPES)
-                assert isinstance(m, Match)  # to make mypy happy for now
+                m = convert_line(line, CollocInstance, COLLOC_INSTANCE_DTYPES)
+                assert isinstance(m, CollocInstance)  # to make mypy happy for now
                 if m.doc_id == doc_curr and m.sent_id == sent_curr:
                     sent.append(m)
                 else:
