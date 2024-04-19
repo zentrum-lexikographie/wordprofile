@@ -14,7 +14,7 @@ import conllu
 from conllu.models import Token, TokenList
 from sqlalchemy import Connection, text
 
-from wordprofile.datatypes import WPToken
+from wordprofile.datatypes import Colloc, CollocInstance, WPToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
     remove_invalid_chars,
@@ -30,25 +30,6 @@ from wordprofile.wpse.prepare import (
 logger = logging.getLogger(__name__)
 
 COLLOC_INSTANCE_DTYPES = [int, int, str, str, int, int, int, int, int]
-
-CollocInstance = namedtuple(
-    "CollocInstance",
-    [
-        "id",
-        "collocation_id",
-        "head_surface",
-        "dep_surface",
-        "head_pos",
-        "dep_pos",
-        "prep_pos",
-        "doc_id",
-        "sent_id",
-    ],
-)
-Colloc = namedtuple(
-    "Colloc",
-    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
-)
 
 
 def convert_line(

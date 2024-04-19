@@ -114,6 +114,25 @@ DBMatch = namedtuple(
     ],
 )
 
+CollocInstance = namedtuple(
+    "CollocInstance",
+    [
+        "id",
+        "collocation_id",
+        "head_surface",
+        "dep_surface",
+        "head_pos",
+        "dep_pos",
+        "prep_pos",
+        "doc_id",
+        "sent_id",
+    ],
+)
+Colloc = namedtuple(
+    "Colloc",
+    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
+)
+
 
 class DependencyTree:
     class Node:
