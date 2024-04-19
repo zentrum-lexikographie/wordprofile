@@ -73,7 +73,11 @@ class MweConcordance:
 
 
 @dataclass
-class DBToken:
+class WPToken:
+    """
+    Represents a token with information relevant for wordprofile
+    """
+
     idx: int
     surface: str
     lemma: str
@@ -113,7 +117,7 @@ DBMatch = namedtuple(
 
 class DependencyTree:
     class Node:
-        def __init__(self, token: DBToken) -> None:
+        def __init__(self, token: WPToken) -> None:
             self.token = token
             self.parent: Optional["DependencyTree.Node"] = None
             self.children: list["DependencyTree.Node"] = []
@@ -125,7 +129,7 @@ class DependencyTree:
         def is_root(self) -> bool:
             return self.parent is None
 
-    def __init__(self, tokens: list[DBToken]) -> None:
+    def __init__(self, tokens: list[WPToken]) -> None:
         self.nodes = [DependencyTree.Node(token) for token in tokens]
         self.root: Optional[DependencyTree.Node] = None
         for n in self.nodes:

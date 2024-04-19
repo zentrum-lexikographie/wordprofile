@@ -1,7 +1,7 @@
 import enum
 from collections import namedtuple
 
-from sqlalchemy import Table, Column, types, MetaData, Enum
+from sqlalchemy import Column, Enum, MetaData, Table, types
 from sqlalchemy.sql.schema import Index
 
 from wordprofile.extract import get_relation_types, get_word_classes

@@ -1,7 +1,7 @@
 from conllu.models import Metadata
 
 import wordprofile.wpse.prepare as pre
-from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, DBToken, Match
+from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, Match, WPToken
 
 
 def test_prepare_corpus_file():
@@ -28,7 +28,7 @@ def test_prepare_corpus_file():
 def test_prepare_concord_sentence():
     parses = [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="A",
                 lemma="",
@@ -37,7 +37,7 @@ def test_prepare_concord_sentence():
                 rel="",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="B",
                 lemma="",
@@ -55,14 +55,14 @@ def test_prepare_concord_sentence():
 
 def test_index_counter_starts_at_one_for_concord_sentences():
     parses = [
-        [DBToken(idx=1, surface="A", lemma="", tag="", head="", rel="", misc=True)]
+        [WPToken(idx=1, surface="A", lemma="", tag="", head="", rel="", misc=True)]
     ]
     result = pre.prepare_concord_sentences("1", parses * 3)
     assert [sent.sentence_id for sent in result] == [1, 2, 3]
 
 
 def test_prepare_matches_long_token_excluded(caplog):
-    head = DBToken(
+    head = WPToken(
         idx=1,
         surface="thiscontainsmorethanfiftyletterstoexcedethecharlimit",
         lemma="",
@@ -71,17 +71,17 @@ def test_prepare_matches_long_token_excluded(caplog):
         rel="",
         misc=True,
     )
-    dep = DBToken(idx=2, surface="B", lemma="B", tag="", head=0, rel="", misc=False)
+    dep = WPToken(idx=2, surface="B", lemma="B", tag="", head=0, rel="", misc=False)
     matches = [Match(head, dep, prep=None, relation="", sid=0)]
     assert pre.prepare_matches("1", matches) == []
     assert "SKIP LONG MATCH" in caplog.text
 
 
 def test_conversion_to_db_match():
-    head = DBToken(
+    head = WPToken(
         idx=1, surface="Head", lemma="head", tag="Tag1", head=0, rel="", misc=True
     )
-    dep = DBToken(
+    dep = WPToken(
         idx=2, surface="Dep", lemma="dep", tag="Tag2", head=1, rel="", misc=False
     )
     matches = [Match(head, dep, prep=None, relation="REL", sid=0)]
@@ -104,9 +104,9 @@ def test_conversion_to_db_match():
 
 
 def test_conversion_to_db_match_with_prep():
-    head = DBToken(idx=1, surface="A", lemma="A", tag="", head="", rel="", misc=True)
-    dep = DBToken(idx=3, surface="B", lemma="B", tag="", head="", rel="", misc=False)
-    prep = DBToken(idx=2, surface="C", lemma="C", tag="", head="", rel="", misc=True)
+    head = WPToken(idx=1, surface="A", lemma="A", tag="", head="", rel="", misc=True)
+    dep = WPToken(idx=3, surface="B", lemma="B", tag="", head="", rel="", misc=False)
+    prep = WPToken(idx=2, surface="C", lemma="C", tag="", head="", rel="", misc=True)
     matches = [Match(head, dep, prep, relation="REL", sid=0)]
     assert pre.prepare_matches("1", matches) == [
         DBMatch(

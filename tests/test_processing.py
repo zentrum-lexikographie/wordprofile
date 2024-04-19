@@ -7,7 +7,7 @@ import pytest
 from conllu.models import Token, TokenList
 
 import wordprofile.wpse.processing as pro
-from wordprofile.datatypes import DBToken
+from wordprofile.datatypes import WPToken
 
 
 class MockQueue:
@@ -57,7 +57,7 @@ def test_sentence_conversion_to_dbtoken():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1, surface="Test", lemma="Test", tag="NOUN", head="", rel="", misc=True
         )
     ]
@@ -81,7 +81,7 @@ def test_sentence_conversion_casing():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Test",
             lemma="Test",
@@ -111,7 +111,7 @@ def test_sentence_conversion_caps_normalization():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="testen",
             lemma="testen",
@@ -141,7 +141,7 @@ def test_sentence_conversion_ne_tags():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Name",
             lemma="Name",
@@ -171,7 +171,7 @@ def test_sentence_conversion_contracted_adp():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="am",
             lemma="an",
@@ -201,7 +201,7 @@ def test_sentence_conversion_to_dbtoken_invalid_chars_removed():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="testen",
             lemma="testen",
@@ -353,7 +353,7 @@ def test_sentence_conversion_casing_with_multi_part_token():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Kopf-an-Kopf-Rennen",
             lemma="Kopf-an-Kopf-Rennen",
@@ -407,7 +407,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
         ]
     )
     assert pro.convert_sentence(token_list) == [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Anfang",
             lemma="Anfang",
@@ -416,7 +416,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             rel="",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="_",
             lemma="_",
@@ -425,7 +425,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             rel="",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Ende",
             lemma="Ende",
@@ -471,7 +471,7 @@ def test_matches_with_collocation_id_zero_not_discarded():
 
 def test_collapse_lemma_of_phrasal_verbs():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Denn",
             lemma="denn",
@@ -480,7 +480,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="cc",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="die",
             lemma="d",
@@ -489,7 +489,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Läuterung",
             lemma="Läuterung",
@@ -498,7 +498,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="setzt",
             lemma="setzen",
@@ -507,7 +507,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="überlicherweise",
             lemma="überlicherweise",
@@ -516,7 +516,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="erst",
             lemma="erst",
@@ -525,7 +525,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="später",
             lemma="spät",
@@ -534,7 +534,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=8,
             surface="ein",
             lemma="ein",
@@ -545,7 +545,7 @@ def test_collapse_lemma_of_phrasal_verbs():
         ),
     ]
     pro.collapse_phrasal_verbs(sentence)
-    assert sentence[3] == DBToken(
+    assert sentence[3] == WPToken(
         idx=4,
         surface="setzt",
         lemma="einsetzen",
@@ -559,7 +559,7 @@ def test_collapse_lemma_of_phrasal_verbs():
 
 def test_particle_not_collapsed_if_prt_not_adp():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Opposition",
             lemma="Opposition",
@@ -568,7 +568,7 @@ def test_particle_not_collapsed_if_prt_not_adp():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="läuft",
             lemma="laufen",
@@ -577,7 +577,7 @@ def test_particle_not_collapsed_if_prt_not_adp():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Sturm",
             lemma="Sturm",
@@ -588,7 +588,7 @@ def test_particle_not_collapsed_if_prt_not_adp():
         ),
     ]
     pro.collapse_phrasal_verbs(sentence)
-    assert sentence[1] == DBToken(
+    assert sentence[1] == WPToken(
         idx=2,
         surface="läuft",
         lemma="laufen",
@@ -601,7 +601,7 @@ def test_particle_not_collapsed_if_prt_not_adp():
 
 def test_particle_not_collapsed_if_head_not_verb():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Pauli",
             lemma="Pauli",
@@ -610,7 +610,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="folgt",
             lemma="folgen",
@@ -619,7 +619,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Ministerpräsident",
             lemma="Ministerpräsident",
@@ -628,7 +628,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="Günther",
             lemma="Günther",
@@ -637,7 +637,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             rel="flat:name",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="Beckstein",
             lemma="Beckstein",
@@ -646,7 +646,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             rel="flat:name",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="nach",
             lemma="nach",
@@ -657,7 +657,7 @@ def test_particle_not_collapsed_if_head_not_verb():
         ),
     ]
     pro.collapse_phrasal_verbs(sentence)
-    assert sentence[2] == DBToken(
+    assert sentence[2] == WPToken(
         idx=3,
         surface="Ministerpräsident",
         lemma="Ministerpräsident",

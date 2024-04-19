@@ -12,9 +12,9 @@ from typing import Any, Protocol, Union
 
 import conllu
 from conllu.models import Token, TokenList
-from sqlalchemy import text, Connection
+from sqlalchemy import Connection, text
 
-from wordprofile.datatypes import DBToken
+from wordprofile.datatypes import WPToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
     remove_invalid_chars,
@@ -55,7 +55,7 @@ def convert_line(line: str, cls: Callable, dtypes: list[type]) -> Union[Match, C
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split("\t"))])
 
 
-def convert_sentence(sentence: TokenList) -> list[DBToken]:
+def convert_sentence(sentence: TokenList) -> list[WPToken]:
     """Convert sentence into list of token.
 
     Sentences are normalized and filtered during this process.
@@ -84,8 +84,8 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
         else:
             return w
 
-    def normalize_caps(t: DBToken) -> DBToken:
-        return DBToken(
+    def normalize_caps(t: WPToken) -> WPToken:
+        return WPToken(
             idx=t.idx,
             surface=t.surface,
             lemma=case_by_tag(t.lemma, t.tag),
@@ -110,7 +110,7 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
     return collapse_phrasal_verbs(
         [
             normalize_caps(
-                DBToken(
+                WPToken(
                     idx=token["id"],
                     surface=remove_invalid_chars(token["form"]),
                     # TODO remove lemma repair call
@@ -131,7 +131,7 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
     )
 
 
-def collapse_phrasal_verbs(sentence: list[DBToken]) -> list[DBToken]:
+def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
     for token in sentence:
         # preliminary implementation
         # should be refined to avoid wrong concatenation of lemmata

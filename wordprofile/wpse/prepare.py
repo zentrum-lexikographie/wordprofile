@@ -3,11 +3,8 @@ from collections.abc import Iterable
 
 from conllu.models import Metadata
 
-from wordprofile.datatypes import DBToken, Match, DBConcordance, DBCorpusFile, DBMatch
-from wordprofile.wpse.db_tables import (
-    LEMMA_TYPE,
-    SURFACE_TYPE,
-)
+from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, Match, WPToken
+from wordprofile.wpse.db_tables import LEMMA_TYPE, SURFACE_TYPE
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +33,7 @@ def prepare_corpus_file(meta: Metadata) -> tuple[str, DBCorpusFile]:
 
 
 def prepare_concord_sentences(
-    doc_id: str, parses: list[list[DBToken]]
+    doc_id: str, parses: list[list[WPToken]]
 ) -> list[DBConcordance]:
     """Converts concordances into DB entries.
 

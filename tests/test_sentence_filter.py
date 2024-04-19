@@ -3,14 +3,14 @@ import random
 import pytest
 
 import wordprofile.sentence_filter as sf
-from wordprofile.datatypes import DBToken, Match
+from wordprofile.datatypes import Match, WPToken
 
 
 @pytest.fixture
 def valid_sentences():
     return [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Eine",
                 lemma="eine",
@@ -19,7 +19,7 @@ def valid_sentences():
                 rel="det",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="neue",
                 lemma="neu",
@@ -28,7 +28,7 @@ def valid_sentences():
                 rel="amod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="Zeit",
                 lemma="Zeit",
@@ -37,7 +37,7 @@ def valid_sentences():
                 rel="nsubj",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="begann",
                 lemma="beginnen",
@@ -48,7 +48,7 @@ def valid_sentences():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Eine",
                 lemma="eine",
@@ -57,7 +57,7 @@ def valid_sentences():
                 rel="det",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="neue",
                 lemma="neu",
@@ -66,7 +66,7 @@ def valid_sentences():
                 rel="amod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="Zeit",
                 lemma="Zeit",
@@ -75,7 +75,7 @@ def valid_sentences():
                 rel="nsubj",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="begann",
                 lemma="beginnen",
@@ -84,7 +84,7 @@ def valid_sentences():
                 rel="ROOT",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface=",",
                 lemma=",",
@@ -95,7 +95,7 @@ def valid_sentences():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Ohne",
                 lemma="ohne",
@@ -104,7 +104,7 @@ def valid_sentences():
                 rel="case",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="den",
                 lemma="d",
@@ -113,7 +113,7 @@ def valid_sentences():
                 rel="det",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="Helsinki-Prozess",
                 lemma="Helsinki-Prozeß",
@@ -122,7 +122,7 @@ def valid_sentences():
                 rel="obl",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="hätte",
                 lemma="haben",
@@ -131,7 +131,7 @@ def valid_sentences():
                 rel="aux",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="es",
                 lemma="es",
@@ -140,7 +140,7 @@ def valid_sentences():
                 rel="nsubj",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="1989",
                 lemma="1989",
@@ -149,7 +149,7 @@ def valid_sentences():
                 rel="obl",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="nicht",
                 lemma="nicht",
@@ -158,7 +158,7 @@ def valid_sentences():
                 rel="advmod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=8,
                 surface="gegeben",
                 lemma="geben",
@@ -167,7 +167,7 @@ def valid_sentences():
                 rel="ROOT",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=9,
                 surface=".",
                 lemma=".",
@@ -178,7 +178,7 @@ def valid_sentences():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="A-Rosa",
                 lemma="A-Rosa",
@@ -187,7 +187,7 @@ def valid_sentences():
                 rel="ROOT",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="mit",
                 lemma="mit",
@@ -196,7 +196,7 @@ def valid_sentences():
                 rel="case",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="zwei",
                 lemma="zwei",
@@ -205,7 +205,7 @@ def valid_sentences():
                 rel="nummod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="neuen",
                 lemma="neu",
@@ -214,7 +214,7 @@ def valid_sentences():
                 rel="amod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="Schiffen",
                 lemma="Schiff",
@@ -223,7 +223,7 @@ def valid_sentences():
                 rel="nmod",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="2024",
                 lemma="2024",
@@ -240,7 +240,7 @@ def valid_sentences():
 def invalid_sentences():
     return [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Exzellenzen",
                 lemma="Exzellenz",
@@ -249,7 +249,7 @@ def invalid_sentences():
                 rel="ROOT",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface=",",
                 lemma=",",
@@ -260,7 +260,7 @@ def invalid_sentences():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Heppenheim",
                 lemma="Heppenheim",
@@ -271,10 +271,10 @@ def invalid_sentences():
             )
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1, surface="<", lemma="<", tag="X", head=0, rel="ROOT", misc=True
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="bold>Serbien",
                 lemma="Bold>serbien",
@@ -283,7 +283,7 @@ def invalid_sentences():
                 rel="flat",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="-",
                 lemma="-",
@@ -292,7 +292,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="Kanada",
                 lemma="Kanada",
@@ -301,7 +301,7 @@ def invalid_sentences():
                 rel="appos",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="95:86USA",
                 lemma="95:86usa",
@@ -310,7 +310,7 @@ def invalid_sentences():
                 rel="flat:name",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="-",
                 lemma="-",
@@ -319,7 +319,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="Deutschland",
                 lemma="Deutschland",
@@ -328,7 +328,7 @@ def invalid_sentences():
                 rel="appos",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=8,
                 surface="111:113</bold",
                 lemma="111:113</bold",
@@ -337,12 +337,12 @@ def invalid_sentences():
                 rel="appos",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=9, surface=">", lemma=">", tag="X", head=7, rel="appos", misc=False
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface='"[',
                 lemma='"[',
@@ -351,7 +351,7 @@ def invalid_sentences():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface=".",
                 lemma=".",
@@ -360,7 +360,7 @@ def invalid_sentences():
                 rel="ROOT",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface=".",
                 lemma=".",
@@ -369,7 +369,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface=".",
                 lemma=".",
@@ -378,15 +378,15 @@ def invalid_sentences():
                 rel="punct",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=5, surface="]", lemma="]", tag="X", head=0, rel="ROOT", misc=False
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1, surface="<", lemma="<", tag="X", head=0, rel="ROOT", misc=True
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="bold>",
                 lemma="bold>",
@@ -395,7 +395,7 @@ def invalid_sentences():
                 rel="flat",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="UCI",
                 lemma="uci",
@@ -404,7 +404,7 @@ def invalid_sentences():
                 rel="flat:name",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="WorldTour",
                 lemma="worldtour",
@@ -413,7 +413,7 @@ def invalid_sentences():
                 rel="flat:name",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface=",",
                 lemma=",",
@@ -424,10 +424,10 @@ def invalid_sentences():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1, surface="<", lemma="<", tag="X", head=0, rel="ROOT", misc=True
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="bold>Tischler*in",
                 lemma="Bold>tischler*in",
@@ -436,7 +436,7 @@ def invalid_sentences():
                 rel="flat",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="(",
                 lemma="(",
@@ -445,7 +445,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="Berufsschule",
                 lemma="Berufsschule",
@@ -454,7 +454,7 @@ def invalid_sentences():
                 rel="appos",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="Melle",
                 lemma="Melle",
@@ -463,7 +463,7 @@ def invalid_sentences():
                 rel="flat:name",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface=")",
                 lemma=")",
@@ -472,7 +472,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface=":</bold",
                 lemma=":</bold",
@@ -481,7 +481,7 @@ def invalid_sentences():
                 rel="punct",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=8, surface=">", lemma=">", tag="X", head=0, rel="ROOT", misc=False
             ),
         ],
@@ -490,7 +490,7 @@ def invalid_sentences():
 
 def test_valid_token_identified():
     tokens = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Eine",
             lemma="eine",
@@ -499,7 +499,7 @@ def test_valid_token_identified():
             rel="det",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="neue",
             lemma="neu",
@@ -508,7 +508,7 @@ def test_valid_token_identified():
             rel="amod",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Zeit",
             lemma="Zeit",
@@ -517,7 +517,7 @@ def test_valid_token_identified():
             rel="nsubj",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="begann",
             lemma="beginnen",
@@ -526,7 +526,7 @@ def test_valid_token_identified():
             rel="ROOT",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=1,
             surface="Ohne",
             lemma="ohne",
@@ -535,7 +535,7 @@ def test_valid_token_identified():
             rel="case",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="WorldTour",
             lemma="worldtour",
@@ -544,7 +544,7 @@ def test_valid_token_identified():
             rel="flat:name",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=1,
             surface="A-Rosa",
             lemma="A-Rosa",
@@ -553,7 +553,7 @@ def test_valid_token_identified():
             rel="ROOT",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="es",
             lemma="es",
@@ -562,7 +562,7 @@ def test_valid_token_identified():
             rel="nsubj",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=8,
             surface="España",
             lemma="España",
@@ -571,7 +571,7 @@ def test_valid_token_identified():
             rel="flat:name",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="den",
             lemma="d",
@@ -580,7 +580,7 @@ def test_valid_token_identified():
             rel="det",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Helsinki-Prozess",
             lemma="Helsinki-Prozeß",
@@ -589,7 +589,7 @@ def test_valid_token_identified():
             rel="obl",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=15,
             surface="Súria",
             lemma="Súria",
@@ -598,7 +598,7 @@ def test_valid_token_identified():
             rel="appos",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=10,
             surface="Männer",
             lemma="Mann",
@@ -614,7 +614,7 @@ def test_valid_token_identified():
 
 def test_invalid_token_rejected():
     tokens = [
-        DBToken(
+        WPToken(
             idx=6,
             surface="2024",
             lemma="2024",
@@ -623,7 +623,7 @@ def test_invalid_token_rejected():
             rel="nmod",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=9,
             surface=".",
             lemma=".",
@@ -632,7 +632,7 @@ def test_invalid_token_rejected():
             rel="punct",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface=",",
             lemma=",",
@@ -641,7 +641,7 @@ def test_invalid_token_rejected():
             rel="punct",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface=")",
             lemma=")",
@@ -650,7 +650,7 @@ def test_invalid_token_rejected():
             rel="punct",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface=":</bold",
             lemma=":</bold",
@@ -659,8 +659,8 @@ def test_invalid_token_rejected():
             rel="punct",
             misc=False,
         ),
-        DBToken(idx=8, surface=">", lemma=">", tag="X", head=0, rel="ROOT", misc=False),
-        DBToken(
+        WPToken(idx=8, surface=">", lemma=">", tag="X", head=0, rel="ROOT", misc=False),
+        WPToken(
             idx=2,
             surface="bold>Tischler*in",
             lemma="Bold>tischler*in",
@@ -669,7 +669,7 @@ def test_invalid_token_rejected():
             rel="flat",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=19,
             surface="158,50",
             lemma="158,50",
@@ -678,7 +678,7 @@ def test_invalid_token_rejected():
             rel="nummod",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=16,
             surface="-",
             lemma="-",
@@ -687,7 +687,7 @@ def test_invalid_token_rejected():
             rel="punct",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=12,
             surface="3.",
             lemma="3.",
@@ -696,7 +696,7 @@ def test_invalid_token_rejected():
             rel="amod",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="95:86USA",
             lemma="95:86usa",
@@ -705,7 +705,7 @@ def test_invalid_token_rejected():
             rel="flat:name",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="USA95:86",
             lemma="usa95:86",
@@ -714,7 +714,7 @@ def test_invalid_token_rejected():
             rel="flat:name",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="#Helsinki-Prozess",
             lemma="#Helsinki-Prozeß",
@@ -723,7 +723,7 @@ def test_invalid_token_rejected():
             rel="obl",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Hels1nk1",
             lemma="Hels1nk1",
@@ -732,7 +732,7 @@ def test_invalid_token_rejected():
             rel="obl",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="-Prozess",
             lemma="-Prozeß",
@@ -741,7 +741,7 @@ def test_invalid_token_rejected():
             rel="obl",
             misc=False,
         ),
-        DBToken(
+        WPToken(
             idx=0,
             surface="UBS",
             lemma="Ubs_ag",
@@ -756,7 +756,7 @@ def test_invalid_token_rejected():
 
 
 def test_too_short_sentences_filtered():
-    token = DBToken(
+    token = WPToken(
         idx=0,
         surface="Schiffen",
         lemma="Schiff",
@@ -771,7 +771,7 @@ def test_too_short_sentences_filtered():
 
 
 def test_too_long_sentences_filtered():
-    token = DBToken(
+    token = WPToken(
         idx=0,
         surface="Schiffen",
         lemma="Schiff",
@@ -785,7 +785,7 @@ def test_too_long_sentences_filtered():
 
 
 def test_sentence_filtered_according_to_last_token():
-    noun = DBToken(
+    noun = WPToken(
         idx=0,
         surface="Zeit",
         lemma="Zeit",
@@ -794,10 +794,10 @@ def test_sentence_filtered_according_to_last_token():
         rel="nsubj",
         misc=False,
     )
-    colon = DBToken(
+    colon = WPToken(
         idx=1, surface=":", lemma=":", tag="PUNCT", head=1, rel="punct", misc=False
     )
-    comma = DBToken(
+    comma = WPToken(
         idx=1, surface=",", lemma=",", tag="PUNCT", head=1, rel="punct", misc=False
     )
     assert sf.sent_filter_endings([noun, colon]) is False
@@ -810,7 +810,7 @@ def test_sentence_filtered_according_to_last_token():
 def test_sentence_must_contain_one_desired_tag():
     necessary_tags = ["NOUN", "VERB", "AUX"]
     other_tags = ["X", "PUNCT", "ADV", "ADJ", "PROPN", "DET", "FM", "ADP", "PRON"]
-    x_tag = DBToken(
+    x_tag = WPToken(
         idx=0,
         surface="",
         lemma="",
@@ -819,7 +819,7 @@ def test_sentence_must_contain_one_desired_tag():
         rel="det",
         misc=True,
     )
-    token_with_necessary_tag = DBToken(
+    token_with_necessary_tag = WPToken(
         idx=1,
         surface="",
         lemma="",
@@ -834,8 +834,8 @@ def test_sentence_must_contain_one_desired_tag():
 
 def test_sentence_contains_maximal_9_unwanted_tags():
     invalid_token = [
-        DBToken(idx=1, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True),
-        DBToken(
+        WPToken(idx=1, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True),
+        WPToken(
             idx=2,
             surface="bold>27.",
             lemma="Bold>27.",
@@ -858,7 +858,7 @@ def test_sentence_contains_maximal_9_unwanted_tags():
         "ADP",
         "PRON",
     ]
-    valid_token = DBToken(
+    valid_token = WPToken(
         idx=1,
         surface="",
         lemma="",
@@ -891,10 +891,10 @@ def test_valid_sentences_not_filtered(valid_sentences):
 
 
 def test_valid_match():
-    tok1 = DBToken(
+    tok1 = WPToken(
         idx=1, surface="Test", lemma="Test", tag="Noun", head=0, rel="", misc=True
     )
-    tok2 = DBToken(idx=2, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True)
+    tok2 = WPToken(idx=2, surface="<", lemma="<", tag="SYM", head=0, rel="", misc=True)
     assert sf.valid_match(Match(head=tok1, dep=tok1, prep=None, relation="", sid=0))
     assert (
         sf.valid_match(Match(head=tok1, dep=tok2, prep=None, relation="", sid=0))
@@ -935,8 +935,7 @@ def test_case_normalisation_regex_invalid_lemmata_matched():
         "E-mail",
         "Social-media-expertin",
         "US-dollar",
-        "Bertha-von-suttner-straße"
-        "Jäger-straße",
+        "Bertha-von-suttner-straße" "Jäger-straße",
         # theoretisch nicht falsch s. https://git.zdl.org/zdl/wordprofile/issues/44
         "Prêt-à-porter",
         "CDU-regiert",
