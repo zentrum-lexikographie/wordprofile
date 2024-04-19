@@ -3,13 +3,10 @@ from collections.abc import Iterable
 
 from conllu.models import Metadata
 
-from wordprofile.datatypes import DBToken, Match
+from wordprofile.datatypes import DBToken, Match, DBConcordance, DBCorpusFile, DBMatch
 from wordprofile.wpse.db_tables import (
     LEMMA_TYPE,
     SURFACE_TYPE,
-    DBConcordance,
-    DBCorpusFile,
-    DBMatch,
 )
 
 logger = logging.getLogger(__name__)

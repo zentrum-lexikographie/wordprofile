@@ -11,30 +11,6 @@ SURFACE_TYPE = types.VARCHAR(50)
 CORPUS_FILE_TYPE = types.Integer
 RELATION_TYPE = enum.Enum("RELATION_TYPE", get_relation_types())
 TAG_TYPE = enum.Enum("TAG_TYPE", get_word_classes())
-DBCorpusFile = namedtuple(
-    "DBCorpusFile",
-    ["id", "corpus", "file", "orig", "scan", "date", "text_class", "available"],
-)
-DBConcordance = namedtuple(
-    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence", "page"]
-)
-DBMatch = namedtuple(
-    "DBMatch",
-    [
-        "relation_label",
-        "head_lemma",
-        "dep_lemma",
-        "head_tag",
-        "dep_tag",
-        "head_surface",
-        "dep_surface",
-        "head_position",
-        "dep_position",
-        "prep_position",
-        "corpus_file_id",
-        "sentence_id",
-    ],
-)
 
 
 def get_table_corpus_files(meta: MetaData):

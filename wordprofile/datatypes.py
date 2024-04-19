@@ -85,6 +85,30 @@ class DBToken:
 
 
 Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])
+DBCorpusFile = namedtuple(
+    "DBCorpusFile",
+    ["id", "corpus", "file", "orig", "scan", "date", "text_class", "available"],
+)
+DBConcordance = namedtuple(
+    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence", "page"]
+)
+DBMatch = namedtuple(
+    "DBMatch",
+    [
+        "relation_label",
+        "head_lemma",
+        "dep_lemma",
+        "head_tag",
+        "dep_tag",
+        "head_surface",
+        "dep_surface",
+        "head_position",
+        "dep_position",
+        "prep_position",
+        "corpus_file_id",
+        "sentence_id",
+    ],
+)
 
 
 class DependencyTree:

@@ -1,8 +1,7 @@
 from conllu.models import Metadata
 
 import wordprofile.wpse.prepare as pre
-from wordprofile.datatypes import DBToken, Match
-from wordprofile.wpse.db_tables import DBConcordance, DBCorpusFile, DBMatch
+from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, DBToken, Match
 
 
 def test_prepare_corpus_file():
