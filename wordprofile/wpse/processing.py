@@ -29,6 +29,8 @@ from wordprofile.wpse.prepare import (
 
 logger = logging.getLogger(__name__)
 
+MATCH_DTYPES = [int, int, str, str, int, int, int, int, int]
+
 Match = namedtuple(
     "Match",
     [
@@ -43,12 +45,10 @@ Match = namedtuple(
         "sent_id",
     ],
 )
-match_dtypes = [int, int, str, str, int, int, int, int, int]
 Colloc = namedtuple(
     "Colloc",
     ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
 )
-colloc_dtypes = [int, str, str, str, str, str, int, int]
 
 
 def convert_line(line: str, cls: Callable, dtypes: list[type]) -> Union[Match, Colloc]:
@@ -447,7 +447,7 @@ def extract_mwe_from_collocs(
         doc_curr = 0
         with open(fin, "r") as fh:
             for line in fh:
-                m = convert_line(line, Match, match_dtypes)
+                m = convert_line(line, Match, MATCH_DTYPES)
                 assert isinstance(m, Match)  # to make mypy happy for now
                 if m.doc_id == doc_curr and m.sent_id == sent_curr:
                     sent.append(m)
