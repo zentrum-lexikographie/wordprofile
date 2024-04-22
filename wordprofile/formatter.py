@@ -71,12 +71,8 @@ def format_concordances(concords: List[Concordance]):
     for c in concords:
         sentence_left = format_sentence(c.sentence_left)
         sentence_right = format_sentence(c.sentence_right)
-        sentence_main = format_sentence_and_highlight(
-            c.sentence,
-            c.token_position_1,
-            c.token_position_2,
-            c.prep_position if c.prep_position > 0 else None,
-        )
+        highlight_positions = [c.token_position_1, c.token_position_2, c.prep_position]
+        sentence_main = format_sentence_and_highlight(c.sentence, highlight_positions)
         results.append(
             {
                 "Bibl": {
@@ -114,7 +110,7 @@ def format_mwe_concordances(concords: List[MweConcordance]):
                 c.prep2_position,
             }
         )
-        sentence_main = format_mwe_sentence_and_highlight(c.sentence, positions)
+        sentence_main = format_sentence_and_highlight(c.sentence, positions)
         results.append(
             {
                 "Bibl": {
@@ -209,29 +205,7 @@ def format_sentence(sent: str) -> str:
     return sent.replace("\x02", " ").replace("\x01", "").strip()
 
 
-def format_sentence_and_highlight(sent: str, pos1: int, pos2: int, pos3=None) -> str:
-    """Format concordance sentence and highlight certain positions."""
-    if not sent:
-        return ""
-    # TODO: remove hack for leading delimiter from data
-    if sent.startswith("\x02"):
-        sent = sent[1:]
-    sent += "\x01"
-    tokens = RE_HIT_DELIMITER.findall(sent)
-    for idx, (token, delim) in enumerate(tokens):
-        padding = " " if delim == "\x02" else ""
-        if idx == (pos1 - 1):
-            tokens[idx] = "&&{}&&{}".format(token, padding)
-        elif idx == (pos2 - 1):
-            tokens[idx] = "_&{}&_{}".format(token, padding)
-        elif pos3 and idx == (pos3 - 1):
-            tokens[idx] = "_&{}&_{}".format(token, padding)
-        else:
-            tokens[idx] = "{}{}".format(token, padding)
-    return "".join(tokens)
-
-
-def format_mwe_sentence_and_highlight(sent: str, positions: List[int]) -> str:
+def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
     """Format concordance sentence and highlight certain positions."""
     if not sent:
         return ""
@@ -241,15 +215,10 @@ def format_mwe_sentence_and_highlight(sent: str, positions: List[int]) -> str:
     sent += "\x01"
     tokens = RE_HIT_DELIMITER.findall(sent)
     # TODO remove hack but frontend changes necessary
-    is_first = True
     for idx, (token, delim) in enumerate(tokens):
         padding = " " if delim == "\x02" else ""
         if (idx + 1) in positions:
-            if is_first:
-                tokens[idx] = "_&{}&_{}".format(token, padding)
-                is_first = False
-            else:
-                tokens[idx] = "&&{}&&{}".format(token, padding)
+            tokens[idx] = "_&{}&_{}".format(token, padding)
         else:
             tokens[idx] = "{}{}".format(token, padding)
     return "".join(tokens)
