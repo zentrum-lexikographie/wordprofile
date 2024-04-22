@@ -9,11 +9,10 @@ from wordprofile.errors import InternalError
 from wordprofile.formatter import (
     format_comparison,
     format_concordances,
-    format_relations,
     format_lemma_pos,
-    format_mwe_concordances,
+    format_relations,
 )
-from wordprofile.utils import tag_f2b, tag_b2f
+from wordprofile.utils import tag_b2f, tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.wpse_spec import WpSeSpec
@@ -502,7 +501,7 @@ class Wordprofile:
         """
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
-            relation["Tuples"] = format_mwe_concordances(
+            relation["Tuples"] = format_concordances(
                 self.db_mwe.get_concordances(
                     int(coocc_id), use_context, start_index, result_number
                 )

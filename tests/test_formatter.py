@@ -1,4 +1,5 @@
 import datetime
+
 import wordprofile.formatter as form
 from wordprofile.datatypes import Concordance, MweConcordance
 
@@ -74,7 +75,7 @@ def test_highlighting_of_mwe_concordance():
         sentence_left="",
         sentence_right="",
     )
-    result = form.format_mwe_concordances([sentence])[0]
+    result = form.format_concordances([sentence])[0]
     assert (
         result["ConcordLine"]
         == "Man könne _&Fahrgäste&_ _&schließlich&_ nicht _&zwingen&_, _&sich&_ _&zu&_ waschen."

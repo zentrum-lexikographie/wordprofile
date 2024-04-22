@@ -2,7 +2,11 @@ import re
 from collections import defaultdict
 from typing import List
 
-from wordprofile.datatypes import Concordance, Coocc, LemmaInfo, MweConcordance
+from wordprofile.datatypes import (
+    Coocc,
+    LemmaInfo,
+    WPConcordance,
+)
 from wordprofile.utils import tag_b2f
 
 RE_HIT_DELIMITER = re.compile(r"([^\x01\x02]+)([\x01\x02])")
@@ -65,52 +69,15 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     return results
 
 
-def format_concordances(concords: List[Concordance]):
+def format_concordances(concords: list[WPConcordance]):
     """Converts concordances into output format"""
     results = []
     for c in concords:
         sentence_left = format_sentence(c.sentence_left)
         sentence_right = format_sentence(c.sentence_right)
-        highlight_positions = [c.token_position_1, c.token_position_2, c.prep_position]
-        sentence_main = format_sentence_and_highlight(c.sentence, highlight_positions)
-        results.append(
-            {
-                "Bibl": {
-                    "Corpus": c.corpus,
-                    "Date": c.date.strftime("%d-%m-%Y"),
-                    "TextClass": c.textclass,
-                    "Orig": c.orig.replace("#page#", c.page),
-                    "Scan": c.scan.replace("#page#", c.page),
-                    "Avail": c.avail,
-                    "Page": c.page,
-                    "File": c.file,
-                },
-                "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": c.score,
-            }
+        sentence_main = format_sentence_and_highlight(
+            c.sentence, c.get_highlight_positions()
         )
-    return results
-
-
-def format_mwe_concordances(concords: List[MweConcordance]):
-    """Converts concordances into output format"""
-    results = []
-    for c in concords:
-        sentence_left = format_sentence(c.sentence_left)
-        sentence_right = format_sentence(c.sentence_right)
-        positions = list(
-            {
-                c.token1_position_1,
-                c.token1_position_2,
-                c.prep1_position,
-                c.token2_position_1,
-                c.token2_position_2,
-                c.prep2_position,
-            }
-        )
-        sentence_main = format_sentence_and_highlight(c.sentence, positions)
         results.append(
             {
                 "Bibl": {
