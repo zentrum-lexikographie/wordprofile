@@ -38,13 +38,13 @@
 9	verehrten	verehrt	ADJ	ADJA	_	_	_	_	_
 10	Damen	Dame	NOUN	NN	_	_	_	_	_
 11	und	und	CCONJ	KON	_	_	_	_	_
-12	Herren	Herr	NOUN	NN	_	_	_	_	_
+12	Herren	Herr	NOUN	NN	_	_	_	_	SpaceAfter=No
 13	,	,	PUNCT	$,	_	_	_	_	_
 
 # DDC:BREAK.s[238300] = 4548252
 # DDC:BREAK.p[81871] = 4548252
 # text = Exzellenzen ,
-1	Exzellenzen	Exzellenz	NOUN	NN	_	_	_	_	_
+1	Exzellenzen	Exzellenz	NOUN	NN	_	_	_	_	SpaceAfter=No
 2	,	,	PUNCT	$,	_	_	_	_	_
 
 # DDC:BREAK.s[238301] = 4548254
@@ -83,7 +83,7 @@
 31	1989	1989	NUM	CARD	_	_	_	_	_
 32	unmittelbar	unmittelbar	ADJ	ADJD	_	_	_	_	_
 33	erlebt	erleben	VERB	VVPP	_	_	_	_	_
-34	haben	haben	AUX	VAINF	_	_	_	_	_
+34	haben	haben	AUX	VAINF	_	_	_	_	SpaceAfter=No
 35	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238302] = 4548289
@@ -95,7 +95,7 @@
 4	ganze	ganz	ADJ	ADJA	_	_	_	_	_
 5	Epoche	Epoche	NOUN	NN	_	_	_	_	_
 6	zu	zu	ADP	APPR	_	_	_	_	_
-7	Ende	Ende	NOUN	NN	_	_	_	_	_
+7	Ende	Ende	NOUN	NN	_	_	_	_	SpaceAfter=No
 8	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238303] = 4548297
@@ -103,7 +103,7 @@
 1	Eine	eine	DET	ART	_	_	_	_	_
 2	neue	neu	ADJ	ADJA	_	_	_	_	_
 3	Zeit	Zeit	NOUN	NN	_	_	_	_	_
-4	begann	beginnen	VERB	VVFIN	_	_	_	_	_
+4	begann	beginnen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 5	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238304] = 4548302
@@ -119,7 +119,7 @@
 9	Geschichte	Geschichte	NOUN	NN	_	_	_	_	_
 10	und	und	CCONJ	KON	_	_	_	_	_
 11	Gegenwart	Gegenwart	NOUN	NN	_	_	_	_	_
-12	zugleich	zugleich	ADV	ADV	_	_	_	_	_
+12	zugleich	zugleich	ADV	ADV	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238305] = 4548315
@@ -131,7 +131,7 @@
 5	Worten	Wort	NOUN	NN	_	_	_	_	_
 6	von	von	ADP	APPR	_	_	_	_	_
 7	Barbara	Barbara	PROPN	NE	_	_	_	_	_
-8	Tuchmann	Tuchmann	PROPN	NE	_	_	_	_	_
+8	Tuchmann	Tuchmann	PROPN	NE	_	_	_	_	SpaceAfter=No
 9	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238306] = 4548324
@@ -144,7 +144,7 @@
 6	die	die	PRON	PRELS	_	_	_	_	_
 7	noch	noch	ADV	ADV	_	_	_	_	_
 8	qualmt	qualmen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
-9	"	"	PUNCT	$(	_	_	_	_	_
+9	"	"	PUNCT	$(	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238307] = 4548334
@@ -164,7 +164,7 @@
 12	uns	wir	PRON	PPER	_	_	_	_	_
 13	zugleich	zugleich	ADV	ADV	_	_	_	_	_
 14	weiter	weiter	ADV	ADV	_	_	_	_	_
-15	fordert	fordern	VERB	VVFIN	_	_	_	_	_
+15	fordert	fordern	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238308] = 4548350
@@ -180,7 +180,7 @@
 8	einer	eine	DET	ART	_	_	_	_	_
 9	einzigartigen	einzigartig	ADJ	ADJA	_	_	_	_	_
 10	Aufbruchstimmung	Aufbruchstimmung	NOUN	NN	_	_	_	_	_
-11	erfasst	erfassen	VERB	VVPP	_	_	_	_	_
+11	erfasst	erfassen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238309] = 4548362
@@ -199,7 +199,7 @@
 12	noch	noch	ADV	ADV	_	_	_	_	_
 13	Kraft	Kraft	NOUN	NN	_	_	_	_	_
 14	schöpfen	schöpfen	VERB	VVFIN	_	_	_	_	_
-15	können	können	VERB	VMFIN	_	_	_	_	_
+15	können	können	VERB	VMFIN	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238310] = 4548378
@@ -207,7 +207,7 @@
 1	Wenn	wenn	SCONJ	KOUS	_	_	_	_	_
 2	wir	wir	PRON	PPER	_	_	_	_	_
 3	nämlich	nämlich	ADV	ADV	_	_	_	_	_
-4	fragen	fragen	VERB	VVINF	_	_	_	_	_
+4	fragen	fragen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238311] = 4548383
@@ -228,7 +228,7 @@
 14	wir	wir	PRON	PPER	_	_	_	_	_
 15	jetzt	jetzt	ADV	ADV	_	_	_	_	_
 16	gerade	gerade	ADV	ADV	_	_	_	_	_
-17	erleben	erleben	VERB	VVINF	_	_	_	_	_
+17	erleben	erleben	VERB	VVINF	_	_	_	_	SpaceAfter=No
 18	?	?	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238312] = 4548401
@@ -238,7 +238,7 @@
 3	bleiben	bleiben	VERB	VVFIN	_	_	_	_	_
 4	vielleicht	vielleicht	ADV	ADV	_	_	_	_	_
 5	noch	noch	ADV	ADV	_	_	_	_	_
-6	einzulösen	einlösen	VERB	VVIZU	_	_	_	_	_
+6	einzulösen	einlösen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 7	?	?	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238313] = 4548408
@@ -248,7 +248,7 @@
 3	zu	zu	PART	PTKZU	_	_	_	_	_
 4	tun	tun	VERB	VVINF	_	_	_	_	_
 5	in	in	ADP	APPR	_	_	_	_	_
-6	Europa	Europa	PROPN	NE	_	_	_	_	_
+6	Europa	Europa	PROPN	NE	_	_	_	_	SpaceAfter=No
 7	?	?	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238314] = 4548415
@@ -267,7 +267,7 @@
 11	besser	gut	ADJ	ADJD	_	_	_	_	_
 12	geeignet	geeignet	ADJ	ADJD	_	_	_	_	_
 13	als	als	CCONJ	KOKOM	_	_	_	_	_
-14	Budapest	Budapest	PROPN	NE	_	_	_	_	_
+14	Budapest	Budapest	PROPN	NE	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238315] = 4548430
@@ -285,7 +285,7 @@
 11	seine	seine	DET	PPOSAT	_	_	_	_	_
 12	ersten	erst	ADJ	ADJA	_	_	_	_	_
 13	Risse	Riß	NOUN	NN	_	_	_	_	_
-14	bekommen	bekommen	VERB	VVINF	_	_	_	_	_
+14	bekommen	bekommen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238316] = 4548445
@@ -304,7 +304,7 @@
 12	zwei	zwei	NUM	CARD	_	_	_	_	_
 13	Blöcke	Block	NOUN	NN	_	_	_	_	_
 14	geteilt	teilen	VERB	VVPP	_	_	_	_	_
-15	hat	haben	AUX	VAFIN	_	_	_	_	_
+15	hat	haben	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238317] = 4548461
@@ -316,7 +316,7 @@
 4	damals	damals	ADV	ADV	_	_	_	_	_
 5	um	um	ADP	APPR	_	_	_	_	_
 6	die	d	DET	ART	_	_	_	_	_
-7	Welt	Welt	NOUN	NN	_	_	_	_	_
+7	Welt	Welt	NOUN	NN	_	_	_	_	SpaceAfter=No
 8	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238318] = 4548469
@@ -327,7 +327,7 @@
 4	sie	sie	PRON	PPER	_	_	_	_	_
 5	noch	noch	ADV	ADV	_	_	_	_	_
 6	vor	vor	ADP	APPR	_	_	_	_	_
-7	Augen	Auge	NOUN	NN	_	_	_	_	_
+7	Augen	Auge	NOUN	NN	_	_	_	_	SpaceAfter=No
 8	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238319] = 4548477
@@ -348,7 +348,7 @@
 14	Grenzdraht	Grenzedraht	NOUN	NN	_	_	_	_	_
 15	bei	bei	ADP	APPR	_	_	_	_	_
 16	Sopron	Sopron	PROPN	NE	_	_	_	_	_
-17	durchschnitten	durchschneiden	VERB	VVPP	_	_	_	_	_
+17	durchschnitten	durchschneiden	VERB	VVPP	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238320] = 4548495
@@ -365,7 +365,7 @@
 10	nach	nach	ADP	APPR	_	_	_	_	_
 11	Österreich	Österreich	PROPN	NE	_	_	_	_	_
 12	fliehen	fliehen	VERB	VVINF	_	_	_	_	_
-13	konnten	können	VERB	VMFIN	_	_	_	_	_
+13	konnten	können	VERB	VMFIN	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238321] = 4548509
@@ -379,7 +379,7 @@
 7	ihre	ihr	DET	PPOSAT	_	_	_	_	_
 8	neu	neu	ADJ	ADJD	_	_	_	_	_
 9	gewonnene	gewinnen	ADJ	ADJA	_	_	_	_	_
-10	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
+10	Freiheit	Freiheit	NOUN	NN	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238322] = 4548520
@@ -390,7 +390,7 @@
 3	wirkten	wirken	VERB	VVFIN	_	_	_	_	_
 4	wie	wie	CCONJ	KOKOM	_	_	_	_	_
 5	ein	eine	DET	ART	_	_	_	_	_
-6	Sog	Sog	NOUN	NN	_	_	_	_	_
+6	Sog	Sog	NOUN	NN	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238323] = 4548527
@@ -403,7 +403,7 @@
 6	von	von	ADP	APPR	_	_	_	_	_
 7	Ausreisewilligen	Ausreisewillige	NOUN	NN	_	_	_	_	_
 8	nach	nach	ADP	APPR	_	_	_	_	_
-9	sich	sich	PRON	PRF	_	_	_	_	_
+9	sich	sich	PRON	PRF	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238324] = 4548537
@@ -430,7 +430,7 @@
 20	Regimekrise	Regimekrise	NOUN	NN	_	_	_	_	_
 21	in	in	ADP	APPR	_	_	_	_	_
 22	der	d	DET	ART	_	_	_	_	_
-23	DDR	DDR	PROPN	NE	_	_	_	_	_
+23	DDR	DDR	PROPN	NE	_	_	_	_	SpaceAfter=No
 24	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238325] = 4548561
@@ -460,7 +460,7 @@
 22	kaum	kaum	ADV	ADV	_	_	_	_	_
 23	zu	zu	ADP	APPR	_	_	_	_	_
 24	überschätzende	überschätzend	ADJ	ADJA	_	_	_	_	_
-25	Bedeutung	Bedeutung	NOUN	NN	_	_	_	_	_
+25	Bedeutung	Bedeutung	NOUN	NN	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238326] = 4548587
@@ -471,7 +471,7 @@
 3	werden	werden	AUX	VAFIN	_	_	_	_	_
 4	das	die	PRON	PDS	_	_	_	_	_
 5	nie	nie	ADV	ADV	_	_	_	_	_
-6	vergessen	vergessen	VERB	VVPP	_	_	_	_	_
+6	vergessen	vergessen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 7	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238327] = 4548594
@@ -481,14 +481,14 @@
 3	bin	sein	AUX	VAFIN	_	_	_	_	_
 4	ich	ich	PRON	PPER	_	_	_	_	_
 5	heute	heute	ADV	ADV	_	_	_	_	_
-6	hier	hier	ADV	ADV	_	_	_	_	_
+6	hier	hier	ADV	ADV	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238328] = 4548601
 # text = Deutschland sagt Danke !
 1	Deutschland	Deutschland	PROPN	NE	_	_	_	_	_
 2	sagt	sagen	VERB	VVFIN	_	_	_	_	_
-3	Danke	danke	PART	PTKANT	_	_	_	_	_
+3	Danke	danke	PART	PTKANT	_	_	_	_	SpaceAfter=No
 4	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238329] = 4548605
@@ -496,7 +496,7 @@
 # text = Denn wir wissen :
 1	Denn	denn	CCONJ	KON	_	_	_	_	_
 2	wir	wir	PRON	PPER	_	_	_	_	_
-3	wissen	wissen	VERB	VVFIN	_	_	_	_	_
+3	wissen	wissen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238330] = 4548609
@@ -515,7 +515,7 @@
 12	1989	1989	NUM	CARD	_	_	_	_	_
 13	nicht	nicht	PART	PTKNEG	_	_	_	_	_
 14	denkbar	denkbar	ADJ	ADJD	_	_	_	_	_
-15	gewesen	sein	AUX	VAPP	_	_	_	_	_
+15	gewesen	sein	AUX	VAPP	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238331] = 4548625
@@ -541,7 +541,7 @@
 18	der	d	DET	ART	_	_	_	_	_
 19	gewaltsamen	gewaltsam	ADJ	ADJA	_	_	_	_	_
 20	Teilung	Teilung	NOUN	NN	_	_	_	_	_
-21	Europas	Europa	PROPN	NE	_	_	_	_	_
+21	Europas	Europa	PROPN	NE	_	_	_	_	SpaceAfter=No
 22	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238332] = 4548647
@@ -573,7 +573,7 @@
 25	–	–	PUNCT	$(	_	_	_	_	_
 26	vorher	vorher	ADV	ADV	_	_	_	_	_
 27	und	und	CCONJ	KON	_	_	_	_	_
-28	anderswo	anderswo	ADV	ADV	_	_	_	_	_
+28	anderswo	anderswo	ADV	ADV	_	_	_	_	SpaceAfter=No
 29	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238333] = 4548676
@@ -598,7 +598,7 @@
 17	aber	aber	ADV	ADV	_	_	_	_	_
 18	schon	schon	ADV	ADV	_	_	_	_	_
 19	vorher	vorher	ADV	ADV	_	_	_	_	_
-20	gereift	reifen	VERB	VVPP	_	_	_	_	_
+20	gereift	reifen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 21	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238334] = 4548697
@@ -624,7 +624,7 @@
 19	Havel	Havel	PROPN	NE	_	_	_	_	_
 20	und	und	CCONJ	KON	_	_	_	_	_
 21	seiner	seine	DET	PPOSAT	_	_	_	_	_
-22	Mitstreiter	Mitstreiter	NOUN	NN	_	_	_	_	_
+22	Mitstreiter	Mitstreiter	NOUN	NN	_	_	_	_	SpaceAfter=No
 23	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238335] = 4548720
@@ -637,7 +637,7 @@
 6	der	d	DET	ART	_	_	_	_	_
 7	Solidarnosc	Solidarnosc	NOUN	NN	_	_	_	_	_
 8	in	in	ADP	APPR	_	_	_	_	_
-9	Polen	Polen	PROPN	NE	_	_	_	_	_
+9	Polen	Polen	PROPN	NE	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238336] = 4548730
@@ -661,7 +661,7 @@
 16	Polen	Polen	PROPN	NE	_	_	_	_	_
 17	im	im	ADP	APPRART	_	_	_	_	_
 18	Dezember	Dezember	NOUN	NN	_	_	_	_	_
-19	1981	1981	NUM	CARD	_	_	_	_	_
+19	1981	1981	NUM	CARD	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238337] = 4548750
@@ -704,7 +704,7 @@
 35	sich	sich	PRON	PRF	_	_	_	_	_
 36	zum	zum	ADP	APPRART	_	_	_	_	_
 37	zwanzigsten	zwanzigst	ADJ	ADJA	_	_	_	_	_
-38	Mal	Mal	NOUN	NN	_	_	_	_	_
+38	Mal	Mal	NOUN	NN	_	_	_	_	SpaceAfter=No
 39	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238338] = 4548789
@@ -720,7 +720,7 @@
 9	Regierung	Regierung	NOUN	NN	_	_	_	_	_
 10	unter	unter	ADP	APPR	_	_	_	_	_
 11	Tadeusz	Tadeusz	PROPN	NE	_	_	_	_	_
-12	Mazowiecki	Mazowiecki	PROPN	NE	_	_	_	_	_
+12	Mazowiecki	Mazowiecki	PROPN	NE	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238339] = 4548802
@@ -742,7 +742,7 @@
 14	über	über	ADP	APPR	_	_	_	_	_
 15	das	d	DET	ART	_	_	_	_	_
 16	Land	Land	NOUN	NN	_	_	_	_	_
-17	hinaus	hinaus	ADP	PTKVZ	_	_	_	_	_
+17	hinaus	hinaus	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238340] = 4548820
@@ -770,7 +770,7 @@
 20	einschließlich	einschließlich	ADP	APPR	_	_	_	_	_
 21	der	d	DET	ART	_	_	_	_	_
 22	sowjetischen	sowjetisch	ADJ	ADJA	_	_	_	_	_
-23	selbst	selbst	ADV	ADV	_	_	_	_	_
+23	selbst	selbst	ADV	ADV	_	_	_	_	SpaceAfter=No
 24	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238341] = 4548844
@@ -791,7 +791,7 @@
 13	ohne	ohne	ADP	APPR	_	_	_	_	_
 14	die	d	DET	ART	_	_	_	_	_
 15	Reformpolitik	Reformpolitik	NOUN	NN	_	_	_	_	_
-16	Gorbatschows	Gorbatschow	PROPN	NE	_	_	_	_	_
+16	Gorbatschows	Gorbatschow	PROPN	NE	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238342] = 4548861
@@ -820,7 +820,7 @@
 22	ganz	ganz	ADV	ADV	_	_	_	_	_
 23	Osteuropa	OstEuropa	PROPN	NE	_	_	_	_	_
 24	neue	neu	ADJ	ADJA	_	_	_	_	_
-25	Möglichkeiten	Möglichkeit	NOUN	NN	_	_	_	_	_
+25	Möglichkeiten	Möglichkeit	NOUN	NN	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238343] = 4548887
@@ -843,7 +843,7 @@
 15	die	d	DET	ART	_	_	_	_	_
 16	Entspannungspolitik	Entspannungspolitik	NOUN	NN	_	_	_	_	_
 17	nicht	nicht	PART	PTKNEG	_	_	_	_	_
-18	vergessen	vergessen	VERB	VVINF	_	_	_	_	_
+18	vergessen	vergessen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 19	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238344] = 4548906
@@ -857,7 +857,7 @@
 7	im	im	ADP	APPRART	_	_	_	_	_
 8	Osten	Osten	NOUN	NN	_	_	_	_	_
 9	nicht	nicht	PART	PTKNEG	_	_	_	_	_
-10	bewirkt	bewirken	VERB	VVPP	_	_	_	_	_
+10	bewirkt	bewirken	VERB	VVPP	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238345] = 4548917
@@ -890,7 +890,7 @@
 26	Feindbildern	Feindbild	NOUN	NN	_	_	_	_	_
 27	und	und	CCONJ	KON	_	_	_	_	_
 28	Spannungen	Spannung	NOUN	NN	_	_	_	_	_
-29	beigetragen	beitragen	VERB	VVPP	_	_	_	_	_
+29	beigetragen	beitragen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 30	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238346] = 4548947
@@ -903,7 +903,7 @@
 5	es	es	PRON	PPER	_	_	_	_	_
 6	1989	1989	NUM	CARD	_	_	_	_	_
 7	nicht	nicht	PART	PTKNEG	_	_	_	_	_
-8	gegeben	geben	VERB	VVPP	_	_	_	_	_
+8	gegeben	geben	VERB	VVPP	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238347] = 4548956
@@ -923,7 +923,7 @@
 13	das	die	PRON	PDS	_	_	_	_	_
 14	einmal	einmal	ADV	ADV	_	_	_	_	_
 15	genannt	nennen	VERB	VVPP	_	_	_	_	_
-16	wurde	werden	AUX	VAFIN	_	_	_	_	_
+16	wurde	werden	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238348] = 4548973
@@ -944,7 +944,7 @@
 14	Menschenrechte	Menschenrecht	NOUN	NN	_	_	_	_	_
 15	und	und	CCONJ	KON	_	_	_	_	_
 16	Grundfreiheiten	Grundfreiheit	NOUN	NN	_	_	_	_	_
-17	bekennen	bekennen	VERB	VVINF	_	_	_	_	_
+17	bekennen	bekennen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238349] = 4548991
@@ -960,7 +960,7 @@
 8	nicht	nicht	PART	PTKNEG	_	_	_	_	_
 9	immer	immer	ADV	ADV	_	_	_	_	_
 10	mit	mit	ADP	APPR	_	_	_	_	_
-11	Erfolg	Erfolg	NOUN	NN	_	_	_	_	_
+11	Erfolg	Erfolg	NOUN	NN	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238350] = 4549003
@@ -987,7 +987,7 @@
 20	und	und	CCONJ	KON	_	_	_	_	_
 21	danach	danach	ADV	PAV	_	_	_	_	_
 22	leben	leben	VERB	VVINF	_	_	_	_	_
-23	wollten	wollen	VERB	VMFIN	_	_	_	_	_
+23	wollten	wollen	VERB	VMFIN	_	_	_	_	SpaceAfter=No
 24	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238351] = 4549027
@@ -1014,7 +1014,7 @@
 19	Zivilgesellschaft	Zivilgesellschaft	NOUN	NN	_	_	_	_	_
 20	in	in	ADP	APPR	_	_	_	_	_
 21	ganz	ganz	ADV	ADV	_	_	_	_	_
-22	Europa	Europa	PROPN	NE	_	_	_	_	_
+22	Europa	Europa	PROPN	NE	_	_	_	_	SpaceAfter=No
 23	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238352] = 4549050
@@ -1025,7 +1025,7 @@
 4	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
 5	im	im	ADP	APPRART	_	_	_	_	_
 6	umfassenden	umfaßend	ADJ	ADJA	_	_	_	_	_
-7	Sinne	Sinn	NOUN	NN	_	_	_	_	_
+7	Sinne	Sinn	NOUN	NN	_	_	_	_	SpaceAfter=No
 8	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238353] = 4549058
@@ -1049,7 +1049,7 @@
 16	zur	zur	ADP	APPRART	_	_	_	_	_
 17	gesamteuropäischen	gesamteuropäisch	ADJ	ADJA	_	_	_	_	_
 18	Wirklichkeit	Wirklichkeit	NOUN	NN	_	_	_	_	_
-19	werden	werden	AUX	VAINF	_	_	_	_	_
+19	werden	werden	AUX	VAINF	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238354] = 4549078
@@ -1085,7 +1085,7 @@
 28	Europa	Europa	PROPN	NE	_	_	_	_	SpaceAfter=No
 29	"	"	PUNCT	$(	_	_	_	_	_
 30	gewesen	sein	AUX	VAPP	_	_	_	_	_
-31	sei	sein	AUX	VAFIN	_	_	_	_	_
+31	sei	sein	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 32	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238355] = 4549110
@@ -1109,7 +1109,7 @@
 17	bestimmte	bestimmt	ADJ	ADJA	_	_	_	_	_
 18	Lebensweise	Lebensweise	NOUN	NN	_	_	_	_	_
 19	betrachtet	betrachten	VERB	VVPP	_	_	_	_	_
-20	hat	haben	AUX	VAFIN	_	_	_	_	_
+20	hat	haben	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238356] = 4549131
@@ -1133,7 +1133,7 @@
 16	er	er	PRON	PPER	_	_	_	_	_
 17	rechtsstaatliche	rechtsstaatlich	ADJ	ADJA	_	_	_	_	_
 18	Regeln	Regel	NOUN	NN	_	_	_	_	_
-19	gibt	geben	VERB	VVFIN	_	_	_	_	_
+19	gibt	geben	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238357] = 4549151
@@ -1156,7 +1156,7 @@
 16	für	für	ADP	APPR	_	_	_	_	_
 17	Demokratie	Demokratie	NOUN	NN	_	_	_	_	_
 18	und	und	CCONJ	KON	_	_	_	_	_
-19	Gerechtigkeit	Gerechtigkeit	NOUN	NN	_	_	_	_	_
+19	Gerechtigkeit	Gerechtigkeit	NOUN	NN	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238358] = 4549171
@@ -1173,7 +1173,7 @@
 9	Geschichte	Geschichte	NOUN	NN	_	_	_	_	_
 10	seit	seit	ADP	APPR	_	_	_	_	_
 11	der	d	DET	ART	_	_	_	_	_
-12	Aufklärung	Aufklärung	NOUN	NN	_	_	_	_	_
+12	Aufklärung	Aufklärung	NOUN	NN	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238359] = 4549184
@@ -1188,7 +1188,7 @@
 8	großen	groß	ADJ	ADJA	_	_	_	_	_
 9	Opfern	Opfer	NOUN	NN	_	_	_	_	_
 10	erkämpfte	erkämpft	ADJ	ADJA	_	_	_	_	_
-11	Errungenschaft	Errungenschaft	NOUN	NN	_	_	_	_	_
+11	Errungenschaft	Errungenschaft	NOUN	NN	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238360] = 4549196
@@ -1198,7 +1198,7 @@
 3	ist	sein	AUX	VAFIN	_	_	_	_	_
 4	kein	keine	DET	PIAT	_	_	_	_	_
 5	ruhiger	ruhig	ADJ	ADJA	_	_	_	_	_
-6	Besitz	Besitz	NOUN	NN	_	_	_	_	_
+6	Besitz	Besitz	NOUN	NN	_	_	_	_	SpaceAfter=No
 7	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238361] = 4549203
@@ -1212,7 +1212,7 @@
 7	verteidigt	verteidigen	VERB	VVPP	_	_	_	_	_
 8	und	und	CCONJ	KON	_	_	_	_	_
 9	erarbeitet	erarbeiten	VERB	VVPP	_	_	_	_	_
-10	werden	werden	AUX	VAINF	_	_	_	_	_
+10	werden	werden	AUX	VAINF	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238362] = 4549214
@@ -1250,7 +1250,7 @@
 30	für	für	ADP	APPR	_	_	_	_	_
 31	gesellschaftliche	gesellschaftlich	ADJ	ADJA	_	_	_	_	_
 32	Entwicklung	Entwicklung	NOUN	NN	_	_	_	_	_
-33	ist	sein	AUX	VAFIN	_	_	_	_	_
+33	ist	sein	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 34	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238363] = 4549248
@@ -1270,7 +1270,7 @@
 13	Zeiten	Zeit	NOUN	NN	_	_	_	_	_
 14	des	d	DET	ART	_	_	_	_	_
 15	Umbruchs	Umbruch	NOUN	NN	_	_	_	_	_
-16	beweisen	beweisen	VERB	VVINF	_	_	_	_	_
+16	beweisen	beweisen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238364] = 4549265
@@ -1296,7 +1296,7 @@
 18	drohende	drohend	ADJ	ADJA	_	_	_	_	_
 19	Zusammenbruch	Zusammenbruch	NOUN	NN	_	_	_	_	_
 20	ganzer	ganz	ADJ	ADJA	_	_	_	_	_
-21	Finanzmärkte	Finanzmarkt	NOUN	NN	_	_	_	_	_
+21	Finanzmärkte	Finanzmarkt	NOUN	NN	_	_	_	_	SpaceAfter=No
 22	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238365] = 4549287
@@ -1311,7 +1311,7 @@
 8	den	d	DET	ART	_	_	_	_	_
 9	Grundfesten	Grundfeste	NOUN	NN	_	_	_	_	_
 10	unserer	unsere	DET	PPOSAT	_	_	_	_	_
-11	Gesellschaft	Gesellschaft	NOUN	NN	_	_	_	_	_
+11	Gesellschaft	Gesellschaft	NOUN	NN	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238366] = 4549299
@@ -1330,7 +1330,7 @@
 11	Miss-Verständnis	Miß-Verständnis	NOUN	NN	_	_	_	_	_
 12	von	von	ADP	APPR	_	_	_	_	_
 13	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
-14	durchgesetzt	durchsetzen	VERB	VVPP	_	_	_	_	_
+14	durchgesetzt	durchsetzen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238367] = 4549314
@@ -1362,7 +1362,7 @@
 25	Maßstab	Maßstab	NOUN	NN	_	_	_	_	_
 26	wirtschaftlichen	wirtschaftlich	ADJ	ADJA	_	_	_	_	_
 27	Tuns	Tun	NOUN	NN	_	_	_	_	_
-28	wurde	werden	AUX	VAFIN	_	_	_	_	_
+28	wurde	werden	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 29	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238368] = 4549343
@@ -1370,7 +1370,7 @@
 1	Maßlosigkeit	Maßlosigkeit	NOUN	NN	_	_	_	_	_
 2	war	sein	AUX	VAFIN	_	_	_	_	_
 3	die	d	DET	ART	_	_	_	_	_
-4	Folge	Folge	NOUN	NN	_	_	_	_	_
+4	Folge	Folge	NOUN	NN	_	_	_	_	SpaceAfter=No
 5	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238369] = 4549348
@@ -1378,7 +1378,7 @@
 # text = Heute sehen wir :
 1	Heute	heute	ADV	ADV	_	_	_	_	_
 2	sehen	sehen	VERB	VVFIN	_	_	_	_	_
-3	wir	wir	PRON	PPER	_	_	_	_	_
+3	wir	wir	PRON	PPER	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238370] = 4549352
@@ -1392,7 +1392,7 @@
 7	über	über	ADP	APPR	_	_	_	_	_
 8	unsere	unsere	DET	PPOSAT	_	_	_	_	_
 9	Verhältnisse	Verhältnis	NOUN	NN	_	_	_	_	_
-10	gelebt	leben	VERB	VVPP	_	_	_	_	_
+10	gelebt	leben	VERB	VVPP	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238371] = 4549363
@@ -1435,7 +1435,7 @@
 35	insgesamt	insgesamt	ADV	ADV	_	_	_	_	_
 36	Schiffbruch	Schiffbruch	NOUN	NN	_	_	_	_	_
 37	zu	zu	PART	PTKZU	_	_	_	_	_
-38	erleiden	erleiden	VERB	VVINF	_	_	_	_	_
+38	erleiden	erleiden	VERB	VVINF	_	_	_	_	SpaceAfter=No
 39	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238372] = 4549402
@@ -1453,7 +1453,7 @@
 10	den	d	DET	ART	_	_	_	_	_
 11	Zusammenhalt	Zusammenhalt	NOUN	NN	_	_	_	_	_
 12	einer	eine	DET	ART	_	_	_	_	_
-13	Gesellschaft	Gesellschaft	NOUN	NN	_	_	_	_	_
+13	Gesellschaft	Gesellschaft	NOUN	NN	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238373] = 4549416
@@ -1482,7 +1482,7 @@
 22	und	und	CCONJ	KON	_	_	_	_	_
 23	in	in	ADP	APPR	_	_	_	_	_
 24	Prag	Prag	PROPN	NE	_	_	_	_	_
-25	beflügelte	beflügeln	VERB	VVFIN	_	_	_	_	_
+25	beflügelte	beflügeln	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238374] = 4549442
@@ -1500,7 +1500,7 @@
 10	Fundament	Fundament	NOUN	NN	_	_	_	_	_
 11	unserer	unsere	DET	PPOSAT	_	_	_	_	_
 12	Gesellschaftsordnung	Gesellschaftsordnung	NOUN	NN	_	_	_	_	_
-13	ist	sein	AUX	VAFIN	_	_	_	_	_
+13	ist	sein	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 14	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238375] = 4549456
@@ -1517,7 +1517,7 @@
 9	hieraus	hieraus	ADV	PAV	_	_	_	_	_
 10	die	d	DET	ART	_	_	_	_	_
 11	Lehren	Lehre	NOUN	NN	_	_	_	_	_
-12	ziehen	ziehen	VERB	VVINF	_	_	_	_	_
+12	ziehen	ziehen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238376] = 4549469
@@ -1539,7 +1539,7 @@
 14	für	für	ADP	APPR	_	_	_	_	_
 15	mein	mein	DET	PPOSAT	_	_	_	_	_
 16	eigenes	eigen	ADJ	ADJA	_	_	_	_	_
-17	Land	Land	NOUN	NN	_	_	_	_	_
+17	Land	Land	NOUN	NN	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238377] = 4549487
@@ -1571,7 +1571,7 @@
 25	Werte	Wert	NOUN	NN	_	_	_	_	_
 26	und	und	CCONJ	KON	_	_	_	_	_
 27	Überzeugungen	Überzeugung	NOUN	NN	_	_	_	_	_
-28	einzustehen	einstehen	VERB	VVIZU	_	_	_	_	_
+28	einzustehen	einstehen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 29	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238378] = 4549516
@@ -1603,7 +1603,7 @@
 24	Menschen	Mensch	NOUN	NN	_	_	_	_	_
 25	neu	neu	ADJ	ADJD	_	_	_	_	_
 26	zu	zu	PART	PTKZU	_	_	_	_	_
-27	gewinnen	gewinnen	VERB	VVINF	_	_	_	_	_
+27	gewinnen	gewinnen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 28	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238379] = 4549544
@@ -1636,7 +1636,7 @@
 25	aber	aber	CCONJ	KON	_	_	_	_	_
 26	falsche	falsch	ADJ	ADJA	_	_	_	_	_
 27	Versprechungen	Versprechung	NOUN	NN	_	_	_	_	_
-28	liefern	liefern	VERB	VVINF	_	_	_	_	_
+28	liefern	liefern	VERB	VVINF	_	_	_	_	SpaceAfter=No
 29	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238380] = 4549573
@@ -1653,7 +1653,7 @@
 9	ganz	ganz	ADV	ADV	_	_	_	_	_
 10	Europa	Europa	PROPN	NE	_	_	_	_	_
 11	besonders	besonders	ADV	ADV	_	_	_	_	_
-12	aktuell	aktuell	ADJ	ADJD	_	_	_	_	_
+12	aktuell	aktuell	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238381] = 4549586
@@ -1671,7 +1671,7 @@
 11	zum	zum	ADP	APPRART	_	_	_	_	_
 12	Europäischen	europäisch	ADJ	ADJA	_	_	_	_	_
 13	Parlament	Parlament	NOUN	NN	_	_	_	_	_
-14	statt	statt	ADP	PTKVZ	_	_	_	_	_
+14	statt	statt	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238382] = 4549601
@@ -1690,7 +1690,7 @@
 12	einen	eine	DET	ART	_	_	_	_	_
 13	großen	groß	ADJ	ADJA	_	_	_	_	_
 14	Kompetenzzuwachs	Kompetenzzuwachs	NOUN	NN	_	_	_	_	_
-15	erlebt	erleben	VERB	VVPP	_	_	_	_	_
+15	erlebt	erleben	VERB	VVPP	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238383] = 4549617
@@ -1703,7 +1703,7 @@
 6	für	für	ADP	APPR	_	_	_	_	_
 7	uns	wir	PRON	PPER	_	_	_	_	_
 8	Europäer	Europäer	NOUN	NN	_	_	_	_	_
-9	entschieden	entscheiden	VERB	VVPP	_	_	_	_	_
+9	entschieden	entscheiden	VERB	VVPP	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238384] = 4549627
@@ -1713,7 +1713,7 @@
 3	sinkt	sinken	VERB	VVFIN	_	_	_	_	_
 4	die	d	DET	ART	_	_	_	_	_
 5	Wahlbeteiligung	Wahlbeteiligung	NOUN	NN	_	_	_	_	_
-6	kontinuierlich	kontinuierlich	ADJ	ADJD	_	_	_	_	_
+6	kontinuierlich	kontinuierlich	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238385] = 4549634
@@ -1722,7 +1722,7 @@
 1	Ich	ich	PRON	PPER	_	_	_	_	_
 2	sage	sagen	VERB	VVFIN	_	_	_	_	_
 3	ganz	ganz	ADV	ADV	_	_	_	_	_
-4	deutlich	deutlich	ADJ	ADJD	_	_	_	_	_
+4	deutlich	deutlich	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238386] = 4549639
@@ -1752,7 +1752,7 @@
 23	europäischen	europäisch	ADJ	ADJA	_	_	_	_	_
 24	Gesellschaftsmodell	Gesellschaftsmodell	NOUN	NN	_	_	_	_	_
 25	erweisen	erweisen	VERB	VVINF	_	_	_	_	_
-26	kann	können	VERB	VMFIN	_	_	_	_	_
+26	kann	können	VERB	VMFIN	_	_	_	_	SpaceAfter=No
 27	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238387] = 4549666
@@ -1772,7 +1772,7 @@
 12	wieder	wieder	ADV	ADV	_	_	_	_	_
 13	zukunftsfest	zukunftsfest	ADJ	ADJD	_	_	_	_	_
 14	zu	zu	PART	PTKZU	_	_	_	_	_
-15	machen	machen	VERB	VVINF	_	_	_	_	_
+15	machen	machen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238388] = 4549682
@@ -1787,7 +1787,7 @@
 8	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
 9	und	und	CCONJ	KON	_	_	_	_	_
 10	Staatlichkeit	Staatlichkeit	NOUN	NN	_	_	_	_	_
-11	konstruieren	konstruieren	VERB	VVINF	_	_	_	_	_
+11	konstruieren	konstruieren	VERB	VVINF	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238389] = 4549694
@@ -1821,7 +1821,7 @@
 27	Markt	Markt	NOUN	NN	_	_	_	_	_
 28	klare	klar	ADJ	ADJA	_	_	_	_	_
 29	Regeln	Regel	NOUN	NN	_	_	_	_	_
-30	gibt	geben	VERB	VVFIN	_	_	_	_	_
+30	gibt	geben	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 31	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238390] = 4549725
@@ -1833,7 +1833,7 @@
 4	uns	wir	PRON	PPER	_	_	_	_	_
 5	auch	auch	ADV	ADV	_	_	_	_	_
 6	1989	1989	NUM	CARD	_	_	_	_	_
-7	erinnern	erinnern	VERB	VVINF	_	_	_	_	_
+7	erinnern	erinnern	VERB	VVINF	_	_	_	_	SpaceAfter=No
 8	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238391] = 4549733
@@ -1844,7 +1844,7 @@
 4	doch	doch	ADV	ADV	_	_	_	_	_
 5	vor	vor	ADP	APPR	_	_	_	_	_
 6	allem	alle	PRON	PIS	_	_	_	_	_
-7	eines	eine	DET	ART	_	_	_	_	_
+7	eines	eine	DET	ART	_	_	_	_	SpaceAfter=No
 8	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238392] = 4549741
@@ -1857,7 +1857,7 @@
 6	Aufbruch	Aufbruch	NOUN	NN	_	_	_	_	_
 7	in	in	ADP	APPR	_	_	_	_	_
 8	ganz	ganz	ADV	ADV	_	_	_	_	_
-9	Europa	Europa	PROPN	NE	_	_	_	_	_
+9	Europa	Europa	PROPN	NE	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238393] = 4549751
@@ -1884,7 +1884,7 @@
 20	Jahre	Jahr	NOUN	NN	_	_	_	_	_
 21	neu	neu	ADJ	ADJD	_	_	_	_	_
 22	geschaffen	schaffen	VERB	VVPP	_	_	_	_	_
-23	haben	haben	AUX	VAINF	_	_	_	_	_
+23	haben	haben	AUX	VAINF	_	_	_	_	SpaceAfter=No
 24	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238394] = 4549775
@@ -1894,7 +1894,7 @@
 3	einem	eine	DET	ART	_	_	_	_	_
 4	neuen	neu	ADJ	ADJA	_	_	_	_	_
 5	europäischen	europäisch	ADJ	ADJA	_	_	_	_	_
-6	Bewusstsein	Bewußtsein	NOUN	NN	_	_	_	_	_
+6	Bewusstsein	Bewußtsein	NOUN	NN	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238395] = 4549782
@@ -1932,7 +1932,7 @@
 30	der	d	DET	ART	_	_	_	_	_
 31	europäischen	europäisch	ADJ	ADJA	_	_	_	_	_
 32	Einheit	Einheit	NOUN	NN	_	_	_	_	_
-33	bezeichnet	bezeichnen	VERB	VVPP	_	_	_	_	_
+33	bezeichnet	bezeichnen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 34	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238396] = 4549816
@@ -1945,7 +1945,7 @@
 5	doch	doch	ADV	ADV	_	_	_	_	_
 6	nur	nur	ADV	ADV	_	_	_	_	_
 7	der	d	DET	ART	_	_	_	_	_
-8	Gründungsakt	Gründungsakt	NOUN	NN	_	_	_	_	_
+8	Gründungsakt	Gründungsakt	NOUN	NN	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238397] = 4549825
@@ -1956,7 +1956,7 @@
 4	bleibt	bleiben	VERB	VVFIN	_	_	_	_	_
 5	noch	noch	ADV	ADV	_	_	_	_	_
 6	zu	zu	PART	PTKZU	_	_	_	_	_
-7	vollenden	vollenden	VERB	VVINF	_	_	_	_	_
+7	vollenden	vollenden	VERB	VVINF	_	_	_	_	SpaceAfter=No
 8	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238398] = 4549833
@@ -1973,7 +1973,7 @@
 10	innere	inner	ADJ	ADJA	_	_	_	_	_
 11	Einheit	Einheit	NOUN	NN	_	_	_	_	_
 12	folgen	folgen	VERB	VVINF	_	_	_	_	_
-13	lassen	lassen	VERB	VVINF	_	_	_	_	_
+13	lassen	lassen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238399] = 4549847
@@ -1999,7 +1999,7 @@
 18	die	d	DET	ART	_	_	_	_	_
 19	Europäische	europäisch	ADJ	ADJA	_	_	_	_	_
 20	Union	Union	NOUN	NN	_	_	_	_	_
-21	aufgenommen	aufnehmen	VERB	VVPP	_	_	_	_	_
+21	aufgenommen	aufnehmen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 22	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238400] = 4549869
@@ -2009,7 +2009,7 @@
 3	folgten	folgen	VERB	VVFIN	_	_	_	_	_
 4	Rumänien	Rumänien	PROPN	NE	_	_	_	_	_
 5	und	und	CCONJ	KON	_	_	_	_	_
-6	Bulgarien	Bulgarien	PROPN	NE	_	_	_	_	_
+6	Bulgarien	Bulgarien	PROPN	NE	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238401] = 4549876
@@ -2034,7 +2034,7 @@
 17	dem	d	DET	ART	_	_	_	_	_
 18	Universitätsplatz	Universitätsplatz	NOUN	NN	_	_	_	_	_
 19	in	in	ADP	APPR	_	_	_	_	_
-20	Bukarest	Bukarest	PROPN	NE	_	_	_	_	_
+20	Bukarest	Bukarest	PROPN	NE	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238402] = 4549897
@@ -2051,7 +2051,7 @@
 10	Freude	Freude	NOUN	NN	_	_	_	_	_
 11	auf	auf	ADP	APPR	_	_	_	_	_
 12	die	d	DET	ART	_	_	_	_	_
-13	Zukunft	Zukunft	NOUN	NN	_	_	_	_	_
+13	Zukunft	Zukunft	NOUN	NN	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238403] = 4549911
@@ -2073,7 +2073,7 @@
 15	der	d	DET	ART	_	_	_	_	_
 16	europäischen	europäisch	ADJ	ADJA	_	_	_	_	_
 17	Einigung	Einigung	NOUN	NN	_	_	_	_	_
-18	steckt	stecken	VERB	VVFIN	_	_	_	_	_
+18	steckt	stecken	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 19	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238404] = 4549930
@@ -2095,7 +2095,7 @@
 14	mit	mit	ADP	APPR	_	_	_	_	_
 15	vielen	viel	DET	PIAT	_	_	_	_	_
 16	Anstrengungen	Anstrengung	NOUN	NN	_	_	_	_	_
-17	verbunden	verbinden	VERB	VVPP	_	_	_	_	_
+17	verbunden	verbinden	VERB	VVPP	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238405] = 4549948
@@ -2114,7 +2114,7 @@
 12	nicht	nicht	PART	PTKNEG	_	_	_	_	_
 13	frei	frei	ADJ	ADJD	_	_	_	_	_
 14	von	von	ADP	APPR	_	_	_	_	_
-15	Zumutungen	Zumutung	NOUN	NN	_	_	_	_	_
+15	Zumutungen	Zumutung	NOUN	NN	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238406] = 4549964
@@ -2124,7 +2124,7 @@
 3	wurden	werden	AUX	VAFIN	_	_	_	_	_
 4	große	groß	ADJ	ADJA	_	_	_	_	_
 5	Anpassungsleistungen	Anpaßungsleistung	NOUN	NN	_	_	_	_	_
-6	abgefordert	abfordern	VERB	VVPP	_	_	_	_	_
+6	abgefordert	abfordern	VERB	VVPP	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238407] = 4549971
@@ -2149,7 +2149,7 @@
 17	alten	alt	ADJ	ADJA	_	_	_	_	_
 18	Mitgliedstaaten	Mitgliedstaat	NOUN	NN	_	_	_	_	_
 19	ein	eine	DET	ART	_	_	_	_	_
-20	Kraftakt	Kraftakt	NOUN	NN	_	_	_	_	_
+20	Kraftakt	Kraftakt	NOUN	NN	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238408] = 4549992
@@ -2162,7 +2162,7 @@
 6	Ausdruck	Ausdruck	NOUN	NN	_	_	_	_	_
 7	gelebter	gelebt	ADJ	ADJA	_	_	_	_	_
 8	europäischer	europäisch	ADJ	ADJA	_	_	_	_	_
-9	Solidarität	Solidarität	NOUN	NN	_	_	_	_	_
+9	Solidarität	Solidarität	NOUN	NN	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238409] = 4550002
@@ -2170,7 +2170,7 @@
 # text = Heute sehen wir :
 1	Heute	heute	ADV	ADV	_	_	_	_	_
 2	sehen	sehen	VERB	VVFIN	_	_	_	_	_
-3	wir	wir	PRON	PPER	_	_	_	_	_
+3	wir	wir	PRON	PPER	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238410] = 4550006
@@ -2193,7 +2193,7 @@
 16	gemeinsam	gemeinsam	ADJ	ADJD	_	_	_	_	_
 17	und	und	CCONJ	KON	_	_	_	_	_
 18	weitsichtig	weitsichtig	ADJ	ADJD	_	_	_	_	_
-19	handelt	handeln	VERB	VVFIN	_	_	_	_	_
+19	handelt	handeln	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238411] = 4550026
@@ -2210,7 +2210,7 @@
 9	Bewährungsprobe	Bewährungsprobe	NOUN	NN	_	_	_	_	_
 10	unter	unter	ADP	APPR	_	_	_	_	_
 11	Beweis	Beweis	NOUN	NN	_	_	_	_	_
-12	stellen	stellen	VERB	VVINF	_	_	_	_	_
+12	stellen	stellen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238412] = 4550039
@@ -2220,7 +2220,7 @@
 3	uns	wir	PRON	PPER	_	_	_	_	_
 4	als	als	CCONJ	KOKOM	_	_	_	_	_
 5	Verantwortungsgemeinschaft	Verantwortungsgemeinschaft	NOUN	NN	_	_	_	_	_
-6	beweisen	beweisen	VERB	VVINF	_	_	_	_	_
+6	beweisen	beweisen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238413] = 4550046
@@ -2233,7 +2233,7 @@
 5	hat	haben	AUX	VAFIN	_	_	_	_	_
 6	uns	wir	PRON	PPER	_	_	_	_	_
 7	glücklich	glücklich	ADJ	ADJD	_	_	_	_	_
-8	zusammengebracht	zusammenbringen	VERB	VVPP	_	_	_	_	_
+8	zusammengebracht	zusammenbringen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238414] = 4550055
@@ -2247,7 +2247,7 @@
 7	wir	wir	PRON	PPER	_	_	_	_	_
 8	nur	nur	ADV	ADV	_	_	_	_	_
 9	zusammen	zusammen	ADV	ADV	_	_	_	_	_
-10	überwinden	überwinden	VERB	VVINF	_	_	_	_	_
+10	überwinden	überwinden	VERB	VVINF	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238415] = 4550066
@@ -2260,7 +2260,7 @@
 5	sind	sein	AUX	VAFIN	_	_	_	_	_
 6	Gemeinsinn	Gemeinsinn	NOUN	NN	_	_	_	_	_
 7	und	und	CCONJ	KON	_	_	_	_	_
-8	Weitsicht	Weitsicht	NOUN	NN	_	_	_	_	_
+8	Weitsicht	Weitsicht	NOUN	NN	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238416] = 4550075
@@ -2276,7 +2276,7 @@
 9	Europa	Europa	PROPN	NE	_	_	_	_	_
 10	–	–	PUNCT	$(	_	_	_	_	_
 11	gerade	gerade	ADV	ADV	_	_	_	_	_
-12	jetzt	jetzt	ADV	ADV	_	_	_	_	_
+12	jetzt	jetzt	ADV	ADV	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238417] = 4550088
@@ -2289,7 +2289,7 @@
 5	ganz	ganz	ADV	ADV	_	_	_	_	_
 6	konkreten	konkret	ADJ	ADJA	_	_	_	_	_
 7	Beispielen	Beispiel	NOUN	NN	_	_	_	_	_
-8	illustrieren	illustrieren	VERB	VVFIN	_	_	_	_	_
+8	illustrieren	illustrieren	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 9	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238418] = 4550097
@@ -2319,7 +2319,7 @@
 22	getroffen	treffen	VERB	VVPP	_	_	_	_	_
 23	–	–	PUNCT	$(	_	_	_	_	_
 24	auch	auch	ADV	ADV	_	_	_	_	_
-25	Ungarn	Ungarn	PROPN	NE	_	_	_	_	_
+25	Ungarn	Ungarn	PROPN	NE	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238419] = 4550123
@@ -2342,7 +2342,7 @@
 16	wieder	wieder	ADV	ADV	_	_	_	_	_
 17	eine	eine	DET	ART	_	_	_	_	_
 18	neue	neu	ADJ	ADJA	_	_	_	_	_
-19	herbeizureden	herbeireden	VERB	VVIZU	_	_	_	_	_
+19	herbeizureden	herbeireden	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238420] = 4550143
@@ -2351,7 +2351,7 @@
 1	Ich	ich	PRON	PPER	_	_	_	_	_
 2	sage	sagen	VERB	VVFIN	_	_	_	_	_
 3	ganz	ganz	ADV	ADV	_	_	_	_	_
-4	deutlich	deutlich	ADJ	ADJD	_	_	_	_	_
+4	deutlich	deutlich	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238421] = 4550148
@@ -2360,7 +2360,7 @@
 2	werden	werden	AUX	VAFIN	_	_	_	_	_
 3	wir	wir	PRON	PPER	_	_	_	_	_
 4	nicht	nicht	PART	PTKNEG	_	_	_	_	_
-5	zulassen	zulassen	VERB	VVINF	_	_	_	_	_
+5	zulassen	zulassen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 6	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238422] = 4550154
@@ -2377,7 +2377,7 @@
 10	Egoismus	Egoismus	NOUN	NN	_	_	_	_	_
 11	aufs	aufs	ADP	APPRART	_	_	_	_	_
 12	Spiel	Spiel	NOUN	NN	_	_	_	_	_
-13	setzen	setzen	VERB	VVINF	_	_	_	_	_
+13	setzen	setzen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238423] = 4550168
@@ -2389,7 +2389,7 @@
 5	in	in	ADP	APPR	_	_	_	_	_
 6	der	d	DET	ART	_	_	_	_	_
 7	Not	Not	NOUN	NN	_	_	_	_	_
-8	bewähren	bewähren	VERB	VVINF	_	_	_	_	_
+8	bewähren	bewähren	VERB	VVINF	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238424] = 4550177
@@ -2401,7 +2401,7 @@
 5	,	,	PUNCT	$,	_	_	_	_	_
 6	sondern	sondern	CCONJ	KON	_	_	_	_	_
 7	dringende	dringend	ADJ	ADJA	_	_	_	_	_
-8	Notwendigkeit	Notwendigkeit	NOUN	NN	_	_	_	_	_
+8	Notwendigkeit	Notwendigkeit	NOUN	NN	_	_	_	_	SpaceAfter=No
 9	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238425] = 4550186
@@ -2433,7 +2433,7 @@
 24	Infrastrukturprojekte	Infrastrukturprojekt	NOUN	NN	_	_	_	_	_
 25	unter	unter	ADP	APPR	_	_	_	_	_
 26	Beweis	Beweis	NOUN	NN	_	_	_	_	_
-27	gestellt	stellen	VERB	VVPP	_	_	_	_	_
+27	gestellt	stellen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 28	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238426] = 4550214
@@ -2452,7 +2452,7 @@
 11	mehr	mehr	DET	PIAT	_	_	_	_	_
 12	als	als	CCONJ	KOKOM	_	_	_	_	_
 13	ein	eine	DET	ART	_	_	_	_	_
-14	Markt	Markt	NOUN	NN	_	_	_	_	_
+14	Markt	Markt	NOUN	NN	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238427] = 4550229
@@ -2469,7 +2469,7 @@
 10	und	und	CCONJ	KON	_	_	_	_	_
 11	sein	sein	DET	PPOSAT	_	_	_	_	_
 12	Gesellschaftsmodell	Gesellschaftsmodell	NOUN	NN	_	_	_	_	_
-13	sichern	sichern	VERB	VVINF	_	_	_	_	_
+13	sichern	sichern	VERB	VVINF	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238428] = 4550243
@@ -2486,7 +2486,7 @@
 9	Monaten	Monat	NOUN	NN	_	_	_	_	_
 10	ein	eine	DET	ART	_	_	_	_	_
 11	echter	echt	ADJ	ADJA	_	_	_	_	_
-12	Stabilitätsanker	Stabilitätsanker	NOUN	NN	_	_	_	_	_
+12	Stabilitätsanker	Stabilitätsanker	NOUN	NN	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238429] = 4550256
@@ -2494,7 +2494,7 @@
 1	Aber	aber	CCONJ	KON	_	_	_	_	_
 2	wir	wir	PRON	PPER	_	_	_	_	_
 3	wissen	wissen	VERB	VVFIN	_	_	_	_	_
-4	auch	auch	ADV	ADV	_	_	_	_	_
+4	auch	auch	ADV	ADV	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238430] = 4550261
@@ -2509,7 +2509,7 @@
 8	kann	können	VERB	VMFIN	_	_	_	_	_
 9	diese	diese	DET	PDAT	_	_	_	_	_
 10	Stabilität	Stabilität	NOUN	NN	_	_	_	_	_
-11	gefährden	gefährden	VERB	VVINF	_	_	_	_	_
+11	gefährden	gefährden	VERB	VVINF	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238431] = 4550273
@@ -2529,7 +2529,7 @@
 13	anderen	ander	ADJ	ADJA	_	_	_	_	_
 14	Partner	Partner	NOUN	NN	_	_	_	_	_
 15	zu	zu	PART	PTKZU	_	_	_	_	_
-16	spüren	spüren	VERB	VVINF	_	_	_	_	_
+16	spüren	spüren	VERB	VVINF	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238432] = 4550290
@@ -2559,7 +2559,7 @@
 22	Sozial-	sozial-	X	TRUNC	_	_	_	_	_
 23	und	und	CCONJ	KON	_	_	_	_	_
 24	Steuerpolitik	Steuerpolitik	NOUN	NN	_	_	_	_	_
-25	vorzunehmen	vornehmen	VERB	VVIZU	_	_	_	_	_
+25	vorzunehmen	vornehmen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238433] = 4550316
@@ -2581,7 +2581,7 @@
 14	Stoßrichtung	Stoßrichtung	NOUN	NN	_	_	_	_	_
 15	beschäftigungspolitischer	beschäftigungspolitisch	ADJ	ADJA	_	_	_	_	_
 16	Maßnahmen	Maßnahme	NOUN	NN	_	_	_	_	_
-17	abzustimmen	abstimmen	VERB	VVIZU	_	_	_	_	_
+17	abzustimmen	abstimmen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238434] = 4550334
@@ -2594,7 +2594,7 @@
 6	und	und	CCONJ	KON	_	_	_	_	_
 7	Steuern	Steuer	NOUN	NN	_	_	_	_	_
 8	zu	zu	PART	PTKZU	_	_	_	_	_
-9	verhindern	verhindern	VERB	VVINF	_	_	_	_	_
+9	verhindern	verhindern	VERB	VVINF	_	_	_	_	SpaceAfter=No
 10	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238435] = 4550344
@@ -2612,7 +2612,7 @@
 10	der	d	DET	ART	_	_	_	_	_
 11	Krise	Krise	NOUN	NN	_	_	_	_	_
 12	ziehen	ziehen	VERB	VVINF	_	_	_	_	_
-13	müssen	müssen	VERB	VMINF	_	_	_	_	_
+13	müssen	müssen	VERB	VMINF	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238436] = 4550358
@@ -2638,7 +2638,7 @@
 19	Euro	Euro	NOUN	NN	_	_	_	_	_
 20	künftig	künftig	ADJ	ADJD	_	_	_	_	_
 21	übernehmen	übernehmen	VERB	VVINF	_	_	_	_	_
-22	werden	werden	AUX	VAFIN	_	_	_	_	_
+22	werden	werden	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 23	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238437] = 4550381
@@ -2647,7 +2647,7 @@
 1	Ich	ich	PRON	PPER	_	_	_	_	_
 2	bin	sein	AUX	VAFIN	_	_	_	_	_
 3	mir	ich	PRON	PPER	_	_	_	_	_
-4	sicher	sicher	ADJ	ADJD	_	_	_	_	_
+4	sicher	sicher	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238438] = 4550386
@@ -2667,7 +2667,7 @@
 13	wirtschaftlichen	wirtschaftlich	ADJ	ADJA	_	_	_	_	_
 14	und	und	CCONJ	KON	_	_	_	_	_
 15	sozialen	sozial	ADJ	ADJA	_	_	_	_	_
-16	Fragen	Frage	NOUN	NN	_	_	_	_	_
+16	Fragen	Frage	NOUN	NN	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238439] = 4550403
@@ -2683,7 +2683,7 @@
 8	Außengrenzen	Außengrenze	NOUN	NN	_	_	_	_	_
 9	Polens	Polen	PROPN	NE	_	_	_	_	_
 10	oder	oder	CCONJ	KON	_	_	_	_	_
-11	Ungarns	Ungarn	PROPN	NE	_	_	_	_	_
+11	Ungarns	Ungarn	PROPN	NE	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238440] = 4550415
@@ -2708,7 +2708,7 @@
 18	richtigen	richtig	ADJ	ADJA	_	_	_	_	_
 19	strategischen	strategisch	ADJ	ADJA	_	_	_	_	_
 20	Kompass	Kompaß	NOUN	NN	_	_	_	_	_
-21	an	an	ADP	PTKVZ	_	_	_	_	_
+21	an	an	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 22	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238441] = 4550437
@@ -2725,7 +2725,7 @@
 9	in	in	ADP	APPR	_	_	_	_	_
 10	unserer	unsere	DET	PPOSAT	_	_	_	_	_
 11	Nachbarschaft	Nachbarschaft	NOUN	NN	_	_	_	_	_
-12	verbunden	verbinden	VERB	VVPP	_	_	_	_	_
+12	verbunden	verbinden	VERB	VVPP	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238442] = 4550450
@@ -2745,7 +2745,7 @@
 12	Konfliktbeilegung	Konfliktbeilegung	NOUN	NN	_	_	_	_	_
 13	an	an	ADP	APPR	_	_	_	_	_
 14	unserer	unsere	DET	PPOSAT	_	_	_	_	_
-15	Peripherie	Peripherie	NOUN	NN	_	_	_	_	_
+15	Peripherie	Peripherie	NOUN	NN	_	_	_	_	SpaceAfter=No
 16	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238443] = 4550466
@@ -2768,7 +2768,7 @@
 16	das	d	DET	ART	_	_	_	_	_
 17	Gesicht	Gesicht	NOUN	NN	_	_	_	_	_
 18	der	d	DET	ART	_	_	_	_	_
-19	Union	Union	NOUN	NN	_	_	_	_	_
+19	Union	Union	NOUN	NN	_	_	_	_	SpaceAfter=No
 20	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238444] = 4550486
@@ -2803,7 +2803,7 @@
 27	in	in	ADP	APPR	_	_	_	_	_
 28	gutem	gut	ADJ	ADJA	_	_	_	_	_
 29	Glauben	Glauben	NOUN	NN	_	_	_	_	_
-30	weiterführen	weiterführen	VERB	VVINF	_	_	_	_	_
+30	weiterführen	weiterführen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 31	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238445] = 4550517
@@ -2814,7 +2814,7 @@
 3	müssen	müssen	VERB	VMFIN	_	_	_	_	_
 4	ihre	ihr	DET	PPOSAT	_	_	_	_	_
 5	Hausaufgaben	Hausaufgabe	NOUN	NN	_	_	_	_	_
-6	machen	machen	VERB	VVINF	_	_	_	_	_
+6	machen	machen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238446] = 4550524
@@ -2823,14 +2823,14 @@
 2	wie	wie	CCONJ	KOKOM	_	_	_	_	_
 3	die	d	DET	ART	_	_	_	_	_
 4	EU	European_Union	PROPN	NE	_	_	_	_	_
-5	selbst	selbst	ADV	ADV	_	_	_	_	_
+5	selbst	selbst	ADV	ADV	_	_	_	_	SpaceAfter=No
 6	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238447] = 4550530
 # text = Aber klar ist :
 1	Aber	aber	CCONJ	KON	_	_	_	_	_
 2	klar	klar	ADJ	ADJD	_	_	_	_	_
-3	ist	sein	AUX	VAFIN	_	_	_	_	_
+3	ist	sein	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238448] = 4550534
@@ -2842,7 +2842,7 @@
 5	im	im	ADP	APPRART	_	_	_	_	_
 6	Interesse	Interesse	NOUN	NN	_	_	_	_	_
 7	beider	beide	DET	PIAT	_	_	_	_	_
-8	Seiten	Seite	NOUN	NN	_	_	_	_	_
+8	Seiten	Seite	NOUN	NN	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238449] = 4550543
@@ -2870,7 +2870,7 @@
 21	EU	European_Union	PROPN	NE	_	_	_	_	SpaceAfter=No
 22	,	,	PUNCT	$,	_	_	_	_	_
 23	einschließlich	einschließlich	ADP	APPR	_	_	_	_	_
-24	Russlands	Rußland	NOUN	NN	_	_	_	_	_
+24	Russlands	Rußland	NOUN	NN	_	_	_	_	SpaceAfter=No
 25	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238450] = 4550568
@@ -2889,7 +2889,7 @@
 11	der	d	DET	ART	_	_	_	_	_
 12	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
 13	und	und	CCONJ	KON	_	_	_	_	_
-14	Demokratie	Demokratie	NOUN	NN	_	_	_	_	_
+14	Demokratie	Demokratie	NOUN	NN	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238451] = 4550583
@@ -2920,7 +2920,7 @@
 24	Europa	Europa	PROPN	NE	_	_	_	_	_
 25	und	und	CCONJ	KON	_	_	_	_	_
 26	Russland	Rußland	NOUN	NN	_	_	_	_	_
-27	umfasst	umfassen	VERB	VVPP	_	_	_	_	_
+27	umfasst	umfassen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 28	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238452] = 4550611
@@ -2945,7 +2945,7 @@
 17	als	als	SCONJ	KOUS	_	_	_	_	_
 18	wir	wir	PRON	PPER	_	_	_	_	_
 19	damals	damals	ADV	ADV	_	_	_	_	_
-20	dachten	denken	VERB	VVFIN	_	_	_	_	_
+20	dachten	denken	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238453] = 4550632
@@ -2961,7 +2961,7 @@
 9	Denkmuster	Denkmuster	NOUN	NN	_	_	_	_	_
 10	sind	sein	AUX	VAFIN	_	_	_	_	_
 11	nicht	nicht	PART	PTKNEG	_	_	_	_	_
-12	ausgeblieben	ausbleiben	VERB	VVPP	_	_	_	_	_
+12	ausgeblieben	ausbleiben	VERB	VVPP	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238454] = 4550645
@@ -2969,7 +2969,7 @@
 # text = Dennoch ist richtig :
 1	Dennoch	dennoch	ADV	ADV	_	_	_	_	_
 2	ist	sein	AUX	VAFIN	_	_	_	_	_
-3	richtig	richtig	ADJ	ADJD	_	_	_	_	_
+3	richtig	richtig	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238455] = 4550649
@@ -2999,7 +2999,7 @@
 23	von	von	ADP	APPR	_	_	_	_	_
 24	wahrlich	wahrlich	ADV	ADV	_	_	_	_	_
 25	europäischer	europäisch	ADJ	ADJA	_	_	_	_	_
-26	Dimension	Dimension	NOUN	NN	_	_	_	_	_
+26	Dimension	Dimension	NOUN	NN	_	_	_	_	SpaceAfter=No
 27	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238456] = 4550676
@@ -3025,7 +3025,7 @@
 18	das	d	DET	ART	_	_	_	_	_
 19	gegenseitige	gegenseitig	ADJ	ADJA	_	_	_	_	_
 20	Vertrauen	Vertrauen	NOUN	NN	_	_	_	_	_
-21	stärken	stärken	VERB	VVINF	_	_	_	_	_
+21	stärken	stärken	VERB	VVINF	_	_	_	_	SpaceAfter=No
 22	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238457] = 4550698
@@ -3040,7 +3040,7 @@
 8	kleine	klein	ADJ	ADJA	_	_	_	_	_
 9	Schritte	Schritt	NOUN	NN	_	_	_	_	_
 10	aufeinander	aufeinander	ADV	ADV	_	_	_	_	_
-11	zu	zu	ADP	PTKVZ	_	_	_	_	_
+11	zu	zu	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238458] = 4550710
@@ -3058,7 +3058,7 @@
 10	anzuerkennen	anerkennen	VERB	VVIZU	_	_	_	_	_
 11	und	und	CCONJ	KON	_	_	_	_	_
 12	zu	zu	PART	PTKZU	_	_	_	_	_
-13	respektieren	respektieren	VERB	VVINF	_	_	_	_	_
+13	respektieren	respektieren	VERB	VVINF	_	_	_	_	SpaceAfter=No
 14	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238459] = 4550724
@@ -3073,7 +3073,7 @@
 8	mir	ich	PRON	PPER	_	_	_	_	_
 9	dieser	diese	DET	PDAT	_	_	_	_	_
 10	Gedanke	Gedanke	NOUN	NN	_	_	_	_	_
-11	wichtig	wichtig	ADJ	ADJD	_	_	_	_	_
+11	wichtig	wichtig	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238460] = 4550736
@@ -3090,7 +3090,7 @@
 9	die	d	DET	ART	_	_	_	_	_
 10	nationalen	national	ADJ	ADJA	_	_	_	_	_
 11	Erinnerungen	Erinnerung	NOUN	NN	_	_	_	_	_
-12	bedeutsam	bedeutsam	ADJ	ADJD	_	_	_	_	_
+12	bedeutsam	bedeutsam	ADJ	ADJD	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238461] = 4550749
@@ -3114,7 +3114,7 @@
 17	nicht	nicht	PART	PTKNEG	_	_	_	_	_
 18	strikt	strikt	ADJ	ADJD	_	_	_	_	_
 19	voneinander	voneinander	ADV	ADV	_	_	_	_	_
-20	trennen	trennen	VERB	VVINF	_	_	_	_	_
+20	trennen	trennen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238462] = 4550770
@@ -3130,7 +3130,7 @@
 9	sie	sie	PRON	PPER	_	_	_	_	_
 10	zueinander	zueinander	ADV	ADV	_	_	_	_	_
 11	zu	zu	PART	PTKZU	_	_	_	_	_
-12	öffnen	öffnen	VERB	VVINF	_	_	_	_	_
+12	öffnen	öffnen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 13	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238463] = 4550783
@@ -3160,7 +3160,7 @@
 22	eine	eine	DET	ART	_	_	_	_	_
 23	internationale	international	ADJ	ADJA	_	_	_	_	_
 24	Historikerkonferenz	Historikerkonferenz	NOUN	NN	_	_	_	_	_
-25	durchzuführen	durchführen	VERB	VVIZU	_	_	_	_	_
+25	durchzuführen	durchführen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 26	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238464] = 4550809
@@ -3186,7 +3186,7 @@
 19	Quelle	Quelle	NOUN	NN	_	_	_	_	_
 20	von	von	ADP	APPR	_	_	_	_	_
 21	Misstrauen	Mißtrauen	NOUN	NN	_	_	_	_	_
-22	sind	sein	AUX	VAFIN	_	_	_	_	_
+22	sind	sein	AUX	VAFIN	_	_	_	_	SpaceAfter=No
 23	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238465] = 4550832
@@ -3202,7 +3202,7 @@
 8	Woche	Woche	NOUN	NN	_	_	_	_	_
 9	in	in	ADP	APPR	_	_	_	_	_
 10	Warschau	Warschau	PROPN	NE	_	_	_	_	_
-11	stattgefunden	stattfinden	VERB	VVPP	_	_	_	_	_
+11	stattgefunden	stattfinden	VERB	VVPP	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238466] = 4550844
@@ -3227,7 +3227,7 @@
 18	ukrainischer	ukrainisch	ADJ	ADJA	_	_	_	_	_
 19	und	und	CCONJ	KON	_	_	_	_	_
 20	internationaler	international	ADJ	ADJA	_	_	_	_	_
-21	Historiker	Historiker	NOUN	NN	_	_	_	_	_
+21	Historiker	Historiker	NOUN	NN	_	_	_	_	SpaceAfter=No
 22	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238467] = 4550866
@@ -3239,7 +3239,7 @@
 5	ist	sein	AUX	VAFIN	_	_	_	_	_
 6	ein	eine	DET	ART	_	_	_	_	_
 7	ermutigendes	ermutigend	ADJ	ADJA	_	_	_	_	_
-8	Signal	Signal	NOUN	NN	_	_	_	_	_
+8	Signal	Signal	NOUN	NN	_	_	_	_	SpaceAfter=No
 9	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238468] = 4550875
@@ -3248,7 +3248,7 @@
 1	Klar	klar	ADJ	ADJD	_	_	_	_	_
 2	ist	sein	AUX	VAFIN	_	_	_	_	_
 3	aber	aber	ADV	ADV	_	_	_	_	_
-4	auch	auch	ADV	ADV	_	_	_	_	_
+4	auch	auch	ADV	ADV	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238469] = 4550880
@@ -3268,7 +3268,7 @@
 13	notwendigerweise	notwendigerweise	ADV	ADV	_	_	_	_	_
 14	immer	immer	ADV	ADV	_	_	_	_	_
 15	verschieden	verschieden	ADJ	ADJD	_	_	_	_	_
-16	sein	sein	AUX	VAINF	_	_	_	_	_
+16	sein	sein	AUX	VAINF	_	_	_	_	SpaceAfter=No
 17	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238470] = 4550897
@@ -3290,7 +3290,7 @@
 14	einem	eine	DET	ART	_	_	_	_	_
 15	aufrichtigen	aufrichtig	ADJ	ADJA	_	_	_	_	_
 16	Dialog	Dialog	NOUN	NN	_	_	_	_	_
-17	zusammenzubringen	zusammenbringen	VERB	VVIZU	_	_	_	_	_
+17	zusammenzubringen	zusammenbringen	VERB	VVIZU	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238471] = 4550915
@@ -3325,7 +3325,7 @@
 27	europäische	europäisch	ADJ	ADJA	_	_	_	_	_
 28	Zukunft	Zukunft	NOUN	NN	_	_	_	_	_
 29	zu	zu	PART	PTKZU	_	_	_	_	_
-30	gestalten	gestalten	VERB	VVINF	_	_	_	_	_
+30	gestalten	gestalten	VERB	VVINF	_	_	_	_	SpaceAfter=No
 31	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238472] = 4550946
@@ -3333,7 +3333,7 @@
 # text = Wir brauchen beides :
 1	Wir	wir	PRON	PPER	_	_	_	_	_
 2	brauchen	brauchen	VERB	VVFIN	_	_	_	_	_
-3	beides	beide	PRON	PIS	_	_	_	_	_
+3	beides	beide	PRON	PIS	_	_	_	_	SpaceAfter=No
 4	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238473] = 4550950
@@ -3371,7 +3371,7 @@
 31	eine	eine	DET	ART	_	_	_	_	_
 32	Kultur	Kultur	NOUN	NN	_	_	_	_	_
 33	der	d	DET	ART	_	_	_	_	_
-34	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
+34	Freiheit	Freiheit	NOUN	NN	_	_	_	_	SpaceAfter=No
 35	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238474] = 4550985
@@ -3381,7 +3381,7 @@
 3	von	von	ADP	APPR	_	_	_	_	_
 4	Menschen-	menschen-	X	TRUNC	_	_	_	_	_
 5	und	und	CCONJ	KON	_	_	_	_	_
-6	Bürgerrechten	Bürgerrecht	NOUN	NN	_	_	_	_	_
+6	Bürgerrechten	Bürgerrecht	NOUN	NN	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238475] = 4550992
@@ -3390,7 +3390,7 @@
 2	Streben	Strebe	NOUN	NN	_	_	_	_	_
 3	nach	nach	ADP	APPR	_	_	_	_	_
 4	sozialer	sozial	ADJ	ADJA	_	_	_	_	_
-5	Gerechtigkeit	Gerechtigkeit	NOUN	NN	_	_	_	_	_
+5	Gerechtigkeit	Gerechtigkeit	NOUN	NN	_	_	_	_	SpaceAfter=No
 6	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238476] = 4550998
@@ -3405,7 +3405,7 @@
 8	sich	sich	PRON	PRF	_	_	_	_	_
 9	auch	auch	ADV	ADV	_	_	_	_	_
 10	1989	1989	NUM	CARD	_	_	_	_	_
-11	speist	speisen	VERB	VVFIN	_	_	_	_	_
+11	speist	speisen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 12	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238477] = 4551010
@@ -3414,7 +3414,7 @@
 1	Und	und	CCONJ	KON	_	_	_	_	_
 2	ich	ich	PRON	PPER	_	_	_	_	_
 3	bin	sein	AUX	VAFIN	_	_	_	_	_
-4	überzeugt	überzeugen	VERB	VVPP	_	_	_	_	_
+4	überzeugt	überzeugen	VERB	VVPP	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238478] = 4551015
@@ -3432,7 +3432,7 @@
 11	heutige	heutig	ADJ	ADJA	_	_	_	_	_
 12	Krise	Krise	NOUN	NN	_	_	_	_	_
 13	zu	zu	PART	PTKZU	_	_	_	_	_
-14	überwinden	überwinden	VERB	VVINF	_	_	_	_	_
+14	überwinden	überwinden	VERB	VVINF	_	_	_	_	SpaceAfter=No
 15	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238479] = 4551030
@@ -3447,7 +3447,7 @@
 7	ein	eine	DET	ART	_	_	_	_	_
 8	europäisches	europäisch	ADJ	ADJA	_	_	_	_	_
 9	Wir-Gefühl	Wir-Gefühl	NOUN	NN	_	_	_	_	_
-10	stützen	stützen	VERB	VVINF	_	_	_	_	_
+10	stützen	stützen	VERB	VVINF	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238480] = 4551041
@@ -3468,7 +3468,7 @@
 14	zusammenwachsen	zusammenwachsen	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 15	,	,	PUNCT	$,	_	_	_	_	_
 16	was	was	PRON	PWS	_	_	_	_	_
-17	zusammengehört	zusammengehören	VERB	VVFIN	_	_	_	_	_
+17	zusammengehört	zusammengehören	VERB	VVFIN	_	_	_	_	SpaceAfter=No
 18	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238481] = 4551059
@@ -3492,7 +3492,7 @@
 17	Fall	Fall	NOUN	NN	_	_	_	_	_
 18	der	d	DET	ART	_	_	_	_	_
 19	Berliner	Berliner	ADJ	ADJA	_	_	_	_	_
-20	Mauer	Mauer	NOUN	NN	_	_	_	_	_
+20	Mauer	Mauer	NOUN	NN	_	_	_	_	SpaceAfter=No
 21	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238482] = 4551080
@@ -3502,7 +3502,7 @@
 3	fügte	fügen	VERB	VVFIN	_	_	_	_	_
 4	schon	schon	ADV	ADV	_	_	_	_	_
 5	damals	damals	ADV	ADV	_	_	_	_	_
-6	hinzu	hinzu	ADP	PTKVZ	_	_	_	_	_
+6	hinzu	hinzu	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 7	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238483] = 4551087
@@ -3514,7 +3514,7 @@
 5	Europa	Europa	PROPN	NE	_	_	_	_	_
 6	im	im	ADP	APPRART	_	_	_	_	_
 7	Ganzen	Ganze	NOUN	NN	_	_	_	_	SpaceAfter=No
-8	.	.	PUNCT	$.	_	_	_	_	_
+8	.	.	PUNCT	$.	_	_	_	_	SpaceAfter=No
 9	"	"	PUNCT	$(	_	_	_	_	_
 
 # DDC:BREAK.s[238484] = 4551096
@@ -3529,7 +3529,7 @@
 7	der	d	DET	ART	_	_	_	_	_
 8	Freiheit	Freiheit	NOUN	NN	_	_	_	_	_
 9	weit	weit	ADJ	ADJD	_	_	_	_	_
-10	auf	auf	ADP	PTKVZ	_	_	_	_	_
+10	auf	auf	ADP	PTKVZ	_	_	_	_	SpaceAfter=No
 11	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238485] = 4551107
@@ -3559,14 +3559,14 @@
 23	mutig	mutig	ADJ	ADJD	_	_	_	_	_
 24	für	für	ADP	APPR	_	_	_	_	_
 25	sie	sie	PRON	PPER	_	_	_	_	_
-26	eintreten	eintreten	VERB	VVINF	_	_	_	_	_
+26	eintreten	eintreten	VERB	VVINF	_	_	_	_	SpaceAfter=No
 27	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238486] = 4551134
 # text = Gemeinsam dafür streiten .
 1	Gemeinsam	gemeinsam	ADJ	ADJD	_	_	_	_	_
 2	dafür	dafür	ADV	PAV	_	_	_	_	_
-3	streiten	streiten	VERB	VVINF	_	_	_	_	_
+3	streiten	streiten	VERB	VVINF	_	_	_	_	SpaceAfter=No
 4	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238487] = 4551138
@@ -3574,7 +3574,7 @@
 1	Verantwortlich	verantwortlich	ADJ	ADJD	_	_	_	_	_
 2	in	in	ADP	APPR	_	_	_	_	_
 3	ihr	sie	PRON	PPER	_	_	_	_	_
-4	leben	leben	VERB	VVINF	_	_	_	_	_
+4	leben	leben	VERB	VVINF	_	_	_	_	SpaceAfter=No
 5	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238488] = 4551143
@@ -3585,7 +3585,7 @@
 3	der	d	DET	ART	_	_	_	_	_
 4	Geist	Geist	NOUN	NN	_	_	_	_	_
 5	von	von	ADP	APPR	_	_	_	_	_
-6	1989	1989	NUM	CARD	_	_	_	_	_
+6	1989	1989	NUM	CARD	_	_	_	_	SpaceAfter=No
 7	.	.	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238489] = 4551150
@@ -3594,7 +3594,7 @@
 1	Meine	meine	DET	PPOSAT	_	_	_	_	_
 2	Damen	Dame	NOUN	NN	_	_	_	_	_
 3	und	und	CCONJ	KON	_	_	_	_	_
-4	Herren	Herr	NOUN	NN	_	_	_	_	_
+4	Herren	Herr	NOUN	NN	_	_	_	_	SpaceAfter=No
 5	:	:	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238490] = 4551155
@@ -3605,13 +3605,13 @@
 4	so	so	ADV	ADV	_	_	_	_	_
 5	aktuell	aktuell	ADJ	ADJD	_	_	_	_	_
 6	wie	wie	CCONJ	KOKOM	_	_	_	_	_
-7	damals	damals	ADV	ADV	_	_	_	_	_
+7	damals	damals	ADV	ADV	_	_	_	_	SpaceAfter=No
 8	!	!	PUNCT	$.	_	_	_	_	_
 
 # DDC:BREAK.s[238491] = 4551163
 # DDC:BREAK.p[81954] = 4551163
 # text = Vielen Dank !
 1	Vielen	viel	DET	PIAT	_	_	_	_	_
-2	Dank	Dank	NOUN	NN	_	_	_	_	_
+2	Dank	Dank	NOUN	NN	_	_	_	_	SpaceAfter=No
 3	!	!	PUNCT	$.	_	_	_	_	_
 
