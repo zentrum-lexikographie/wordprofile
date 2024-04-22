@@ -1,7 +1,7 @@
 import datetime
 from collections import namedtuple
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Protocol
 
 
 @dataclass
@@ -32,6 +32,29 @@ class Coocc:
 
 
 @dataclass
+class WPConcordance(Protocol):
+    sentence: str
+    token_position_1: int
+    token_position_2: int
+    prep_position: int
+    corpus: str
+    date: datetime.date
+    textclass: str
+    orig: str
+    scan: str
+    avail: str
+    page: str
+    file: str
+    score: int
+    sentence_left: str
+    sentence_right: str
+
+    def get_highlight_positions(self) -> list[int]:
+        """Returns list of indices of target tokens."""
+        ...
+
+
+@dataclass
 class Concordance:
     sentence: str
     token_position_1: int
@@ -48,6 +71,9 @@ class Concordance:
     score: int
     sentence_left: str
     sentence_right: str
+
+    def get_highlight_positions(self) -> list[int]:
+        return [self.token_position_1, self.token_position_2, self.prep_position]
 
 
 @dataclass
@@ -70,6 +96,16 @@ class MweConcordance:
     score: int
     sentence_left: str
     sentence_right: str
+
+    def get_highlight_positions(self) -> list[int]:
+        return [
+            self.token1_position_1,
+            self.token1_position_2,
+            self.prep1_position,
+            self.token2_position_1,
+            self.token2_position_2,
+            self.prep2_position,
+        ]
 
 
 @dataclass
