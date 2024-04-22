@@ -2,11 +2,7 @@ import re
 from collections import defaultdict
 from typing import List
 
-from wordprofile.datatypes import (
-    Coocc,
-    LemmaInfo,
-    WPConcordance,
-)
+from wordprofile.datatypes import Coocc, LemmaInfo, WPConcordance
 from wordprofile.utils import tag_b2f
 
 RE_HIT_DELIMITER = re.compile(r"([^\x01\x02]+)([\x01\x02])")
@@ -176,12 +172,8 @@ def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
     """Format concordance sentence and highlight certain positions."""
     if not sent:
         return ""
-    # TODO: remove hack for leading delimiter from data
-    if sent.startswith("\x02"):
-        sent = sent[1:]
     sent += "\x01"
     tokens = RE_HIT_DELIMITER.findall(sent)
-    # TODO remove hack but frontend changes necessary
     for idx, (token, delim) in enumerate(tokens):
         padding = " " if delim == "\x02" else ""
         if (idx + 1) in positions:
