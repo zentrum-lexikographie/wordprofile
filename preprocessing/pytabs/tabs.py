@@ -3,6 +3,7 @@ import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 from typing_extensions import Self
 
@@ -46,11 +47,15 @@ class TabsSentence:
         self,
         meta: list[list[str]],
         tokens: list[tuple[str, ...]],
-        index_map: dict[str, int],
+        index_map: Optional[dict[str, int]] = None,
     ) -> None:
         self.meta = meta
-        self.tokens = self._clean_tokens(tokens)
-        self.index = index_map
+        self._idx = (
+            {"Token": 0, "Pos": 1, "Lemma": 2, "WordSep": 3}
+            if index_map is None
+            else index_map
+        )
+        self.tokens = self._clean_sentence(tokens)
 
     def to_conll(self, index: dict[str, int]) -> list[ConllToken]:
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
@@ -81,24 +86,35 @@ class TabsSentence:
     def __repr__(self) -> str:
         return f"TabsSentence(meta={self.meta},tokens={self.tokens})"
 
-    def _clean_tokens(
+    def _clean_sentence(
         self, tokens: list[tuple[str, ...]]
     ) -> tuple[tuple[str, ...], ...]:
         cleaned: list[tuple[str, ...]] = []
-        for i, token in enumerate(tokens):
-            if token[0] in {">", "<"}:
+        for token in tokens:
+            if token[self._idx["Token"]] in {">", "<"}:
                 continue
-            elif match := re.match(r"<?\w+>(\w*)", token[0]):
-                if clean_tok := match.group(1):
-                    new_token = (clean_tok, token[1], clean_tok, token[3])
-                    cleaned.append(new_token)
-            elif match := re.match(r"([\w!?,.;:(){}\[\]\"]*)<(/\w+>)?", token[0]):
-                if clean_tok := match.group(1):
-                    new_token = (clean_tok, token[1], clean_tok, token[3])
-                    cleaned.append(new_token)
-            else:
-                cleaned.append(token)
+            cleaned_token = self._clean_token(token)
+            if cleaned_token is None:
+                continue
+            cleaned.append(cleaned_token)
         return tuple(cleaned)
+
+    def _clean_token(self, token: tuple[str, ...]) -> Optional[tuple[str, ...]]:
+        new_token = [part for part in token]
+        clean_token = self._remove_xml_fragments(token[self._idx["Token"]])
+        if not clean_token:
+            return None
+        clean_lemma = self._remove_xml_fragments(token[self._idx["Lemma"]])
+        new_token[self._idx["Token"]] = clean_token
+        new_token[self._idx["Lemma"]] = clean_lemma if clean_lemma else clean_token
+        return tuple(new_token)
+
+    def _remove_xml_fragments(self, token: str) -> str:
+        if match := re.match(r"<?\w+>(\w*)", token):
+            return match.group(1)
+        elif match := re.match(r"([\w!?,.;:(){}\[\]\"]*)<(/\w+>)?", token):
+            return match.group(1)
+        return token
 
 
 class TabsDocument:
