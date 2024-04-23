@@ -11,19 +11,6 @@ from preprocessing.pytabs.consts import UD_POS_MAP
 
 
 @dataclass
-class TabsToken:
-    """Class for keeping track of tabs token."""
-
-    surface: str
-    lemma: str
-    pos: str
-    word_sep: int
-
-    def __repr__(self) -> str:
-        return f"TabsToken({self.surface},{self.lemma},{self.pos},{self.word_sep}"
-
-
-@dataclass
 class ConllToken:
     """Class for keeping track of tabs token."""
 
