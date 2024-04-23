@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from preprocessing.pytabs.tabs import TabsDocument
+from preprocessing.pytabs.tabs import ConllToken, TabsDocument, TabsSentence
 
 
 class TabsDocumentTest(unittest.TestCase):
@@ -60,4 +60,80 @@ class TabsDocumentTest(unittest.TestCase):
         for line in doc.as_conllu().split("\n"):
             if line.startswith("# text"):
                 result.append(line)
+        self.assertEqual(result, expected)
+
+
+class TabsSentenceTest(unittest.TestCase):
+    def test_space_information_before_last_punctuation_mark_set_correctly(self):
+        sent = TabsSentence(
+            [],
+            [
+                ("Sehr", "ADV", "sehr", "1"),
+                ("geehrter", "ADJA", "geehrt", "1"),
+                ("Herr", "NN", "Herr", "1"),
+                ("Präsident", "NN", "Präsident", "1"),
+                ("Palinkás", "NE", "Palinkás", "1"),
+                (",", "$,", ",", "0"),
+                ("meine", "PPOSAT", "meine", "1"),
+                ("sehr", "ADV", "sehr", "1"),
+                ("verehrten", "ADJA", "verehrt", "1"),
+                ("Damen", "NN", "Dame", "1"),
+                ("und", "KON", "und", "1"),
+                ("Herren", "NN", "Herr", "1"),
+                (",", "$,", ",", "0"),
+            ],
+        )
+        result = sent.to_conll({"Token": 0, "Lemma": 1, "Pos": 2, "WordSep": 3})
+        expected = [
+            ConllToken("Sehr", "ADV", "sehr", "", "_", "_", "_"),
+            ConllToken("geehrter", "ADJA", "geehrt", "", "_", "_", "_"),
+            ConllToken("Herr", "NN", "Herr", "", "_", "_", "_"),
+            ConllToken("Präsident", "NN", "Präsident", "", "_", "_", "_"),
+            ConllToken("Palinkás", "NE", "Palinkás", "", "_", "_", "SpaceAfter=No"),
+            ConllToken(",", "$,", ",", "", "_", "_", "_"),
+            ConllToken("meine", "PPOSAT", "meine", "", "_", "_", "_"),
+            ConllToken("sehr", "ADV", "sehr", "", "_", "_", "_"),
+            ConllToken("verehrten", "ADJA", "verehrt", "", "_", "_", "_"),
+            ConllToken("Damen", "NN", "Dame", "", "_", "_", "_"),
+            ConllToken("und", "KON", "und", "", "_", "_", "_"),
+            ConllToken("Herren", "NN", "Herr", "", "_", "_", "SpaceAfter=No"),
+            ConllToken(",", "$,", ",", "", "_", "_", "_"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_space_before_last_token_set_if_needed(self):
+        sent = TabsSentence(
+            [],
+            [
+                ("Sehr", "ADV", "sehr", "1"),
+                ("geehrter", "ADJA", "geehrt", "1"),
+                ("Herr", "NN", "Herr", "1"),
+                ("Präsident", "NN", "Präsident", "1"),
+                ("Palinkás", "NE", "Palinkás", "1"),
+                (",", "$,", ",", "0"),
+                ("meine", "PPOSAT", "meine", "1"),
+                ("sehr", "ADV", "sehr", "1"),
+                ("verehrten", "ADJA", "verehrt", "1"),
+                ("Damen", "NN", "Dame", "1"),
+                ("und", "KON", "und", "1"),
+                ("Herren", "NN", "Herr", "1"),
+                (",", "$,", ",", "1"),
+            ],
+        )
+        result = sent.to_conll({"Token": 0, "Lemma": 1, "Pos": 2, "WordSep": 3})
+        expected = [
+            ConllToken("Sehr", "ADV", "sehr", "", "_", "_", "_"),
+            ConllToken("geehrter", "ADJA", "geehrt", "", "_", "_", "_"),
+            ConllToken("Herr", "NN", "Herr", "", "_", "_", "_"),
+            ConllToken("Präsident", "NN", "Präsident", "", "_", "_", "_"),
+            ConllToken("Palinkás", "NE", "Palinkás", "", "_", "_", "SpaceAfter=No"),
+            ConllToken(",", "$,", ",", "", "_", "_", "_"),
+            ConllToken("meine", "PPOSAT", "meine", "", "_", "_", "_"),
+            ConllToken("sehr", "ADV", "sehr", "", "_", "_", "_"),
+            ConllToken("verehrten", "ADJA", "verehrt", "", "_", "_", "_"),
+            ConllToken("Damen", "NN", "Dame", "", "_", "_", "_"),
+            ConllToken("und", "KON", "und", "", "_", "_", "_"),
+            ConllToken("Herren", "NN", "Herr", "", "_", "_", "_"),
+            ConllToken(",", "$,", ",", "", "_", "_", "_"),
+        ]
         self.assertEqual(result, expected)

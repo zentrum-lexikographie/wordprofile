@@ -61,12 +61,16 @@ class TabsSentence:
             )
             for t in self.tokens
         ]
+        # .tabs encodes space before current token
+        # convert information to space after for previous token
         for t_i, t in enumerate(tokens):
-            if t_i > 0 and t.misc == "0":
+            if t_i == 0:
+                continue
+            if t.misc == "0":
                 tokens[t_i - 1].misc = "SpaceAfter=No"
             else:
                 tokens[t_i - 1].misc = "_"
-            tokens[-1].misc = "_"
+        tokens[-1].misc = "_"
         return tokens
 
     def __repr__(self) -> str:
