@@ -96,7 +96,7 @@ def test_conversion_to_db_match():
             dep_surface="Dep",
             head_position=1,
             dep_position=2,
-            prep_position=0,
+            extra_position="-",
             corpus_file_id="1",
             sentence_id=0,
         )
@@ -119,7 +119,7 @@ def test_conversion_to_db_match_with_prep():
             dep_surface="B",
             head_position=1,
             dep_position=3,
-            prep_position=2,
+            extra_position="2",
             corpus_file_id="1",
             sentence_id=0,
         ),
@@ -133,8 +133,114 @@ def test_conversion_to_db_match_with_prep():
             dep_surface="C B",
             head_position=1,
             dep_position=3,
-            prep_position=2,
+            extra_position="2",
             corpus_file_id="1",
             sentence_id=0,
         ),
     ]
+
+
+def test_conversion_to_db_match_with_prt_on_head():
+    head = WPToken(
+        idx=1,
+        surface="fällt",
+        lemma="einfallen",
+        tag="VERB",
+        head=0,
+        rel="ROOT",
+        misc=True,
+        prt_pos=5,
+    )
+    dep = WPToken(
+        idx=2,
+        surface="gestern",
+        lemma="gestern",
+        tag="ADV",
+        head=1,
+        rel="advmod",
+        misc=False,
+    )
+    matches = [Match(head, dep, prep=None, relation="ADV", sid=0)]
+    assert pre.prepare_matches("1", matches) == [
+        DBMatch(
+            relation_label="ADV",
+            head_lemma="einfallen",
+            dep_lemma="gestern",
+            head_tag="VERB",
+            dep_tag="ADV",
+            head_surface="fällt",
+            dep_surface="gestern",
+            head_position=1,
+            dep_position=2,
+            extra_position="5",
+            corpus_file_id="1",
+            sentence_id=0,
+        )
+    ]
+
+
+def test_conversion_to_db_match_with_prt_on_dep():
+    dep = WPToken(
+        idx=1,
+        surface="fällt",
+        lemma="einfallen",
+        tag="VERB",
+        head=0,
+        rel="ROOT",
+        misc=True,
+        prt_pos=5,
+    )
+    head = WPToken(
+        idx=2,
+        surface="gestern",
+        lemma="gestern",
+        tag="ADV",
+        head=1,
+        rel="advmod",
+        misc=False,
+    )
+    matches = [Match(head, dep, prep=None, relation="ADV", sid=0)]
+    assert pre.prepare_matches("1", matches) == [
+        DBMatch(
+            relation_label="ADV",
+            head_lemma="gestern",
+            dep_lemma="einfallen",
+            head_tag="ADV",
+            dep_tag="VERB",
+            head_surface="gestern",
+            dep_surface="fällt",
+            head_position=2,
+            dep_position=1,
+            extra_position="5",
+            corpus_file_id="1",
+            sentence_id=0,
+        )
+    ]
+
+
+def test_conversion_to_db_match_with_prep_and_prt():
+    head = WPToken(
+        idx=1,
+        surface="fällt",
+        lemma="einfallen",
+        tag="VERB",
+        head=0,
+        rel="ROOT",
+        misc=True,
+        prt_pos=5,
+    )
+    dep = WPToken(
+        idx=3,
+        surface="Tag",
+        lemma="Tag",
+        tag="NOUN",
+        head=1,
+        rel="adp",
+        misc=False,
+    )
+    prep = WPToken(
+        idx=2, surface="am", lemma="an", tag="ADP", head=3, rel="case", misc=True
+    )
+    matches = [Match(head, dep, prep=prep, relation="PP", sid=0)]
+    result = {match.extra_position for match in pre.prepare_matches("1", matches)}
+    assert result.intersection({"2-5", "5-2"})

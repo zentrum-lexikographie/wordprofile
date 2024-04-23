@@ -144,7 +144,7 @@ DBMatch = namedtuple(
         "dep_surface",
         "head_position",
         "dep_position",
-        "prep_position",
+        "extra_position",
         "corpus_file_id",
         "sentence_id",
     ],
