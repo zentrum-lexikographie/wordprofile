@@ -3,7 +3,6 @@ import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, Iterable, List
 
 from typing_extensions import Self
 
@@ -43,11 +42,11 @@ class TabsSentence:
     """Data structure for processing sentences in tabs files
     - stores also meta data referring to the sentence."""
 
-    def __init__(self, meta: List[List[str]], tokens: Iterable) -> None:
+    def __init__(self, meta: list[list[str]], tokens: list[tuple[str, ...]]) -> None:
         self.meta = meta
         self.tokens = tuple(tokens)
 
-    def to_conll(self, index: Dict[str, int]) -> List[ConllToken]:
+    def to_conll(self, index: dict[str, int]) -> list[ConllToken]:
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
         tokens = [
             ConllToken(
@@ -82,11 +81,11 @@ class TabsDocument:
     either tabs or conllu format."""
 
     def __init__(self) -> None:
-        self.meta: Dict[str, str] = {}
-        self.index: Dict[str, int] = {}
-        self.index_short: Dict[str, str] = {}
-        self.tokid: Dict[str, str] = {}
-        self.sentences: List[TabsSentence] = []
+        self.meta: dict[str, str] = {}
+        self.index: dict[str, int] = {}
+        self.index_short: dict[str, str] = {}
+        self.tokid: dict[str, str] = {}
+        self.sentences: list[TabsSentence] = []
 
     @classmethod
     def from_tabs(cls, tabs_path: str) -> Self:
@@ -153,8 +152,8 @@ class TabsDocument:
         )
 
 
-def _clean_tokens(tokens: list[tuple[str]]) -> list[tuple[str]]:
-    cleaned = []
+def _clean_tokens(tokens: list[tuple[str, ...]]) -> list[tuple[str, ...]]:
+    cleaned: list[tuple[str, ...]] = []
     for i, token in enumerate(tokens):
         if token[0] in {">", "<"}:
             continue
