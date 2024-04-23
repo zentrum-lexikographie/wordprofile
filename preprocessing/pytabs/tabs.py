@@ -42,9 +42,15 @@ class TabsSentence:
     """Data structure for processing sentences in tabs files
     - stores also meta data referring to the sentence."""
 
-    def __init__(self, meta: list[list[str]], tokens: list[tuple[str, ...]]) -> None:
+    def __init__(
+        self,
+        meta: list[list[str]],
+        tokens: list[tuple[str, ...]],
+        index_map: dict[str, int],
+    ) -> None:
         self.meta = meta
-        self.tokens = tuple(tokens)
+        self.tokens = self._clean_tokens(tokens)
+        self.index = index_map
 
     def to_conll(self, index: dict[str, int]) -> list[ConllToken]:
         # 'surface', 'lemma', 'tag', 'morph', 'head', 'rel', 'misc'
@@ -74,6 +80,25 @@ class TabsSentence:
 
     def __repr__(self) -> str:
         return f"TabsSentence(meta={self.meta},tokens={self.tokens})"
+
+    def _clean_tokens(
+        self, tokens: list[tuple[str, ...]]
+    ) -> tuple[tuple[str, ...], ...]:
+        cleaned: list[tuple[str, ...]] = []
+        for i, token in enumerate(tokens):
+            if token[0] in {">", "<"}:
+                continue
+            elif match := re.match(r"<?\w+>(\w*)", token[0]):
+                if clean_tok := match.group(1):
+                    new_token = (clean_tok, token[1], clean_tok, token[3])
+                    cleaned.append(new_token)
+            elif match := re.match(r"([\w!?,.;:(){}\[\]\"]*)<(/\w+>)?", token[0]):
+                if clean_tok := match.group(1):
+                    new_token = (clean_tok, token[1], clean_tok, token[3])
+                    cleaned.append(new_token)
+            else:
+                cleaned.append(token)
+        return tuple(cleaned)
 
 
 class TabsDocument:
@@ -112,7 +137,7 @@ class TabsDocument:
                 elif line and not line.startswith("%%$DDC"):
                     tokens.append(tuple(line.split("\t")))
                 elif not line and tokens and meta_sent:
-                    doc.sentences.append(TabsSentence(meta_sent, _clean_tokens(tokens)))
+                    doc.sentences.append(TabsSentence(meta_sent, tokens, doc.index))
                     meta_sent = []
                     tokens = []
         return doc
@@ -150,21 +175,3 @@ class TabsDocument:
             f"TabsDocument(meta={self.meta},index={self.index},index_short={self.index_short},"
             f"tokid={self.tokid},sentences={self.sentences})"
         )
-
-
-def _clean_tokens(tokens: list[tuple[str, ...]]) -> list[tuple[str, ...]]:
-    cleaned: list[tuple[str, ...]] = []
-    for i, token in enumerate(tokens):
-        if token[0] in {">", "<"}:
-            continue
-        elif match := re.match(r"<?\w+>(\w*)", token[0]):
-            if clean_tok := match.group(1):
-                new_token = (clean_tok, token[1], clean_tok, token[3])
-                cleaned.append(new_token)
-        elif match := re.match(r"([\w!?,.;:(){}\[\]\"]*)<(/\w+>)?", token[0]):
-            if clean_tok := match.group(1):
-                new_token = (clean_tok, token[1], clean_tok, token[3])
-                cleaned.append(new_token)
-        else:
-            cleaned.append(token)
-    return cleaned
