@@ -62,6 +62,11 @@ class TabsDocumentTest(unittest.TestCase):
                 result.append(line)
         self.assertEqual(result, expected)
 
+    def test_cleaning_also_applied_to_lemma(self):
+        doc = TabsDocument.from_tabs(self.to_clean)
+        sent = doc.sentences[1]
+        self.assertEqual(sent.tokens[1], ("trägt", "VAFIN", "tragen", "1"))
+
 
 class TabsSentenceTest(unittest.TestCase):
     def test_space_information_before_last_punctuation_mark_set_correctly(self):
@@ -136,4 +141,34 @@ class TabsSentenceTest(unittest.TestCase):
             ConllToken("Herren", "NN", "Herr", "", "_", "_", "_"),
             ConllToken(",", "$,", ",", "", "_", "_", "_"),
         ]
+        self.assertEqual(result, expected)
+
+    def test_xml_fragment_removed_from_token(self):
+        sent = TabsSentence(
+            [],
+            [
+                ("fett>Sehr", "ADV", "fett>sehr", "1"),
+                ("verehrten", "ADJA", "verehrt", "1"),
+                ("Damen", "NN", "Dame", "1"),
+                ("und", "KON", "und", "1"),
+                ("Herren</fett>", "NN", "Herr</fett>", "1"),
+                ("fett>", "NN", "fett>", "1"),
+            ],
+        )
+        expected = ["Sehr", "verehrten", "Damen", "und", "Herren"]
+        self.assertEqual([tok[0] for tok in sent.tokens], expected)
+
+    def test_xml_fragment_removed_from_lemma(self):
+        sent = TabsSentence(
+            [],
+            [
+                ("fett>Sehr", "ADV", "fett>sehr", "1"),
+                ("verehrten</", "ADJA", "verehrt</", "1"),
+                ("Damen", "NN", "Dame", "1"),
+                ("und</", "KON", "</", "1"),
+                ("Herren</fett>", "NN", "Herr</fett>", "1"),
+            ],
+        )
+        expected = ["sehr", "verehrt", "Dame", "und", "Herr"]
+        result = [token[2] for token in sent.tokens]
         self.assertEqual(result, expected)
