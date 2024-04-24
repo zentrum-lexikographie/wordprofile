@@ -1,7 +1,7 @@
 import io
+import multiprocessing as mp
 import pathlib
 import tempfile
-import multiprocessing as mp
 
 import conllu
 import pytest
@@ -823,3 +823,26 @@ def test_write_matches_with_phrasal_verb_to_file():
         "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
         "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
     }
+
+
+def test_aggregating_matches_with_extra_position():
+    colloc_files = list(
+        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
+    )
+    collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
+    corpus_file_ids = {"doc1": 1}
+    sentence_ids = {("1", "3"), ("1", "4")}
+    matches_dir = pathlib.Path(__file__).parent / "testdata" / "matches_agg"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        pro.filter_transform_matches(
+            list(matches_dir.iterdir()),
+            output_file,
+            corpus_file_ids,
+            sentence_ids,
+            collocations,
+        )
+        with open(output_file) as fh:
+            result = [line for line in fh]
+    assert len(result) == 4
+    assert "0\t0\tZeitung\tsüddeutsche\t3\t2\t3-5\t1\t3\n" in result
