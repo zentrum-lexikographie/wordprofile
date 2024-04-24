@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 import datetime
 from collections import namedtuple
 from dataclasses import asdict, dataclass
@@ -151,6 +154,11 @@ class DBMatch:
 
     def __iter__(self):
         yield from asdict(self).values()
+
+    @classmethod
+    def fromline(cls, line: str) -> DBMatch:
+        args = line.strip().split("\t")
+        return cls(*args[:7], int(args[7]), int(args[8]), *args[9:11], int(args[11]))
 
 
 CollocInstance = namedtuple(
