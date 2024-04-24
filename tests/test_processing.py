@@ -7,7 +7,7 @@ import pytest
 from conllu.models import Token, TokenList
 
 import wordprofile.wpse.processing as pro
-from wordprofile.datatypes import WPToken
+from wordprofile.datatypes import DBMatch, WPToken
 
 
 class MockQueue:
@@ -772,3 +772,49 @@ def test_collapse_lemma_of_phrasal_verbs_from_file():
         "vornehmen",
         "ankommen",
     ]
+
+
+def test_write_matches_with_phrasal_verb_to_file():
+    matches = [
+        DBMatch(
+            relation_label="ADV",
+            head_lemma="gestern",
+            dep_lemma="einfallen",
+            head_tag="ADV",
+            dep_tag="VERB",
+            head_surface="gestern",
+            dep_surface="fällt",
+            head_position=2,
+            dep_position=1,
+            extra_position="5-3",
+            corpus_file_id="1",
+            sentence_id=0,
+        ),
+        DBMatch(
+            relation_label="ADV",
+            head_lemma="gestern",
+            dep_lemma="einfallen",
+            head_tag="ADV",
+            dep_tag="VERB",
+            head_surface="gestern",
+            dep_surface="fällt",
+            head_position=2,
+            dep_position=1,
+            extra_position="3-5",
+            corpus_file_id="1",
+            sentence_id=0,
+        ),
+    ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_process = pro.FileWorker(tmpdir, "matches")
+        output_process.start()
+        output_process.q.put(matches)
+        output_process.q.put(None)
+
+        output_process.run()
+        with open(pathlib.Path(tmpdir) / "matches") as fh:
+            result = fh.readlines()
+    assert set(result) == {
+        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
+        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
+    }
