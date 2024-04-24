@@ -158,7 +158,22 @@ class DBMatch:
     @classmethod
     def fromline(cls, line: str) -> DBMatch:
         args = line.strip().split("\t")
-        return cls(*args[:7], int(args[7]), int(args[8]), *args[9:11], int(args[11]))
+        if len(args) != 12:
+            raise ValueError
+        return cls(
+            relation_label=args[0],
+            head_lemma=args[1],
+            dep_lemma=args[2],
+            head_tag=args[3],
+            dep_tag=args[4],
+            head_surface=args[5],
+            dep_surface=args[6],
+            head_position=int(args[7]),
+            dep_position=int(args[8]),
+            extra_position=args[9],
+            corpus_file_id=args[10],
+            sentence_id=int(args[11]),
+        )
 
 
 CollocInstance = namedtuple(
