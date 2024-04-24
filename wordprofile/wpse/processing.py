@@ -14,7 +14,7 @@ import conllu
 from conllu.models import Token, TokenList
 from sqlalchemy import Connection, text
 
-from wordprofile.datatypes import Colloc, CollocInstance, WPToken
+from wordprofile.datatypes import Colloc, CollocInstance, DBMatch, WPToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
     remove_invalid_chars,
@@ -349,16 +349,16 @@ def filter_transform_matches(
             logger.info("- %s" % fin)
             with open(fin, "r") as matches_in:
                 for line in matches_in:
-                    match = line.strip().split("\t")
-                    colloc_val = "-".join(match[:5])
-                    match[10] = str(corpus_file_idx[match[10]])
+                    match = DBMatch.fromline(line)
+                    match.corpus_file_id = str(corpus_file_idx[match.corpus_file_id])
                     # check whether concordances and collocations still exist for match
-                    colloc_id = relation_dict.get(colloc_val)
+                    colloc_id = relation_dict.get(match.get_collocation_key())
                     if colloc_id is None:
                         continue
-                    if tuple(match[10:12]) in sents_idx:
-                        match = [str(match_i), str(colloc_id)] + match[5:]
-                        matches_out.write("\t".join(match) + "\n")
+                    if (match.corpus_file_id, str(match.sentence_id)) in sents_idx:
+                        matches_out.write(
+                            match.convert_to_database_entry(match_i, colloc_id) + "\n"
+                        )
                         match_i += 1
 
 
