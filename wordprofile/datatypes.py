@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-
 import datetime
 from collections import namedtuple
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, astuple, dataclass
 from typing import Optional, Protocol
 
 
@@ -174,6 +173,21 @@ class DBMatch:
             corpus_file_id=args[10],
             sentence_id=int(args[11]),
         )
+
+    def get_collocation_key(self) -> str:
+        return "-".join(
+            [
+                self.relation_label,
+                self.head_lemma,
+                self.dep_lemma,
+                self.head_tag,
+                self.dep_tag,
+            ]
+        )
+
+    def convert_to_database_entry(self, idx: int, collocation_id: int) -> str:
+        sep = "\t"
+        return f"{idx}\t{ collocation_id}\t{sep.join( map(str, astuple(self)[5:]))}"
 
 
 CollocInstance = namedtuple(
