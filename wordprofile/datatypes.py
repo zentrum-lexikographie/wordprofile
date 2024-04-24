@@ -1,6 +1,6 @@
 import datetime
 from collections import namedtuple
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import Optional, Protocol
 
 
@@ -132,23 +132,26 @@ DBCorpusFile = namedtuple(
 DBConcordance = namedtuple(
     "DBConcordance", ["corpus_file_id", "sentence_id", "sentence", "page"]
 )
-DBMatch = namedtuple(
-    "DBMatch",
-    [
-        "relation_label",
-        "head_lemma",
-        "dep_lemma",
-        "head_tag",
-        "dep_tag",
-        "head_surface",
-        "dep_surface",
-        "head_position",
-        "dep_position",
-        "extra_position",
-        "corpus_file_id",
-        "sentence_id",
-    ],
-)
+
+
+@dataclass
+class DBMatch:
+    relation_label: str
+    head_lemma: str
+    dep_lemma: str
+    head_tag: str
+    dep_tag: str
+    head_surface: str
+    dep_surface: str
+    head_position: int
+    dep_position: int
+    extra_position: str
+    corpus_file_id: str
+    sentence_id: int
+
+    def __iter__(self):
+        yield from asdict(self).values()
+
 
 CollocInstance = namedtuple(
     "CollocInstance",
