@@ -1,8 +1,8 @@
 import os
 import tempfile
 
-import wordprofile.cli.extract_collocations as ec
 import wordprofile.cli.compute_statistics as cs
+import wordprofile.cli.extract_collocations as ec
 
 
 def main():

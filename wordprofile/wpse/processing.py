@@ -5,7 +5,7 @@ import multiprocessing
 import os
 import re
 import sys
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
 from typing import Any, Protocol, Union

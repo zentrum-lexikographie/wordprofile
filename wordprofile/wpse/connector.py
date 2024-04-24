@@ -4,7 +4,7 @@ from typing import List
 import pymysql
 
 import wordprofile.config
-from wordprofile.datatypes import Coocc, Concordance, LemmaInfo
+from wordprofile.datatypes import Concordance, Coocc, LemmaInfo
 from wordprofile.errors import InternalError
 from wordprofile.utils import split_relation_inversion
 
