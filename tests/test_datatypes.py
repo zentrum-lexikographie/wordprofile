@@ -1,3 +1,5 @@
+import pytest
+
 from wordprofile.datatypes import DBMatch
 
 
@@ -17,3 +19,9 @@ def test_create_dbmatch_from_line():
         "1",
         0,
     )
+
+
+def test_db_match_fromline_raises_error_if_not_enough_values():
+    line = "ADV\tgestern\teinfallen\tADV\tVERB\n"
+    with pytest.raises(ValueError):
+        DBMatch.fromline(line)
