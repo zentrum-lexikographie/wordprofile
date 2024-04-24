@@ -1,6 +1,7 @@
 import io
 import pathlib
 import tempfile
+import multiprocessing as mp
 
 import conllu
 import pytest
@@ -775,43 +776,47 @@ def test_collapse_lemma_of_phrasal_verbs_from_file():
 
 
 def test_write_matches_with_phrasal_verb_to_file():
-    matches = [
-        DBMatch(
-            relation_label="ADV",
-            head_lemma="gestern",
-            dep_lemma="einfallen",
-            head_tag="ADV",
-            dep_tag="VERB",
-            head_surface="gestern",
-            dep_surface="fällt",
-            head_position=2,
-            dep_position=1,
-            extra_position="5-3",
-            corpus_file_id="1",
-            sentence_id=0,
-        ),
-        DBMatch(
-            relation_label="ADV",
-            head_lemma="gestern",
-            dep_lemma="einfallen",
-            head_tag="ADV",
-            dep_tag="VERB",
-            head_surface="gestern",
-            dep_surface="fällt",
-            head_position=2,
-            dep_position=1,
-            extra_position="3-5",
-            corpus_file_id="1",
-            sentence_id=0,
-        ),
-    ]
+    def fill_queue(m_queue):
+        matches = [
+            DBMatch(
+                relation_label="ADV",
+                head_lemma="gestern",
+                dep_lemma="einfallen",
+                head_tag="ADV",
+                dep_tag="VERB",
+                head_surface="gestern",
+                dep_surface="fällt",
+                head_position=2,
+                dep_position=1,
+                extra_position="5-3",
+                corpus_file_id="1",
+                sentence_id=0,
+            ),
+            DBMatch(
+                relation_label="ADV",
+                head_lemma="gestern",
+                dep_lemma="einfallen",
+                head_tag="ADV",
+                dep_tag="VERB",
+                head_surface="gestern",
+                dep_surface="fällt",
+                head_position=2,
+                dep_position=1,
+                extra_position="3-5",
+                corpus_file_id="1",
+                sentence_id=0,
+            ),
+        ]
+        m_queue.put(matches)
+        m_queue.put(None)
+
     with tempfile.TemporaryDirectory() as tmpdir:
         output_process = pro.FileWorker(tmpdir, "matches")
         output_process.start()
-        output_process.q.put(matches)
-        output_process.q.put(None)
-
-        output_process.run()
+        proc = mp.Process(target=fill_queue, args=(output_process.q,))
+        proc.start()
+        proc.join()
+        output_process.join()
         with open(pathlib.Path(tmpdir) / "matches") as fh:
             result = fh.readlines()
     assert set(result) == {
