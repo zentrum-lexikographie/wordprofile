@@ -8,7 +8,7 @@ import pytest
 from conllu.models import Token, TokenList
 
 import wordprofile.wpse.processing as pro
-from wordprofile.datatypes import DBMatch, WPToken
+from wordprofile.datatypes import CollocInstance, DBMatch, WPToken
 
 
 class MockQueue:
@@ -846,3 +846,17 @@ def test_aggregating_matches_with_extra_position():
             result = [line for line in fh]
     assert len(result) == 4
     assert "0\t0\tZeitung\tsüddeutsche\t3\t2\t3-5\t1\t3\n" in result
+
+
+def test_convert_line_from_matches_file_to_CollocInstance():
+    lines = [
+        "6\t184955\tUmzug\tHochhaus\t16\t22\t20\t0\t3",
+        "8\t2028198\tStadtrand\töstlichen\t27\t26\t-\t0\t3",
+        "4\t184954\tsetzte\tUmzug\t8\t16\t28-14\t0\t3",
+    ]
+    extra_pos = []
+    for line in lines:
+        colloc = pro.convert_line(line, CollocInstance, pro.COLLOC_INSTANCE_DTYPES)
+        assert isinstance(colloc, CollocInstance)
+        extra_pos.append(colloc.prep_pos)
+    assert extra_pos == ["20", "-", "28-14"]
