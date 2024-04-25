@@ -51,7 +51,7 @@ def get_table_matches(meta: MetaData):
         Column("dep_surface", SURFACE_TYPE),
         Column("head_position", types.Integer),
         Column("dep_position", types.Integer),
-        Column("prep_position", types.Integer),
+        Column("prep_position", types.Text),
         Column("corpus_file_id", CORPUS_FILE_TYPE),
         Column("sentence_id", types.Integer),
         mysql_engine="Aria",
