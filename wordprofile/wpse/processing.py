@@ -29,7 +29,7 @@ from wordprofile.wpse.prepare import (
 
 logger = logging.getLogger(__name__)
 
-COLLOC_INSTANCE_DTYPES = [int, int, str, str, int, int, int, int, int]
+COLLOC_INSTANCE_DTYPES = [int, int, str, str, int, int, str, int, int]
 
 
 def convert_line(
