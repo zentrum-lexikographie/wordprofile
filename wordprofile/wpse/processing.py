@@ -460,7 +460,7 @@ def extract_mwe_from_collocs(
                 for m2 in sent[m_i + 1 :]:
                     if has_one_overlap(
                         m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos
-                    ) and (m1.prep_pos == m2.prep_pos):
+                    ):  # and (m1.prep_pos == m2.prep_pos):
                         if not (
                             m1.collocation_id in collocs
                             and m2.collocation_id in collocs
