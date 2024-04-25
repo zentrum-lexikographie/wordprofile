@@ -38,7 +38,7 @@ class WPConcordance(Protocol):
     sentence: str
     token_position_1: int
     token_position_2: int
-    prep_position: int
+    extra_position: int
     corpus: str
     date: datetime.date
     textclass: str
@@ -61,7 +61,7 @@ class Concordance:
     sentence: str
     token_position_1: int
     token_position_2: int
-    prep_position: str
+    extra_position: str
     corpus: str
     date: datetime.date
     textclass: str
@@ -75,7 +75,7 @@ class Concordance:
     sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
-        extra_positions = [int(pos) for pos in self.prep_position.split("-") if pos]
+        extra_positions = [int(pos) for pos in self.extra_position.split("-") if pos]
         return sorted([self.token_position_1, self.token_position_2] + extra_positions)
 
 
@@ -84,10 +84,10 @@ class MweConcordance:
     sentence: str
     token1_position_1: int
     token1_position_2: int
-    prep1_position: str
+    extra1_position: str
     token2_position_1: int
     token2_position_2: int
-    prep2_position: str
+    extra2_position: str
     corpus: str
     date: datetime.date
     textclass: str
@@ -101,8 +101,8 @@ class MweConcordance:
     sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
-        extra_positions1 = [int(pos) for pos in self.prep1_position.split("-") if pos]
-        extra_positions2 = [int(pos) for pos in self.prep2_position.split("-") if pos]
+        extra_positions1 = [int(pos) for pos in self.extra1_position.split("-") if pos]
+        extra_positions2 = [int(pos) for pos in self.extra2_position.split("-") if pos]
         all_positions = (
             [
                 self.token1_position_1,
