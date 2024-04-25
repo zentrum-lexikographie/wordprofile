@@ -6,7 +6,7 @@ from wordprofile.wp import Wordprofile
 
 class MockDb:
     def __init__(self):
-        self.db = {
+        self.coocc = {
             -1: Coocc(
                 id=-1,
                 rel="SUBJA",
@@ -100,14 +100,14 @@ class MockDb:
         }
 
     def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.db[coocc_id]
+        return self.coocc[coocc_id]
 
     def get_lemma_and_pos(self, lemma, pos):
         return [
             LemmaInfo(
                 item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
             )
-            for item in self.db.values()
+            for item in self.coocc.values()
             if item.lemma1 == lemma
         ]
 
