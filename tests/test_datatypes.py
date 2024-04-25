@@ -1,6 +1,8 @@
+import datetime
+
 import pytest
 
-from wordprofile.datatypes import DBMatch
+from wordprofile.datatypes import Concordance, DBMatch, MweConcordance
 
 
 def test_create_dbmatch_from_line():
@@ -63,3 +65,72 @@ def test_conversion_of_db_match_to_database_entry():
     assert (
         match.convert_to_database_entry(1, 2) == "1\t2\tgestern\tfällt\t2\t1\t3-5\t1\t0"
     )
+
+
+def test_retrieval_of_highlighting_positions():
+    conc = Concordance(
+        sentence="",
+        token_position_1=0,
+        token_position_2=1,
+        prep_position="-",
+        corpus="",
+        date=datetime.date.fromisoformat("2024-01-01"),
+        textclass="",
+        orig="",
+        scan="",
+        avail="",
+        page="",
+        file="",
+        score=10,
+        sentence_left="",
+        sentence_right="",
+    )
+    result = conc.get_highlight_positions()
+    assert result == [0, 1]
+
+
+def test_retrieval_of_highlighting_positions_with_extra_positions():
+    conc = Concordance(
+        sentence="",
+        token_position_1=2,
+        token_position_2=1,
+        prep_position="3-5",
+        corpus="",
+        date=datetime.date.fromisoformat("2024-01-01"),
+        textclass="",
+        orig="",
+        scan="",
+        avail="",
+        page="",
+        file="",
+        score=10,
+        sentence_left="",
+        sentence_right="",
+    )
+    result = conc.get_highlight_positions()
+    assert result == [1, 2, 3, 5]
+
+
+def test_retrieval_of_highlighting_positions_mwe():
+    conc = MweConcordance(
+        sentence="",
+        token1_position_1=0,
+        token1_position_2=1,
+        prep1_position="3-5",
+        token2_position_1=7,
+        token2_position_2=8,
+        prep2_position="-",
+        corpus="",
+        date=datetime.date.fromisoformat("2024-01-01"),
+        textclass="",
+        orig="",
+        scan="",
+        avail="",
+        page="",
+        file="",
+        score=10,
+        sentence_left="",
+        sentence_right="",
+    )
+    result = conc.get_highlight_positions()
+    assert result == [0, 1, 3, 5, 7, 8]

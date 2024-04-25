@@ -61,7 +61,7 @@ class Concordance:
     sentence: str
     token_position_1: int
     token_position_2: int
-    prep_position: int
+    prep_position: str
     corpus: str
     date: datetime.date
     textclass: str
@@ -75,7 +75,8 @@ class Concordance:
     sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
-        return [self.token_position_1, self.token_position_2, self.prep_position]
+        extra_positions = [int(pos) for pos in self.prep_position.split("-") if pos]
+        return sorted([self.token_position_1, self.token_position_2] + extra_positions)
 
 
 @dataclass
@@ -83,10 +84,10 @@ class MweConcordance:
     sentence: str
     token1_position_1: int
     token1_position_2: int
-    prep1_position: int
+    prep1_position: str
     token2_position_1: int
     token2_position_2: int
-    prep2_position: int
+    prep2_position: str
     corpus: str
     date: datetime.date
     textclass: str
@@ -100,14 +101,19 @@ class MweConcordance:
     sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
-        return [
-            self.token1_position_1,
-            self.token1_position_2,
-            self.prep1_position,
-            self.token2_position_1,
-            self.token2_position_2,
-            self.prep2_position,
-        ]
+        extra_positions1 = [int(pos) for pos in self.prep1_position.split("-") if pos]
+        extra_positions2 = [int(pos) for pos in self.prep2_position.split("-") if pos]
+        all_positions = (
+            [
+                self.token1_position_1,
+                self.token1_position_2,
+                self.token2_position_1,
+                self.token2_position_2,
+            ]
+            + extra_positions1
+            + extra_positions2
+        )
+        return sorted(all_positions)
 
 
 @dataclass
