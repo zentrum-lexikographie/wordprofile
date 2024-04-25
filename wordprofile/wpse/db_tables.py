@@ -1,5 +1,4 @@
 import enum
-from collections import namedtuple
 
 from sqlalchemy import Column, Enum, MetaData, Table, types
 from sqlalchemy.sql.schema import Index
