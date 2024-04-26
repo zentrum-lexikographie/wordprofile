@@ -8,7 +8,7 @@ import pytest
 from conllu.models import Token, TokenList
 
 import wordprofile.wpse.processing as pro
-from wordprofile.datatypes import CollocInstance, DBMatch, WPToken
+from wordprofile.datatypes import Colloc, CollocInstance, DBMatch, WPToken
 
 
 class MockQueue:
@@ -857,3 +857,47 @@ def test_convert_line_from_matches_file_to_CollocInstance():
         assert isinstance(colloc, CollocInstance)
         extra_pos.append(colloc.prep_pos)
     assert extra_pos == ["20", "-", "28-14"]
+
+
+def test_extraction_of_mwe(testdata_dir):
+    collocations = {
+        3520378: Colloc(3520378, "KON", "Lust", "Laune", "NOUN", "NOUN", 0, 10.0),
+        281402: Colloc(281402, "PP", "dirigieren", "Lust", "VERB", "NOUN", 0, 10.0),
+        281401: Colloc(281401, "PP", "Lust", "dirigieren", "NOUN", "VERB", 1, 10.0),
+        5: Colloc(5, "GMOD", "Überangebot", "Umgebung", "NOUN", "NOUN", 0, 11.0),
+        2028213: Colloc(
+            2028213,
+            "ATTR",
+            "Überangebot",
+            "gastronomisch",
+            "NOUN",
+            "ADJ",
+            0,
+            9.0,
+        ),
+        184977: Colloc(
+            184977, "PP", "versumpfen", "Überangebot", "VERB", "NOUN", 0, 8.0
+        ),
+        2028618: Colloc(
+            2028618, "ATTR", "Steuersatz", "durchschnittlich", "NOUN", "ADJ", 0, 5.0
+        ),
+        186151: Colloc(
+            186151, "SUBJA", "setzen", "Steuersatz", "VERB", "NOUN", 0, 11.0
+        ),
+        186152: Colloc(
+            186152, "SUBJA", "Steuersatz", "setzen", "NOUN", "VERB", 1, 11.0
+        ),
+        185242: Colloc(185242, "PP", "Sparleistung", "Höhe", "NOUN", "NOUN", 0, 10.0),
+        2028296: Colloc(
+            2028296, "ATTR", "Sparleistung", "eigen", "NOUN", "ADJ", 0, 10.0
+        ),
+    }
+    matches_file = testdata_dir / "mwe_matches"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        pro.extract_mwe_from_collocs(matches_file, output_file, collocations)
+        with open(output_file) as fh:
+            mwe = [line.strip().split("\t") for line in fh.readlines()]
+    result = [(int(line[1]), int(line[2])) for line in mwe]
+    assert (3520378, 281401) in result
+    assert len(result) == 16
