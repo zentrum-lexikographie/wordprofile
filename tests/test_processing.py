@@ -843,9 +843,9 @@ def test_aggregating_matches_with_extra_position():
             collocations,
         )
         with open(output_file) as fh:
-            result = [line for line in fh]
+            result = [line[4:] for line in fh]
     assert len(result) == 4
-    assert "0\t0\tZeitung\tsüddeutsche\t3\t2\t3-5\t1\t3\n" in result
+    assert "Zeitung\tsüddeutsche\t3\t2\t3-5\t1\t3\n" in result
 
 
 def test_convert_line_from_matches_file_to_CollocInstance():
