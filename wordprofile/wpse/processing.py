@@ -439,6 +439,8 @@ def extract_mwe_from_collocs(
                     sent = [m]
                     doc_curr = m.doc_id
                     sent_curr = m.sent_id
+            else:
+                yield sent
 
     def has_one_overlap(*pos: tuple[int]) -> bool:
         """Checks whether positions have one overlap."""
