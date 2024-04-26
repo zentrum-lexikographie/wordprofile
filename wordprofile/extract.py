@@ -42,7 +42,6 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         "desc": "hat Akkusativ/Dativ-Objekt",
         "inverse": "ist Akkusativ/Dativ-Objekt von",
         "rules": [
-            ("obj", "verb", "noun"),
             ("iobj", "verb", "noun"),
         ],
     },
@@ -54,6 +53,7 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
             ("obl", "case", "verb", "noun", "adp"),
             ("obl", "case", "verb", "adj", "adp"),
             ("obl", "case", "verb", "adv", "adp"),
+            ("obj", "case", "verb", "noun", "adp"),
         ],
     },
     "PRED": {
@@ -422,6 +422,27 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                     )
 
 
+def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
+    """
+    Extract acc./dat. object relation from a dependency tree.
+
+    Args:
+        dtree: DependencyTree of a single sentence
+        sid: sentence id
+
+    Returns:
+        Generator of extracted matches from sentence
+    """
+    for node in dtree.nodes:
+        if node.token.tag == "VERB":
+            for child in node.children:
+                if child.token.rel in {"obj", "obl", "obl:arg"}:
+                    if any(dep.token.rel == "case" for dep in child.children):
+                        continue
+                        # check for genitive?
+                    yield Match(node.token, child.token, None, "OBJ", sid)
+
+
 def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
     """Extracts various matches from a given list of sentences.
 
@@ -436,6 +457,8 @@ def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
         for match in extract_matches_by_pattern(relations_inv, sentence, sid):
             yield match
         dtree = DependencyTree(sentence)
+        for match in extract_objects(dtree, sid):
+            yield match
         for match in extract_predicatives(dtree, sid):
             yield match
         for match in extract_genitives(dtree, sid):
