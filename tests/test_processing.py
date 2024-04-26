@@ -34,8 +34,13 @@ class MockQueueWithError(MockQueue):
 
 
 @pytest.fixture
-def conll_sentences():
-    testdata_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
+def testdata_dir():
+    return pathlib.Path(__file__).parent / "testdata"
+
+
+@pytest.fixture
+def conll_sentences(testdata_dir):
+    testdata_file = testdata_dir / "process_data.conll"
     with open(testdata_file, "r") as fh:
         return conllu.parse(fh.read(), fields=conllu.parser.DEFAULT_FIELDS)
 
@@ -272,8 +277,8 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     )
 
 
-def test_file_reader_single_file():
-    conll_file = pathlib.Path(__file__).parent / "testdata" / "process_data.conll"
+def test_file_reader_single_file(testdata_dir):
+    conll_file = testdata_dir / "process_data.conll"
     file_reader = pro.FileReader([conll_file], MockQueue())
     file_reader.run()
     file_reader.stop(1)
@@ -291,8 +296,8 @@ def test_file_reader_single_file():
     )
 
 
-def test_file_reader_multiple_files():
-    corpus_dir = pathlib.Path(__file__).parent / "testdata" / "corpus"
+def test_file_reader_multiple_files(testdata_dir):
+    corpus_dir = testdata_dir / "corpus"
     files = list(corpus_dir.glob("*"))
     file_reader = pro.FileReader(files, MockQueue())
     file_reader.run()
@@ -312,10 +317,8 @@ def test_file_reader_multiple_files():
     }
 
 
-def test_file_reader_with_std_input(monkeypatch):
-    with open(
-        pathlib.Path(__file__).parent / "testdata" / "corpus" / "file1.conll"
-    ) as fh:
+def test_file_reader_with_std_input(monkeypatch, testdata_dir):
+    with open(testdata_dir / "corpus" / "file1.conll") as fh:
         data = io.StringIO()
         for line in fh:
             data.write(line)
@@ -438,10 +441,8 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
     ]
 
 
-def test_load_collocations_freq_filter_applied_to_aggregated_collocations():
-    input_files = list(
-        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
-    )
+def test_load_collocations_freq_filter_applied_to_aggregated_collocations(testdata_dir):
+    input_files = list((testdata_dir / "freq_test").iterdir())
     collocations = pro.load_collocations(input_files, min_rel_freq=3)
     result = [col[1:] for col in collocations.values()]
     assert len(result) == 3
@@ -450,14 +451,12 @@ def test_load_collocations_freq_filter_applied_to_aggregated_collocations():
     assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", 0, 3) in result
 
 
-def test_matches_with_collocation_id_zero_not_discarded():
-    colloc_files = list(
-        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
-    )
+def test_matches_with_collocation_id_zero_not_discarded(testdata_dir):
+    colloc_files = list((testdata_dir / "freq_test").iterdir())
     collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
     corpus_file_ids = {"doc1": 1}
     sentence_ids = {("1", "3"), ("1", "4")}
-    matches_file = pathlib.Path(__file__).parent / "testdata" / "matches"
+    matches_file = testdata_dir / "matches"
     with tempfile.TemporaryDirectory() as tmpdir:
         output_file = pathlib.Path(tmpdir) / "file"
         pro.filter_transform_matches(
@@ -759,8 +758,8 @@ def test_case_normalization_and_phrasal_verb_lemmatization():
     assert result[1].lemma == "fehlschlagen"
 
 
-def test_collapse_lemma_of_phrasal_verbs_from_file():
-    conll_file = pathlib.Path(__file__).parent / "testdata" / "phrasal_verbs.conll"
+def test_collapse_lemma_of_phrasal_verbs_from_file(testdata_dir):
+    conll_file = testdata_dir / "phrasal_verbs.conll"
     with open(conll_file) as fh:
         doc = conllu.parse(fh.read())
     sentences = [pro.convert_sentence(sent) for sent in doc]
@@ -825,14 +824,12 @@ def test_write_matches_with_phrasal_verb_to_file():
     }
 
 
-def test_aggregating_matches_with_extra_position():
-    colloc_files = list(
-        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
-    )
+def test_aggregating_matches_with_extra_position(testdata_dir):
+    colloc_files = list((testdata_dir / "freq_test").iterdir())
     collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
     corpus_file_ids = {"doc1": 1}
     sentence_ids = {("1", "3"), ("1", "4")}
-    matches_dir = pathlib.Path(__file__).parent / "testdata" / "matches_agg"
+    matches_dir = testdata_dir / "matches_agg"
     with tempfile.TemporaryDirectory() as tmpdir:
         output_file = pathlib.Path(tmpdir) / "file"
         pro.filter_transform_matches(
