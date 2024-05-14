@@ -1084,3 +1084,70 @@ def test_verb_irgnored_if_sein_during_phrasal_verb_lemmatisation():
     pro.collapse_phrasal_verbs(sentence)
     assert sentence[1].lemma == "sein"
     assert sentence[1].prt_pos is None
+
+
+def test_wrong_lemma_replaced_after_phrasal_verb_concatenation():
+    sentence = [
+        Token(
+            id=1,
+            form="Schwaben",
+            lemma="Schwaben",
+            upos="PROPN",
+            xpos="NE",
+            feats={},
+            head=2,
+            deprel="nsubj",
+            deps=None,
+            misc={},
+        ),
+        Token(
+            id=2,
+            form="fällt",
+            lemma="fällen",
+            upos="VERB",
+            xpos="VVFIN",
+            feats={},
+            head=0,
+            deprel="ROOT",
+            deps=None,
+            misc={},
+        ),
+        Token(
+            id=3,
+            form="oft",
+            lemma="oft",
+            upos="ADV",
+            xpos="ADV",
+            feats={},
+            head=3,
+            deprel="advmod",
+            deps=None,
+            misc={},
+        ),
+        Token(
+            id=4,
+            form="hinten",
+            lemma="hinten",
+            upos="ADV",
+            xpos="ADV",
+            feats={},
+            head=2,
+            deprel="advmod",
+            deps=None,
+            misc={},
+        ),
+        Token(
+            id=5,
+            form="heraus",
+            lemma="heraus",
+            upos="ADV",
+            xpos="ADV",
+            feats={},
+            head=2,
+            deprel="compound:prt",
+            deps=None,
+            misc={},
+        ),
+    ]
+    result = pro.convert_sentence(sentence)
+    assert result[1].lemma == "herausfallen"

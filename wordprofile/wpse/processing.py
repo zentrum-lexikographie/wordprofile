@@ -122,7 +122,7 @@ def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
                 if head.lemma == "sein":
                     continue
                 head.prt_pos = token.idx
-                head.lemma = f"{token.surface}{head.lemma}"
+                head.lemma = repair_lemma(f"{token.surface}{head.lemma}", "VERB")
     return sentence
 
 
