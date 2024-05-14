@@ -116,6 +116,8 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
 
 def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
     for token in sentence:
+        if token.surface == "recht":
+            continue
         if token.rel == "compound:prt" and token.tag in {"ADP", "ADJ", "ADV"}:
             head = sentence[token.head - 1]
             if head.tag in {"VERB", "AUX"}:

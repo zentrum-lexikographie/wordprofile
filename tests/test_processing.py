@@ -1151,3 +1151,97 @@ def test_wrong_lemma_replaced_after_phrasal_verb_concatenation():
     ]
     result = pro.convert_sentence(sentence)
     assert result[1].lemma == "herausfallen"
+
+
+def test_phrasal_verb_with_recht_as_particle_not_concatenated():
+    sentences = [
+        [
+            WPToken(
+                idx=1,
+                surface="Hat",
+                lemma="haben",
+                tag="AUX",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="er",
+                lemma="er",
+                tag="PRON",
+                head=1,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="doch",
+                lemma="doch",
+                tag="ADV",
+                head=1,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="recht",
+                lemma="recht",
+                tag="ADJ",
+                head=1,
+                rel="compound:prt",
+                misc=True,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="VGH",
+                lemma="VGH",
+                tag="PROPN",
+                head=2,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="gab",
+                lemma="geben",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="dem",
+                lemma="d",
+                tag="DET",
+                head=4,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Landratsamt",
+                lemma="Landratsamt",
+                tag="NOUN",
+                head=2,
+                rel="obj",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="recht",
+                lemma="recht",
+                tag="ADP",
+                head=2,
+                rel="compound:prt",
+                misc=True,
+            ),
+        ],
+    ]
+    for sent in sentences:
+        pro.collapse_phrasal_verbs(sent)
+    assert sentences[0][0].lemma == "haben"
+    assert sentences[1][1].lemma == "geben"
