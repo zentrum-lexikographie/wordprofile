@@ -116,11 +116,11 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
 
 def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
     for token in sentence:
-        # preliminary implementation
-        # should be refined to avoid wrong concatenation of lemmata
-        if token.rel == "compound:prt" and token.tag == "ADP":
+        if token.rel == "compound:prt" and token.tag in {"ADP", "ADJ", "ADV"}:
             head = sentence[token.head - 1]
             if head.tag in {"VERB", "AUX"}:
+                if head.lemma == "sein":
+                    continue
                 head.prt_pos = token.idx
                 head.lemma = f"{token.surface}{head.lemma}"
     return sentence
