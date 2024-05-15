@@ -25,7 +25,6 @@ def test_inverting_of_relation_patterns():
         ("nmod", "case"),
         ("obl", "case"),
         "nsubj:pass",
-        "compound:prt",
     ]
     assert result["advmod"] == {("VERB", "ADV"): "ADV", ("ADJ", "ADV"): "ADV"}
     assert result[("conj", "cc")] == {

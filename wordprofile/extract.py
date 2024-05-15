@@ -73,15 +73,6 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
             ("nsubj:pass", "verb", "noun"),
         ],
     },
-    "VZ": {
-        "desc": "hat Verbzusatz",
-        "inverse": "",
-        "rules": [
-            ("compound:prt", "verb", "adp"),  # liegt ... zugrunde
-            ("compound:prt", "aux", "adp"),  # hat ... vor
-            ("compound:prt", "adj", "adp"),  # leid tun
-        ],
-    },
 }
 
 
