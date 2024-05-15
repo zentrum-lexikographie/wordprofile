@@ -3,7 +3,6 @@ import os
 import re
 import sys
 import time
-from collections import OrderedDict
 from datetime import date, datetime
 
 import click
@@ -11,92 +10,6 @@ import conllu
 
 
 logger = logging.getLogger(__name__)
-
-
-class TrankitParser:
-    def __init__(self, model_type="german-hdt", embedding="xlm-roberta-base"):
-        import trankit
-
-        tmp_stdout = sys.stdout
-        sys.stdout = sys.stderr
-        self.parser = trankit.Pipeline(
-            model_type, embedding=embedding, cache_dir=os.path.expanduser("~/.trankit/")
-        )
-        self.parser("Init")
-        sys.stdout = tmp_stdout
-
-    def __call__(self, sentences):
-        sentences_in = [
-            [token["form"] if token["form"] else "---" for token in sentence]
-            for sentence in sentences
-        ]
-        try:
-            res = self.parser(sentences_in)
-            for sent_i, sent in enumerate(sentences):
-                words = res["sentences"][sent_i]["tokens"]
-                for tok_i, token in enumerate(sent):
-                    ner_pred = words[tok_i].get("ner")
-                    if ner_pred and ner_pred != "O":
-                        if token["misc"]:
-                            token["misc"]["NER"] = words[tok_i].get("ner")
-                        else:
-                            token["misc"] = OrderedDict(
-                                [("NER", words[tok_i].get("ner"))]
-                            )
-                    # stay with the original lemma for better compliance
-                    token.update(
-                        upos=words[tok_i].get("upos", "_"),
-                        xpos=words[tok_i].get("xpos", "_"),
-                        feats=words[tok_i].get("feats", "_"),
-                        head=words[tok_i].get("head", "_"),
-                        deprel=words[tok_i].get("deprel", "_"),
-                    )
-        except RuntimeError as e:
-            sys.stderr.write(f"Runtime Error: {e}")
-        return sentences
-
-
-class StanzaParser:
-    def __init__(self, model_type="default"):
-        import stanza
-
-        self.parser = stanza.Pipeline(
-            lang="de",
-            package=model_type,
-            processors="tokenize,pos,lemma,depparse,ner",
-            tokenize_pretokenized=True,
-        )
-        self.parser("Init")
-
-    def __call__(self, sentences):
-        sentences_in = [
-            [token["form"] if token["form"] else "---" for token in sentence]
-            for sentence in sentences
-        ]
-        doc = self.parser(sentences_in)
-        for sent_i, sent in enumerate(sentences):
-            words = doc.sentences[sent_i].words
-            for tok_i, (token, word) in enumerate(
-                zip(sent, doc.sentences[sent_i].tokens)
-            ):
-                ner_pred = word.ner
-                if token["misc"] and "NER" in token["misc"]:
-                    del token["misc"]["NER"]
-                if token["misc"] and "LT" in token["misc"]:
-                    del token["misc"]["LT"]
-                if ner_pred and ner_pred != "O":
-                    if token["misc"]:
-                        token["misc"]["NER"] = ner_pred
-                    else:
-                        token["misc"] = OrderedDict([("NER", ner_pred)])
-                token.update(
-                    upos=words[tok_i].upos,
-                    xpos=words[tok_i].xpos,
-                    feats=words[tok_i].feats if words[tok_i].feats else "_",
-                    head=words[tok_i].head,
-                    deprel=words[tok_i].deprel,
-                )
-        return sentences
 
 
 class SpacyParser:
@@ -181,22 +94,12 @@ def configure_logging():
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
-@click.option("--parser-type", default="trankit", type=str)
 @click.option("--lang", default="german-hdt", type=str)
-def main(input, output, parser_type, lang):
+def main(input, output, lang):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
-    logger.info("Processing corpus %s with %s parser." % (input_file, parser_type))
-    if parser_type == "trankit":
-        parser = TrankitParser(model_type=lang)
-    elif parser_type == "trankit-xl":
-        parser = TrankitParser(model_type=lang, embedding="xlm-roberta-large")
-    elif parser_type == "stanza":
-        parser = StanzaParser(model_type=lang)
-    elif parser_type == "spacy":
-        parser = SpacyParser(model_path=lang)
-    else:
-        raise ValueError("Unknown parser!")
+    logger.info("Processing corpus %s with %s model." % (input_file, lang))
+    parser = SpacyParser(model_path=lang)
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
