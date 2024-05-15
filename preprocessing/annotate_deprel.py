@@ -94,12 +94,12 @@ def configure_logging():
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
-@click.option("--lang", default="german-hdt", type=str)
-def main(input, output, lang):
+@click.option("--model", default="german-hdt", type=str)
+def main(input, output, model):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
-    logger.info("Processing corpus %s with %s model." % (input_file, lang))
-    parser = SpacyParser(model_path=lang)
+    logger.info("Processing corpus %s with %s model." % (input_file, model))
+    parser = SpacyParser(model_path=model)
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
