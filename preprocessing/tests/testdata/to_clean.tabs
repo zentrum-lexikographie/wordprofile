@@ -1,0 +1,67 @@
+%%$DDC:tokid.begin=4548239
+%%$DDC:tokid.end=4551166
+%%$DDC:meta.n_=2646
+%%$DDC:meta.file_=politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml
+%%$DDC:meta.scan_=
+%%$DDC:meta.orig_=
+%%$DDC:meta.date_=2009-06-02
+%%$DDC:meta.page_=-1
+%%$DDC:meta.author=Frank-Walter Steinmeier
+%%$DDC:meta.avail=-
+%%$DDC:meta.availability=Distributed under the Creative Commons Attribution-ShareAlike 4.0 International Licence.
+%%$DDC:meta.basename=src/de1/DE1_0999_20090602
+%%$DDC:meta.bibl=Rede von Frank-Walter Steinmeier, 02.06.2009
+%%$DDC:meta.collection=politische_reden
+%%$DDC:meta.country=DE
+%%$DDC:meta.empty=
+%%$DDC:meta.flags=
+%%$DDC:meta.party=SPD
+%%$DDC:meta.role=Bundesminister
+%%$DDC:meta.textClass=gesprochen:Rede
+%%$DDC:meta.timestamp=2020-02-25T18:27:16Z
+%%$DDC:meta.title=Rede von Außenminister Frank-Walter Steinmeier in der Akademie der Wissenschaften in Budapest
+%%$DDC:meta.url=http://www.auswaertiges-amt.de/DE/Infoservice/Presse/Reden/2009/090602-BM-Budapest.html
+%%$DDC:index[0]=Token w
+%%$DDC:index[1]=Pos p
+%%$DDC:index[2]=Lemma l
+%%$DDC:index[3]=WordSep ws
+%%$DDC:BREAK.s[7217798]=98132269
+<	FM	<	0
+fett>Bundesjustizminister	FM	fett>Bundesjustizminister	1
+Marco	NE	Marco	1
+Buschmann</fett>	FM	Buschmann</fett>	1
+(	$(	(	1
+FDP	NE	Freie_Demokratische_Partei	0
+)	$(	)	0
+überreichte	VVFIN	überreichen	1
+dem	ART	d	1
+62-Jährigen	NN	62-Jährige	1
+gestern	ADV	gestern	1
+die	ART	d	1
+Ernennungsurkunde	NN	Ernennungsurkunde	1
+,	$,	,	0
+wie	PWAV	wie	1
+das	ART	d	1
+Ministerium	NN	Ministerium	1
+in	APPR	in	1
+Berlin	NE	Berlin	1
+mitteilte	VVFIN	mitteilen	1
+.<	$.	.<	0
+fett>	FM	fett>	0
+	
+%%$DDC:BREAK.s[7217799]=98132289
+<	FM	<	0
+Zwischentitel>Stadt	NN	Zwischentitel>Stadt	1
+trägt</	VAFIN	tragen</	1
+nur	ADV	nur	1
+die	ART	d	1
+
+%%$DDC:BREAK.s[6951348]	=	94197007
+<	FM	<	0
+<Zwischentitel>Schaden	NN	Zwischentitel>Schaden	1
+an	APPR	an	1
+Demokratie	NN	Demokratie	0
+?</	$.	?</	0
+Zwischentitel>	NN	Zwischentitel>	0
+
+

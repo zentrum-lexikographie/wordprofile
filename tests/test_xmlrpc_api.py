@@ -1,4 +1,4 @@
-from xmlrpc.client import ServerProxy, Fault
+from xmlrpc.client import Fault, ServerProxy
 
 import pytest
 

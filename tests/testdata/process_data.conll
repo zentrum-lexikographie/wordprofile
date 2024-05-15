@@ -1,0 +1,64 @@
+# DDC:tokid.begin = 4548239
+# DDC:tokid.end = 4551166
+# DDC:meta.n_ = 2646
+# DDC:meta.file_ = politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml
+# DDC:meta.date_ = 2009-06-02
+# DDC:meta.page_ = -1
+# DDC:meta.author = Frank-Walter Steinmeier
+# DDC:meta.avail = -
+# DDC:meta.availability = Distributed under the Creative Commons Attribution-ShareAlike 4.0 International Licence.
+# DDC:meta.basename = de1/DE1_0999_20090602
+# DDC:meta.bibl = Rede von Frank-Walter Steinmeier, 02.06.2009
+# DDC:meta.collection = politische_reden
+# DDC:meta.country = DE
+# DDC:meta.party = SPD
+# DDC:meta.role = Bundesminister
+# DDC:meta.textClass = gesprochen:Rede
+# DDC:meta.timestamp = 2020-02-25T18:27:16Z
+# DDC:meta.title = Rede von Außenminister Frank-Walter Steinmeier in der Akademie der Wissenschaften in Budapest
+# DDC:meta.url = http://www.auswaertiges-amt.de/DE/Infoservice/Presse/Reden/2009/090602-BM-Budapest.html
+# DDC:BREAK.s[238299] = 4548239
+# DDC:BREAK.c[2645] = 4548239
+# DDC:BREAK.p[81870] = 4548239
+# DDC:BREAK.file[2645] = 4548239
+# DDC:BREAK.textarea[2645] = 4548239
+# text = Sehr geehrter Herr Präsident Palinkás , meine sehr verehrten Damen und Herren ,
+1	Sehr	sehr	ADV	ADV	Degree=Pos	2	advmod	_	_
+2	geehrter	geehrt	ADJ	ADJA	Case=Nom|Degree=Pos|Gender=Masc|Number=Sing	3	amod	_	_
+3	Herr	Herr	NOUN	NN	Case=Nom|Gender=Masc|Number=Sing	0	ROOT	_	_
+4	Präsident	Präsident	NOUN	NN	Gender=Masc|Number=Sing	3	appos	_	_
+5	Palinkás	Palinkás	PROPN	NE	Case=Nom|Number=Sing	4	flat:name	_	SpaceAfter=No
+6	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	_
+7	meine	meine	DET	PPOSAT	Case=Acc|Number=Plur|Number[psor]=Sing|Person=1|Poss=Yes|PronType=Prs	10	det	_	_
+8	sehr	sehr	ADV	ADV	Degree=Pos	9	advmod	_	_
+9	verehrten	verehrt	ADJ	ADJA	Degree=Pos|Number=Plur	10	amod	_	_
+10	Damen	Dame	NOUN	NN	Gender=Fem|Number=Plur	3	conj	_	_
+11	und	und	CCONJ	KON	_	12	cc	_	_
+12	Herren	Herr	NOUN	NN	Gender=Masc|Number=Plur	10	conj	_	_
+13	,	,	PUNCT	$,	PunctType=Comm	10	punct	_	_
+
+# DDC:BREAK.s[238300] = 4548252
+# DDC:BREAK.p[81871] = 4548252
+# text = Exzellenzen ,
+1	Exzellenzen	Exzellenz	NOUN	NN	Gender=Fem|Number=Plur	0	ROOT	_	_
+2	,	,	PUNCT	$,	PunctType=Comm	1	punct	_	_
+
+# DDC:BREAK.s[238302] = 4548289
+# DDC:BREAK.p[81873] = 4548289
+# text = Damals ging eine ganze Epoche zu Ende .
+1	Damals	damals	ADV	ADV	_	2	advmod	_	_
+2	ging	gehen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	ROOT	_	_
+3	eine	eine	DET	ART	Case=Nom|Definite=Ind|Gender=Fem|NumType=Card|Number=Sing|PronType=Art	5	det	_	_
+4	ganze	ganz	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	5	amod	_	_
+5	Epoche	Epoche	NOUN	NN	Gender=Fem|Number=Sing	2	nsubj	_	_
+6	zu	zu	ADP	APPR	AdpType=Prep|Case=Dat	7	case	_	_
+7	Ende	Ende	NOUN	NN	Gender=Neut|Number=Sing	2	obl	_	_
+8	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	_
+
+# DDC:BREAK.s[238303] = 4548297
+# text = Eine neue Zeit begann .
+1	Eine	eine	DET	ART	Case=Nom|Definite=Ind|Gender=Fem|NumType=Card|Number=Sing|PronType=Art	3	det	_	_
+2	neue	neu	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	3	amod	_	_
+3	Zeit	Zeit	NOUN	NN	Gender=Fem|Number=Sing	4	nsubj	_	_
+4	begann	beginnen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Past|VerbForm=Fin	0	ROOT	_	_
+5	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	_

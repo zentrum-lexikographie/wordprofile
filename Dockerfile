@@ -1,14 +1,13 @@
-FROM python:3.7
+FROM python:3.10
 
 RUN mkdir /app
 WORKDIR /app
-COPY requirements.txt /app/requirements.txt
-COPY requirements-api.txt /app/requirements-api.txt
 
-RUN pip install --no-cache-dir --upgrade\
-    -r /app/requirements.txt\
-    -r /app/requirements-api.txt
+COPY Pipfile Pipfile.lock /app/
 
+RUN pip install pipenv
+RUN pipenv requirements --categories="packages api" > requirements.txt
+RUN pip install -r requirements.txt
 COPY . /app
 
 CMD ["python", "-m", "wordprofile.apps.rest_api"]
