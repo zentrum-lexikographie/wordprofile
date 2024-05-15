@@ -1,4 +1,3 @@
-import bz2
 import logging
 import os
 import re
@@ -165,17 +164,7 @@ def group_sentences_to_documents(sentences):
         yield "\n".join(doc)
 
 
-def iter_doc_basenames(file_handle):
-    for line in file_handle:
-        if line.startswith("# DDC:meta.basename"):
-            yield line[len("# DDC:meta.basename =") :].strip()
-
-
 RE_META = re.compile(r"# DDC:meta\.(\w+) = ?(.*)")
-
-
-def extract_meta_from_str(doc_str: str):
-    return dict(m.groups() for m in RE_META.finditer(doc_str))
 
 
 def configure_logging():
@@ -193,11 +182,10 @@ def configure_logging():
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
-@click.option("-c", "--cont", default=".", type=click.Path())
 @click.option("--parser-type", default="trankit", type=str)
 @click.option("--lang", default="german-hdt", type=str)
 @click.option("--nthreads", default=1, type=int)
-def main(input, output, cont, parser_type, lang, nthreads):
+def main(input, output, parser_type, lang, nthreads):
     torch.set_num_threads(nthreads)
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
@@ -213,24 +201,9 @@ def main(input, output, cont, parser_type, lang, nthreads):
     else:
         raise ValueError("Unknown parser!")
 
-    if cont != ".":
-        if cont.endswith("bz"):
-            fh = bz2.open(cont, "rt")
-        elif cont.endswith("conll"):
-            fh = open(cont, "r")
-        else:
-            raise ValueError(f"Unknown file ending: {cont}")
-        basenames = {base for base in iter_doc_basenames(fh)}
-        fh.close()
-    else:
-        basenames = {}
-    logger.info("Loaded basenames: %d" % len(basenames))
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
     for doc_str in group_sentences_to_documents(iter_conll_sentences(input)):
-        meta = extract_meta_from_str(doc_str)
-        if meta["basename"] in basenames:
-            continue
         doc = conllu.parse(doc_str, fields=conllu.parser.DEFAULT_FIELDS)
         for sentence in parser(doc):
             output.write(sentence.serialize())
