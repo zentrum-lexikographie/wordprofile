@@ -8,7 +8,6 @@ from datetime import date, datetime
 
 import click
 import conllu
-import torch
 
 
 logger = logging.getLogger(__name__)
@@ -184,9 +183,7 @@ def configure_logging():
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
 @click.option("--parser-type", default="trankit", type=str)
 @click.option("--lang", default="german-hdt", type=str)
-@click.option("--nthreads", default=1, type=int)
-def main(input, output, parser_type, lang, nthreads):
-    torch.set_num_threads(nthreads)
+def main(input, output, parser_type, lang):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
     logger.info("Processing corpus %s with %s parser." % (input_file, parser_type))
