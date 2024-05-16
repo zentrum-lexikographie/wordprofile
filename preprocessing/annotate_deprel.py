@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 import sys
 import time
 from datetime import date, datetime
@@ -74,9 +73,6 @@ def group_sentences_to_documents(sentences):
             doc.append(sent)
     if len(doc):
         yield "\n".join(doc)
-
-
-RE_META = re.compile(r"# DDC:meta\.(\w+) = ?(.*)")
 
 
 def configure_logging():
