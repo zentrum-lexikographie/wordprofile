@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class SpacyParser:
-    def __init__(self, model="", batch_size=256):
+    def __init__(self, model="", batch_size=128):
         import spacy
         from spacy.tokens import Doc
 
@@ -91,11 +91,15 @@ def configure_logging():
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
 @click.option("--model", "-m", default="de_dwds_dep_hdt_dist", type=str)
-def main(input, output, model):
+@click.option("--batch-size", "-b", default=128, type=int)
+def main(input, output, model, batch_size):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
-    logger.info("Processing corpus %s with %s model." % (input_file, model))
-    parser = SpacyParser(model=model)
+    logger.info(
+        "Processing corpus %s with %s model (batch size: %d)."
+        % (input_file, model, batch_size)
+    )
+    parser = SpacyParser(model=model, batch_size=batch_size)
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
