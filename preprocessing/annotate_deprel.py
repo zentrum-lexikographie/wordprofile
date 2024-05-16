@@ -90,7 +90,7 @@ def configure_logging():
 @click.command()
 @click.option("-i", "--input", default="-", type=click.File("r"))
 @click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
-@click.option("--model", default="de_dwds_dep_hdt_dist", type=str)
+@click.option("--model", "-m", default="de_dwds_dep_hdt_dist", type=str)
 def main(input, output, model):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
