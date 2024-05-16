@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class SpacyParser:
-    def __init__(self, model_path="", batch_size=256):
+    def __init__(self, model="", batch_size=256):
         import spacy
         from spacy.tokens import Doc
 
@@ -20,7 +20,7 @@ class SpacyParser:
 
         tmp_stdout = sys.stdout
         sys.stdout = sys.stderr
-        self.nlp = spacy.load(model_path)
+        self.nlp = spacy.load(model)
         self.batch_size = batch_size
         sys.stdout = tmp_stdout
         self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
@@ -95,7 +95,7 @@ def main(input, output, model):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"
     logger.info("Processing corpus %s with %s model." % (input_file, model))
-    parser = SpacyParser(model_path=model)
+    parser = SpacyParser(model=model)
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
