@@ -20,7 +20,7 @@ class SpacyParser:
 
         tmp_stdout = sys.stdout
         sys.stdout = sys.stderr
-        self.nlp = spacy.load(model_path or "de_dep_hdt_sm")
+        self.nlp = spacy.load(model_path)
         self.batch_size = batch_size
         sys.stdout = tmp_stdout
         self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
