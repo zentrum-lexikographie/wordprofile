@@ -26,53 +26,19 @@ class SpacyParser:
         self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
 
     def custom_tokenizer(self, sentence):
-        return self.make_doc(
-            token["form"] if token["form"] else "---" for token in sentence
+        return (
+            self.make_doc(
+                token["form"] if token["form"] else "---" for token in sentence
+            ),
+            sentence,
         )
 
     def __call__(self, sentences):
-        try:
-            docs = self.nlp.pipe(
-                map(self.custom_tokenizer, sentences), batch_size=self.batch_size
-            )
-            for sent, doc in zip(sentences, docs):
-                for token, word in zip(sent, doc):
-                    token.update(
-                        upos=word.pos_,
-                        xpos=word.tag_,
-                        feats=word.morph if word.morph else "_",
-                        head=0 if word.dep_ == "ROOT" else word.head.i + 1,
-                        deprel=word.dep_,
-                    )
-        except RuntimeError as e:
-            sys.stderr.write(f"Runtime Error: {e}")
-        return sentences
-
-
-def iter_conll_sentences(file_handle):
-    chunk = []
-    for line in file_handle:
-        if line == "\n":
-            if chunk:
-                yield "".join(chunk)
-                chunk.clear()
-        else:
-            chunk.append(line)
-    if chunk:
-        yield "".join(chunk)
-
-
-def group_sentences_to_documents(sentences):
-    doc = []
-    for sent in sentences:
-        if "# DDC:meta.file_ =" in sent:
-            if len(doc):
-                yield "\n".join(doc)
-            doc = [sent]
-        else:
-            doc.append(sent)
-    if len(doc):
-        yield "\n".join(doc)
+        return self.nlp.pipe(
+            map(self.custom_tokenizer, sentences),
+            batch_size=self.batch_size,
+            as_tuples=True,
+        )
 
 
 def configure_logging():
@@ -103,11 +69,18 @@ def main(input, output, model, batch_size):
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
-    for doc_str in group_sentences_to_documents(iter_conll_sentences(input)):
-        doc = conllu.parse(doc_str, fields=conllu.parser.DEFAULT_FIELDS)
-        for sentence in parser(doc):
-            output.write(sentence.serialize())
-        output.flush()
+    for anno, sent in parser(
+        conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS)
+    ):
+        for token, word in zip(sent, anno):
+            token.update(
+                upos=word.pos_,
+                xpos=word.tag_,
+                feats=word.morph if word.morph else "_",
+                head=0 if word.dep_ == "ROOT" else word.head.i + 1,
+                deprel=word.dep_,
+            )
+        output.write(sent.serialize())
     end = time.time()
     elapsed_time = end - start
     logger.info("End time: %s" % datetime.fromtimestamp(end))
