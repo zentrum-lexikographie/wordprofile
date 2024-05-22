@@ -426,16 +426,8 @@ class Wordprofile:
         Returns:
             Distance of either scores or ranks, depending on the operation.
         """
-        if operation == "diff":
+        if operation == "adiff":
             score = s1 - s2
-        elif operation == "adiff":
-            score = s1 - s2
-        elif operation == "max":
-            score = max(s1, s2)
-        elif operation == "rmax":
-            score = max(r1, r2)
-        elif operation == "avg":
-            score = (s1 + s2) / 2
         elif operation == "hmean":
             score = 2 * (s1 * s2) / (s1 + s2)
         else:
