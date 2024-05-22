@@ -121,7 +121,7 @@ Tests:
 - Run Unit Tests: `pytest -v`
 
 # II Annotation of Dependency Relations
-For the annotation of  dependeny relations, a model should be used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/), e.g. `german-hdt` by [`trankit`](https://trankit.readthedocs.io/en/latest/index.html) or [`de_dwds_dep_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_dist) for  parsing with [`spacy`](https://spacy.io/).
+For the annotation of  dependeny relations, a model should be used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/), e.g. [`de_dwds_dep_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_dist) for  parsing with [`spacy`](https://spacy.io/).
 
 If the environment has gpu/cuda enabled, use the `de_dwds_dep_hdt_dist`, otherwise the [`de_dwds_dep_hdt_lg`](https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg) can be used on cpu.
 
