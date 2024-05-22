@@ -3,18 +3,18 @@ import os
 import sys
 import time
 from datetime import date, datetime
+from typing import Iterable, Iterator
 
 import click
 import conllu
-
+from spacy.tokens import Doc
 
 logger = logging.getLogger(__name__)
 
 
 class SpacyParser:
-    def __init__(self, model="", batch_size=128):
+    def __init__(self, model: str = "", batch_size: int = 128) -> None:
         import spacy
-        from spacy.tokens import Doc
 
         spacy.prefer_gpu()
 
@@ -25,7 +25,9 @@ class SpacyParser:
         sys.stdout = tmp_stdout
         self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
 
-    def custom_tokenizer(self, sentence):
+    def custom_tokenizer(
+        self, sentence: conllu.models.TokenList
+    ) -> tuple[Doc, conllu.models.TokenList]:
         return (
             self.make_doc(
                 token["form"] if token["form"] else "---" for token in sentence
@@ -33,7 +35,9 @@ class SpacyParser:
             sentence,
         )
 
-    def __call__(self, sentences):
+    def __call__(
+        self, sentences: Iterable[conllu.models.TokenList]
+    ) -> Iterator[tuple[Doc, conllu.models.TokenList]]:
         return self.nlp.pipe(
             map(self.custom_tokenizer, sentences),
             batch_size=self.batch_size,
