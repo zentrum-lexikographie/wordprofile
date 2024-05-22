@@ -389,22 +389,15 @@ class Wordprofile:
             diffs_grouped = list(diffs_grouped.values())
         # compute score based on occurring cooccs
         for d in diffs_grouped:
-            if "coocc_1" in d and "coocc_2" in d:
-                d["score"] = self.__diff_operation(
-                    operation,
-                    d["coocc_1"].score,
-                    d["coocc_2"].score,
-                    d["rank_1"],
-                    d["rank_2"],
-                )
-            elif "coocc_1" in d:
-                d["score"] = self.__diff_operation(
-                    operation, d["coocc_1"].score, 0, d["rank_1"], 0
-                )
-            elif "coocc_2" in d:
-                d["score"] = self.__diff_operation(
-                    operation, 0, d["coocc_2"].score, 0, d["rank_2"]
-                )
+            coocc1 = d.get("coocc_1", None)
+            coocc2 = d.get("coocc_2", None)
+            d["score"] = self.__diff_operation(
+                operation,
+                coocc1.score if coocc1 is not None else 0,
+                coocc2.score if coocc2 is not None else 0,
+                d.get("rank_1", 0),
+                d.get("rank_2", 0),
+            )
         # final sort and cut after nbest cooccs
         if operation in ["adiff", "ardiff"]:
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
