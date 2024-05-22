@@ -290,3 +290,18 @@ class WordprofileTest(unittest.TestCase):
             use_intersection=True,
         )[0]["Tuples"]
         self.assertEqual(len(result), 2)
+
+    def test_retrieval_of_intersection(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="hmean",
+            use_intersection=True,
+        )[0]["Tuples"]
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            [(col["Lemma"], round(col["Score"]["AScomp"], 1)) for col in result],
+            [("gemütlich", 7.5), ("plüschig", 2.8)],
+        )

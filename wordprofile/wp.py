@@ -410,8 +410,8 @@ class Wordprofile:
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
             diffs_grouped = diffs_grouped[:number]
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
-        elif operation == "rmax":
-            diffs_grouped.sort(key=lambda x: x["score"])
+        elif operation == "hmean":
+            diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
             diffs_grouped = diffs_grouped[:number]
         else:
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
@@ -443,6 +443,8 @@ class Wordprofile:
             score = max(r1, r2)
         elif operation == "avg":
             score = (s1 + s2) / 2
+        elif operation == "hmean":
+            score = 2 * (s1 * s2) / (s1 + s2)
         else:
             raise ValueError("Unknown operation")
         return score

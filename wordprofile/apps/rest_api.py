@@ -296,7 +296,7 @@ async def get_intersection(
         order_by,
         min_freq,
         min_stat,
-        operation="rmax",
+        operation="hmean",
         use_intersection=True,
         nbest=nbest,
     )
