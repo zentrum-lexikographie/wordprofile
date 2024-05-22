@@ -70,11 +70,35 @@ def configure_logging():
     )
 
 
-@click.command()
-@click.option("-i", "--input", default="-", type=click.File("r"))
-@click.option("-o", "--output", default="-", type=click.File("w", encoding="utf-8"))
-@click.option("--model", "-m", default="de_dwds_dep_hdt_dist", type=str)
-@click.option("--batch-size", "-b", default=128, type=int)
+@click.command(help="Parse conll file and add dependency relation annotations.")
+@click.option(
+    "-i",
+    "--input",
+    default="-",
+    type=click.File("r"),
+    help="Path to input file in conllu format.",
+)
+@click.option(
+    "-o",
+    "--output",
+    default="-",
+    type=click.File("w", encoding="utf-8"),
+    help="Output file.",
+)
+@click.option(
+    "--model",
+    "-m",
+    default="de_dwds_dep_hdt_dist",
+    type=str,
+    help="Name of spacy model, default is 'de_dwds_dep_hdt_dist'.",
+)
+@click.option(
+    "--batch-size",
+    "-b",
+    default=128,
+    type=int,
+    help="Batch size used by model during processing. Default is 128 (sentences).",
+)
 def main(input, output, model, batch_size):
     configure_logging()
     input_file = input.name if input != "-" else "from stdin"

@@ -129,4 +129,18 @@ To download a model, run for example:
 
     pip install https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg/resolve/main/de_dwds_dep_hdt_lg-any-py3-none-any.whl
 
-For the annotation, the script `annotate_deprel.py` can be used.
+For the annotation, the script `annotate_deprel.py` can be used:
+```sh
+Usage: annotate_deprel.py [OPTIONS]
+
+  Parse conll file and add dependency relation annotations.
+
+Options:
+  -i, --input FILENAME      Path to input file in conllu format.
+  -o, --output FILENAME     Output file.
+  -m, --model TEXT          Name of spacy model, default is
+                            'de_dwds_dep_hdt_dist'.
+  -b, --batch-size INTEGER  Batch size used by model during processing.
+                            Default is 128 (sentences).
+  --help                    Show this message and exit.
+```
