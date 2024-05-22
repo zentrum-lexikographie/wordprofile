@@ -335,27 +335,34 @@ class Wordprofile:
         use_intersection: bool,
         operation: str,
     ) -> List[dict]:
-        """Compares two given word-profiles relation-wise.
+        """Compares two given word profiles relation-wise.
 
-        Comparison is based on a operation and is used to highlight either differences or similarities.
+        Comparison is based on either difference of intersection of
+        logDice scores for pairs of collocations.
+
         Difference:
-            1. calculate absolute difference (adiff) for all pairs: |s₁(K)-s₂(K)| for all K ∊ WP₁ ∪ WP₂
-            2. sort and choose nbest
-            3. calculate true difference (diff) for all pairs: s₁(K)-s₂(K) for all K ∊ WP₁ ∪ WP₂
+            1. calculate absolute difference (adiff) for all pairs:
+                |s₁(K)-s₂(K)| for all K ∊ WP₁ ∪ WP₂
+            2. sort and choose number
+            3. calculate true difference (diff) for all pairs:
+                s₁(K)-s₂(K) for all K ∊ WP₁ ∪ WP₂
             4. sort again
         Intersect:
-            1. compute max rank (rmax) for all pairs: max(r₁(K),r₂(K)) for all K ∊ WP₁ ∩ WP₂
-            2. sort and choose nbest
+            1. compute harmonic mean (hmean) for all pairs:
+                2 * s₁(K) * s₂(K) / s₁(K) + s₂(K) for all K ∊ WP₁ ∩ WP₂
+            2. sort and choose number
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            diffs: Lemma of interest, first collocate.
+            lemma1: First lemma of interest.
+            lemma2: Second lemma of interest.
+            diffs: List of cooccurrences (Coocc) for lemma1 or lemma2.
+            number: Number of collocations to return
             nbest: Checks only the n highest scored lemmas.
-            use_intersection: If set, only the intersection of both lemma is computed.
-            operation: Lemma distance metric.
+            use_intersection: If set, only the intersection of both lemma
+                is computed.
+            operation: Lemma distance metric (hmean or adiff).
         Return:
-            List of collocation-diffs grouped by relation.
+            Sorted list of collocation-diffs.
         """
         diffs_grouped = defaultdict(dict)
         lemma1_ctr = lemma2_ctr = 0
