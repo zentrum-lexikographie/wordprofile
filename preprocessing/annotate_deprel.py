@@ -45,6 +45,19 @@ class SpacyParser:
         )
 
 
+def add_annotation_to_tokens(
+    conll_sent: conllu.models.TokenList, annotation: Doc
+) -> None:
+    for token, word in zip(conll_sent, annotation):
+        token.update(
+            upos=word.pos_,
+            xpos=word.tag_,
+            feats=word.morph if word.morph else "_",
+            head=0 if word.dep_ == "ROOT" else word.head.i + 1,
+            deprel=word.dep_,
+        )
+
+
 def configure_logging():
     log_directory = os.path.join(os.path.dirname(os.path.dirname(__file__)), "log")
     os.makedirs(log_directory, exist_ok=True)
@@ -76,14 +89,7 @@ def main(input, output, model, batch_size):
     for anno, sent in parser(
         conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS)
     ):
-        for token, word in zip(sent, anno):
-            token.update(
-                upos=word.pos_,
-                xpos=word.tag_,
-                feats=word.morph if word.morph else "_",
-                head=0 if word.dep_ == "ROOT" else word.head.i + 1,
-                deprel=word.dep_,
-            )
+        add_annotation_to_tokens(sent, anno)
         output.write(sent.serialize())
     end = time.time()
     elapsed_time = end - start
