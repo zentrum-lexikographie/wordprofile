@@ -129,4 +129,4 @@ To download a model, run for example:
 
     pip install https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg/resolve/main/de_dwds_dep_hdt_lg-any-py3-none-any.whl
 
-For the annotation, the script `parse.py` can be used.
+For the annotation, the script `annotate_deprel.py` can be used.
