@@ -402,8 +402,6 @@ class Wordprofile:
                 operation,
                 coocc1.score if coocc1 is not None else 0,
                 coocc2.score if coocc2 is not None else 0,
-                d.get("rank_1", 0),
-                d.get("rank_2", 0),
             )
         # final sort and cut after nbest cooccs
         if operation in ["adiff", "ardiff"]:
@@ -419,7 +417,7 @@ class Wordprofile:
         return diffs_grouped
 
     def __diff_operation(
-        self, operation: str, s1: float, s2: float, r1: int, r2: int
+        self, operation: str, s1: float, s2: float
     ) -> Union[int, float]:
         """Calculates the score difference.
 
