@@ -9,11 +9,11 @@ from wordprofile.errors import InternalError
 from wordprofile.formatter import (
     format_comparison,
     format_concordances,
-    format_relations,
     format_lemma_pos,
     format_mwe_concordances,
+    format_relations,
 )
-from wordprofile.utils import tag_f2b, tag_b2f
+from wordprofile.utils import tag_b2f, tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.wpse_spec import WpSeSpec
