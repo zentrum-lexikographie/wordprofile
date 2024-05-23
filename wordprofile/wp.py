@@ -408,9 +408,6 @@ class Wordprofile:
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
             diffs_grouped = diffs_grouped[:number]
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
-        elif operation == "hmean":
-            diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
-            diffs_grouped = diffs_grouped[:number]
         else:
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
             diffs_grouped = diffs_grouped[:number]
