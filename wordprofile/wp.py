@@ -404,7 +404,7 @@ class Wordprofile:
                 coocc2.score if coocc2 is not None else 0,
             )
         # final sort and cut after nbest cooccs
-        if operation in ["adiff", "ardiff"]:
+        if operation == "adiff":
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
             diffs_grouped = diffs_grouped[:number]
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
