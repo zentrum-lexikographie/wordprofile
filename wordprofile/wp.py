@@ -422,11 +422,9 @@ class Wordprofile:
             operation: Metric operation.
             s1: Score of first lemma.
             s2: Score of second lemma.
-            r1: Rank of first lemma.
-            r2: Rank of second lemma.
 
         Returns:
-            Distance of either scores or ranks, depending on the operation.
+            Distance or harmonic mean of scores depending on operation.
         """
         if operation == "adiff":
             score = s1 - s2
