@@ -274,19 +274,31 @@ class Wordprofile:
         use_intersection: bool = False,
         nbest: int = 0,
     ) -> List[dict]:
-        """Fetches collocations of common POS from word-profile database and computes distances for comparison.
+        """
+        Compare word profiles for a pair of lemmas per relation.
+
+        Comparison is based on logDice score and computed w.r.t
+        difference or similarity/intersection of collocates for
+        lemma1 and lemma2.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            pos: Pos tag for both lemmas.
-            relations (optional): List of relation labels.
-            number (optional): Number of collocations to take.
-            order_by (optional): Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest.
+            lemma2: Second lemma of interest.
+            pos: POS tag for both lemmas.
+            relations (optional): List of relation labels to fetch
+                collocations from.
+            number (optional): Number of collocations for each lemma to
+                return per relation.
+            order_by (optional): Key for sorting collocations, 'frequency'
+                or 'log_dice'. Default is log_dice. Frontend also only
+                supports 'log_dice'.
             min_freq (optional): Filter collocations with minimal frequency.
             min_stat (optional): Filter collocations with minimal stats score.
-            operation (optional): Lemma distance metric.
-            use_intersection (optional): If set, only the intersection of both lemma is computed.
+            operation (optional): Metric used to compute score for ranking
+                collocations, 'adiff' (absolute difference) or 'hmean'
+                (harmonic mean). Default is 'adiff'.
+            use_intersection (optional): Consider only collocates that
+                occur with both lemmas. Default is 'False'.
             nbest (optional): Checks only the n highest scored lemmas.
         Return:
             List of collocation-diffs grouped by relation.
@@ -335,9 +347,10 @@ class Wordprofile:
         use_intersection: bool,
         operation: str,
     ) -> List[dict]:
-        """Compares two given word profiles relation-wise.
+        """
+        Sort collocations of two lemmas by logDice score of shared collocate.
 
-        Comparison is based on either difference of intersection of
+        Comparison is based on either difference or intersection of
         logDice scores for pairs of collocations.
 
         Difference:
@@ -356,9 +369,9 @@ class Wordprofile:
             lemma1: First lemma of interest.
             lemma2: Second lemma of interest.
             diffs: List of cooccurrences (Coocc) for lemma1 or lemma2.
-            number: Number of collocations to return
+            number: Number of collocations to return.
             nbest: Checks only the n highest scored lemmas.
-            use_intersection: If set, only the intersection of both lemma
+            use_intersection: If set, only the intersection of both lemmas
                 is computed.
             operation: Lemma distance metric (hmean or adiff).
         Return:
