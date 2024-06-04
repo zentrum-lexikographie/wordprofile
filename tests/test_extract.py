@@ -1259,3 +1259,142 @@ def test_pred_match_only_extracted_once():
     result = list(ex.extract_matches([sentence]))
     assert "PRED" in [match.relation for match in result]
     assert len(result) == 2
+
+
+def test_adverbial_adjective_with_verb_extracted():
+    adv_rules = ex.get_inverted_relation_patterns()["advmod"]
+    sentence = [
+        DBToken(
+            idx=1,
+            surface="indem",
+            lemma="indem",
+            tag="SCONJ",
+            head=6,
+            rel="mark",
+            misc=True,
+        ),
+        DBToken(
+            idx=2,
+            surface="sie",
+            lemma="sie",
+            tag="PRON",
+            head=6,
+            rel="nsubj",
+            misc=True,
+        ),
+        DBToken(
+            idx=3,
+            surface="ihnen",
+            lemma="ihnen",
+            tag="PRON",
+            head=6,
+            rel="obl:arg",
+            misc=True,
+        ),
+        DBToken(
+            idx=4,
+            surface="pauschal",
+            lemma="pauschal",
+            tag="ADJ",
+            head=6,
+            rel="advmod",
+            misc=True,
+        ),
+        DBToken(
+            idx=5,
+            surface="Revanchismus",
+            lemma="Revanchismus",
+            tag="NOUN",
+            head=6,
+            rel="obj",
+            misc=True,
+        ),
+        DBToken(
+            idx=6,
+            surface="unterstellten",
+            lemma="unterstellen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern({"advmod": adv_rules}, sentence, 1))
+    assert len(result) == 1
+    assert [("unterstellen", "pauschal")] == [
+        (match.head.lemma, match.dep.lemma) for match in result
+    ]
+
+
+def test_adverbial_adjective_with_adjective_extracted():
+    adv_rules = ex.get_inverted_relation_patterns()["advmod"]
+    sentence = [
+        DBToken(
+            idx=1,
+            surface="davon",
+            lemma="davon",
+            tag="ADV",
+            head=2,
+            rel="advmod",
+            misc=True,
+        ),
+        DBToken(
+            idx=2,
+            surface="nutzt",
+            lemma="nutzen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        DBToken(
+            idx=3,
+            surface="durchschnittlich",
+            lemma="durchschnittlich",
+            tag="ADJ",
+            head=4,
+            rel="advmod",
+            misc=True,
+        ),
+        DBToken(
+            idx=4,
+            surface="knapp",
+            lemma="knapp",
+            tag="ADJ",
+            head=6,
+            rel="advmod",
+            misc=True,
+        ),
+        DBToken(
+            idx=5,
+            surface="die",
+            lemma="d",
+            tag="DET",
+            head=6,
+            rel="det",
+            misc=True,
+        ),
+        DBToken(
+            idx=6,
+            surface="Hälfte",
+            lemma="Hälfte",
+            tag="NOUN",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        DBToken(
+            idx=7,
+            surface="Internet",
+            lemma="Internet",
+            tag="NOUN",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern({"advmod": adv_rules}, sentence, 1))
+    assert len(result) == 2
+    assert ("knapp", "durchschnittlich") in [
+        (match.head.lemma, match.dep.lemma) for match in result
+    ]

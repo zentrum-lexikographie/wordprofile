@@ -10,6 +10,8 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         "rules": [
             ("advmod", "verb", "adv"),
             ("advmod", "adj", "adv"),
+            ("advmod", "verb", "adj"),
+            ("advmod", "adj", "adj"),
         ],
     },
     "ATTR": {
