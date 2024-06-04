@@ -27,7 +27,12 @@ def test_inverting_of_relation_patterns():
         "nsubj:pass",
         "compound:prt",
     ]
-    assert result["advmod"] == {("VERB", "ADV"): "ADV", ("ADJ", "ADV"): "ADV"}
+    assert result["advmod"] == {
+        ("VERB", "ADV"): "ADV",
+        ("ADJ", "ADV"): "ADV",
+        ("VERB", "ADJ"): "ADV",
+        ("ADJ", "ADJ"): "ADV",
+    }
     assert result[("conj", "cc")] == {
         ("NOUN", "NOUN", "CCONJ"): "KON",
         ("VERB", "VERB", "CCONJ"): "KON",
@@ -575,7 +580,7 @@ def test_prepositional_object_categorized_as_PP():
             lemma="heftig",
             tag="ADJ",
             head=2,
-            rel="advmod",
+            rel="",
             misc=True,
         ),
         DBToken(
@@ -635,7 +640,7 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
             lemma="heftig",
             tag="ADJ",
             head=2,
-            rel="advmod",
+            rel="",
             misc=True,
         ),
         DBToken(
