@@ -1,4 +1,9 @@
 # Preprocessing
+
+I [Data conversion](#I-data-conversion)
+II [Annotation of Dependency Relations](#II-annotation-of-dependency-relations)
+
+# I Data conversion
 Convert ZDL-internal DDC-Dump/Tabs files to conllu format.
 
 (Adaption of [`pytabs`](https://git.zdl.org/zdl/pytabs) project by René Knaebel.)
@@ -83,6 +88,11 @@ Options:
 
 If the `--output` option is used, the `.conll` files will be sorted into subdirectories in the destination according to the `collection` attribute in the document metadata.
 
+You may have to set the `PYTHONPATH` environment variable for correct path resolution, e.g. :
+```sh
+export PYTHONPATH="$PYTHONPATH:wordprofile"
+```
+
 #### Examples
 
 Converts `filename.tabs` to conllu and prints on console.
@@ -109,3 +119,28 @@ see [readme](../README.md) for `wordprofile`.
 Tests:
 
 - Run Unit Tests: `pytest -v`
+
+# II Annotation of Dependency Relations
+For the annotation of  dependeny relations, a model should be used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/), e.g. [`de_dwds_dep_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_dist) for  parsing with [`spacy`](https://spacy.io/).
+
+If the environment has gpu/cuda enabled, use the `de_dwds_dep_hdt_dist`, otherwise the [`de_dwds_dep_hdt_lg`](https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg) can be used on cpu.
+
+To download a model, run for example:
+
+    pip install https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg/resolve/main/de_dwds_dep_hdt_lg-any-py3-none-any.whl
+
+For the annotation, the script `annotate_deprel.py` can be used:
+```sh
+Usage: annotate_deprel.py [OPTIONS]
+
+  Parse conll file and add dependency relation annotations.
+
+Options:
+  -i, --input FILENAME      Path to input file in conllu format.
+  -o, --output FILENAME     Output file.
+  -m, --model TEXT          Name of spacy model, default is
+                            'de_dwds_dep_hdt_dist'.
+  -b, --batch-size INTEGER  Batch size used by model during processing.
+                            Default is 128 (sentences).
+  --help                    Show this message and exit.
+```

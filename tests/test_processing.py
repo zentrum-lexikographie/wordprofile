@@ -486,3 +486,34 @@ def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
             "tests/testdata/test_db/matches", file, collocations
         )
     assert (2367256, 2373301, "KON", "Polizei", "NOUN", 0) in mwe_ids
+
+
+def test_load_collocations_freq_filter_applied_to_aggregated_collocations():
+    input_files = list(
+        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
+    )
+    collocations = pro.load_collocations(input_files, min_rel_freq=3)
+    result = [col[1:] for col in collocations.values()]
+    assert len(result) == 3
+    assert ("GMOD", "Thema", "Gegenwart", "NOUN", "NOUN", 0, 2) not in result
+    assert ("ATTR", "Familienpolitik", "modern", "NOUN", "ADJ", 0, 12) in result
+    assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", 0, 3) in result
+
+
+def test_matches_with_collocation_id_zero_not_discarded():
+    colloc_files = list(
+        (pathlib.Path(__file__).parent / "testdata" / "freq_test").iterdir()
+    )
+    collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
+    corpus_file_ids = {"doc1": 1}
+    sentence_ids = {("1", "3"), ("1", "4")}
+    matches_file = pathlib.Path(__file__).parent / "testdata" / "matches"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        pro.filter_transform_matches(
+            [matches_file], output_file, corpus_file_ids, sentence_ids, collocations
+        )
+        with open(output_file) as fh:
+            result = [line.split()[1:4] for line in fh]
+    assert len(result) == 2
+    assert ["0", "Zeitung", "süddeutsche"] in result

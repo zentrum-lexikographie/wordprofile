@@ -1,0 +1,10 @@
+ATTR	Zeitung	NOUN	süddeutsch	ADJ	10
+ATTR	Stadtrand	NOUN	östlich	ADJ	2
+PP	freihalten von	VERB	Bebauung	NOUN	2
+PP	freihalten	VERB	Bebauung	NOUN	1
+PP	Kleingarten in	NOUN	Norden	NOUN	1
+PP	Kleingarten	NOUN	in Norden	NOUN	1
+ATTR	Kraft	NOUN	eigen	ADJ	1
+ATTR	Familienpolitik	NOUN	modern	ADJ	1
+KOM	lassen	VERB	Kartoffel	NOUN	1
+KOM	anzünden	VERB	Jahr	NOUN	1
