@@ -9,7 +9,9 @@ RE_HIT_DELIMITER = re.compile(r"([^\x01\x02]+)([\x01\x02])")
 
 
 def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
-    """Converts lemma-pos items with their information (relations, frequencies) into output format"""
+    """
+    Converts lemma-pos items with their information into output format
+    """
     lemma_pos_mapping = defaultdict(list)
     for i in sorted(db_results, key=lambda x: x.freq, reverse=True):
         relation = "~" + i.rel if i.inv else i.rel
@@ -42,11 +44,12 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     """Converts co-occurrences into output format"""
     results = []
     for coocc in cooccs:
+        relation = ("~" if coocc.inverse else "") + coocc.rel
         results.append(
             {
-                "Relation": ("~" if coocc.inverse else "") + coocc.rel,
+                "Relation": relation,
                 "RelationDescription": wp_spec.mapRelDesc.get(
-                    coocc.rel, wp_spec.strRelDesc
+                    relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
                 "PosId": tag_b2f.get(coocc.tag2, ""),

@@ -126,3 +126,9 @@ pipenv install --dev
 ```shell
 pytest
 ```
+
+Um diejenigen Tests auszuführen, die eine Datenbankverbindung benötigen, wird zunächst ein Test-Docker-Container gestartet:
+```shell
+export USER_GROUP=$(id -u):$(id -g)
+docker compose -f docker-compose-test.yml up
+```

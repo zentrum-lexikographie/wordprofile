@@ -202,6 +202,7 @@ class Wordprofile:
 
         Args:
             coocc_ids: List of collocation ids.
+            relations (optional): List of relation labels to filter results.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
@@ -231,11 +232,12 @@ class Wordprofile:
         for coocc in self.db_mwe.get_relation_tuples(
             coocc_ids, order_by, min_freq, min_stat
         ):
-            if relations and coocc.rel not in relations:
+            relation_identifier = f"{'~' if coocc.inverse else ''}{coocc.rel}"
+            if relations and relation_identifier not in relations:
                 continue
             lemma1 = coocc.lemma1
             pos1 = coocc.tag1
-            grouped_relations[coocc.rel].append(coocc)
+            grouped_relations[relation_identifier].append(coocc)
         results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
             # TODO check origin of MWE duplicates

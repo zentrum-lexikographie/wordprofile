@@ -12,7 +12,7 @@ from typing import Any, Protocol, Union
 
 import conllu
 from conllu.models import Token, TokenList
-from sqlalchemy import text, Connection
+from sqlalchemy import Connection, text
 
 from wordprofile.datatypes import DBToken
 from wordprofile.sentence_filter import (
@@ -469,6 +469,7 @@ def extract_mwe_from_collocs(
                             continue
                         c1 = collocs[m1.collocation_id]
                         c2 = collocs[m2.collocation_id]
+                        inverse = 0
                         if has_one_overlap(m1.head_pos, m2.head_pos, m2.dep_pos):
                             # m2 - m1.dep_surface
                             lemma = c1.lemma1 if c1.inv else c1.lemma2
@@ -482,6 +483,7 @@ def extract_mwe_from_collocs(
                                     c1.label,
                                     lemma,
                                     tag,
+                                    inverse,
                                 ),
                             )
                             mwe_map.write(
@@ -502,6 +504,7 @@ def extract_mwe_from_collocs(
                                     c1.label,
                                     lemma,
                                     tag,
+                                    inverse,
                                 ),
                             )
                             mwe_map.write(
@@ -509,6 +512,8 @@ def extract_mwe_from_collocs(
                                     "\t".join(map(str, (mwe_id,) + (m2.id, m1.id)))
                                 )
                             )
+                        if c2.label not in {"KON", "VZ"}:
+                            inverse = 1
                         if has_one_overlap(m2.head_pos, m1.head_pos, m1.dep_pos):
                             # m1 - m2.dep_surface
                             lemma = c2.lemma1 if c2.inv else c2.lemma2
@@ -522,6 +527,7 @@ def extract_mwe_from_collocs(
                                     c2.label,
                                     lemma,
                                     tag,
+                                    inverse,
                                 ),
                             )
                             mwe_map.write(
@@ -543,6 +549,7 @@ def extract_mwe_from_collocs(
                                     c2.label,
                                     lemma,
                                     tag,
+                                    inverse,
                                 ),
                             )
                             mwe_map.write(
@@ -560,7 +567,7 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
     )
     f1: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
     f2: defaultdict[str, int] = defaultdict(int)
-    for (w1, w2, label, lemma, tag), mwe_id in mwe_ids.items():
+    for (w1, w2, label, lemma, tag, inv), mwe_id in mwe_ids.items():
         frequency = mwe_freqs[mwe_id]
         f12[label][(w1, w2)] += frequency
         f12[label][(w2, w1)] += frequency
@@ -572,7 +579,7 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
             mwe_freq = mwe_freqs[mwe_id]
-            w1, w2, label, lemma, tag = mwe
+            w1, w2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
                 * max(1, f12[label][(w1, w2)])
@@ -751,10 +758,9 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
             logger.warning("Local file '%s' doe not exist." % tb_file)
         else:
             logger.info("LOAD DATA FILE: %s" % tb_name)
-            connection.execute(
-                text(
-                    "LOAD DATA LOCAL INFILE '{}' INTO TABLE {};".format(
-                        tb_file, tb_name
-                    )
-                )
-            )
+            if tb_name == "concord_sentences":
+                query = f"""LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name}
+                (corpus_file_id, sentence_id, sentence, page);"""
+            else:
+                query = f"LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name};"
+            connection.execute(text(query))

@@ -27,3 +27,6 @@ data/
 *.temp
 build/
 log/
+
+tests/testdata/db
+test-data/
