@@ -51,8 +51,8 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                 "RelationDescription": wp_spec.mapRelDesc.get(
                     relation, wp_spec.strRelDesc
                 ),
-                "POS": tag_b2f[coocc.tag2],
-                "PosId": tag_b2f[coocc.tag2],
+                "POS": tag_b2f.get(coocc.tag2, ""),
+                "PosId": tag_b2f.get(coocc.tag2, ""),
                 "Form": coocc.form2,
                 "Lemma": coocc.lemma2,
                 "Score": {
