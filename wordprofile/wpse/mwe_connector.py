@@ -130,7 +130,7 @@ class WPMweConnect:
         query = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
@@ -158,9 +158,9 @@ class WPMweConnect:
                 tag2=c[3],
                 freq=c[4],
                 score=c[9],
-                inverse=0,
+                inverse=c[13],
                 has_mwe=0,
-                num_concords=c[13],
+                num_concords=c[14],
             )
 
     def get_relation_tuples(
@@ -179,7 +179,7 @@ class WPMweConnect:
         sql = """
         SELECT
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface,
+            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
@@ -207,9 +207,9 @@ class WPMweConnect:
                 tag2=i[3],
                 freq=i[4],
                 score=i[9],
-                inverse=0,
+                inverse=i[13],
                 has_mwe=0,
-                num_concords=i[13],
+                num_concords=i[14],
             )
             for i in self.__fetchall(sql, params)
         ]
