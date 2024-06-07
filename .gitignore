@@ -28,8 +28,5 @@ data/
 build/
 log/
 
-<<<<<<< HEAD
 tests/testdata/db
-=======
 test-data/
->>>>>>> master
