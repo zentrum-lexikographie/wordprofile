@@ -20,6 +20,27 @@ class MockDb:
             if item.lemma1 == lemma
         ]
 
+    def get_relation_by_id(self, coocc_id, is_mwe=False):
+        return self.db[coocc_id]
+
+    def get_lemma_and_pos(self, lemma, pos):
+        return [
+            LemmaInfo(
+                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
+            )
+            for item in self.db.values()
+            if item.lemma1 == lemma
+        ]
+
+    def get_relation_tuples_diff(self, lemma1, lemma2, lemma_tag, relation, *kwargs):
+        return [
+            item
+            for item in self.db.values()
+            if item.tag1 == lemma_tag
+            and item.lemma1 in {lemma1, lemma2}
+            and item.rel == relation
+        ]
+
 
 class MockMweDb(MockDb):
     def get_relation_tuples(
@@ -127,6 +148,81 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=8,
+            ),
+            6: Coocc(
+                id=6,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="gemütlich",
+                form1="Sofa",
+                form2="gemütliche",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=20,
+                score=8,
+                inverse=0,
+                has_mwe=0,
+                num_concords=20,
+            ),
+            7: Coocc(
+                id=7,
+                rel="ATTR",
+                lemma1="Sessel",
+                lemma2="gemütlich",
+                form1="Sessel",
+                form2="gemütliche",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+            ),
+            8: Coocc(
+                id=8,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="plüschig",
+                form1="Sofa",
+                form2="plüschig",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=200,
+                score=1.7,
+                inverse=0,
+                has_mwe=0,
+                num_concords=200,
+            ),
+            9: Coocc(
+                id=9,
+                rel="ATTR",
+                lemma1="Sessel",
+                lemma2="plüschig",
+                form1="Sessel",
+                form2="plüschig",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7.6,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+            ),
+            11: Coocc(
+                id=11,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="bequem",
+                form1="Sessel",
+                form2="bequem",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7.6,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
             ),
             10: Coocc(
                 id=10,
@@ -312,3 +408,54 @@ class WordprofileTest(unittest.TestCase):
             ("Arbeit-gemeinnützig#NOUN-ADJ#PRED"),
         ]
         self.assertEqual(result, expected)
+
+    def test_calculate_diff(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="adiff",
+            use_intersection=False,
+        )[0]["Tuples"]
+        expected = {
+            "Position": "center",
+            "Score": {
+                "AScomp": 1,
+                "Assoziation1": 8,
+                "Assoziation2": 7,
+                "Frequency1": 20,
+                "Frequency2": 10,
+                "Rank1": 0,
+                "Rank2": 1,
+            },
+        }
+        self.assertEqual(len(result), 3)
+        self.assertEqual(expected["Position"], result[1]["Position"])
+        self.assertEqual(expected["Score"], result[1]["Score"])
+
+    def test_calculate_diff_with_intersection(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="adiff",
+            use_intersection=True,
+        )[0]["Tuples"]
+        self.assertEqual(len(result), 2)
+
+    def test_retrieval_of_intersection(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="hmean",
+            use_intersection=True,
+        )[0]["Tuples"]
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            [(col["Lemma"], round(col["Score"]["AScomp"], 1)) for col in result],
+            [("gemütlich", 7.5), ("plüschig", 2.8)],
+        )
