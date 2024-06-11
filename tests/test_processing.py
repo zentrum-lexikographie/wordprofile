@@ -80,7 +80,14 @@ def test_sentence_conversion_to_dbtoken():
     )
     assert pro.convert_sentence(token_list) == [
         WPToken(
-            idx=1, surface="Test", lemma="Test", tag="NOUN", head="", rel="", misc=True
+            idx=1,
+            surface="Test",
+            lemma="Test",
+            tag="NOUN",
+            head="",
+            rel="",
+            misc=True,
+            morph={},
         )
     ]
 
@@ -111,6 +118,7 @@ def test_sentence_conversion_casing():
             head="",
             rel="",
             misc=True,
+            morph={},
         )
     ]
 
@@ -141,6 +149,7 @@ def test_sentence_conversion_caps_normalization():
             head="",
             rel="",
             misc=True,
+            morph={},
         )
     ]
 
@@ -171,6 +180,7 @@ def test_sentence_conversion_ne_tags():
             head="",
             rel="",
             misc=False,
+            morph={},
         )
     ]
 
@@ -201,6 +211,7 @@ def test_sentence_conversion_contracted_adp():
             head="",
             rel="",
             misc=False,
+            morph={},
         )
     ]
 
@@ -231,6 +242,7 @@ def test_sentence_conversion_to_dbtoken_invalid_chars_removed():
             head="",
             rel="",
             misc=True,
+            morph={},
         )
     ]
 
@@ -381,6 +393,7 @@ def test_sentence_conversion_casing_with_multi_part_token():
             head="",
             rel="",
             misc=True,
+            morph={},
         )
     ]
 
@@ -435,6 +448,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             head="",
             rel="",
             misc=True,
+            morph={},
         ),
         WPToken(
             idx=2,
@@ -444,6 +458,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             head="",
             rel="",
             misc=True,
+            morph={},
         ),
         WPToken(
             idx=3,
@@ -453,6 +468,7 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
             head="",
             rel="",
             misc=True,
+            morph={},
         ),
     ]
 
@@ -1296,3 +1312,47 @@ def test_phrasal_verb_with_recht_as_particle_not_concatenated():
         pro.collapse_phrasal_verbs(sent)
     assert sentences[0][0].lemma == "haben"
     assert sentences[1][1].lemma == "geben"
+
+
+def test_morphological_features_parse_from_conll_token():
+    sentence = TokenList(
+        [
+            Token(
+                id=1,
+                form="am",
+                lemma="an",
+                upos="ADP",
+                xpos="",
+                feats={"AdpType": "Prep", "Case": "Dat"},
+                head=2,
+                deprel="case",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+            Token(
+                id=2,
+                form="Wochenende",
+                lemma="Wochenende",
+                upos="NOUN",
+                xpos="",
+                feats={"Gender": "Neut", "Number": "Sing"},
+                head=None,
+                deprel="ROOT",
+                deps=None,
+                misc={"SpaceAfter": "Yes"},
+            ),
+        ]
+    )
+    result = [tok.morph for tok in pro.convert_sentence(sentence)]
+    assert result == [
+        {"AdpType": "Prep", "Case": "Dat"},
+        {"Gender": "Neut", "Number": "Sing"},
+    ]
+
+
+def test_morphological_features_parse_from_conll_file(conll_sentences):
+    sentence = conll_sentences[2]
+    result = pro.convert_sentence(sentence)
+    assert result[0].morph is None
+    assert ("Case", "Nom") in result[2].morph.items()
+    assert ("Number", "Sing") in result[2].morph.items()

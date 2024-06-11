@@ -76,6 +76,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
             head=t.head,
             rel=t.rel,
             misc=t.misc,
+            morph=t.morph,
         )
 
     # this can *probably* be removed since spacy only returns "PROPN" anyway
@@ -107,6 +108,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
                     misc=token["misc"].get("SpaceAfter") == "No"
                     if token["misc"]
                     else False,
+                    morph=token.get("feats", None),
                 )
             )
             for token in sentence
