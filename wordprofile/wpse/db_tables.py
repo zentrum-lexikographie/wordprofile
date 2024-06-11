@@ -1,6 +1,7 @@
 import enum
 
 from sqlalchemy import Column, Enum, MetaData, Table, types
+from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Index
 
 from wordprofile.extract import get_relation_types, get_word_classes
@@ -36,6 +37,7 @@ def get_table_concord_sentences(meta: MetaData):
         Column("sentence_id", types.Integer),
         Column("sentence", types.Text),
         Column("page", types.VARCHAR(10)),
+        Column("random_val", types.Float, server_default=func.rand()),
         mysql_engine="Aria",
     )
 
@@ -84,6 +86,7 @@ def get_table_mwe(meta: MetaData):
         Column("label", Enum(RELATION_TYPE)),
         Column("lemma", LEMMA_TYPE),
         Column("lemma_tag", Enum(TAG_TYPE)),
+        Column("inv", types.Boolean, default=0),
         Column("frequency", types.Integer, default=1),
         Column("score", types.Float),
         mysql_engine="Aria",

@@ -105,10 +105,11 @@ class WPConnect:
 
         if use_context:
             query = """
-            SELECT
+            SELECT * FROM
+            (SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
                 cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1, s_left.sentence, s_right.sentence
+                s_center.page, cf.file, 1, s_left.sentence AS 'left' , s_right.sentence AS 'right'
             FROM
                 matches
             INNER JOIN collocations as c ON (matches.collocation_id = c.id)
@@ -129,15 +130,18 @@ class WPConnect:
                 c.lemma2 = %s AND
                 c.lemma2_tag = %s
             )
-            ORDER BY cf.date DESC
-            LIMIT %s,%s;
+            ORDER BY s_center.random_val
+            LIMIT %s,%s)
+            AS sample
+            ORDER BY date DESC;
             """
         else:
             query = """
-            SELECT
+            SELECT *, '', '' FROM
+            (SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
                 cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1, '', ''
+                s_center.page, cf.file, 1
             FROM
                 matches
             INNER JOIN collocations as c ON (matches.collocation_id = c.id)
@@ -152,8 +156,10 @@ class WPConnect:
                 c.lemma2 = %s AND
                 c.lemma2_tag = %s
             )
-            ORDER BY cf.date DESC
-            LIMIT %s,%s;
+            ORDER BY s_center.random_val
+            LIMIT %s,%s)
+            as sample
+            ORDER BY date DESC;
             """
         params = (
             coocc_info.rel,

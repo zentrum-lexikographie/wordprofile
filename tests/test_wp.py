@@ -1,14 +1,114 @@
 import datetime
 import unittest
 
-
 from wordprofile.datatypes import Concordance, Coocc, LemmaInfo
 from wordprofile.wp import Wordprofile
 
 
 class MockDb:
-    def __init__(self):
-        self.coocc = {
+    def __init__(self, db):
+        self.db = db
+        self.conc = {
+            11: [
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=1,
+                    token_position_2=2,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=5,
+                    token_position_2=6,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=7,
+                    token_position_2=10,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+            ]
+        }
+
+    def get_relation_by_id(self, coocc_id, is_mwe=False):
+        return self.db[coocc_id]
+
+    def get_lemma_and_pos(self, lemma, pos):
+        return [
+            LemmaInfo(
+                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
+            )
+            for item in self.db.values()
+            if item.lemma1 == lemma
+        ]
+
+    def get_relation_tuples_diff(self, lemma1, lemma2, lemma_tag, relation, *kwargs):
+        return [
+            item
+            for item in self.db.values()
+            if item.tag1 == lemma_tag
+            and item.lemma1 in {lemma1, lemma2}
+            and item.rel == relation
+        ]
+
+    def get_concordances(
+        self, coocc_id: int, use_context: bool = False, start_index=0, result_number=3
+    ) -> list[Concordance]:
+        concordances = self.conc.get(coocc_id, [])
+        return concordances[start_index : start_index + result_number]
+
+
+class MockMweDb(MockDb):
+    def get_relation_tuples(
+        self,
+        coocc_ids: list[int],
+        by_order: str = "log_dice",
+        min_freq: int = 0,
+        min_stat: float = -1000.0,
+    ):
+        mwe_cooccs = []
+        for coocc_id in coocc_ids:
+            mwe_cooccs.extend(self.db.get(coocc_id, []))
+        return mwe_cooccs
+
+
+class WordprofileTest(unittest.TestCase):
+    def setUp(self):
+        self.cooc_data = {
             -1: Coocc(
                 id=-1,
                 rel="SUBJA",
@@ -99,7 +199,112 @@ class MockDb:
                 has_mwe=1,
                 num_concords=8,
             ),
+            6: Coocc(
+                id=6,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="gemütlich",
+                form1="Sofa",
+                form2="gemütliche",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=20,
+                score=8,
+                inverse=0,
+                has_mwe=0,
+                num_concords=20,
+            ),
+            7: Coocc(
+                id=7,
+                rel="ATTR",
+                lemma1="Sessel",
+                lemma2="gemütlich",
+                form1="Sessel",
+                form2="gemütliche",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+            ),
+            8: Coocc(
+                id=8,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="plüschig",
+                form1="Sofa",
+                form2="plüschig",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=200,
+                score=1.7,
+                inverse=0,
+                has_mwe=0,
+                num_concords=200,
+            ),
+            9: Coocc(
+                id=9,
+                rel="ATTR",
+                lemma1="Sessel",
+                lemma2="plüschig",
+                form1="Sessel",
+                form2="plüschig",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7.6,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+            ),
             11: Coocc(
+                id=11,
+                rel="ATTR",
+                lemma1="Sofa",
+                lemma2="bequem",
+                form1="Sessel",
+                form2="bequem",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=7.6,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+            ),
+            10: Coocc(
+                id=10,
+                rel="ATTR",
+                lemma1="Arbeit",
+                lemma2="gemeinnützig",
+                form1="Arbeit",
+                form2="gemeinnützige",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=10,
+                score=10.0,
+                inverse=0,
+                has_mwe=1,
+                num_concords=10,
+            ),
+            14: Coocc(
+                id=141,
+                rel="ATTR",
+                lemma1="Grammatik",
+                lemma2="lateinisch",
+                form1="Grammatik",
+                form2="lateinischen",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=1,
+                score=13.41,
+                inverse=0,
+                has_mwe=1,
+                num_concords=1,
+            ),
+            15: Coocc(
                 id=11,
                 rel="",
                 lemma1="",
@@ -115,85 +320,76 @@ class MockDb:
                 num_concords=3,
             ),
         }
-        self.conc = {
-            11: [
-                Concordance(
-                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
-                    token_position_1=1,
-                    token_position_2=2,
-                    extra_position="0",
-                    corpus="corpus",
-                    date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
-                    orig="",
-                    avail="",
-                    page="",
-                    file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
+        self.mwe_data = {
+            10: [
+                Coocc(
+                    id=101,
+                    rel="SUBJP",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="aufbrummen",
+                    form1="Arbeit-gemeinnützige",
+                    form2="aufgebrummt",
+                    tag1="NOUN-ADJ",
+                    tag2="VERB",
+                    freq=1,
+                    score=12.67,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=1,
                 ),
-                Concordance(
-                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
-                    token_position_1=5,
-                    token_position_2=6,
-                    extra_position="0",
-                    corpus="corpus",
-                    date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
-                    orig="",
-                    avail="",
-                    page="",
-                    file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
+                Coocc(
+                    id=11,
+                    rel="KON",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="Meditation",
+                    form1="Arbeit-gemeinnützige",
+                    form2="Meditation",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=1,
+                    score=12.67,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
                 ),
-                Concordance(
-                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
-                    token_position_1=7,
-                    token_position_2=10,
-                    extra_position="0",
-                    corpus="corpus",
-                    date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
-                    orig="",
-                    avail="",
-                    page="",
-                    file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
+                Coocc(
+                    id=12,
+                    rel="PRED",
+                    lemma1="Arbeit-gemeinnützig",
+                    lemma2="sinnvoll",
+                    form1="Arbeit-gemeinnützige",
+                    form2="sinnvoller",
+                    tag1="NOUN-ADJ",
+                    tag2="ADJ",
+                    freq=1,
+                    score=12.0,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
                 ),
-            ]
+            ],
+            14: [
+                Coocc(
+                    id=141,
+                    rel="SUBJP",
+                    lemma1="Grammatik-lateinisch",
+                    lemma2="büffeln",
+                    form1="Grammatik-lateinischen",
+                    form2="büffeln",
+                    tag1="NOUN-ADJ",
+                    tag2="VERB",
+                    freq=1,
+                    score=13.41,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=1,
+                )
+            ],
         }
 
-    def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.coocc[coocc_id]
-
-    def get_lemma_and_pos(self, lemma, pos):
-        return [
-            LemmaInfo(
-                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
-            )
-            for item in self.coocc.values()
-            if item.lemma1 == lemma
-        ]
-
-    def get_concordances(
-        self, coocc_id: int, use_context: bool = False, start_index=0, result_number=3
-    ) -> list[Concordance]:
-        concordances = self.conc.get(coocc_id, [])
-        return concordances[start_index : start_index + result_number]
-
-
-class WordprofileTest(unittest.TestCase):
-    def setUp(self):
         self.wp = Wordprofile()
-        self.wp.db = MockDb()
+        self.wp.db = MockDb(self.cooc_data)
+        self.wp.db_mwe = MockMweDb(self.mwe_data)
 
     def test_invalid_lemma_raises_error(self):
         invalid_lemmata = ["test+", "string;", "select'", "dot,dot", "U_u\\", "other%"]
@@ -248,6 +444,87 @@ class WordprofileTest(unittest.TestCase):
             }
         ]
         self.assertEqual(result, expected)
+
+    def test_retrieval_of_relation_description_for_mwe_if_inverse(self):
+        mwe_data = self.wp.get_mwe_relations([14])["data"]
+        result = mwe_data["Grammatik-lateinisch"][0]["Description"]
+        self.assertEqual(result, "ist Passivsubjekt von")
+
+    def test_retrieval_of_relation_description_if_not_inverse(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]
+        result = mwe_data["Arbeit-gemeinnützig"][-1]["Description"]
+        self.assertEqual(result, "hat Prädikativ")
+
+    def test_relation_grouping(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]["Arbeit-gemeinnützig"]
+        result = [(group["Relation"], group["Description"]) for group in mwe_data]
+        expected = [
+            ("~SUBJP", "ist Passivsubjekt von"),
+            ("KON", "ist in Koordination mit"),
+            ("PRED", "hat Prädikativ"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_concatenation_of_rel_id(self):
+        mwe_data = self.wp.get_mwe_relations([10])["data"]["Arbeit-gemeinnützig"]
+        result = [group["RelId"] for group in mwe_data]
+        expected = [
+            ("Arbeit-gemeinnützig#NOUN-ADJ#~SUBJP"),
+            ("Arbeit-gemeinnützig#NOUN-ADJ#KON"),
+            ("Arbeit-gemeinnützig#NOUN-ADJ#PRED"),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_calculate_diff(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="adiff",
+            use_intersection=False,
+        )[0]["Tuples"]
+        expected = {
+            "Position": "center",
+            "Score": {
+                "AScomp": 1,
+                "Assoziation1": 8,
+                "Assoziation2": 7,
+                "Frequency1": 20,
+                "Frequency2": 10,
+                "Rank1": 0,
+                "Rank2": 1,
+            },
+        }
+        self.assertEqual(len(result), 3)
+        self.assertEqual(expected["Position"], result[1]["Position"])
+        self.assertEqual(expected["Score"], result[1]["Score"])
+
+    def test_calculate_diff_with_intersection(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="adiff",
+            use_intersection=True,
+        )[0]["Tuples"]
+        self.assertEqual(len(result), 2)
+
+    def test_retrieval_of_intersection(self):
+        result = self.wp.get_diff(
+            "Sofa",
+            "Sessel",
+            pos="Substantiv",
+            relations=["ATTR"],
+            operation="hmean",
+            use_intersection=True,
+        )[0]["Tuples"]
+        self.assertEqual(len(result), 2)
+        self.assertEqual(
+            [(col["Lemma"], round(col["Score"]["AScomp"], 1)) for col in result],
+            [("gemütlich", 7.5), ("plüschig", 2.8)],
+        )
 
     def test_retrieval_of_concordances_by_id(self):
         sents = self.wp.get_concordances_and_relation(11)

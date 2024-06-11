@@ -201,6 +201,7 @@ class Wordprofile:
 
         Args:
             coocc_ids: List of collocation ids.
+            relations (optional): List of relation labels to filter results.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
@@ -230,11 +231,12 @@ class Wordprofile:
         for coocc in self.db_mwe.get_relation_tuples(
             coocc_ids, order_by, min_freq, min_stat
         ):
-            if relations and coocc.rel not in relations:
+            relation_identifier = f"{'~' if coocc.inverse else ''}{coocc.rel}"
+            if relations and relation_identifier not in relations:
                 continue
             lemma1 = coocc.lemma1
             pos1 = coocc.tag1
-            grouped_relations[coocc.rel].append(coocc)
+            grouped_relations[relation_identifier].append(coocc)
         results = defaultdict(list)
         for relation, cooccs in grouped_relations.items():
             # TODO check origin of MWE duplicates
@@ -273,19 +275,31 @@ class Wordprofile:
         use_intersection: bool = False,
         nbest: int = 0,
     ) -> List[dict]:
-        """Fetches collocations of common POS from word-profile database and computes distances for comparison.
+        """
+        Compare word profiles for a pair of lemmas per relation.
+
+        Comparison is based on logDice score and computed w.r.t
+        difference or similarity/intersection of collocates for
+        lemma1 and lemma2.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            pos: Pos tag for both lemmas.
-            relations (optional): List of relation labels.
-            number (optional): Number of collocations to take.
-            order_by (optional): Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest.
+            lemma2: Second lemma of interest.
+            pos: POS tag for both lemmas.
+            relations (optional): List of relation labels to fetch
+                collocations from.
+            number (optional): Number of collocations for each lemma to
+                return per relation.
+            order_by (optional): Key for sorting collocations, 'frequency'
+                or 'log_dice'. Default is log_dice. Frontend also only
+                supports 'log_dice'.
             min_freq (optional): Filter collocations with minimal frequency.
             min_stat (optional): Filter collocations with minimal stats score.
-            operation (optional): Lemma distance metric.
-            use_intersection (optional): If set, only the intersection of both lemma is computed.
+            operation (optional): Metric used to compute score for ranking
+                collocations, 'adiff' (absolute difference) or 'hmean'
+                (harmonic mean). Default is 'adiff'.
+            use_intersection (optional): Consider only collocates that
+                occur with both lemmas. Default is 'False'.
             nbest (optional): Checks only the n highest scored lemmas.
         Return:
             List of collocation-diffs grouped by relation.
@@ -334,27 +348,35 @@ class Wordprofile:
         use_intersection: bool,
         operation: str,
     ) -> List[dict]:
-        """Compares two given word-profiles relation-wise.
+        """
+        Sort collocations of two lemmas by logDice score of shared collocate.
 
-        Comparison is based on a operation and is used to highlight either differences or similarities.
+        Comparison is based on either difference or intersection of
+        logDice scores for pairs of collocations.
+
         Difference:
-            1. calculate absolute difference (adiff) for all pairs: |s₁(K)-s₂(K)| for all K ∊ WP₁ ∪ WP₂
-            2. sort and choose nbest
-            3. calculate true difference (diff) for all pairs: s₁(K)-s₂(K) for all K ∊ WP₁ ∪ WP₂
+            1. calculate absolute difference (adiff) for all pairs:
+                |s₁(K)-s₂(K)| for all K ∊ WP₁ ∪ WP₂
+            2. sort and choose number
+            3. calculate true difference (diff) for all pairs:
+                s₁(K)-s₂(K) for all K ∊ WP₁ ∪ WP₂
             4. sort again
         Intersect:
-            1. compute max rank (rmax) for all pairs: max(r₁(K),r₂(K)) for all K ∊ WP₁ ∩ WP₂
-            2. sort and choose nbest
+            1. compute harmonic mean (hmean) for all pairs:
+                2 * s₁(K) * s₂(K) / s₁(K) + s₂(K) for all K ∊ WP₁ ∩ WP₂
+            2. sort and choose number
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            diffs: Lemma of interest, first collocate.
+            lemma1: First lemma of interest.
+            lemma2: Second lemma of interest.
+            diffs: List of cooccurrences (Coocc) for lemma1 or lemma2.
+            number: Number of collocations to return.
             nbest: Checks only the n highest scored lemmas.
-            use_intersection: If set, only the intersection of both lemma is computed.
-            operation: Lemma distance metric.
+            use_intersection: If set, only the intersection of both lemmas
+                is computed.
+            operation: Lemma distance metric (hmean or adiff).
         Return:
-            List of collocation-diffs grouped by relation.
+            Sorted list of collocation-diffs.
         """
         diffs_grouped = defaultdict(dict)
         lemma1_ctr = lemma2_ctr = 0
@@ -388,37 +410,25 @@ class Wordprofile:
             diffs_grouped = list(diffs_grouped.values())
         # compute score based on occurring cooccs
         for d in diffs_grouped:
-            if "coocc_1" in d and "coocc_2" in d:
-                d["score"] = self.__diff_operation(
-                    operation,
-                    d["coocc_1"].score,
-                    d["coocc_2"].score,
-                    d["rank_1"],
-                    d["rank_2"],
-                )
-            elif "coocc_1" in d:
-                d["score"] = self.__diff_operation(
-                    operation, d["coocc_1"].score, 0, d["rank_1"], 0
-                )
-            elif "coocc_2" in d:
-                d["score"] = self.__diff_operation(
-                    operation, 0, d["coocc_2"].score, 0, d["rank_2"]
-                )
+            coocc1 = d.get("coocc_1", None)
+            coocc2 = d.get("coocc_2", None)
+            d["score"] = self.__diff_operation(
+                operation,
+                coocc1.score if coocc1 is not None else 0,
+                coocc2.score if coocc2 is not None else 0,
+            )
         # final sort and cut after nbest cooccs
-        if operation in ["adiff", "ardiff"]:
+        if operation == "adiff":
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
             diffs_grouped = diffs_grouped[:number]
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
-        elif operation == "rmax":
-            diffs_grouped.sort(key=lambda x: x["score"])
-            diffs_grouped = diffs_grouped[:number]
         else:
             diffs_grouped.sort(key=lambda x: x["score"], reverse=True)
             diffs_grouped = diffs_grouped[:number]
         return diffs_grouped
 
     def __diff_operation(
-        self, operation: str, s1: float, s2: float, r1: int, r2: int
+        self, operation: str, s1: float, s2: float
     ) -> Union[int, float]:
         """Calculates the score difference.
 
@@ -426,22 +436,14 @@ class Wordprofile:
             operation: Metric operation.
             s1: Score of first lemma.
             s2: Score of second lemma.
-            r1: Rank of first lemma.
-            r2: Rank of second lemma.
 
         Returns:
-            Distance of either scores or ranks, depending on the operation.
+            Distance or harmonic mean of scores depending on operation.
         """
-        if operation == "diff":
+        if operation == "adiff":
             score = s1 - s2
-        elif operation == "adiff":
-            score = s1 - s2
-        elif operation == "max":
-            score = max(s1, s2)
-        elif operation == "rmax":
-            score = max(r1, r2)
-        elif operation == "avg":
-            score = (s1 + s2) / 2
+        elif operation == "hmean":
+            score = 2 * (s1 * s2) / (s1 + s2)
         else:
             raise ValueError("Unknown operation")
         return score

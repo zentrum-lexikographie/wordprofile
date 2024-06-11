@@ -56,6 +56,8 @@ def create_indices(connection: Connection):
             "ON concord_sentences (corpus_file_id, sentence_id);"
         )
     )
+    logger.info("CREATE INDEX rand_val")
+    connection.execute(text("CREATE INDEX rand_val on concord_sentences (random_val)"))
     logger.info("CREATE INDEX matches_index")
     connection.execute(text("CREATE UNIQUE INDEX matches_index ON matches (id);"))
     logger.info("CREATE INDEX matches_corpus_index")
