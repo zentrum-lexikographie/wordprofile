@@ -294,89 +294,13 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     Returns:
         Generator over extracted matches from sentence.
     """
-    determiners = {
-        "aller",
-        "alles",
-        "beider",
-        "Deinen",
-        "deiner",
-        "Deiner",
-        "deines",
-        "Deines",
-        "der",
-        "des",
-        "dieser",
-        "dieses",
-        "dreier",
-        "ebender",
-        "ebendes",
-        "ebendieser",
-        "ebendieses",
-        "ebenjener",
-        "ebenjenes",
-        "ebensolcher",
-        "ebensolches",
-        "einer",
-        "eines",
-        "einiger",
-        "einiges",
-        "etlicher",
-        "etliches",
-        "euerer",
-        "Euerer",
-        "eueres",
-        "Eueres",
-        "euers",
-        "Euers",
-        "eurer",
-        "Eurer",
-        "eures",
-        "Eures",
-        "ihrer",
-        "Ihrer",
-        "ihres",
-        "Ihres",
-        "irgendeiner",
-        "irgendeines",
-        "irgendwelcher",
-        "irgendwelches",
-        "jeder",
-        "jedes",
-        "jedweder",
-        "jedwedes",
-        "jeglicher",
-        "jegliches",
-        "jener",
-        "jenes",
-        "keiner",
-        "keines",
-        "mancher",
-        "manches",
-        "mehrerer",
-        "meiner",
-        "meines",
-        "’ner",
-        "’nes",
-        "sämtlicher",
-        "sämtliches",
-        "seiner",
-        "seines",
-        "solcher",
-        "solches",
-        "unserer",
-        "unseres",
-        "unsers",
-        "unsrer",
-        "unsres",
-        "welcher",
-        "welches",
-        "zweier",
-    }
     for n in dtree.nodes:
         if n.token.tag == "NOUN":
             for nmod in n.children:
                 if nmod.token.rel == "nmod" and nmod.token.tag == "NOUN":
-                    if any(det.token.surface in determiners for det in nmod.children):
+                    if _has_case_marking(nmod.token, "Gen") or any(
+                        _has_case_marking(dep.token, "Gen") for dep in nmod.children
+                    ):
                         if any(c.token.rel == "case" for c in nmod.children):
                             continue
                         yield Match(
@@ -386,6 +310,12 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             "GMOD",
                             sid,
                         )
+
+
+def _has_case_marking(token: WPToken, case: str) -> bool:
+    if token.morph is None:
+        return False
+    return ("Case", "Gen") in token.morph.items()
 
 
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
