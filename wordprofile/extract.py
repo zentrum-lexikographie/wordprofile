@@ -41,8 +41,8 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         ],
     },
     "OBJ": {
-        "desc": "hat Akkusativ/Dativ-Objekt",
-        "inverse": "ist Akkusativ/Dativ-Objekt von",
+        "desc": "hat Akkusativ-Objekt",
+        "inverse": "ist Akkusativ-Objekt von",
         "rules": [
             ("iobj", "verb", "noun"),
         ],
