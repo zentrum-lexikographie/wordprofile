@@ -47,6 +47,11 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
             ("iobj", "verb", "noun"),
         ],
     },
+    "OBJO": {
+        "desc": "hat Dativ-/Genitiv-Objekt",
+        "inverse": "ist Dativ-/Genitiv-Objekt von",
+        "rules": [],
+    },
     "PP": {
         "desc": "hat Präpositionalgruppe",
         "inverse": "ist in Präpositionalgruppe",
