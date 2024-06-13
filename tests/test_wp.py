@@ -305,17 +305,17 @@ class WordprofileTest(unittest.TestCase):
                 num_concords=1,
             ),
             15: Coocc(
-                id=11,
-                rel="",
-                lemma1="",
-                lemma2="",
-                form1="",
-                form2="",
+                id=15,
+                rel="OBJO",
+                lemma1="gedenken",
+                lemma2="Heldin",
+                form1="gedenken",
+                form2="Heldinnen",
                 tag1="",
                 tag2="",
                 freq=1,
                 score=0.5,
-                inverse=1,
+                inverse=0,
                 has_mwe=0,
                 num_concords=3,
             ),
@@ -534,4 +534,9 @@ class WordprofileTest(unittest.TestCase):
             "Vor allem die, _&die&_ _&beiden&_ immer besonders wichtig waren.",
             "Vor allem die, die beiden _&immer&_ besonders wichtig _&waren&_.",
         }
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_objo_relation_description(self):
+        result = self.wp.get_relation_by_info_id(15)["Description"]
+        expected = "gedenken hat Dativ-/Genitiv-Objekt Heldin"
         self.assertEqual(result, expected)
