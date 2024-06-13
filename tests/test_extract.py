@@ -2530,3 +2530,46 @@ def test_verb_modifying_obl_not_extracted_as_object():
     ]
     result = list(ex.extract_objects(DependencyTree(sentence), 1))
     assert len(result) == 0
+
+
+def test_non_nouns_not_extracted_as_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="gibt",
+            lemma="geben",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="es",
+            lemma="es",
+            tag="PRON",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="ihr",
+            lemma="ihr",
+            tag="PRON",
+            head=2,
+            rel="obl:arg",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 0

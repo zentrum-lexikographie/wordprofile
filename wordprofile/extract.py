@@ -364,7 +364,7 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     for node in dtree.nodes:
         if node.token.tag == "VERB":
             for child in node.children:
-                if child.token.rel in {"obj", "obl:arg"}:
+                if child.token.rel in {"obj", "obl:arg"} and child.token.tag == "NOUN":
                     if any(dep.token.rel == "case" for dep in child.children):
                         continue
                     if child.token.rel == "obj":
