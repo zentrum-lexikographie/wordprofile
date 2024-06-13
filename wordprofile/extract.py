@@ -315,7 +315,7 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 def _has_case_marking(token: WPToken, case: str) -> bool:
     if token.morph is None:
         return False
-    return ("Case", "Gen") in token.morph.items()
+    return ("Case", case) in token.morph.items()
 
 
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
