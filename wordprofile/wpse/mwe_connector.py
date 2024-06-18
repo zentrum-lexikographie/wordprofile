@@ -190,11 +190,11 @@ class WPMweConnect:
             mwe.collocation1_id IN ({})
             AND mwe.frequency >= %s
             AND mwe.score >= %s
-        ORDER BY {} DESC;
+        ORDER BY %s DESC;
         """.format(
-            ",".join("%s" for _ in coocc_ids), order_by
+            ",".join("%s" for _ in coocc_ids),
         )
-        params = coocc_ids + [min_freq, min_stat]
+        params = coocc_ids + [min_freq, min_stat, order_by]
         return [
             Coocc(
                 id=i[0],
