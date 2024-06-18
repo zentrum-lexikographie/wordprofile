@@ -214,32 +214,24 @@ class WPMweConnect:
             for i in self.__fetchall(sql, params)
         ]
 
-    def get_collocations(self, lemma1: str, lemma2: str) -> List[Coocc]:
-        """Fetches collocations with related statistics for a specific relation from database backend.
+    def get_collocations(self, lemma1: str, lemma2: str) -> List[int]:
+        """
+        Fetches collocation ids for a pair of lemmas if they are MWE.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
+            lemma1: First collocate.
             lemma2: Second collocate.
 
         Return:
-            List of Coocc.
+            List of collocation ids.
         """
         query = """
             SELECT
-                c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-                IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-                IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe), 1, 0) as has_mwe,
-                (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords
+                c.id
             FROM
                 collocations c
-            JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
-            JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
             WHERE
-                lemma1 = %s AND lemma2 = %s;"""
+                lemma1 = %s AND lemma2 = %s
+                AND c.id in (SELECT collocation1_id from mwe);"""
         params = (lemma1, lemma2)
-        return list(
-            filter(
-                lambda c: c.has_mwe == 1,
-                map(lambda i: Coocc(*i), self.__fetchall(query, params)),
-            )
-        )
+        return list(*self.__fetchall(query, params))
