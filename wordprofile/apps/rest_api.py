@@ -107,7 +107,7 @@ def get_lemma_and_pos_by_list(parts: List[str]):
 
 @app.get("/api/v1/list/mwe", tags=["list"])
 def get_mwe_relations_by_list(
-    parts: List[str],
+    parts: List[str] = Query([]),
     relations: List[str] = Query([]),
     start: int = 0,
     number: int = 20,
