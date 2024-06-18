@@ -235,4 +235,4 @@ class WPMweConnect:
                 lemma1 = %s AND lemma2 = %s
                 AND c.id in (SELECT collocation1_id FROM mwe);"""
         params = (lemma1, lemma2)
-        return list(*self.__fetchall(query, params))
+        return list(self.__fetchall(query, params))
