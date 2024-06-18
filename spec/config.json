@@ -156,7 +156,8 @@
       "PP",
       "~GMOD",
       "~PRED",
-      "~KOM"
+      "~KOM",
+      "~SUBJP"
     ]
   }
 }
