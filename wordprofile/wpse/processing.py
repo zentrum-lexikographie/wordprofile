@@ -391,6 +391,7 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
             "SUBJA",
             "SUBJP",
             "OBJ",
+            "OBJO",
             "OBJA",
             "OBJD",
             "PRED",

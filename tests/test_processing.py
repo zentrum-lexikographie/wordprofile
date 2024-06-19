@@ -1356,3 +1356,18 @@ def test_morphological_features_parse_from_conll_file(conll_sentences):
     assert result[0].morph is None
     assert ("Case", "Nom") in result[2].morph.items()
     assert ("Number", "Sing") in result[2].morph.items()
+
+
+def test_inverse_of_objo_written_to_file():
+    collocations = {
+        1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", 0, 10.0),
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations)
+        with open(file) as fp:
+            result = [line.split() for line in fp.readlines()]
+    assert result == [
+        ["1", "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "0", "10.0", "14.0"],
+        ["-1", "OBJO", "Betrug", "beschuldigen", "NOUN", "VERB", "1", "10.0", "14.0"],
+    ]
