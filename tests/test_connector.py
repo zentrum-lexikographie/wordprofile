@@ -196,3 +196,15 @@ class WPMweConnectTest(unittest.TestCase):
             )
         ]
         self.assertEqual(result, expected)
+
+    def test_retrieve_collocation_id_via_lemmata(self):
+        result = self.connector.get_collocations("nehmen", "Polizei")
+        self.assertEqual(result, [(2373301,)])
+
+    def test_retrieve_collocation_id_via_lemmata_inverse(self):
+        result = self.connector.get_collocations("Polizei", "nehmen")
+        self.assertEqual(result, [(-2373301,)])
+
+    def test_retrieval_of_collocation_id_for_non_mwe_collocation(self):
+        result = self.connector.get_collocations("Neun", "falsch")
+        self.assertEqual(result, [])
