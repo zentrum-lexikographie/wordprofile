@@ -215,7 +215,7 @@ class WPMweConnect:
             for i in self.__fetchall(sql, params)
         ]
 
-    def get_collocations(self, lemma1: str, lemma2: str) -> List[int]:
+    def get_collocations(self, lemma1: str, lemma2: str) -> List[tuple[int]]:
         """
         Fetches collocation ids for a pair of lemmas if they are MWE.
 
