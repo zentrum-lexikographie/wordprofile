@@ -387,13 +387,10 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
 
     with open(fout, "w") as f_out:
         inv_relations = {
-            "SUBJ",
             "SUBJA",
             "SUBJP",
             "OBJ",
             "OBJO",
-            "OBJA",
-            "OBJD",
             "PRED",
             "ADV",
             "ATTR",
