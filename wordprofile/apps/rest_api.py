@@ -105,39 +105,6 @@ def get_lemma_and_pos_by_list(parts: List[str]):
     return parts
 
 
-@app.get("/api/v1/list/mwe", tags=["list"])
-def get_mwe_relations_by_list(
-    parts: List[str] = Query([]),
-    relations: List[str] = Query([]),
-    start: int = 0,
-    number: int = 20,
-    order_by: str = "logDice",
-    min_freq: int = 0,
-    min_stat: float = -1000.0,
-):
-    """Fetches mwe entries for a given list of lemmas.
-
-    Args:
-        parts (optional): List of lemmas.
-        relations (optional): List of relation labels.
-        start (optional): Number of collocations to skip.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log_dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
-
-    Return:
-        Dictionary of mwe relations for specific collocation parts.
-            <parts>: List of Lemma-POS pairs
-            <data>: Relations specifically for parts of the input.
-    """
-    order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
-    coocc_ids = wp.get_collocation_ids(parts[0], parts[1])
-    return wp.get_mwe_relations(
-        coocc_ids, relations, start, number, order_by, min_freq, min_stat
-    )
-
-
 @app.get("/api/v1/profile", tags=["wp"])
 async def get_relations(
     lemma1: str,
@@ -304,7 +271,9 @@ async def get_intersection(
 
 @app.get("/api/v1/mwe/profile", tags=["mwe"])
 def get_mwe_relations(
-    coocc_id: int,
+    coocc_id: int = None,
+    lemma1: str = "",
+    lemma2: str = "",
     relations: List[str] = Query([]),
     start: int = 0,
     number: int = 20,
@@ -312,10 +281,18 @@ def get_mwe_relations(
     min_freq: int = 0,
     min_stat: float = -1000.0,
 ):
-    """Get collocation information and concordances for a specified MWE collocation id.
+    """Get collocations for MWE.
+
+    For retrieval, either the collocation id can be used or two lemmata
+    can be passed as strings.
+    The coocc_id parameter has priority over the string search, so if both
+    coocc_id and lemma1/lemma2 are passed, only coocc_id will be used for the
+    query.
 
     Args:
-        coocc_id: MWE collocation id.
+        coocc_id (optional): MWE's collocation id.
+        lemma1 (optional): First lemma of MWE
+        lemma2 (optional): Second lemma of MWE
         relations (optional): List of relation labels.
         start (optional): Collocation id.
         number (optional): Number of collocations to take.
@@ -324,11 +301,16 @@ def get_mwe_relations(
         min_stat (optional): Filter collocations with minimal stats score.
 
     Returns:
-        Dictionary with mwe relations for specific collocation id.
+        Dictionary with mwe relations for specific collocation id or pair
+        of lemmata.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
+    if coocc_id is None:
+        coocc_ids = wp.get_collocation_ids(lemma1, lemma2)
+    else:
+        coocc_ids = [coocc_id]
     return wp.get_mwe_relations(
-        [coocc_id], relations, start, number, order_by, min_freq, min_stat
+        coocc_ids, relations, start, number, order_by, min_freq, min_stat
     )
 
 
