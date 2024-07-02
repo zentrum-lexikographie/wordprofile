@@ -135,7 +135,6 @@
       "OBJ",
       "PP",
       "KON",
-      "SUBJ",
       "SUBJA",
       "PRED",
       "VZ",
@@ -151,12 +150,12 @@
       "KON",
       "PRED",
       "KOM",
-      "~SUBJ",
       "~SUBJA",
       "PP",
       "~GMOD",
       "~PRED",
-      "~KOM"
+      "~KOM",
+      "~SUBJP"
     ]
   }
 }
