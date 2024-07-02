@@ -55,6 +55,14 @@ class MockMweDb(MockDb):
             mwe_cooccs.extend(self.db.get(coocc_id, []))
         return mwe_cooccs
 
+    def get_collocations(self, lemma1, lemma2):
+        result = set()
+        for col_id, collocations in self.db.items():
+            for col in collocations:
+                if col.lemma1 == "-".join([lemma1, lemma2]):
+                    result.add((col_id,))
+        return list(result)
+
 
 class WordprofileTest(unittest.TestCase):
     def setUp(self):
@@ -320,6 +328,23 @@ class WordprofileTest(unittest.TestCase):
                     num_concords=1,
                 )
             ],
+            -10: [
+                Coocc(
+                    id=101,
+                    rel="SUBJP",
+                    lemma1="gemeinnützig-Arbeit",
+                    lemma2="aufbrummen",
+                    form1="gemeinnützige-Arbeit",
+                    form2="aufgebrummt",
+                    tag1="NOUN-ADJ",
+                    tag2="VERB",
+                    freq=1,
+                    score=12.67,
+                    inverse=0,
+                    has_mwe=0,
+                    num_concords=1,
+                ),
+            ],
         }
         self.wp = Wordprofile()
         self.wp.db = MockDb(self.cooc_data)
@@ -459,3 +484,15 @@ class WordprofileTest(unittest.TestCase):
             [(col["Lemma"], round(col["Score"]["AScomp"], 1)) for col in result],
             [("gemütlich", 7.5), ("plüschig", 2.8)],
         )
+
+    def test_retrieval_of_collocation_ids_for_mwe_candidates(self):
+        result = self.wp.get_collocation_ids("Arbeit", "gemeinnützig")
+        self.assertEqual(result, [10])
+
+    def test_retrieval_of_collocation_ids_for_mwe_candidates_with_inverse(self):
+        result = self.wp.get_collocation_ids("gemeinnützig", "Arbeit")
+        self.assertEqual(result, [10])
+
+    def test_retrieval_of_collocation_ids_for_mwe_candidates_no_mwe(self):
+        result = self.wp.get_collocation_ids("Neun", "falsch")
+        self.assertEqual(result, [])
