@@ -91,15 +91,15 @@ async def get_lemma(lemma: str, pos: str = ""):
 
 @app.get("/api/v1/cmp/tags", tags=["cmp"])
 async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool = True):
-    """Get lemma pairs with common pos tags from word-profile.
+    """Get lemma pairs with common POS tags from wordprofile.
 
     Args:
-        lemma1: Lemma of interest.
-        lemma2: Lemma for comparison.
-        use_variations (deprecated): Whether to use variations for either lemmas if not found in database.
+    - lemma1: Lemma of interest.
+    - lemma2: Lemma for comparison.
+    - use_variations (deprecated): Whether to use variations for either lemmas if not found in database.
 
     Returns:
-        List of lemma1–lemma2 combinations with additional information such as frequency and relation.
+    - List of lemma1–lemma2 combinations with additional information such as frequency and relation.
     """
 
     return wp.get_lemma_and_pos_diff(lemma1, lemma2)
