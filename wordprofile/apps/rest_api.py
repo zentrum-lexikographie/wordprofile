@@ -99,12 +99,6 @@ async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool 
     return wp.get_lemma_and_pos_diff(lemma1, lemma2)
 
 
-@app.get("/api/v1/list/tags", tags=["list"])
-def get_lemma_and_pos_by_list(parts: List[str]):
-    """For compatibility to old WP. Just pipes input to output."""
-    return parts
-
-
 @app.get("/api/v1/profile", tags=["wp"])
 async def get_relations(
     lemma1: str,
