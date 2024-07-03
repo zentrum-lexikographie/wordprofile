@@ -64,7 +64,14 @@ async def status():
 
 @app.get("/api/v1/meta", tags=["info"])
 async def meta():
-    """Ask wordprofile for meta information such as table statistics."""
+    """
+    Return meta information about wordprofile data(base).
+
+    Information contains:
+    - database table names, creation and update dates
+    - frequencies for POS tags and relation labels
+    - document count and time span of subcorpora
+    """
     return wp.get_info_stats()
 
 
