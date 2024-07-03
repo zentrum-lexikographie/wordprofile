@@ -76,16 +76,15 @@ async def meta():
 
 
 @app.get("/api/v1/tags", tags=["wp"])
-async def get_lemma(lemma: str, pos: str = "", use_external_variations: bool = True):
-    """Gets lemma information from word-profile.
+async def get_lemma(lemma: str, pos: str = ""):
+    """Gets lemma information from wordprofile.
 
     Args:
-        lemma: Lemma of interest.
-        pos: Pos tag of first lemma.
-        use_external_variations (deprecated): Whether to use variations for either lemmas if not found in database.
+    - lemma: Lemma of interest.
+    - pos: POS tag of lemma.
 
     Returns:
-        List of lemma-pos combinations with stats and possible relations.
+    - List of lemma-POS combinations with stats and possible relations.
     """
     return wp.get_lemma_and_pos(lemma, pos)
 
