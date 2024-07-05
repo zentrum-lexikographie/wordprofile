@@ -81,7 +81,7 @@ async def get_lemma(lemma: str, pos: str = ""):
 
     Args:
     - lemma: Lemma of interest.
-    - pos: POS tag of lemma.
+    - pos (optional): POS tag of lemma. Default is empty string.
 
     Returns:
     - List of lemma-POS combinations with stats and possible relations.
@@ -120,12 +120,16 @@ async def get_relations(
     Args:
     - lemma1: Lemma of interest.
     - pos1: POS tag of lemma.
-    - relations (optional): List of relation labels.
-    - start (optional): Number of collocations to skip.
-    - number (optional): Number of collocations to take.
-    - order_by (optional): Metric for ordering, frequency or log_dice.
+    - relations (optional): List of relation labels. If no relation labels are
+        specified, all available relations for the lemma are evaluated.
+    - start (optional): Number of collocations to skip. Default is 0.
+    - number (optional): Number of collocations to take. Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
     - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
     - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
 
     Return:
     - List of selected collocations grouped by relation.
