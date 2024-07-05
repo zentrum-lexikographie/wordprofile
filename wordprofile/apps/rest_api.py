@@ -115,20 +115,20 @@ async def get_relations(
     min_freq: int = 0,
     min_stat: float = -1000.0,
 ):
-    """Get collocations from word-profile.
+    """Get collocations from wordprofile.
 
     Args:
-        lemma1: Lemma of interest, first collocate.
-        pos1: Pos tag of first lemma.
-        relations (optional): List of relation labels.
-        start (optional): Number of collocations to skip.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
+    - lemma1: Lemma of interest.
+    - pos1: POS tag of lemma.
+    - relations (optional): List of relation labels.
+    - start (optional): Number of collocations to skip.
+    - number (optional): Number of collocations to take.
+    - order_by (optional): Metric for ordering, frequency or log_dice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+    - min_stat (optional): Filter collocations with minimal stats score.
 
     Return:
-        List of selected collocations grouped by relation.
+    - List of selected collocations grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
