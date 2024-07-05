@@ -108,8 +108,6 @@ async def get_lemma_and_pos_diff(lemma1: str, lemma2: str):
 async def get_relations(
     lemma1: str,
     pos1: str,
-    lemma2: str = "",
-    pos2: str = "",
     relations: List[str] = Query([]),
     start: int = 0,
     number: int = 20,
@@ -122,8 +120,6 @@ async def get_relations(
     Args:
         lemma1: Lemma of interest, first collocate.
         pos1: Pos tag of first lemma.
-        lemma2 (deprecated): Second collocate.
-        pos2 (deprecated): Pos tag of second lemma.
         relations (optional): List of relation labels.
         start (optional): Number of collocations to skip.
         number (optional): Number of collocations to take.
@@ -140,8 +136,6 @@ async def get_relations(
     return wp.get_relations(
         lemma1,
         pos1,
-        lemma2,
-        pos2,
         relations,
         start,
         number,
