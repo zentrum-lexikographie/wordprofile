@@ -155,13 +155,14 @@ async def get_concordances_and_relation(
     """Get collocation information and concordances for a specified collocation id.
 
     Args:
-        coocc_id: Collocation id.
-        use_context (optional): If true, returns surrounding sentences for matched collocation.
-        start_index (optional): Collocation id.
-        result_number (optional): Collocation id.
+    - coocc_id: Collocation id.
+    - use_context (optional): If true, returns preceeding and following sentences
+        for concordances. Defaults to False.
+    - start_index (optional): Number of concordances to skip. Default is 0.
+    - result_number (optional): Number of concordances to return. Default is 20.
 
     Returns:
-        Dictionary with collocation information and their concordances.
+    - Dictionary with collocation information and their concordances.
     """
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number
