@@ -179,13 +179,17 @@ class Wordprofile:
             lemma2: Second lemma of collocation.
 
         Return:
-            Absolute collocation ids.
+            List of absolute collocation ids.
         """
         for lemma in [lemma1, lemma2]:
             if lemma and not RE_LEMMA.fullmatch(lemma):
                 raise ValueError(f"Request for invalid lemma: ({lemma})")
 
-        return [abs(c.id) for c in self.db_mwe.get_collocations(lemma1, lemma2)]
+        return [
+            abs(c[0])
+            for c in self.db_mwe.get_collocations(lemma1, lemma2)
+            if len(c) == 1
+        ]
 
     def get_mwe_relations(
         self,
