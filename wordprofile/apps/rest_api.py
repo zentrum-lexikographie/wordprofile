@@ -234,7 +234,6 @@ async def get_intersection(
     order_by: str = "logDice",
     min_freq: int = 0,
     min_stat: float = -1000.0,
-    nbest: int = 0,
 ):
     """Redirection for get_diff that sets parameters for intersection computation.
 
@@ -265,7 +264,6 @@ async def get_intersection(
         min_stat,
         operation="hmean",
         use_intersection=True,
-        nbest=nbest,
     )
 
 
