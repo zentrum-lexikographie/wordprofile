@@ -183,9 +183,6 @@ async def get_diff(
     order_by: str = "logDice",
     min_freq: int = 0,
     min_stat: float = -1000.0,
-    operation: str = "adiff",
-    use_intersection: bool = False,
-    nbest: int = 0,
 ):
     """Get collocations of common POS from word-profile database and computes distances for comparison.
 
@@ -198,9 +195,6 @@ async def get_diff(
         order_by (optional): Metric for ordering, frequency or log-dice.
         min_freq (optional): Filter collocations with minimal frequency.
         min_stat (optional): Filter collocations with minimal stats score.
-        operation (optional): Lemma distance metric.
-        use_intersection (optional): If set, only the intersection of both lemma is computed.
-        nbest (optional): Checks only the n highest scored lemmas.
     Return:
         List of collocation-diffs grouped by relation.
     """
@@ -216,9 +210,8 @@ async def get_diff(
         order_by,
         min_freq,
         min_stat,
-        operation,
-        use_intersection,
-        nbest,
+        operation="adiff",
+        use_intersection=False,
     )
 
 
