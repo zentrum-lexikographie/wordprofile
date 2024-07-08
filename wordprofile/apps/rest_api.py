@@ -281,7 +281,6 @@ def get_mwe_relations(
     lemma1: str = "",
     lemma2: str = "",
     relations: List[str] = Query([]),
-    start: int = 0,
     number: int = 20,
     order_by: str = "logDice",
     min_freq: int = 0,
@@ -301,7 +300,6 @@ def get_mwe_relations(
     - lemma2 (optional): Second lemma of MWE.
     - relations (optional): List of relation labels. If no relation labels
         are specified, all available relations for the mwe are evaluated.
-    - start (optional): Number of collocations to skip. Default is 0.
     - number (optional): Number of collocations to return per relation.
         Default is 20.
     - order_by (optional): Metric for ordering, frequency or logDice.
@@ -321,7 +319,7 @@ def get_mwe_relations(
     else:
         coocc_ids = [coocc_id]
     return wp.get_mwe_relations(
-        coocc_ids, relations, start, number, order_by, min_freq, min_stat
+        coocc_ids, relations, number, order_by, min_freq, min_stat
     )
 
 

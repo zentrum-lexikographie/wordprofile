@@ -192,7 +192,6 @@ class Wordprofile:
         self,
         coocc_ids: List[int],
         relations: List[str] = (),
-        start: int = 0,
         number: int = 20,
         order_by: str = "log_dice",
         min_freq: int = 0,
@@ -203,7 +202,6 @@ class Wordprofile:
         Args:
             coocc_ids: List of collocation ids.
             relations (optional): List of relation labels to filter results.
-            start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
             min_freq (optional): Filter collocations with minimal frequency.
