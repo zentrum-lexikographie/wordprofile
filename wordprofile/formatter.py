@@ -146,8 +146,8 @@ def format_comparison(diffs):
         # create result with common/default values
         coocc_diff = {
             "POS": tag_b2f[diff["pos"]],
-            "ConcordId1": 0,
-            "ConcordId2": 0,
+            "ConcordId1": None,
+            "ConcordId2": None,
             "ConcordNo1": 0,
             "ConcordNo2": 0,
             "ConcordNoAccessible1": 0,
