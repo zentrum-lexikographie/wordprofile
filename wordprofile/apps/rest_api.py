@@ -296,18 +296,23 @@ def get_mwe_relations(
     query.
 
     Args:
-        coocc_id (optional): MWE's collocation id.
-        lemma1 (optional): First lemma of MWE
-        lemma2 (optional): Second lemma of MWE
-        relations (optional): List of relation labels.
-        start (optional): Collocation id.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
+    - coocc_id (optional): MWE's collocation id.
+    - lemma1 (optional): First lemma of MWE.
+    - lemma2 (optional): Second lemma of MWE.
+    - relations (optional): List of relation labels. If no relation labels
+        are specified, all available relations for the mwe are evaluated.
+    - start (optional): Number of collocations to skip. Default is 0.
+    - number (optional): Number of collocations to return per relation.
+        Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
 
     Returns:
-        Dictionary with mwe relations for specific collocation id or pair
+    - Dictionary with mwe relations for specific collocation id or pair
         of lemmata.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
@@ -327,16 +332,20 @@ def get_mwe_concordances_and_relation(
     start_index: int = 0,
     result_number: int = 20,
 ):
-    """Get mwe collocation information and concordances for a specified collocation id.
+    """
+    Get MWE collocation information and concordances for a specified
+    collocation id.
 
     Args:
-        coocc_id: Collocation id.
-        use_context (optional): If true, returns surrounding sentences for matched collocation.
-        start_index (optional): Collocation id.
-        result_number (optional): Collocation id.
+    - coocc_id: Collocation id of MWE.
+    - use_context (optional): If true, the preceeding and following sentence
+        of each concordance are also returned. Default is False.
+    - start_index (optional): Number of concordances to skip. Default is 0.
+    - result_number (optional): Number of concordances to return.
+        Default is 20.
 
     Returns:
-        Dictionary with collocation information and their concordances.
+    - Dictionary with collocation information and their concordances.
     """
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number, is_mwe=True
