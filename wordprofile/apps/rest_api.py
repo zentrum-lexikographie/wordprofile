@@ -46,7 +46,10 @@ logger = configure_logger(logging.getLogger("wordprofile"), logging.INFO)
 wp = Wordprofile(
     args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec
 )
-app = FastAPI()
+app = FastAPI(
+    title="Wordprofile API",
+    description="Wordprofile API allows retrieval of collocations and their concordances from Wortprofil database.",
+)
 app.mount("/static", StaticFiles(directory="wordprofile/apps/static"), name="static")
 templates = Jinja2Templates(directory="wordprofile/apps/static")
 
