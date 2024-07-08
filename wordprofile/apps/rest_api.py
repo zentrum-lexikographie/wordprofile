@@ -184,19 +184,28 @@ async def get_diff(
     min_freq: int = 0,
     min_stat: float = -1000.0,
 ):
-    """Get collocations of common POS from word-profile database and computes distances for comparison.
+    """
+    Get collocations for two lemmas with common POS from wordprofile
+    database and compute distances for comparison. Distance is calculated
+    as difference of logDice scores.
 
     Args:
-        lemma1: Lemma of interest, first collocate.
-        lemma2: Second collocate.
-        pos: Pos tag for both lemmas.
-        relations (optional): List of relation labels.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
+    - lemma1: Lemma of interest.
+    - lemma2: Comparison lemma.
+    - pos: POS tag for both lemmas.
+    - relations (optional): List of relation labels. If no relation labels
+        are specified, all available relations for the lemma are evaluated.
+    - number (optional): Number of collocations to return per relation.
+        Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
+
     Return:
-        List of collocation-diffs grouped by relation.
+    - List of collocation-diffs grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
