@@ -696,7 +696,8 @@ def test_double_object_without_prep_acc_and_dative():
                 lemma="d",
                 tag="DET",
                 head=4,
-                rel="des",
+                rel="det",
+                morph={"Case": "Acc"},
                 misc=True,
             ),
             WPToken(
@@ -709,7 +710,14 @@ def test_double_object_without_prep_acc_and_dative():
                 misc=True,
             ),
             WPToken(
-                idx=5, surface="der", lemma="d", tag="DET", head=6, rel="det", misc=True
+                idx=5,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=6,
+                rel="det",
+                morph={"Case": "Dat"},
+                misc=True,
             ),
             WPToken(
                 idx=6,
@@ -765,6 +773,7 @@ def test_double_object_without_prep_acc_and_dative():
                 tag="NOUN",
                 head=3,
                 rel="obl:arg",
+                morph={"Case": "Dat"},
                 misc=True,
             ),
             WPToken(
@@ -783,6 +792,7 @@ def test_double_object_without_prep_acc_and_dative():
                 tag="DET",
                 head=7,
                 rel="det",
+                morph={"Case": "Acc"},
                 misc=True,
             ),
             WPToken(
@@ -830,6 +840,7 @@ def test_double_object_without_prep_acc_and_dative():
                 tag="DET",
                 head=5,
                 rel="det",
+                morph={"Case": "Dat"},
                 misc=True,
             ),
             WPToken(
@@ -952,10 +963,9 @@ def test_double_object_without_prep_two_accusative_objects():
     ]
     result = list(ex.extract_objects(DependencyTree(sentence), 1))
     assert len(result) == 2
+    assert {match.relation for match in result} == {"OBJ"}
 
 
-# as long as problem of genitive objects is not fixed...
-@pytest.mark.xfail
 def test_double_object_without_prep_acc_and_genitive():
     sentence = [
         WPToken(
@@ -992,6 +1002,7 @@ def test_double_object_without_prep_acc_and_genitive():
             tag="PRON",
             head=5,
             rel="nmod",
+            morph={"Case": "Acc"},
             misc=True,
         ),
         WPToken(
@@ -1010,6 +1021,7 @@ def test_double_object_without_prep_acc_and_genitive():
             tag="ADJ",
             head=7,
             rel="amod",
+            morph={"Case": "Gen"},
             misc=True,
         ),
         WPToken(
@@ -1019,11 +1031,13 @@ def test_double_object_without_prep_acc_and_genitive():
             tag="NOUN",
             head=2,
             rel="obj",
+            morph={"Case": "Gen"},
             misc=True,
         ),
     ]
     result = list(ex.extract_objects(DependencyTree(sentence), 1))
-    assert len(result) == 1
+    assert len(result) == 2
+    assert {match.relation for match in result} == {"OBJ", "OBJO"}
 
 
 def test_extract_iobj():
@@ -2274,3 +2288,288 @@ def test_extract_genitives_with_morphological_features():
     for sentence in sentences:
         result = list(ex.extract_genitives(DependencyTree(sentence), 1))
         assert len(result) == 1
+
+
+def test_extraction_of_genitive_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Prozessor",
+            lemma="Prozessor",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="erfreute",
+            lemma="erfreuen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="sich",
+            lemma="sich",
+            tag="PRON",
+            head=3,
+            rel="expl:pv",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="eines",
+            lemma="ein",
+            tag="DET",
+            head=7,
+            rel="det",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="mächtigen",
+            lemma="mächtig",
+            tag="ADJ",
+            head=7,
+            rel="amod",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="Grafikpartners",
+            lemma="Grafikpartner",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJO"
+
+
+def test_extraction_of_dative_objects():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Altlasten",
+            lemma="Altlast",
+            tag="NOUN",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="machen",
+            lemma="machen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=4,
+            rel="det",
+            morph={"Case": "Dat"},
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Firma",
+            lemma="Firma",
+            tag="NOUN",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="zu",
+            lemma="zu",
+            tag="PART",
+            head=6,
+            rel="mark",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="schaffen",
+            lemma="schaffen",
+            tag="VERB",
+            head=2,
+            rel="xcomp",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJO"
+
+
+def test_accusative_object_without_case_marking():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Verein",
+            lemma="Verein",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="bietet",
+            lemma="bieten",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="dem",
+            lemma="d",
+            tag="DET",
+            head=5,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Druck",
+            lemma="Druck",
+            tag="NOUN",
+            head=3,
+            rel="",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="Paroli",
+            lemma="Paroli",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJ"
+
+
+def test_verb_modifying_obl_not_extracted_as_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="arbeitet",
+            lemma="arbeiten",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="drei",
+            lemma="drei",
+            tag="NUM",
+            head=4,
+            rel="nummod",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Tage",
+            lemma="Tag",
+            tag="NOUN",
+            head=2,
+            rel="obl",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 0
+
+
+def test_non_nouns_not_extracted_as_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="gibt",
+            lemma="geben",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="es",
+            lemma="es",
+            tag="PRON",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="ihr",
+            lemma="ihr",
+            tag="PRON",
+            head=2,
+            rel="obl:arg",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 0

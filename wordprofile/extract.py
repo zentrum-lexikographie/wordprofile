@@ -41,11 +41,16 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         ],
     },
     "OBJ": {
-        "desc": "hat Akkusativ/Dativ-Objekt",
-        "inverse": "ist Akkusativ/Dativ-Objekt von",
+        "desc": "hat Akkusativ-Objekt",
+        "inverse": "ist Akkusativ-Objekt von",
         "rules": [
             ("iobj", "verb", "noun"),
         ],
+    },
+    "OBJO": {
+        "desc": "hat Dativ-/Genitiv-Objekt",
+        "inverse": "ist Dativ-/Genitiv-Objekt von",
+        "rules": [],
     },
     "PP": {
         "desc": "hat Präpositionalgruppe",
@@ -347,7 +352,7 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """
-    Extract acc./dat. object relation from a dependency tree.
+    Extract acc./dat./gen. object relation from a dependency tree.
 
     Args:
         dtree: DependencyTree of a single sentence
@@ -359,11 +364,26 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     for node in dtree.nodes:
         if node.token.tag == "VERB":
             for child in node.children:
-                if child.token.rel in {"obj", "obl", "obl:arg"}:
+                if child.token.rel in {"obj", "obl:arg"} and child.token.tag == "NOUN":
                     if any(dep.token.rel == "case" for dep in child.children):
                         continue
-                        # check for genitive?
-                    yield Match(node.token, child.token, None, "OBJ", sid)
+                    if child.token.rel == "obj":
+                        if not (
+                            _has_case_marking(child.token, "Dat")
+                            or _has_case_marking(child.token, "Gen")
+                            or any(
+                                _has_case_marking(dep.token, "Gen")
+                                or _has_case_marking(dep.token, "Dat")
+                                for dep in child.children
+                            )
+                            or _has_case_marking(child.token, "Acc")
+                        ):
+                            relation = "OBJ"
+                        else:
+                            relation = "OBJO"
+                    elif child.token.rel == "obl:arg":
+                        relation = "OBJO"
+                    yield Match(node.token, child.token, None, relation, sid)
 
 
 def extract_matches(parses: list[list[WPToken]]) -> Iterator[Match]:
