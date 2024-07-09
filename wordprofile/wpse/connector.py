@@ -327,7 +327,6 @@ class WPConnect:
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
             lemma1 = %s AND lemma1_tag = %s
-            AND label NOT IN ('VZ')
             AND frequency >= %s AND c.score >= %s
         ORDER BY {order_by} DESC LIMIT %s,%s;
         """
@@ -425,7 +424,6 @@ class WPConnect:
         WHERE
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
             AND c.frequency >= %s AND c.score >= %s
-            AND label NOT IN ('VZ')
         ORDER BY {order_by} DESC;"""
         params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
         relation_filter = {split_relation_inversion(relation) for relation in relations}

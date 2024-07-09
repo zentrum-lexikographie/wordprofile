@@ -1,24 +1,68 @@
+import datetime
 import unittest
 
-from wordprofile.datatypes import Coocc, LemmaInfo
+from wordprofile.datatypes import Concordance, Coocc, LemmaInfo
 from wordprofile.wp import Wordprofile
 
 
 class MockDb:
     def __init__(self, db):
         self.db = db
-
-    def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.db[coocc_id]
-
-    def get_lemma_and_pos(self, lemma, pos):
-        return [
-            LemmaInfo(
-                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
-            )
-            for item in self.db.values()
-            if item.lemma1 == lemma
-        ]
+        self.conc = {
+            11: [
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=1,
+                    token_position_2=2,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=5,
+                    token_position_2=6,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+                Concordance(
+                    sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
+                    token_position_1=7,
+                    token_position_2=10,
+                    extra_position="0",
+                    corpus="corpus",
+                    date=datetime.date.fromisoformat("2024-01-01"),
+                    textclass="tc",
+                    orig="",
+                    avail="",
+                    page="",
+                    file="",
+                    scan="",
+                    score=5,
+                    sentence_left="",
+                    sentence_right="",
+                ),
+            ]
+        }
 
     def get_relation_by_id(self, coocc_id, is_mwe=False):
         return self.db[coocc_id]
@@ -40,6 +84,12 @@ class MockDb:
             and item.lemma1 in {lemma1, lemma2}
             and item.rel == relation
         ]
+
+    def get_concordances(
+        self, coocc_id: int, use_context: bool = False, start_index=0, result_number=3
+    ) -> list[Concordance]:
+        concordances = self.conc.get(coocc_id, [])
+        return concordances[start_index : start_index + result_number]
 
 
 class MockMweDb(MockDb):
@@ -262,6 +312,21 @@ class WordprofileTest(unittest.TestCase):
                 has_mwe=1,
                 num_concords=1,
             ),
+            15: Coocc(
+                id=11,
+                rel="",
+                lemma1="",
+                lemma2="",
+                form1="",
+                form2="",
+                tag1="",
+                tag2="",
+                freq=1,
+                score=0.5,
+                inverse=1,
+                has_mwe=0,
+                num_concords=3,
+            ),
         }
         self.mwe_data = {
             10: [
@@ -346,6 +411,7 @@ class WordprofileTest(unittest.TestCase):
                 ),
             ],
         }
+
         self.wp = Wordprofile()
         self.wp.db = MockDb(self.cooc_data)
         self.wp.db_mwe = MockMweDb(self.mwe_data)
@@ -496,3 +562,13 @@ class WordprofileTest(unittest.TestCase):
     def test_retrieval_of_collocation_ids_for_mwe_candidates_no_mwe(self):
         result = self.wp.get_collocation_ids("Neun", "falsch")
         self.assertEqual(result, [])
+
+    def test_retrieval_of_concordances_by_id(self):
+        sents = self.wp.get_concordances_and_relation(11)
+        result = {sent["ConcordLine"] for sent in sents["Tuples"]}
+        expected = {
+            "_&Vor&_ _&allem&_ die, die beiden immer besonders wichtig waren.",
+            "Vor allem die, _&die&_ _&beiden&_ immer besonders wichtig waren.",
+            "Vor allem die, die beiden _&immer&_ besonders wichtig _&waren&_.",
+        }
+        self.assertEqual(result, expected)

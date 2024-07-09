@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections.abc import Iterator
 
-from wordprofile.datatypes import DBToken, DependencyTree, Match
+from wordprofile.datatypes import DependencyTree, Match, WPToken
 
 RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     "ADV": {
@@ -75,15 +75,6 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
             ("nsubj:pass", "verb", "noun"),
         ],
     },
-    "VZ": {
-        "desc": "hat Verbzusatz",
-        "inverse": "",
-        "rules": [
-            ("compound:prt", "verb", "adp"),  # liegt ... zugrunde
-            ("compound:prt", "aux", "adp"),  # hat ... vor
-            ("compound:prt", "adj", "adp"),  # leid tun
-        ],
-    },
 }
 
 
@@ -153,7 +144,7 @@ def get_inverted_relation_patterns() -> (
 
 def extract_matches_by_pattern(
     relations_inv: dict[str | tuple[str, ...], dict[tuple[str, ...], str]],
-    tokens: list[DBToken],
+    tokens: list[WPToken],
     sid: int,
 ) -> Iterator[Match]:
     """Extracts matches from a sequence of tokens by using a generated
@@ -200,7 +191,7 @@ def extract_matches_by_pattern(
                 )
 
 
-def extract_comparing_groups(tokens: list[DBToken], sid: int) -> Iterator[Match]:
+def extract_comparing_groups(tokens: list[WPToken], sid: int) -> Iterator[Match]:
     """
     Extracts matches for comparison relation from a sequence of tokens.
 
@@ -445,7 +436,7 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                     yield Match(node.token, child.token, None, "OBJ", sid)
 
 
-def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
+def extract_matches(parses: list[list[WPToken]]) -> Iterator[Match]:
     """Extracts various matches from a given list of sentences.
 
     Args:

@@ -136,7 +136,7 @@ class WPMweConnectTest(unittest.TestCase):
         result = self.connector.get_relation_by_id(512)
         expected = Coocc(
             id=512,
-            rel="VZ",
+            rel="OBJ",
             lemma1="nehmen-Polizei",
             lemma2="fest",
             form1="nehmen-Polizei",
@@ -181,7 +181,7 @@ class WPMweConnectTest(unittest.TestCase):
         expected = [
             Coocc(
                 id=512,
-                rel="VZ",
+                rel="OBJ",
                 lemma1="nehmen-Polizei",
                 lemma2="fest",
                 form1="nehmen-Polizei",

@@ -3,14 +3,8 @@ from collections.abc import Iterable
 
 from conllu.models import Metadata
 
-from wordprofile.datatypes import DBToken, Match
-from wordprofile.wpse.db_tables import (
-    LEMMA_TYPE,
-    SURFACE_TYPE,
-    DBConcordance,
-    DBCorpusFile,
-    DBMatch,
-)
+from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, Match, WPToken
+from wordprofile.wpse.db_tables import LEMMA_TYPE, SURFACE_TYPE
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +33,7 @@ def prepare_corpus_file(meta: Metadata) -> tuple[str, DBCorpusFile]:
 
 
 def prepare_concord_sentences(
-    doc_id: str, parses: list[list[DBToken]]
+    doc_id: str, parses: list[list[WPToken]]
 ) -> list[DBConcordance]:
     """Converts concordances into DB entries.
 
@@ -92,7 +86,10 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
         ):
             logger.warning(f"SKIP LONG MATCH {doc_id} {m}")
             continue
+        extra_pos = {m.dep.prt_pos, m.head.prt_pos}
         if m.prep:
+            extra_pos.add(m.prep.idx)
+            extra_positions = "-".join([str(idx) for idx in extra_pos if idx])
             if (
                 len(m.head.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length
                 or len(m.dep.surface) + len(m.prep.surface) + 1 > SURFACE_TYPE.length
@@ -112,7 +109,7 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
                     dep_surface=m.dep.surface,
                     head_position=m.head.idx,
                     dep_position=m.dep.idx,
-                    prep_position=m.prep.idx,
+                    extra_position=extra_positions if extra_positions else "-",
                     corpus_file_id=doc_id,
                     sentence_id=m.sid,
                 )
@@ -128,12 +125,13 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
                     dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
                     head_position=m.head.idx,
                     dep_position=m.dep.idx,
-                    prep_position=m.prep.idx,
+                    extra_position=extra_positions,
                     corpus_file_id=doc_id,
                     sentence_id=m.sid,
                 )
             )
         else:
+            extra_positions = "-".join([str(idx) for idx in extra_pos if idx])
             db_matches.append(
                 DBMatch(
                     relation_label=m.relation,
@@ -145,7 +143,7 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
                     dep_surface=m.dep.surface,
                     head_position=m.head.idx,
                     dep_position=m.dep.idx,
-                    prep_position=0,
+                    extra_position=extra_positions if extra_positions else "-",
                     corpus_file_id=doc_id,
                     sentence_id=m.sid,
                 )

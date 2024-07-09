@@ -36,14 +36,6 @@
       "ist Prädikativ von",
       "$1 ist Prädikativ von $2"
     ],
-    "VZ": [
-      "hat Verbzusatz",
-      "$1 hat Verbzusatz $2"
-    ],
-    "~VZ": [
-      "ist Verbzusatz von",
-      "$1 ist Verbzusatz von $2"
-    ],
     "KOM": [
       "hat vergleichende Wortgruppe",
       "$1 hat vergleichende Wortgruppe $2"
@@ -112,8 +104,6 @@
     "~SUBJA",
     "SUBJ",
     "~SUBJ",
-    "VZ",
-    "~VZ",
     "ADV",
     "~ADV",
     "SUBJP",
@@ -137,7 +127,6 @@
       "KON",
       "SUBJA",
       "PRED",
-      "VZ",
       "KOM",
       "SUBJP"
     ],
