@@ -299,6 +299,7 @@ def test_extract_genitives():
             tag="DET",
             head=7,
             rel="det",
+            morph={"Case": "Gen"},
             misc=True,
         ),
         WPToken(
@@ -2116,3 +2117,160 @@ def test_extract_active_subjects_with_collapsed_phrasal_verb():
             1,
         )
     ]
+
+
+def test_genitive_with_preposition_not_extracted_as_GMOD():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="das",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Jahrhunderhochwasser",
+            lemma="Jahrhunderhochwasser",
+            tag="NOUN",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="entlang",
+            lemma="entlang",
+            tag="ADP",
+            head=5,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=5,
+            rel="det",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Elbe",
+            lemma="Elbe",
+            tag="NOUN",
+            head=2,
+            rel="nmod",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_genitives(DependencyTree(sentence), 1))
+    assert len(result) == 0
+
+
+def test_extract_genitives_with_morphological_features():
+    sentences = [
+        [
+            WPToken(
+                idx=1,
+                surface="Fall",
+                lemma="Fall",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=4,
+                rel="det",
+                morph={"Case": "Gen"},
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Berliner",
+                lemma="Berliner",
+                tag="ADJ",
+                head=4,
+                rel="amod",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Mauer",
+                lemma="Mauer",
+                tag="NOUN",
+                head=1,
+                rel="nmod",
+                misc=True,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=2,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Anteilseigner",
+                lemma="Anteilseigner",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="von",
+                lemma="von",
+                tag="ADP",
+                head=6,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Europas",
+                lemma="Europa",
+                tag="NOUN",
+                head=6,
+                rel="nmod",
+                morph={"Case": "Gen"},
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="größtem",
+                lemma="groß",
+                tag="ADJ",
+                head=6,
+                rel="amod",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Werftenverband",
+                lemma="Werftenverband",
+                tag="NOUN",
+                head=2,
+                rel="nmod",
+                misc=True,
+            ),
+        ],
+    ]
+    for sentence in sentences:
+        result = list(ex.extract_genitives(DependencyTree(sentence), 1))
+        assert len(result) == 1

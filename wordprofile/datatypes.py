@@ -129,6 +129,7 @@ class WPToken:
     head: int
     rel: str
     misc: bool
+    morph: Optional[dict[str, str]] = None
     prt_pos: Optional[int] = None
 
 
