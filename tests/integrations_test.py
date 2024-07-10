@@ -91,10 +91,9 @@ def check_token_freqs(tmp_dir):
             "Skandalbank",
             "gestalten",
             "Demokratie",
-            "holen",
-            "holen für",
+            "zurückholen",
+            "zurückholen für",
             "für Übernahme",
-            "zurück",
         }
 
 
