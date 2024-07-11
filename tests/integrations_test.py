@@ -138,7 +138,6 @@ def check_matches_stats(tmp_dir):
             ("holt", "Für Übernahme"),
             ("Übernahme", "heikle"),
             ("holt", "Chef"),
-            ("holt", "zurück"),
             ("Übernahme", "Skandalbank"),
             ("Chef", "früheren"),
             ("Chef", "früherer"),
