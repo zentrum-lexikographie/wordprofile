@@ -106,7 +106,10 @@ def compute_statistics(tmp_dir):
 
 def check_duplicates(tmp_dir):
     with open(os.path.join(tmp_dir, "stats", "concord_sentences.duplicate")) as fh:
-        assert "Podiumdiskussion.ddc.xml" in fh.readline()
+        data = fh.readline()
+        sentence_frag = "heikle\x02Übernahme\x02der\x02Skandalbank\x02Credit\x02Suisse\x02holt\x02UBS"
+        assert "Podiumdiskussion.ddc.xml" in data
+        assert sentence_frag in data
 
 
 def check_token_freqs(tmp_dir):
