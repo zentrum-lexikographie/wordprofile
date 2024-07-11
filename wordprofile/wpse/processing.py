@@ -652,7 +652,7 @@ def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Collo
                 rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
                 relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
     collocs = {}
-    c_id = 0
+    c_id = 1
     for rel, cols_dict in relation_dict.items():
         for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
             if freq >= min_rel_freq:
