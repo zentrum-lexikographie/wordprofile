@@ -140,6 +140,8 @@ def check_matches_stats(tmp_dir):
             ("holt", "Chef"),
             ("holt", "zurück"),
             ("Übernahme", "Skandalbank"),
+            ("Chef", "früheren"),
+            ("Chef", "früherer"),
         }
 
 
