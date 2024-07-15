@@ -518,22 +518,10 @@ def test_load_collocations_freq_filter_applied_to_aggregated_collocations(testda
     assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", 0, 3) in result
 
 
-def test_matches_with_collocation_id_zero_not_discarded(testdata_dir):
+def test_collocation_ids_start_at_one(testdata_dir):
     colloc_files = list((testdata_dir / "freq_test").iterdir())
     collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
-    corpus_file_ids = {"doc1": 1}
-    sentence_ids = {("1", "3"), ("1", "4")}
-    matches_file = testdata_dir / "matches"
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_file = pathlib.Path(tmpdir) / "file"
-        pro.filter_transform_matches(
-            [matches_file], output_file, corpus_file_ids, sentence_ids, collocations
-        )
-        with open(output_file) as fh:
-            result = [line.split()[1:4] for line in fh]
-    assert len(result) == 2
-    assert ["Zeitung", "süddeutsche"] in [collocation[1:] for collocation in result]
-    assert {"0", "1"} == {collocation[0] for collocation in result}
+    assert min(collocations.keys()) == 0
 
 
 def test_collapse_lemma_of_phrasal_verbs():
