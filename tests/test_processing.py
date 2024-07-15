@@ -521,7 +521,7 @@ def test_load_collocations_freq_filter_applied_to_aggregated_collocations(testda
 def test_collocation_ids_start_at_one(testdata_dir):
     colloc_files = list((testdata_dir / "freq_test").iterdir())
     collocations = pro.load_collocations(colloc_files, min_rel_freq=5)
-    assert min(collocations.keys()) == 0
+    assert min(collocations.keys()) == 1
 
 
 def test_collapse_lemma_of_phrasal_verbs():
