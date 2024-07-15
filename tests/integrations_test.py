@@ -1,14 +1,45 @@
 import os
 import tempfile
 
+import preprocessing.cli.annotate_deprel as ad
 import wordprofile.cli.compute_statistics as cs
 import wordprofile.cli.extract_collocations as ec
+from preprocessing.pytabs.tabs import TabsDocument
 
 
 def main():
     with tempfile.TemporaryDirectory() as tmp_dir:
+        convert(tmp_dir)
+        annotate_dependency_relations(tmp_dir)
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
+
+
+def convert(tmp_dir):
+    doc = TabsDocument.from_tabs(
+        os.path.join("tests", "testdata", "int_test_data.tabs")
+    )
+    assert doc.sentences != []
+    with open(os.path.join(tmp_dir, "data.orig.conll"), "w") as fh:
+        fh.write(doc.as_conllu())
+
+
+def annotate_dependency_relations(tmp_dir):
+    ad.main(
+        [
+            "-i",
+            os.path.join(tmp_dir, "data.orig.conll"),
+            "-o",
+            os.path.join(tmp_dir, "data.anno.conll"),
+            "-m",
+            "de_dwds_dep_hdt_lg",
+        ],
+        standalone_mode=False,
+    )
+    assert "data.anno.conll" in os.listdir(tmp_dir)
+    with open(os.path.join(tmp_dir, "data.anno.conll")) as fh:
+        lines = fh.readlines()
+    assert lines != []
 
 
 def extract_collocation(tmp_dir):
@@ -16,9 +47,8 @@ def extract_collocation(tmp_dir):
         [
             "--input",
             os.path.join(
-                "tests",
-                "testdata",
-                "int_test_data.conll",
+                tmp_dir,
+                "data.anno.conll",
             ),
             "--dest",
             os.path.join(tmp_dir, "colloc", "corpus"),
@@ -39,7 +69,7 @@ def check_sentences(tmp_dir):
     with open(os.path.join(tmp_dir, "colloc", "corpus", "concord_sentences")) as fh:
         lines = fh.readlines()
         assert len(lines) == 15
-        # assert "fett>Sergio" not in "".join(lines)
+        assert "fett>Sergio" not in "".join(lines)
 
 
 def check_matches(tmp_dir):
@@ -76,7 +106,10 @@ def compute_statistics(tmp_dir):
 
 def check_duplicates(tmp_dir):
     with open(os.path.join(tmp_dir, "stats", "concord_sentences.duplicate")) as fh:
-        assert "Podiumdiskussion.ddc.xml" in fh.readline()
+        data = fh.readline()
+        sentence_frag = "heikle\x02Übernahme\x02der\x02Skandalbank\x02Credit\x02Suisse\x02holt\x02UBS"
+        assert "Podiumdiskussion.ddc.xml" in data
+        assert sentence_frag in data
 
 
 def check_token_freqs(tmp_dir):
@@ -108,8 +141,9 @@ def check_matches_stats(tmp_dir):
             ("holt", "Für Übernahme"),
             ("Übernahme", "heikle"),
             ("holt", "Chef"),
-            ("holt", "zurück"),
             ("Übernahme", "Skandalbank"),
+            ("Chef", "früheren"),
+            ("Chef", "früherer"),
         }
 
 
