@@ -5,7 +5,7 @@ import multiprocessing
 import os
 import re
 import sys
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
 from typing import Any, Protocol, Union
@@ -14,7 +14,7 @@ import conllu
 from conllu.models import Token, TokenList
 from sqlalchemy import Connection, text
 
-from wordprofile.datatypes import DBToken
+from wordprofile.datatypes import Colloc, CollocInstance, DBMatch, WPToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
     remove_invalid_chars,
@@ -29,33 +29,16 @@ from wordprofile.wpse.prepare import (
 
 logger = logging.getLogger(__name__)
 
-Match = namedtuple(
-    "Match",
-    [
-        "id",
-        "collocation_id",
-        "head_surface",
-        "dep_surface",
-        "head_pos",
-        "dep_pos",
-        "prep_pos",
-        "doc_id",
-        "sent_id",
-    ],
-)
-match_dtypes = [int, int, str, str, int, int, int, int, int]
-Colloc = namedtuple(
-    "Colloc",
-    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
-)
-colloc_dtypes = [int, str, str, str, str, str, int, int]
+COLLOC_INSTANCE_DTYPES = [int, int, str, str, int, int, str, int, int]
 
 
-def convert_line(line: str, cls: Callable, dtypes: list[type]) -> Union[Match, Colloc]:
+def convert_line(
+    line: str, cls: Callable, dtypes: list[type]
+) -> Union[CollocInstance, Colloc]:
     return cls(*[dtype(col) for dtype, col in zip(dtypes, line.strip().split("\t"))])
 
 
-def convert_sentence(sentence: TokenList) -> list[DBToken]:
+def convert_sentence(sentence: TokenList) -> list[WPToken]:
     """Convert sentence into list of token.
 
     Sentences are normalized and filtered during this process.
@@ -84,8 +67,8 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
         else:
             return w
 
-    def normalize_caps(t: DBToken) -> DBToken:
-        return DBToken(
+    def normalize_caps(t: WPToken) -> WPToken:
+        return WPToken(
             idx=t.idx,
             surface=t.surface,
             lemma=case_by_tag(t.lemma, t.tag),
@@ -93,6 +76,7 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
             head=t.head,
             rel=t.rel,
             misc=t.misc,
+            morph=t.morph,
         )
 
     # this can *probably* be removed since spacy only returns "PROPN" anyway
@@ -107,24 +91,43 @@ def convert_sentence(sentence: TokenList) -> list[DBToken]:
                 return "PROPN"
         return token["upos"]
 
-    return [
-        normalize_caps(
-            DBToken(
-                idx=token["id"],
-                surface=remove_invalid_chars(token["form"]),
-                # TODO remove lemma repair call
-                # ==> lemma=remove_invalid_chars(token['lemma']),
-                lemma=repair_lemma(remove_invalid_chars(token["lemma"]), token["upos"]),
-                tag=entity_tag_conversion(token),
-                head=token["head"],
-                rel=token["deprel"],
-                misc=token["misc"].get("SpaceAfter") == "No"
-                if token["misc"]
-                else False,
+    return collapse_phrasal_verbs(
+        [
+            normalize_caps(
+                WPToken(
+                    idx=token["id"],
+                    surface=remove_invalid_chars(token["form"]),
+                    # TODO remove lemma repair call
+                    # ==> lemma=remove_invalid_chars(token['lemma']),
+                    lemma=repair_lemma(
+                        remove_invalid_chars(token["lemma"]), token["upos"]
+                    ),
+                    tag=entity_tag_conversion(token),
+                    head=token["head"],
+                    rel=token["deprel"],
+                    misc=token["misc"].get("SpaceAfter") == "No"
+                    if token["misc"]
+                    else False,
+                    morph=token.get("feats", None),
+                )
             )
-        )
-        for token in sentence
-    ]
+            for token in sentence
+        ]
+    )
+
+
+def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
+    for token in sentence:
+        if token.surface == "recht":
+            continue
+        if token.rel == "compound:prt" and token.tag in {"ADP", "ADJ", "ADV"}:
+            head = sentence[token.head - 1]
+            if head.tag in {"VERB", "AUX"}:
+                if head.lemma == "sein":
+                    continue
+                head.prt_pos = token.idx
+                head.lemma = repair_lemma(f"{token.surface}{head.lemma}", "VERB")
+    return sentence
 
 
 class FileReaderQueue(Protocol):
@@ -350,16 +353,16 @@ def filter_transform_matches(
             logger.info("- %s" % fin)
             with open(fin, "r") as matches_in:
                 for line in matches_in:
-                    match = line.strip().split("\t")
-                    colloc_val = "-".join(match[:5])
-                    match[10] = str(corpus_file_idx[match[10]])
+                    match = DBMatch.fromline(line)
+                    match.corpus_file_id = str(corpus_file_idx[match.corpus_file_id])
                     # check whether concordances and collocations still exist for match
-                    colloc_id = relation_dict.get(colloc_val)
+                    colloc_id = relation_dict.get(match.get_collocation_key())
                     if colloc_id is None:
                         continue
-                    if tuple(match[10:12]) in sents_idx:
-                        match = [str(match_i), str(colloc_id)] + match[5:]
-                        matches_out.write("\t".join(match) + "\n")
+                    if (match.corpus_file_id, str(match.sentence_id)) in sents_idx:
+                        matches_out.write(
+                            match.convert_to_database_entry(match_i, colloc_id) + "\n"
+                        )
                         match_i += 1
 
 
@@ -384,12 +387,10 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
 
     with open(fout, "w") as f_out:
         inv_relations = {
-            "SUBJ",
             "SUBJA",
             "SUBJP",
             "OBJ",
-            "OBJA",
-            "OBJD",
+            "OBJO",
             "PRED",
             "ADV",
             "ATTR",
@@ -424,15 +425,15 @@ def extract_mwe_from_collocs(
 
     MWE matches are stored directly on disk."""
 
-    def read_collapsed_sentence_matches(fin: str) -> Iterator[list[Match]]:
-        """Reads Matches per sentences from file."""
+    def read_collapsed_sentence_matches(fin: str) -> Iterator[list[CollocInstance]]:
+        """Reads matches for collcations per sentences from file."""
         sent = []
         sent_curr = 0
         doc_curr = 0
         with open(fin, "r") as fh:
             for line in fh:
-                m = convert_line(line, Match, match_dtypes)
-                assert isinstance(m, Match)  # to make mypy happy for now
+                m = convert_line(line, CollocInstance, COLLOC_INSTANCE_DTYPES)
+                assert isinstance(m, CollocInstance)  # to make mypy happy for now
                 if m.doc_id == doc_curr and m.sent_id == sent_curr:
                     sent.append(m)
                 else:
@@ -440,6 +441,8 @@ def extract_mwe_from_collocs(
                     sent = [m]
                     doc_curr = m.doc_id
                     sent_curr = m.sent_id
+            else:
+                yield sent
 
     def has_one_overlap(*pos: tuple[int]) -> bool:
         """Checks whether positions have one overlap."""
@@ -461,7 +464,7 @@ def extract_mwe_from_collocs(
                 for m2 in sent[m_i + 1 :]:
                     if has_one_overlap(
                         m1.head_pos, m2.head_pos, m1.dep_pos, m2.dep_pos
-                    ) and (m1.prep_pos == m2.prep_pos):
+                    ):
                         if not (
                             m1.collocation_id in collocs
                             and m2.collocation_id in collocs
@@ -535,7 +538,6 @@ def extract_mwe_from_collocs(
                                     "\t".join(map(str, (mwe_id,) + (m1.id, m2.id)))
                                 )
                             )
-
                         if has_one_overlap(m2.dep_pos, m1.head_pos, m1.dep_pos):
                             # m1 - m2.head_surface
                             lemma = c2.lemma2 if c2.inv else c2.lemma1
@@ -650,7 +652,7 @@ def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Collo
                 rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
                 relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
     collocs = {}
-    c_id = 0
+    c_id = 1
     for rel, cols_dict in relation_dict.items():
         for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
             if freq >= min_rel_freq:

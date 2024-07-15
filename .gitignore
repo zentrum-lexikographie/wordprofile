@@ -30,3 +30,5 @@ log/
 
 tests/testdata/db
 test-data/
+
+.coverage*

@@ -10,7 +10,6 @@ from wordprofile.formatter import (
     format_comparison,
     format_concordances,
     format_lemma_pos,
-    format_mwe_concordances,
     format_relations,
 )
 from wordprofile.utils import tag_b2f, tag_f2b
@@ -508,7 +507,7 @@ class Wordprofile:
         """
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
-            relation["Tuples"] = format_mwe_concordances(
+            relation["Tuples"] = format_concordances(
                 self.db_mwe.get_concordances(
                     int(coocc_id), use_context, start_index, result_number
                 )

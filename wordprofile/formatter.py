@@ -2,7 +2,7 @@ import re
 from collections import defaultdict
 from typing import List
 
-from wordprofile.datatypes import Concordance, Coocc, LemmaInfo, MweConcordance
+from wordprofile.datatypes import Coocc, LemmaInfo, WPConcordance
 from wordprofile.utils import tag_b2f
 
 RE_HIT_DELIMITER = re.compile(r"([^\x01\x02]+)([\x01\x02])")
@@ -68,56 +68,15 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
     return results
 
 
-def format_concordances(concords: List[Concordance]):
+def format_concordances(concords: list[WPConcordance]):
     """Converts concordances into output format"""
     results = []
     for c in concords:
         sentence_left = format_sentence(c.sentence_left)
         sentence_right = format_sentence(c.sentence_right)
         sentence_main = format_sentence_and_highlight(
-            c.sentence,
-            c.token_position_1,
-            c.token_position_2,
-            c.prep_position if c.prep_position > 0 else None,
+            c.sentence, c.get_highlight_positions()
         )
-        results.append(
-            {
-                "Bibl": {
-                    "Corpus": c.corpus,
-                    "Date": c.date.strftime("%d-%m-%Y"),
-                    "TextClass": c.textclass,
-                    "Orig": c.orig.replace("#page#", c.page),
-                    "Scan": c.scan.replace("#page#", c.page),
-                    "Avail": c.avail,
-                    "Page": c.page,
-                    "File": c.file,
-                },
-                "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": c.score,
-            }
-        )
-    return results
-
-
-def format_mwe_concordances(concords: List[MweConcordance]):
-    """Converts concordances into output format"""
-    results = []
-    for c in concords:
-        sentence_left = format_sentence(c.sentence_left)
-        sentence_right = format_sentence(c.sentence_right)
-        positions = list(
-            {
-                c.token1_position_1,
-                c.token1_position_2,
-                c.prep1_position,
-                c.token2_position_1,
-                c.token2_position_2,
-                c.prep2_position,
-            }
-        )
-        sentence_main = format_mwe_sentence_and_highlight(c.sentence, positions)
         results.append(
             {
                 "Bibl": {
@@ -212,47 +171,16 @@ def format_sentence(sent: str) -> str:
     return sent.replace("\x02", " ").replace("\x01", "").strip()
 
 
-def format_sentence_and_highlight(sent: str, pos1: int, pos2: int, pos3=None) -> str:
+def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
     """Format concordance sentence and highlight certain positions."""
     if not sent:
         return ""
-    # TODO: remove hack for leading delimiter from data
-    if sent.startswith("\x02"):
-        sent = sent[1:]
     sent += "\x01"
     tokens = RE_HIT_DELIMITER.findall(sent)
-    for idx, (token, delim) in enumerate(tokens):
-        padding = " " if delim == "\x02" else ""
-        if idx == (pos1 - 1):
-            tokens[idx] = "&&{}&&{}".format(token, padding)
-        elif idx == (pos2 - 1):
-            tokens[idx] = "_&{}&_{}".format(token, padding)
-        elif pos3 and idx == (pos3 - 1):
-            tokens[idx] = "_&{}&_{}".format(token, padding)
-        else:
-            tokens[idx] = "{}{}".format(token, padding)
-    return "".join(tokens)
-
-
-def format_mwe_sentence_and_highlight(sent: str, positions: List[int]) -> str:
-    """Format concordance sentence and highlight certain positions."""
-    if not sent:
-        return ""
-    # TODO: remove hack for leading delimiter from data
-    if sent.startswith("\x02"):
-        sent = sent[1:]
-    sent += "\x01"
-    tokens = RE_HIT_DELIMITER.findall(sent)
-    # TODO remove hack but frontend changes necessary
-    is_first = True
     for idx, (token, delim) in enumerate(tokens):
         padding = " " if delim == "\x02" else ""
         if (idx + 1) in positions:
-            if is_first:
-                tokens[idx] = "_&{}&_{}".format(token, padding)
-                is_first = False
-            else:
-                tokens[idx] = "&&{}&&{}".format(token, padding)
+            tokens[idx] = "_&{}&_{}".format(token, padding)
         else:
             tokens[idx] = "{}{}".format(token, padding)
     return "".join(tokens)

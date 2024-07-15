@@ -1,7 +1,7 @@
 import pytest
 
 import wordprofile.extract as ex
-from wordprofile.datatypes import DBToken, DependencyTree
+from wordprofile.datatypes import DependencyTree, Match, WPToken
 
 
 @pytest.fixture
@@ -25,7 +25,6 @@ def test_inverting_of_relation_patterns():
         ("obl", "case"),
         ("obj", "case"),
         "nsubj:pass",
-        "compound:prt",
     ]
     assert result["advmod"] == {
         ("VERB", "ADV"): "ADV",
@@ -42,10 +41,10 @@ def test_inverting_of_relation_patterns():
 
 def test_extract_matches_by_pattern(inverted_relations):
     sentence = [
-        DBToken(
+        WPToken(
             idx=1, surface="eine", lemma="eine", tag="DET", head=3, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="ganze",
             lemma="ganz",
@@ -54,7 +53,7 @@ def test_extract_matches_by_pattern(inverted_relations):
             rel="amod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Epoche",
             lemma="Epoche",
@@ -72,7 +71,7 @@ def test_extract_matches_by_pattern(inverted_relations):
 
 def test_extract_matches_by_pattern_with_ternary_relation(inverted_relations):
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Haus",
             lemma="Haus",
@@ -81,7 +80,7 @@ def test_extract_matches_by_pattern_with_ternary_relation(inverted_relations):
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="am",
             lemma="an",
@@ -90,7 +89,7 @@ def test_extract_matches_by_pattern_with_ternary_relation(inverted_relations):
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Meer",
             lemma="Meer",
@@ -111,7 +110,7 @@ def test_extract_matches_by_pattern_with_ternary_relation(inverted_relations):
 
 def test_extract_predicatives_noun():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Maßlosigkeit",
             lemma="Maßlosigkeit",
@@ -120,7 +119,7 @@ def test_extract_predicatives_noun():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="war",
             lemma="sein",
@@ -129,7 +128,7 @@ def test_extract_predicatives_noun():
             rel="cop",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="die",
             lemma="d",
@@ -138,7 +137,7 @@ def test_extract_predicatives_noun():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="Folge",
             lemma="Folge",
@@ -158,7 +157,7 @@ def test_extract_predicatives_noun():
 
 def test_extract_predicatives_noun_with_prep_phrase():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Ohne",
             lemma="ohne",
@@ -167,10 +166,10 @@ def test_extract_predicatives_noun_with_prep_phrase():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2, surface="die", lemma="d", tag="DET", head=3, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Entwicklung",
             lemma="Entwicklung",
@@ -179,13 +178,13 @@ def test_extract_predicatives_noun_with_prep_phrase():
             rel="obl",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4, surface="ist", lemma="sein", tag="AUX", head=8, rel="cop", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=5, surface="der", lemma="d", tag="DET", head=8, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Tag",
             lemma="Tag",
@@ -194,7 +193,7 @@ def test_extract_predicatives_noun_with_prep_phrase():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="nicht",
             lemma="nicht",
@@ -203,7 +202,7 @@ def test_extract_predicatives_noun_with_prep_phrase():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=8,
             surface="denkbar",
             lemma="denkbar",
@@ -219,7 +218,7 @@ def test_extract_predicatives_noun_with_prep_phrase():
 
 def test_extract_predicatives_verb():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Sie",
             lemma="sie",
@@ -228,7 +227,7 @@ def test_extract_predicatives_verb():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="befindet",
             lemma="befinden",
@@ -237,7 +236,7 @@ def test_extract_predicatives_verb():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="ihn",
             lemma="PRON",
@@ -246,7 +245,7 @@ def test_extract_predicatives_verb():
             rel="obj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="für",
             lemma="für",
@@ -255,7 +254,7 @@ def test_extract_predicatives_verb():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="schuldig",
             lemma="schuldig",
@@ -275,16 +274,16 @@ def test_extract_predicatives_verb():
 
 def test_extract_genitives():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1, surface="Das", lemma="d", tag="PRON", head=4, rel="nsubj", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=2, surface="ist", lemma="sein", tag="AUX", head=4, rel="cop", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=3, surface="das", lemma="d", tag="DET", head=4, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="Ergebnis",
             lemma="Ergebnis",
@@ -293,16 +292,17 @@ def test_extract_genitives():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="unserer",
             lemma="unsere",
             tag="DET",
             head=7,
             rel="det",
+            morph={"Case": "Gen"},
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="gesamteuropäischen",
             lemma="gesamteuropäisch",
@@ -311,7 +311,7 @@ def test_extract_genitives():
             rel="amod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="Geschichte",
             lemma="Geschichte",
@@ -331,7 +331,7 @@ def test_extract_genitives():
 
 def test_extract_comp():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Diese",
             lemma="diese",
@@ -340,7 +340,7 @@ def test_extract_comp():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="Bilder",
             lemma="Bild",
@@ -349,7 +349,7 @@ def test_extract_comp():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="wirkten",
             lemma="wirken",
@@ -358,7 +358,7 @@ def test_extract_comp():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="wie",
             lemma="wie",
@@ -367,10 +367,10 @@ def test_extract_comp():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5, surface="ein", lemma="eine", tag="DET", head=6, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Sog",
             lemma="Sog",
@@ -390,13 +390,13 @@ def test_extract_comp():
 
 def test_extract_active_subjects():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1, surface="eine", lemma="eine", tag="DET", head=3, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=2, surface="neue", lemma="neu", tag="ADJ", head=3, rel="amod", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Zeit",
             lemma="Zeit",
@@ -405,7 +405,7 @@ def test_extract_active_subjects():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="begann",
             lemma="beginnen",
@@ -426,7 +426,7 @@ def test_extract_active_subjects():
 def test_all_extractions():
     sentences = [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="eine",
                 lemma="eine",
@@ -435,7 +435,7 @@ def test_all_extractions():
                 rel="det",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="ganze",
                 lemma="ganz",
@@ -444,7 +444,7 @@ def test_all_extractions():
                 rel="amod",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="Epoche",
                 lemma="Epoche",
@@ -455,7 +455,7 @@ def test_all_extractions():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="eine",
                 lemma="eine",
@@ -464,7 +464,7 @@ def test_all_extractions():
                 rel="det",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="neue",
                 lemma="neu",
@@ -473,7 +473,7 @@ def test_all_extractions():
                 rel="amod",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="Zeit",
                 lemma="Zeit",
@@ -482,7 +482,7 @@ def test_all_extractions():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="begann",
                 lemma="beginnen",
@@ -500,7 +500,7 @@ def test_all_extractions():
 
 def test_prepositional_object_not_matched_by_extract_object():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Anwohner",
             lemma="Anwohner",
@@ -509,7 +509,7 @@ def test_prepositional_object_not_matched_by_extract_object():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="protestieren",
             lemma="protestieren",
@@ -518,7 +518,7 @@ def test_prepositional_object_not_matched_by_extract_object():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="heftig",
             lemma="heftig",
@@ -527,7 +527,7 @@ def test_prepositional_object_not_matched_by_extract_object():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="gegen",
             lemma="gegen",
@@ -536,10 +536,10 @@ def test_prepositional_object_not_matched_by_extract_object():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5, surface="die", lemma="d", tag="DET", head=6, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Autobahn",
             lemma="Autobahn",
@@ -556,7 +556,7 @@ def test_prepositional_object_not_matched_by_extract_object():
 def test_prepositional_object_categorized_as_PP():
     inv_relations = ex.get_inverted_relation_patterns()
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Anwohner",
             lemma="Anwohner",
@@ -565,7 +565,7 @@ def test_prepositional_object_categorized_as_PP():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="protestieren",
             lemma="protestieren",
@@ -574,7 +574,7 @@ def test_prepositional_object_categorized_as_PP():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="heftig",
             lemma="heftig",
@@ -583,7 +583,7 @@ def test_prepositional_object_categorized_as_PP():
             rel="",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="gegen",
             lemma="gegen",
@@ -592,10 +592,10 @@ def test_prepositional_object_categorized_as_PP():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5, surface="die", lemma="d", tag="DET", head=6, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Autobahn",
             lemma="Autobahn",
@@ -616,7 +616,7 @@ def test_prepositional_object_categorized_as_PP():
 def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
     inv_relations = ex.get_inverted_relation_patterns()
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Anwohner",
             lemma="Anwohner",
@@ -625,7 +625,7 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="protestieren",
             lemma="protestieren",
@@ -634,7 +634,7 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="heftig",
             lemma="heftig",
@@ -643,7 +643,7 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
             rel="",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="gegen",
             lemma="gegen",
@@ -652,10 +652,10 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5, surface="die", lemma="d", tag="DET", head=6, rel="det", misc=True
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Autobahn",
             lemma="Autobahn",
@@ -672,7 +672,7 @@ def test_prepositional_object_not_categorized_as_OBJ_by_pattern():
 def test_double_object_without_prep_acc_and_dative():
     sentences = [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Sie",
                 lemma="sie",
@@ -681,7 +681,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="empfinden",
                 lemma="empfinden",
@@ -690,16 +690,17 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="das",
                 lemma="d",
                 tag="DET",
                 head=4,
-                rel="des",
+                rel="det",
+                morph={"Case": "Acc"},
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="Aquarium",
                 lemma="Aquarium",
@@ -708,10 +709,17 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="obj",
                 misc=True,
             ),
-            DBToken(
-                idx=5, surface="der", lemma="d", tag="DET", head=6, rel="det", misc=True
+            WPToken(
+                idx=5,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=6,
+                rel="det",
+                morph={"Case": "Dat"},
+                misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="Natur",
                 lemma="Natur",
@@ -720,7 +728,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="obj",
                 misc=False,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="nach",
                 lemma="nach",
@@ -731,7 +739,7 @@ def test_double_object_without_prep_acc_and_dative():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Die",
                 lemma="d",
@@ -740,7 +748,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="det",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="Reporterin",
                 lemma="Reporterin",
@@ -749,7 +757,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="überreichte",
                 lemma="überreichen",
@@ -758,16 +766,17 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="König",
                 lemma="König",
                 tag="NOUN",
                 head=3,
                 rel="obl:arg",
+                morph={"Case": "Dat"},
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="Charles",
                 lemma="Charles",
@@ -776,16 +785,17 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="flat:name",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="das",
                 lemma="d",
                 tag="DET",
                 head=7,
                 rel="det",
+                morph={"Case": "Acc"},
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="Buch",
                 lemma="Buch",
@@ -796,7 +806,7 @@ def test_double_object_without_prep_acc_and_dative():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Die",
                 lemma="d",
@@ -805,7 +815,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="det",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="Zivilgesellschaft",
                 lemma="Zivilgesellschaft",
@@ -814,7 +824,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="erstattet",
                 lemma="erstatten",
@@ -823,16 +833,17 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="dem",
                 lemma="d",
                 tag="DET",
                 head=5,
                 rel="det",
+                morph={"Case": "Dat"},
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="Staat",
                 lemma="Staat",
@@ -841,7 +852,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="obl:arg",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=6,
                 surface="Korruptionsgelder",
                 lemma="Korruptionsgeld",
@@ -850,7 +861,7 @@ def test_double_object_without_prep_acc_and_dative():
                 rel="obj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=7,
                 surface="zurück",
                 lemma="zurücl",
@@ -868,7 +879,7 @@ def test_double_object_without_prep_acc_and_dative():
 
 def test_double_object_without_prep_two_accusative_objects():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Die",
             lemma="d",
@@ -877,7 +888,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="Funksprüche",
             lemma="Funkspruch",
@@ -886,7 +897,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="seiner",
             lemma="seine",
@@ -895,7 +906,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="Kinder",
             lemma="Kind",
@@ -904,7 +915,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="nmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="kosten",
             lemma="kosten",
@@ -913,7 +924,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="einen",
             lemma="eine",
@@ -922,7 +933,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="Fluglotsen",
             lemma="Fluglotse",
@@ -931,7 +942,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="obj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=8,
             surface="den",
             lemma="d",
@@ -940,7 +951,7 @@ def test_double_object_without_prep_two_accusative_objects():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=9,
             surface="Job",
             lemma="Job",
@@ -952,13 +963,12 @@ def test_double_object_without_prep_two_accusative_objects():
     ]
     result = list(ex.extract_objects(DependencyTree(sentence), 1))
     assert len(result) == 2
+    assert {match.relation for match in result} == {"OBJ"}
 
 
-# as long as problem of genitive objects is not fixed...
-@pytest.mark.xfail
 def test_double_object_without_prep_acc_and_genitive():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Intel",
             lemma="Intel",
@@ -967,7 +977,7 @@ def test_double_object_without_prep_acc_and_genitive():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="bezichtigt",
             lemma="bezichtigen",
@@ -976,7 +986,7 @@ def test_double_object_without_prep_acc_and_genitive():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="auch",
             lemma="auch",
@@ -985,16 +995,17 @@ def test_double_object_without_prep_acc_and_genitive():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="deren",
             lemma="d",
             tag="PRON",
             head=5,
             rel="nmod",
+            morph={"Case": "Acc"},
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="Kunden",
             lemma="Kunde",
@@ -1003,33 +1014,36 @@ def test_double_object_without_prep_acc_and_genitive():
             rel="obj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="illegaler",
             lemma="illegal",
             tag="ADJ",
             head=7,
             rel="amod",
+            morph={"Case": "Gen"},
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="Handlungen",
             lemma="Handlung",
             tag="NOUN",
             head=2,
             rel="obj",
+            morph={"Case": "Gen"},
             misc=True,
         ),
     ]
     result = list(ex.extract_objects(DependencyTree(sentence), 1))
-    assert len(result) == 1
+    assert len(result) == 2
+    assert {match.relation for match in result} == {"OBJ", "OBJO"}
 
 
 def test_extract_iobj():
     inv_relations = ex.get_inverted_relation_patterns()
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Die",
             lemma="d",
@@ -1038,7 +1052,7 @@ def test_extract_iobj():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="Funksprüche",
             lemma="Funkspruch",
@@ -1047,7 +1061,7 @@ def test_extract_iobj():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="seiner",
             lemma="seine",
@@ -1056,7 +1070,7 @@ def test_extract_iobj():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="Kinder",
             lemma="Kind",
@@ -1065,7 +1079,7 @@ def test_extract_iobj():
             rel="nmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="kosten",
             lemma="kosten",
@@ -1074,7 +1088,7 @@ def test_extract_iobj():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="einen",
             lemma="eine",
@@ -1083,7 +1097,7 @@ def test_extract_iobj():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="Fluglotsen",
             lemma="Fluglotse",
@@ -1092,7 +1106,7 @@ def test_extract_iobj():
             rel="iobj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=8,
             surface="den",
             lemma="d",
@@ -1101,7 +1115,7 @@ def test_extract_iobj():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=9,
             surface="Job",
             lemma="Job",
@@ -1122,7 +1136,7 @@ def test_extract_iobj():
 def test_pp_match_only_extracted_once():
     sentences = [
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Sitze",
                 lemma="Sitz",
@@ -1131,7 +1145,7 @@ def test_pp_match_only_extracted_once():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="gehören",
                 lemma="gehören",
@@ -1140,7 +1154,7 @@ def test_pp_match_only_extracted_once():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="zur",
                 lemma="zu",
@@ -1149,7 +1163,7 @@ def test_pp_match_only_extracted_once():
                 rel="case",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="Sonderausstatung",
                 lemma="Sonderausstatung",
@@ -1160,7 +1174,7 @@ def test_pp_match_only_extracted_once():
             ),
         ],
         [
-            DBToken(
+            WPToken(
                 idx=1,
                 surface="Der",
                 lemma="d",
@@ -1169,7 +1183,7 @@ def test_pp_match_only_extracted_once():
                 rel="det",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=2,
                 surface="Flughafen",
                 lemma="Flughafen",
@@ -1178,7 +1192,7 @@ def test_pp_match_only_extracted_once():
                 rel="nsubj",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=3,
                 surface="schließt",
                 lemma="schließen",
@@ -1187,7 +1201,7 @@ def test_pp_match_only_extracted_once():
                 rel="ROOT",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=4,
                 surface="für",
                 lemma="für",
@@ -1196,7 +1210,7 @@ def test_pp_match_only_extracted_once():
                 rel="case",
                 misc=True,
             ),
-            DBToken(
+            WPToken(
                 idx=5,
                 surface="Passagierverkehr",
                 lemma="Passagierverkehr",
@@ -1215,7 +1229,7 @@ def test_pp_match_only_extracted_once():
 
 def test_pred_match_only_extracted_once():
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="Sie",
             lemma="sie",
@@ -1224,7 +1238,7 @@ def test_pred_match_only_extracted_once():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="bezeichnet",
             lemma="bezeichnen",
@@ -1233,7 +1247,7 @@ def test_pred_match_only_extracted_once():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="Berichte",
             lemma="Bericht",
@@ -1242,7 +1256,7 @@ def test_pred_match_only_extracted_once():
             rel="obj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="als",
             lemma="als",
@@ -1251,7 +1265,7 @@ def test_pred_match_only_extracted_once():
             rel="case",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="Horrormeldungen",
             lemma="Horrormeldung",
@@ -1269,7 +1283,7 @@ def test_pred_match_only_extracted_once():
 def test_adverbial_adjective_with_verb_extracted():
     adv_rules = ex.get_inverted_relation_patterns()["advmod"]
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="indem",
             lemma="indem",
@@ -1278,7 +1292,7 @@ def test_adverbial_adjective_with_verb_extracted():
             rel="mark",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="sie",
             lemma="sie",
@@ -1287,7 +1301,7 @@ def test_adverbial_adjective_with_verb_extracted():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="ihnen",
             lemma="ihnen",
@@ -1296,7 +1310,7 @@ def test_adverbial_adjective_with_verb_extracted():
             rel="obl:arg",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="pauschal",
             lemma="pauschal",
@@ -1305,7 +1319,7 @@ def test_adverbial_adjective_with_verb_extracted():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="Revanchismus",
             lemma="Revanchismus",
@@ -1314,7 +1328,7 @@ def test_adverbial_adjective_with_verb_extracted():
             rel="obj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="unterstellten",
             lemma="unterstellen",
@@ -1334,7 +1348,7 @@ def test_adverbial_adjective_with_verb_extracted():
 def test_adverbial_adjective_with_adjective_extracted():
     adv_rules = ex.get_inverted_relation_patterns()["advmod"]
     sentence = [
-        DBToken(
+        WPToken(
             idx=1,
             surface="davon",
             lemma="davon",
@@ -1343,7 +1357,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=2,
             surface="nutzt",
             lemma="nutzen",
@@ -1352,7 +1366,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="ROOT",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=3,
             surface="durchschnittlich",
             lemma="durchschnittlich",
@@ -1361,7 +1375,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=4,
             surface="knapp",
             lemma="knapp",
@@ -1370,7 +1384,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="advmod",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=5,
             surface="die",
             lemma="d",
@@ -1379,7 +1393,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="det",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=6,
             surface="Hälfte",
             lemma="Hälfte",
@@ -1388,7 +1402,7 @@ def test_adverbial_adjective_with_adjective_extracted():
             rel="nsubj",
             misc=True,
         ),
-        DBToken(
+        WPToken(
             idx=7,
             surface="Internet",
             lemma="Internet",
@@ -1403,3 +1417,1159 @@ def test_adverbial_adjective_with_adjective_extracted():
     assert ("knapp", "durchschnittlich") in [
         (match.head.lemma, match.dep.lemma) for match in result
     ]
+
+
+def test_extract_matches_by_pattern_with_collapsed_phrasal_verb_adv():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Test",
+            lemma="Test",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="schlug",
+            lemma="fehlschlagen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=5,
+        ),
+        WPToken(
+            idx=4,
+            surface="kläglich",
+            lemma="kläglich",
+            tag="ADJ",
+            head=3,
+            rel="advmod",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="fehl",
+            lemma="fehl",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    inv_rel = {"advmod": {("VERB", "ADJ"): "ADV"}}
+    result = list(ex.extract_matches_by_pattern(inv_rel, sentence, 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="schlug",
+                lemma="fehlschlagen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=5,
+            ),
+            WPToken(
+                idx=4,
+                surface="kläglich",
+                lemma="kläglich",
+                tag="ADJ",
+                head=3,
+                rel="advmod",
+                misc=True,
+            ),
+            None,
+            "ADV",
+            1,
+        )
+    ]
+
+
+def test_extract_matches_by_pattern_with_collapsed_phrasal_verb_kon():
+    inv_rel = {("conj", "cc"): {("VERB", "VERB", "CCONJ"): "KON"}}
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Sprecher",
+            lemma="Sprecher",
+            tag="Noun",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="bezeichnet",
+            lemma="bezeichnen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="dies",
+            lemma="dieser",
+            tag="DET",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="als",
+            lemma="als",
+            tag="CCONJ",
+            head=6,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="Spekulation",
+            lemma="Spekulation",
+            tag="NOUN",
+            head=3,
+            rel="obl",
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="und",
+            lemma="und",
+            tag="CCONJ",
+            head=8,
+            rel="cc",
+            misc=True,
+        ),
+        WPToken(
+            idx=8,
+            surface="lehnt",
+            lemma="ablehnen",
+            tag="VERB",
+            head=3,
+            rel="conj",
+            misc=True,
+            prt_pos=11,
+        ),
+        WPToken(
+            idx=9,
+            surface="eine",
+            lemma="ein",
+            tag="DET",
+            head=10,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=10,
+            surface="Stellungnahme",
+            lemma="Stellungnahme",
+            tag="NOUN",
+            head=8,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=11,
+            surface="ab",
+            lemma="ab",
+            tag="ADP",
+            head=8,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern(inv_rel, sentence, 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="bezeichnet",
+                lemma="bezeichnen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=8,
+                surface="lehnt",
+                lemma="ablehnen",
+                tag="VERB",
+                head=3,
+                rel="conj",
+                misc=True,
+                prt_pos=11,
+            ),
+            None,
+            "KON",
+            1,
+        )
+    ]
+
+
+def test_extract_matches_by_pattern_kon_with_two_phrasal_verbs():
+    inv_rel = {("conj", "cc"): {("VERB", "VERB", "CCONJ"): "KON"}}
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="steht",
+            lemma="aufstehen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=3,
+        ),
+        WPToken(
+            idx=3,
+            surface="auf",
+            lemma="auf",
+            tag="ADP",
+            head=2,
+            rel="compound:prt",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="und",
+            lemma="und",
+            tag="CCONJ",
+            head=5,
+            rel="cc",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="schläft",
+            lemma="einschlafen",
+            tag="VERB",
+            head=2,
+            rel="conj",
+            misc=True,
+            prt_pos=6,
+        ),
+        WPToken(
+            idx=6,
+            surface="ein",
+            lemma="ein",
+            tag="ADP",
+            head=4,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern(inv_rel, sentence, 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=2,
+                surface="steht",
+                lemma="aufstehen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=3,
+            ),
+            WPToken(
+                idx=5,
+                surface="schläft",
+                lemma="einschlafen",
+                tag="VERB",
+                head=2,
+                rel="conj",
+                misc=True,
+                prt_pos=6,
+            ),
+            None,
+            "KON",
+            1,
+        )
+    ]
+
+
+def test_extract_matches_by_pattern_with_collapsed_phrasal_verb_obj():
+    inv_rel = {"obj": {("VERB", "NOUN"): "OBJ"}}
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Sprecher",
+            lemma="Sprecher",
+            tag="Noun",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="lehnt",
+            lemma="ablehnen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=6,
+        ),
+        WPToken(
+            idx=4,
+            surface="eine",
+            lemma="ein",
+            tag="DET",
+            head=5,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Stellungnahme",
+            lemma="Stellungnahme",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="ab",
+            lemma="ab",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern(inv_rel, sentence, 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="lehnt",
+                lemma="ablehnen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=6,
+            ),
+            WPToken(
+                idx=5,
+                surface="Stellungnahme",
+                lemma="Stellungnahme",
+                tag="NOUN",
+                head=3,
+                rel="obj",
+                misc=True,
+            ),
+            None,
+            "OBJ",
+            1,
+        )
+    ]
+
+
+def test_extract_matches_by_pattern_with_collapsed_phrasal_verb_pp():
+    inv_rel = {("obl", "case"): {("VERB", "NOUN", "ADP"): "PP"}}
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Frankreichs",
+            lemma="Frankreich",
+            tag="PROPN",
+            head=2,
+            rel="nmod",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Innenminister",
+            lemma="Innenminister",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="lehnt",
+            lemma="ablehnen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=11,
+        ),
+        WPToken(
+            idx=4,
+            surface="eine",
+            lemma="ein",
+            tag="DET",
+            head=7,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="grenzüberschreitend",
+            lemma="grenzüberschreitend",
+            tag="ADJ",
+            head=6,
+            rel="advmod",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="tätige",
+            lemma="tätig",
+            tag="ADJ",
+            head=7,
+            rel="amod",
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="Cyber-Polizei",
+            lemma="Cyper-Polizei",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=8,
+            surface="für",
+            lemma="für",
+            tag="ADP",
+            head=10,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=9,
+            surface="sein",
+            lemma="sein",
+            tag="DET",
+            head=10,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=10,
+            surface="Land",
+            lemma="Land",
+            tag="NOUN",
+            head=3,
+            rel="obl",
+            misc=True,
+        ),
+        WPToken(
+            idx=11,
+            surface="ab",
+            lemma="ab",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_matches_by_pattern(inv_rel, sentence, 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="lehnt",
+                lemma="ablehnen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=11,
+            ),
+            WPToken(
+                idx=10,
+                surface="Land",
+                lemma="Land",
+                tag="NOUN",
+                head=3,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=8,
+                surface="für",
+                lemma="für",
+                tag="ADP",
+                head=10,
+                rel="case",
+                misc=True,
+            ),
+            "PP",
+            1,
+        )
+    ]
+
+
+def test_extract_predicatives_verb_with_collapsed_phrasal_verb():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Eine",
+            lemma="ein",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Wiedertaufe",
+            lemma="Wiedertaufe",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="lehnt",
+            lemma="ablehnen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=7,
+        ),
+        WPToken(
+            idx=4,
+            surface="er",
+            lemma="er",
+            tag="PRON",
+            head=0,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="als",
+            lemma="als",
+            tag="CCONJ",
+            head=6,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="Irrglauben",
+            lemma="Irrglaube",
+            tag="NOUN",
+            head=3,
+            rel="obl",
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="ab",
+            lemma="ab",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="lehnt",
+                lemma="ablehnen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=7,
+            ),
+            WPToken(
+                idx=6,
+                surface="Irrglauben",
+                lemma="Irrglaube",
+                tag="NOUN",
+                head=3,
+                rel="obl",
+                misc=True,
+            ),
+            None,
+            "PRED",
+            1,
+        )
+    ]
+
+
+def test_extract_active_subjects_with_collapsed_phrasal_verb():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Sprecher",
+            lemma="Sprecher",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="lehnt",
+            lemma="ablehnen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+            prt_pos=6,
+        ),
+        WPToken(
+            idx=4,
+            surface="eine",
+            lemma="ein",
+            tag="DET",
+            head=5,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Stellungnahme",
+            lemma="Stellungnahme",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="ab",
+            lemma="ab",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_active_subjects(DependencyTree(sentence), 1))
+    assert result == [
+        Match(
+            WPToken(
+                idx=3,
+                surface="lehnt",
+                lemma="ablehnen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+                prt_pos=6,
+            ),
+            WPToken(
+                idx=2,
+                surface="Sprecher",
+                lemma="Sprecher",
+                tag="NOUN",
+                head=3,
+                rel="nsubj",
+                misc=True,
+            ),
+            None,
+            "SUBJA",
+            1,
+        )
+    ]
+
+
+def test_genitive_with_preposition_not_extracted_as_GMOD():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="das",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Jahrhunderhochwasser",
+            lemma="Jahrhunderhochwasser",
+            tag="NOUN",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="entlang",
+            lemma="entlang",
+            tag="ADP",
+            head=5,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=5,
+            rel="det",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Elbe",
+            lemma="Elbe",
+            tag="NOUN",
+            head=2,
+            rel="nmod",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_genitives(DependencyTree(sentence), 1))
+    assert len(result) == 0
+
+
+def test_extract_genitives_with_morphological_features():
+    sentences = [
+        [
+            WPToken(
+                idx=1,
+                surface="Fall",
+                lemma="Fall",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=4,
+                rel="det",
+                morph={"Case": "Gen"},
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Berliner",
+                lemma="Berliner",
+                tag="ADJ",
+                head=4,
+                rel="amod",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Mauer",
+                lemma="Mauer",
+                tag="NOUN",
+                head=1,
+                rel="nmod",
+                misc=True,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=2,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Anteilseigner",
+                lemma="Anteilseigner",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="von",
+                lemma="von",
+                tag="ADP",
+                head=6,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Europas",
+                lemma="Europa",
+                tag="NOUN",
+                head=6,
+                rel="nmod",
+                morph={"Case": "Gen"},
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="größtem",
+                lemma="groß",
+                tag="ADJ",
+                head=6,
+                rel="amod",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Werftenverband",
+                lemma="Werftenverband",
+                tag="NOUN",
+                head=2,
+                rel="nmod",
+                misc=True,
+            ),
+        ],
+    ]
+    for sentence in sentences:
+        result = list(ex.extract_genitives(DependencyTree(sentence), 1))
+        assert len(result) == 1
+
+
+def test_extraction_of_genitive_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Prozessor",
+            lemma="Prozessor",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="erfreute",
+            lemma="erfreuen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="sich",
+            lemma="sich",
+            tag="PRON",
+            head=3,
+            rel="expl:pv",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="eines",
+            lemma="ein",
+            tag="DET",
+            head=7,
+            rel="det",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="mächtigen",
+            lemma="mächtig",
+            tag="ADJ",
+            head=7,
+            rel="amod",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="Grafikpartners",
+            lemma="Grafikpartner",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            morph={"Case": "Gen"},
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJO"
+
+
+def test_extraction_of_dative_objects():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Altlasten",
+            lemma="Altlast",
+            tag="NOUN",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="machen",
+            lemma="machen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=4,
+            rel="det",
+            morph={"Case": "Dat"},
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Firma",
+            lemma="Firma",
+            tag="NOUN",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="zu",
+            lemma="zu",
+            tag="PART",
+            head=6,
+            rel="mark",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="schaffen",
+            lemma="schaffen",
+            tag="VERB",
+            head=2,
+            rel="xcomp",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJO"
+
+
+def test_accusative_object_without_case_marking():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="der",
+            lemma="d",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Verein",
+            lemma="Verein",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="bietet",
+            lemma="bieten",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="dem",
+            lemma="d",
+            tag="DET",
+            head=5,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Druck",
+            lemma="Druck",
+            tag="NOUN",
+            head=3,
+            rel="",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="Paroli",
+            lemma="Paroli",
+            tag="NOUN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 1
+    assert result[0].relation == "OBJ"
+
+
+def test_verb_modifying_obl_not_extracted_as_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="arbeitet",
+            lemma="arbeiten",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="drei",
+            lemma="drei",
+            tag="NUM",
+            head=4,
+            rel="nummod",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Tage",
+            lemma="Tag",
+            tag="NOUN",
+            head=2,
+            rel="obl",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 0
+
+
+def test_non_nouns_not_extracted_as_object():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Sie",
+            lemma="sie",
+            tag="PRON",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="gibt",
+            lemma="geben",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="es",
+            lemma="es",
+            tag="PRON",
+            head=2,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="ihr",
+            lemma="ihr",
+            tag="PRON",
+            head=2,
+            rel="obl:arg",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_objects(DependencyTree(sentence), 1))
+    assert len(result) == 0
