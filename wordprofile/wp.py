@@ -75,7 +75,7 @@ class Wordprofile:
             lemma2: Lemma for comparison.
 
         Returns:
-            List of lemma1–lemma2 combinations with additional information such as frequency and relation.
+            List of lemma1–lemma2 combinations with additional information such as relation.
         """
         list1 = self.get_lemma_and_pos(lemma1)
         list2 = self.get_lemma_and_pos(lemma2)
@@ -94,8 +94,6 @@ class Wordprofile:
                             "LemmaId2": j["Lemma"],
                             "POS": i["POS"],
                             "PosId": i["POS"],
-                            "Frequency1": i["Frequency"],
-                            "Frequency2": j["Frequency"],
                             "Relations": relations,
                         }
                     )
