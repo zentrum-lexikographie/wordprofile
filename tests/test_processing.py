@@ -48,16 +48,12 @@ def conll_sentences(testdata_dir):
 @pytest.fixture
 def collocations():
     return {
-        30601: pro.Colloc(
-            30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15
-        ),
-        368: pro.Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
-        2006644: pro.Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
-        3406416: pro.Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
-        2367256: pro.Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
-        2373301: pro.Colloc(
-            2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
-        ),
+        30601: Colloc(30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15),
+        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
+        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
+        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
+        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
+        2373301: Colloc(2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262),
     }
 
 
@@ -497,7 +493,7 @@ def test_extraction_of_inverse_attribute_for_mwe(collocations):
 
 
 def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
-    collocations[2373301] = pro.Colloc(
+    collocations[2373301] = Colloc(
         2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
     )
     with tempfile.TemporaryDirectory() as tmpdir:
