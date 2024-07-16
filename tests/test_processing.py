@@ -491,7 +491,7 @@ def test_extraction_of_inverse_attribute_for_mwe(collocations):
             "tests/testdata/test_db/matches", file, collocations
         )
     assert mwe_ids == {
-        (2373301, 2367256, "VZ", "fest", "ADP", 0): 2,
+        (2373301, 2367256, "VZ", "fest", "ADP", 0): 0,
         (2367256, 2373301, "SUBJA", "Polizei", "NOUN", 1): 1,
     }
 

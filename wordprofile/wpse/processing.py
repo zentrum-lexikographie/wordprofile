@@ -450,7 +450,7 @@ def extract_mwe_from_collocs(
 
     def update(freqs: dict, ids: dict[tuple, int], xs: tuple) -> int:
         mwe_id = ids.get(xs)
-        if not mwe_id:
+        if mwe_id is None:
             mwe_id = len(freqs)
             ids[xs] = mwe_id
         freqs[mwe_id] += 1
