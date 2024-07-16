@@ -72,9 +72,9 @@ Weiterhin werden die Daten für die Datenbank vorbereitet und komprimiert bzw. n
 Statistiken werden in der jeweiligen Kollokationsdatei ergänzt, bevor diese ausgeschrieben wird.
 
 ```shell
-python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 3 --mwe
+python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 5 --mwe
 ```
-In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 3 aufweisen.
+In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 5 aufweisen.
 Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweiter sich überlappender Kollokationen ergeben.
 
 ### DB befüllen
