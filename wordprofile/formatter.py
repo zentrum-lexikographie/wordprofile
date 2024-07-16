@@ -15,10 +15,10 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     lemma_pos_mapping = defaultdict(list)
     for i in sorted(db_results, key=lambda x: x.freq, reverse=True):
         relation = "~" + i.rel if i.inv else i.rel
-        lemma_pos_mapping[(i.lemma, i.form, i.tag)].append((relation, int(i.freq)))
+        lemma_pos_mapping[(i.lemma, i.tag)].append((relation, int(i.freq)))
 
     results = []
-    for (lemma, form, pos), rel_freqs in lemma_pos_mapping.items():
+    for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
         pos_tag = tag_b2f.get(pos)
         if pos_tag not in relation_order:
@@ -29,7 +29,6 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
             ]
         results.append(
             {
-                "Form": form,
                 "Lemma": lemma,
                 "POS": pos_tag,
                 "PosId": pos_tag,

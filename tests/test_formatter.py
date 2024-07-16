@@ -3,7 +3,7 @@ import datetime
 import pytest
 
 import wordprofile.formatter as form
-from wordprofile.datatypes import Concordance, Coocc, MweConcordance
+from wordprofile.datatypes import Concordance, Coocc, LemmaInfo, MweConcordance
 from wordprofile.wpse.wpse_spec import WpSeSpec
 
 
@@ -228,3 +228,22 @@ def test_default_coocc_id_in_comparison():
     formatted = form.format_comparison(input_diffs)
     result = [(diff["ConcordId1"], diff["ConcordId2"]) for diff in formatted]
     assert result == [(-1, None), (None, -2)]
+
+
+def test_format_lemma_pos(description_handler):
+    db_result = [
+        LemmaInfo(lemma="schnell", tag="ADV", rel="ADV", freq=3, inv=1),
+        LemmaInfo(lemma="schnell", tag="ADV", rel="KON", freq=1, inv=0),
+        LemmaInfo(lemma="schnell", tag="ADJ", rel="ATTR", freq=5, inv=1),
+        LemmaInfo(lemma="schnell", tag="ADJ", rel="KON", freq=2, inv=0),
+    ]
+    result = form.format_lemma_pos(db_result, description_handler.mapRelOrder)
+    assert result == [
+        {
+            "Lemma": "schnell",
+            "POS": "Adjektiv",
+            "PosId": "Adjektiv",
+            "Frequency": 7,
+            "Relations": ["META", "~ATTR", "KON"],
+        }
+    ]
