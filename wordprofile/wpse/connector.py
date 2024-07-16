@@ -183,17 +183,15 @@ class WPConnect:
         """
         if lemma_tag:
             query = """
-            SELECT c.lemma1, tf.surface, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
+            SELECT c.lemma1, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
             FROM collocations c
-            JOIN token_freqs tf on (c.lemma1 = tf.lemma && c.lemma1_tag = tf.tag)
             WHERE c.lemma1 = %s AND c.lemma1_tag = %s
             GROUP BY lemma1, lemma1_tag, label, inv;"""
             params = (lemma, lemma_tag)
         else:
             query = """
-                SELECT c.lemma1, tf.surface, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
+                SELECT c.lemma1,  c.lemma1_tag, c.label, SUM(c.frequency), c.inv
                 FROM collocations c
-                JOIN token_freqs tf on (c.lemma1 = tf.lemma && c.lemma1_tag = tf.tag)
                 WHERE c.lemma1 = %s
                 GROUP BY lemma1, lemma1_tag, label, inv;"""
             params = (lemma,)
