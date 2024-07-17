@@ -448,16 +448,8 @@ def extract_mwe_from_collocs(
         """Checks whether positions have one overlap."""
         return len(set(pos)) == (len(pos) - 1)
 
-    def update(freqs: dict, ids: dict[tuple, int], xs: tuple) -> int:
-        mwe_id = ids.get(xs)
-        if mwe_id is None:
-            mwe_id = len(freqs)
-            ids[xs] = mwe_id
-        freqs[mwe_id] += 1
-        return mwe_id
-
     with open(mwe_match_fout, "w") as mwe_map:
-        mwe_freqs: defaultdict[int, int] = defaultdict(int)
+        mwe_freqs: defaultdict[int, int] = defaultdict(lambda: 1)
         mwe_ids: dict[tuple, int] = {}
         for sent in read_collapsed_sentence_matches(match_fin):
             for m_i, m1 in enumerate(sent):
@@ -560,6 +552,20 @@ def extract_mwe_from_collocs(
                                 )
                             )
     return mwe_ids, mwe_freqs
+
+
+def update(
+    freqs: defaultdict[int, int],
+    ids: dict[tuple, int],
+    xs: tuple,
+) -> int:
+    mwe_id = ids.get(xs)
+    if mwe_id is None:
+        mwe_id = len(ids)
+        ids[xs] = mwe_id
+    else:
+        freqs[mwe_id] += 1
+    return mwe_id
 
 
 def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:

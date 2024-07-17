@@ -2,6 +2,7 @@ import io
 import multiprocessing as mp
 import pathlib
 import tempfile
+from collections import defaultdict
 
 import conllu
 import pytest
@@ -1370,3 +1371,50 @@ def test_mwe_filtered_for_min_freq():
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["0", "11", "12", "label", "lemma", "tag", "0", "5", "14.0"]
+
+
+def test_mwe_freq_and_id_update_unseen_mwe():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4, 2: 10})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (1, 2, "label", "d", "tag", 1)
+    new_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert new_id == 3
+    assert mwe_ids == {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+        (1, 2, "label", "d", "tag", 1): 3,
+    }
+    assert set(mwe_freqencies.keys()) == {0, 1, 2}
+    assert mwe_freqencies[new_id] == 1
+
+
+def test_mwe_freq_and_id_update_mwe_encountered_second_time():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (15, 16, "label", "c", "tag", 0)
+    mwe_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert mwe_id == 2
+    assert mwe_freqencies[mwe_id] == 2
+    assert set(mwe_freqencies.keys()) == {0, 1, 2}
+
+
+def test_mwe_freq_and_id_update_previously_seen_mwe():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4, 2: 10})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (13, 14, "label", "b", "tag", 0)
+    mwe_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert mwe_id == 1
+    assert mwe_freqencies[mwe_id] == 5
