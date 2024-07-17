@@ -474,7 +474,7 @@ def test_inverse_attribute_written_to_mwe_file():
     mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=1)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
@@ -1355,3 +1355,18 @@ def test_inverse_of_objo_written_to_file():
         ["1", "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "0", "10.0", "14.0"],
         ["-1", "OBJO", "Betrug", "beschuldigen", "NOUN", "VERB", "1", "10.0", "14.0"],
     ]
+
+
+def test_mwe_filtered_for_min_freq():
+    mwe_freqs = {1: 1, 0: 5, 2: 3}
+    mwe_ids = {
+        (11, 12, "label", "lemma", "tag", 0): 0,
+        (13, 14, "label", "lemma", "tag", 0): 1,
+        (15, 16, "label", "lemma", "tag", 0): 2,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        with open(file) as fp:
+            result = fp.read().split()
+    assert result == ["0", "11", "12", "label", "lemma", "tag", "0", "5", "14.0"]

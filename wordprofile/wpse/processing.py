@@ -562,7 +562,7 @@ def extract_mwe_from_collocs(
     return mwe_ids, mwe_freqs
 
 
-def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
+def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
     """Calculates Log Dice score"""
     f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
         lambda: defaultdict(int)
@@ -581,6 +581,8 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
             mwe_freq = mwe_freqs[mwe_id]
+            if mwe_freq < min_freq:
+                continue
             w1, w2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
@@ -741,7 +743,9 @@ def post_process_db_files(
             collocs,
         )
         logger.info("CALCULATE log dice mwe lvl 1")
-        compute_mwe_scores(os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs)
+        compute_mwe_scores(
+            os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
+        )
 
 
 def load_files_into_db(connection: Connection, storage_path: str) -> None:
