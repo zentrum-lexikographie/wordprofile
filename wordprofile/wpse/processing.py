@@ -469,7 +469,7 @@ def extract_mwe_from_collocs(
                             # m2 - m1.dep_surface
                             lemma = c1.lemma1 if c1.inv else c1.lemma2
                             tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -490,7 +490,7 @@ def extract_mwe_from_collocs(
                             # m2 - m1.head_surface
                             lemma = c1.lemma2 if c1.inv else c1.lemma1
                             tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -513,7 +513,7 @@ def extract_mwe_from_collocs(
                             # m1 - m2.dep_surface
                             lemma = c2.lemma1 if c2.inv else c2.lemma2
                             tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -534,7 +534,7 @@ def extract_mwe_from_collocs(
                             # m1 - m2.head_surface
                             lemma = c2.lemma2 if c2.inv else c2.lemma1
                             tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -554,7 +554,7 @@ def extract_mwe_from_collocs(
     return mwe_ids, mwe_freqs
 
 
-def update(
+def add_mwe_to_inventory(
     freqs: defaultdict[int, int],
     ids: dict[tuple, int],
     xs: tuple,

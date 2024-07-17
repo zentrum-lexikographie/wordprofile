@@ -1381,7 +1381,7 @@ def test_mwe_freq_and_id_update_unseen_mwe():
         (15, 16, "label", "c", "tag", 0): 2,
     }
     mwe_to_add = (1, 2, "label", "d", "tag", 1)
-    new_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    new_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
     assert new_id == 3
     assert mwe_ids == {
         (11, 12, "label", "a", "tag", 0): 0,
@@ -1401,7 +1401,7 @@ def test_mwe_freq_and_id_update_mwe_encountered_second_time():
         (15, 16, "label", "c", "tag", 0): 2,
     }
     mwe_to_add = (15, 16, "label", "c", "tag", 0)
-    mwe_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    mwe_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
     assert mwe_id == 2
     assert mwe_freqencies[mwe_id] == 2
     assert set(mwe_freqencies.keys()) == {0, 1, 2}
@@ -1415,6 +1415,6 @@ def test_mwe_freq_and_id_update_previously_seen_mwe():
         (15, 16, "label", "c", "tag", 0): 2,
     }
     mwe_to_add = (13, 14, "label", "b", "tag", 0)
-    mwe_id = pro.update(mwe_freqencies, mwe_ids, mwe_to_add)
+    mwe_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
     assert mwe_id == 1
     assert mwe_freqencies[mwe_id] == 5
