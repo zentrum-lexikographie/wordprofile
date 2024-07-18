@@ -748,6 +748,7 @@ def post_process_db_files(
             os.path.join(final_path, "mwe_match"),
             collocs,
         )
+        collocs = {}
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
             os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
