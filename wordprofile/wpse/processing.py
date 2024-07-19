@@ -105,9 +105,11 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
                     tag=entity_tag_conversion(token),
                     head=token["head"],
                     rel=token["deprel"],
-                    misc=token["misc"].get("SpaceAfter") == "No"
-                    if token["misc"]
-                    else False,
+                    misc=(
+                        token["misc"].get("SpaceAfter") == "No"
+                        if token["misc"]
+                        else False
+                    ),
                     morph=token.get("feats", None),
                 )
             )

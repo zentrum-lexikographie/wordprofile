@@ -24,7 +24,7 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
         if pos_tag not in relation_order:
             continue
         if len(relations) > 1:
-            relations = ["META"] + [
+            relations_ordered = ["META"] + [
                 r for r in relation_order[pos_tag] if r in relations
             ]
         results.append(
@@ -34,7 +34,7 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
                 "POS": pos_tag,
                 "PosId": pos_tag,
                 "Frequency": sum(frequencies),
-                "Relations": relations,
+                "Relations": relations_ordered,
             }
         )
     return results
