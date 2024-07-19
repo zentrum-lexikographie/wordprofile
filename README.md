@@ -72,14 +72,14 @@ Weiterhin werden die Daten für die Datenbank vorbereitet und komprimiert bzw. n
 Statistiken werden in der jeweiligen Kollokationsdatei ergänzt, bevor diese ausgeschrieben wird.
 
 ```shell
-python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 3 --mwe
+python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 5 --mwe
 ```
-In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 3 aufweisen.
-Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweiter sich überlappender Kollokationen ergeben.
+In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 5 aufweisen.
+Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweier sich überlappender Kollokationen ergeben.
 
 ### DB befüllen
 Im letzten Schritt wird das finale, komprimierte und für die Datenbank vorbereitete Wortprofil in die Datenbank transferiert.
-Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Diese Dateien werden in ein lokales Verzeichnis (`data/db`) geschrieben, dass in den Dockercontainer gemountet wird.
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Diese Dateien werden in ein lokales Verzeichnis (`data/db`) geschrieben, das in den Dockercontainer gemountet wird.
 Bevor der Dockercontainer gestartet wird, sollte sichergestellt werden, dass dieses Verzeichnis existiert und dem korrekten User gehört, z.B.:
 ```sh
 mkdir -p data/db

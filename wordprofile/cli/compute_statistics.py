@@ -14,7 +14,7 @@ def parse_arguments(args):
     parser.add_argument(
         "--min-rel-freq",
         type=int,
-        default=3,
+        default=5,
         help="Minimal frequency filter for aggregated collocations",
     )
     parser.add_argument("--mwe", action="store_true", help="Extract MWE collocations")

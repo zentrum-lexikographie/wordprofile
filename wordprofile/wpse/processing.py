@@ -642,7 +642,7 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
                 fh.write(f"{lemma}\t{tag}\t{surface}\t{freq}\n")
 
 
-def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Colloc]:
+def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
     relation_dict: defaultdict[
         str, defaultdict[tuple[str, str, str, str], int]
@@ -690,7 +690,7 @@ def compute_token_statistics(
 def post_process_db_files(
     storage_paths: list[str],
     final_path: str,
-    min_rel_freq: int = 3,
+    min_rel_freq: int = 5,
     with_mwe: bool = False,
 ) -> None:
     """Post-processing of generated data files.
