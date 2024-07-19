@@ -13,6 +13,7 @@ def main():
         annotate_dependency_relations(tmp_dir)
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
+        compute_statistics_with_mwe(tmp_dir)
 
 
 def convert(tmp_dir):
@@ -68,7 +69,7 @@ def extract_collocation(tmp_dir):
 def check_sentences(tmp_dir):
     with open(os.path.join(tmp_dir, "colloc", "corpus", "concord_sentences")) as fh:
         lines = fh.readlines()
-        assert len(lines) == 15
+        assert len(lines) == 16
         assert "fett>Sergio" not in "".join(lines)
 
 
@@ -144,6 +145,31 @@ def check_matches_stats(tmp_dir):
             ("Chef", "früheren"),
             ("Chef", "früherer"),
         }
+
+
+def compute_statistics_with_mwe(tmp_dir):
+    cs.main(
+        [
+            os.path.join(tmp_dir, "colloc", "corpus"),
+            "--dest",
+            os.path.join(tmp_dir, "stats_mwe"),
+            "--min-rel-freq",
+            "2",
+            "--mwe",
+        ]
+    )
+    assert "mwe" in os.listdir(os.path.join(tmp_dir, "stats_mwe"))
+    check_mwe(tmp_dir)
+
+
+def check_mwe(tmp_dir):
+    with open(os.path.join(tmp_dir, "stats_mwe", "mwe")) as fh:
+        lines = fh.readlines()
+        mwe_collocations = {tuple(line.split("\t")[1:8]) for line in lines}
+    assert mwe_collocations == {
+        ("2", "3", "GMOD", "Skandalbank", "NOUN", "1", "2"),
+        ("3", "2", "ATTR", "heikel", "ADJ", "0", "2"),
+    }
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ import io
 import multiprocessing as mp
 import pathlib
 import tempfile
+from collections import defaultdict
 
 import conllu
 import pytest
@@ -48,16 +49,12 @@ def conll_sentences(testdata_dir):
 @pytest.fixture
 def collocations():
     return {
-        30601: pro.Colloc(
-            30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15
-        ),
-        368: pro.Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
-        2006644: pro.Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
-        3406416: pro.Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
-        2367256: pro.Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
-        2373301: pro.Colloc(
-            2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
-        ),
+        30601: Colloc(30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15),
+        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
+        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
+        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
+        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
+        2373301: Colloc(2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262),
     }
 
 
@@ -478,7 +475,7 @@ def test_inverse_attribute_written_to_mwe_file():
     mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=1)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
@@ -491,13 +488,13 @@ def test_extraction_of_inverse_attribute_for_mwe(collocations):
             "tests/testdata/test_db/matches", file, collocations
         )
     assert mwe_ids == {
-        (2373301, 2367256, "VZ", "fest", "ADP", 0): 2,
+        (2373301, 2367256, "VZ", "fest", "ADP", 0): 0,
         (2367256, 2373301, "SUBJA", "Polizei", "NOUN", 1): 1,
     }
 
 
 def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
-    collocations[2373301] = pro.Colloc(
+    collocations[2373301] = Colloc(
         2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
     )
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -1359,3 +1356,65 @@ def test_inverse_of_objo_written_to_file():
         ["1", "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "0", "10.0", "14.0"],
         ["-1", "OBJO", "Betrug", "beschuldigen", "NOUN", "VERB", "1", "10.0", "14.0"],
     ]
+
+
+def test_mwe_filtered_for_min_freq():
+    mwe_freqs = {1: 1, 0: 5, 2: 3}
+    mwe_ids = {
+        (11, 12, "label", "lemma", "tag", 0): 0,
+        (13, 14, "label", "lemma", "tag", 0): 1,
+        (15, 16, "label", "lemma", "tag", 0): 2,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        with open(file) as fp:
+            result = fp.read().split()
+    assert result == ["0", "11", "12", "label", "lemma", "tag", "0", "5", "14.0"]
+
+
+def test_mwe_freq_and_id_update_unseen_mwe():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4, 2: 10})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (1, 2, "label", "d", "tag", 1)
+    new_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert new_id == 3
+    assert mwe_ids == {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+        (1, 2, "label", "d", "tag", 1): 3,
+    }
+    assert set(mwe_freqencies.keys()) == {0, 1, 2}
+    assert mwe_freqencies[new_id] == 1
+
+
+def test_mwe_freq_and_id_update_mwe_encountered_second_time():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (15, 16, "label", "c", "tag", 0)
+    mwe_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert mwe_id == 2
+    assert mwe_freqencies[mwe_id] == 2
+    assert set(mwe_freqencies.keys()) == {0, 1, 2}
+
+
+def test_mwe_freq_and_id_update_previously_seen_mwe():
+    mwe_freqencies = defaultdict(lambda: 1, {0: 2, 1: 4, 2: 10})
+    mwe_ids = {
+        (11, 12, "label", "a", "tag", 0): 0,
+        (13, 14, "label", "b", "tag", 0): 1,
+        (15, 16, "label", "c", "tag", 0): 2,
+    }
+    mwe_to_add = (13, 14, "label", "b", "tag", 0)
+    mwe_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
+    assert mwe_id == 1
+    assert mwe_freqencies[mwe_id] == 5
