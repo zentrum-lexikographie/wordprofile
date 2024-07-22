@@ -257,8 +257,8 @@ class Wordprofile:
             )
         return {
             "parts": [
-                {"Lemma": coocc_info.lemma1, "POS": tag_b2f[coocc_info.tag1]},
-                {"Lemma": coocc_info.lemma2, "POS": tag_b2f[coocc_info.tag2]},
+                {"Lemma": coocc_info.lemma1},
+                {"Lemma": coocc_info.lemma2},
             ],
             "data": dict(results),
         }

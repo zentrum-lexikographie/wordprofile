@@ -278,3 +278,34 @@ def test_tuples_in_format_relation_contain_all_necessary_keys(description_handle
         "HasMwe": 0,
     }
     assert result == expected
+
+
+def test_formatting_of_mwe_relation(description_handler):
+    collocation = Coocc(
+        id=17,
+        rel="PP",
+        lemma1="Ende-Jahrhundert",
+        lemma2="ansteigen",
+        form1="Ende-Jahrhundert",
+        form2="angestiegen",
+        tag1="NOUN-NOUN",
+        tag2="VERB",
+        freq=5,
+        score=10.3,
+        inverse=0,
+        has_mwe=0,
+        num_concords=5,
+    )
+    result = form.format_relations([collocation], description_handler, is_mwe=True)[0]
+    expected = {
+        "ConcordId": "#mwe17",
+        "ConcordNoAccessible": 5,
+        "Relation": "PP",
+        "RelationDescription": "hat Präpositionalgruppe",
+        "POS": "Verb",
+        "Form": "angestiegen",
+        "Lemma": "ansteigen",
+        "Score": {"logDice": 10.3, "Frequency": 5},
+        "HasMwe": 0,
+    }
+    assert result == expected

@@ -606,3 +606,8 @@ class WordprofileTest(unittest.TestCase):
             }
         ]
         self.assertEqual(result, expected)
+
+    def test_retrieval_of_mwe_relation_parts_contains_lemma_information(self):
+        result = self.wp.get_mwe_relations([10])["parts"]
+        expected = [{"Lemma": "Arbeit"}, {"Lemma": "gemeinnützig"}]
+        self.assertEqual(result, expected)
