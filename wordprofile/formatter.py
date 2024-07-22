@@ -51,7 +51,6 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
-                "PosId": tag_b2f.get(coocc.tag2, ""),
                 "Form": coocc.form2,
                 "Lemma": coocc.lemma2,
                 "Score": {
@@ -59,7 +58,6 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     "logDice": coocc.score,
                 },
                 "ConcordId": ("#mwe" if is_mwe else "") + str(coocc.id),
-                "ConcordNo": coocc.num_concords,
                 "ConcordNoAccessible": coocc.num_concords,
                 "HasMwe": coocc.has_mwe,
             }

@@ -247,3 +247,34 @@ def test_format_lemma_pos(description_handler):
             "Relations": ["META", "~ATTR", "KON"],
         }
     ]
+
+
+def test_tuples_in_format_relation_contain_all_necessary_keys(description_handler):
+    collocation = Coocc(
+        id=12,
+        rel="ATTR",
+        lemma1="Fenster",
+        lemma2="groß",
+        form1="Fenster",
+        form2="große",
+        tag1="NOUN",
+        tag2="ADJ",
+        freq=10,
+        score=3.0,
+        inverse=0,
+        has_mwe=0,
+        num_concords=10,
+    )
+    result = form.format_relations([collocation], description_handler)[0]
+    expected = {
+        "ConcordId": "12",
+        "ConcordNoAccessible": 10,
+        "Relation": "ATTR",
+        "RelationDescription": "hat Adjektivattribut",
+        "POS": "Adjektiv",
+        "Form": "große",
+        "Lemma": "groß",
+        "Score": {"logDice": 3.0, "Frequency": 10},
+        "HasMwe": 0,
+    }
+    assert result == expected
