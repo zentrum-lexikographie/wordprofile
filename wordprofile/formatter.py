@@ -108,7 +108,7 @@ def format_comparison(diffs):
             coocc_diff["Score"]["Frequency1"] = diff["coocc_1"].freq
             coocc_diff["Score"]["Assoziation1"] = diff["coocc_1"].score
             coocc_diff["ConcordId1"] = diff["coocc_1"].id
-            concord_no = diff["coocc_1"].freq
+            concord_no = diff["coocc_1"].num_concords
             if (
                 diff["coocc_1"].rel == "KON"
                 and diff["coocc_1"].lemma1 == diff["coocc_1"].lemma2
@@ -127,7 +127,7 @@ def format_comparison(diffs):
             coocc_diff["Score"]["Frequency2"] = diff["coocc_2"].freq
             coocc_diff["Score"]["Assoziation2"] = diff["coocc_2"].score
             coocc_diff["ConcordId2"] = diff["coocc_2"].id
-            concord_no = diff["coocc_2"].freq
+            concord_no = diff["coocc_2"].num_concords
             if (
                 diff["coocc_2"].rel == "KON"
                 and diff["coocc_2"].lemma1 == diff["coocc_2"].lemma2
