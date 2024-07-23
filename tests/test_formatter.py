@@ -337,3 +337,83 @@ def test_format_concordances_contains_necessary_bibl_information():
         "ConcordLine": "Auch deshalb habe ich Ihre _&freundliche&_ _&Einladung&_ gern angenommen.",
     }
     assert result == expected
+
+
+def test_defaults_for_comparison_formatting():
+    diffs = [{"pos": "NOUN", "score": 0.0}]
+    result = form.format_comparison(diffs)
+    assert result == [
+        {
+            "POS": "Substantiv",
+            "ConcordId1": None,
+            "ConcordId2": None,
+            "ConcordNoAccessible1": 0,
+            "ConcordNoAccessible2": 0,
+            "Score": {
+                "AScomp": 0.0,
+                "Frequency1": 0,
+                "Frequency2": 0,
+                "Assoziation1": 0.0,
+                "Assoziation2": 0.0,
+            },
+        }
+    ]
+
+
+def test_formatting_of_comparison():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "score": 6.26,
+            "coocc_1": Coocc(
+                id=-2,
+                rel="OBJ",
+                lemma1="Apfel",
+                lemma2="vergleichen",
+                form1="Äpfel",
+                form2="verglichen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=101,
+                score=8.1,
+                inverse=1,
+                has_mwe=0,
+                num_concords=100,
+            ),
+            "coocc_2": Coocc(
+                id=-3,
+                rel="OBJ",
+                lemma1="Birne",
+                lemma2="vergleichen",
+                form1="Birnen",
+                form2="vergleichen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=95,
+                score=5.1,
+                inverse=1,
+                has_mwe=0,
+                num_concords=90,
+            ),
+        }
+    ]
+    result = form.format_comparison(diffs)[0]
+    expected = {
+        "POS": "Substantiv",
+        "Position": "center",
+        "Relation": "OBJ",
+        "ConcordId1": -2,
+        "ConcordId2": -3,
+        "ConcordNoAccessible1": 100,
+        "ConcordNoAccessible2": 90,
+        "Lemma": "vergleichen",
+        "Form": "verglichen",
+        "Score": {
+            "AScomp": 6.26,
+            "Frequency1": 101,
+            "Assoziation1": 8.1,
+            "Frequency2": 95,
+            "Assoziation2": 5.1,
+        },
+    }
+    assert result == expected

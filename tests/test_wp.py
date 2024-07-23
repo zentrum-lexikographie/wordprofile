@@ -519,8 +519,6 @@ class WordprofileTest(unittest.TestCase):
                 "Assoziation2": 7,
                 "Frequency1": 20,
                 "Frequency2": 10,
-                "Rank1": 0,
-                "Rank2": 1,
             },
         }
         self.assertEqual(len(result), 3)
