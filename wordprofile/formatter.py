@@ -114,7 +114,7 @@ def format_comparison(diffs):
                 and diff["coocc_1"].lemma1 == diff["coocc_1"].lemma2
             ):
                 concord_no = concord_no / 2
-            coocc_diff["ConcordNo1"] = concord_no
+            coocc_diff["ConcordNoAccessible1"] = concord_no
             coocc_diff["Relation"] = diff["coocc_1"].rel
             coocc_diff["Lemma"] = diff["coocc_1"].lemma2
             coocc_diff["Form"] = diff["coocc_1"].form2
@@ -133,7 +133,7 @@ def format_comparison(diffs):
                 and diff["coocc_2"].lemma1 == diff["coocc_2"].lemma2
             ):
                 concord_no = concord_no / 2
-            coocc_diff["ConcordNo2"] = concord_no
+            coocc_diff["ConcordNoAccessible2"] = concord_no
             if "coocc_1" not in diff:
                 coocc_diff["Relation"] = diff["coocc_2"].rel
                 coocc_diff["Lemma"] = diff["coocc_2"].lemma2
