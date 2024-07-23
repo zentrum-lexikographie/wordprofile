@@ -474,13 +474,8 @@ class Wordprofile:
         description = description.replace("$2", coocc_info.lemma2)
         return {
             "Description": description,
-            "Relation": coocc_info.rel,
             "Lemma1": coocc_info.lemma1,
             "Lemma2": coocc_info.lemma2,
-            "Form1": coocc_info.form1,
-            "Form2": coocc_info.form2,
-            "POS1": coocc_info.tag1,
-            "POS2": coocc_info.tag2,
         }
 
     def get_concordances_and_relation(

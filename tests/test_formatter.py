@@ -309,3 +309,31 @@ def test_formatting_of_mwe_relation(description_handler):
         "HasMwe": 0,
     }
     assert result == expected
+
+
+def test_format_concordances_contains_necessary_bibl_information():
+    concordances = [
+        Concordance(
+            sentence="Auch\x02deshalb\x02habe\x02ich\x02Ihre\x02freundliche\x02Einladung\x02gern\x02angenommen\x01.",
+            token_position_1=7,
+            token_position_2=6,
+            extra_position="-",
+            corpus="corpus",
+            date=datetime.date.fromisoformat("2024-01-01"),
+            textclass="tc",
+            orig="Quelle, 01.01.2024",
+            avail="",
+            page="",
+            file="",
+            scan="",
+            score=5,
+            sentence_left="",
+            sentence_right="",
+        )
+    ]
+    result = form.format_concordances(concordances)[0]
+    expected = {
+        "Bibl": {"Corpus": "corpus", "Orig": "Quelle, 01.01.2024"},
+        "ConcordLine": "Auch deshalb habe ich Ihre _&freundliche&_ _&Einladung&_ gern angenommen.",
+    }
+    assert result == expected

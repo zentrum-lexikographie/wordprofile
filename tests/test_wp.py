@@ -439,13 +439,8 @@ class WordprofileTest(unittest.TestCase):
         result = self.wp.get_relation_by_info_id(2)
         expected = {
             "Description": "Feuerwehr hat Genitivattribut Umgebung",
-            "Relation": "GMOD",
             "Lemma1": "Feuerwehr",
             "Lemma2": "Umgebung",
-            "Form1": "Feuerwehr",
-            "Form2": "Umgebung",
-            "POS1": "NOUN",
-            "POS2": "NOUN",
         }
         self.assertEqual(result, expected)
 
@@ -453,13 +448,8 @@ class WordprofileTest(unittest.TestCase):
         result = self.wp.get_relation_by_info_id(-3)
         expected = {
             "Description": "Feuerwehr ist Genitivattribut von Kommandant",
-            "Relation": "GMOD",
             "Lemma1": "Feuerwehr",
             "Lemma2": "Kommandant",
-            "Form1": "Feuerwehr",
-            "Form2": "Kommandant",
-            "POS1": "NOUN",
-            "POS2": "NOUN",
         }
         self.assertEqual(result, expected)
 
@@ -610,4 +600,14 @@ class WordprofileTest(unittest.TestCase):
     def test_retrieval_of_mwe_relation_parts_contains_lemma_information(self):
         result = self.wp.get_mwe_relations([10])["parts"]
         expected = [{"Lemma": "Arbeit"}, {"Lemma": "gemeinnützig"}]
+        self.assertEqual(result, expected)
+
+    def test_concordance_result_contains_lemma_info_and_bibl(self):
+        result = self.wp.get_concordances_and_relation(-1)
+        expected = {
+            "Description": "Feuerwehr ist Subjekt von rücken",
+            "Lemma1": "Feuerwehr",
+            "Lemma2": "rücken",
+            "Tuples": [],
+        }
         self.assertEqual(result, expected)

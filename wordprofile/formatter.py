@@ -69,8 +69,6 @@ def format_concordances(concords: list[WPConcordance]):
     """Converts concordances into output format"""
     results = []
     for c in concords:
-        sentence_left = format_sentence(c.sentence_left)
-        sentence_right = format_sentence(c.sentence_right)
         sentence_main = format_sentence_and_highlight(
             c.sentence, c.get_highlight_positions()
         )
@@ -78,18 +76,9 @@ def format_concordances(concords: list[WPConcordance]):
             {
                 "Bibl": {
                     "Corpus": c.corpus,
-                    "Date": c.date.strftime("%d-%m-%Y"),
-                    "TextClass": c.textclass,
                     "Orig": c.orig.replace("#page#", c.page),
-                    "Scan": c.scan.replace("#page#", c.page),
-                    "Avail": c.avail,
-                    "Page": c.page,
-                    "File": c.file,
                 },
                 "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": c.score,
             }
         )
     return results
