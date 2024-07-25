@@ -376,7 +376,7 @@ def test_formatting_of_comparison():
                 tag2="VERB",
                 freq=101,
                 score=8.1,
-                inverse=1,
+                inverse=0,
                 has_mwe=0,
                 num_concords=100,
             ),
@@ -417,3 +417,70 @@ def test_formatting_of_comparison():
         },
     }
     assert result == expected
+
+
+def test_formatting_of_comparison_with_inverse_relation():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "score": 6.26,
+            "coocc_1": Coocc(
+                id=-2,
+                rel="OBJ",
+                lemma1="Apfel",
+                lemma2="vergleichen",
+                form1="Äpfel",
+                form2="verglichen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=101,
+                score=8.1,
+                inverse=1,
+                has_mwe=0,
+                num_concords=100,
+            ),
+            "coocc_2": Coocc(
+                id=-3,
+                rel="OBJ",
+                lemma2="Apfel",
+                lemma1="ernten",
+                form1="Äpfel",
+                form2="ernten",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=95,
+                score=5.1,
+                inverse=1,
+                has_mwe=0,
+                num_concords=90,
+            ),
+        }
+    ]
+    result = form.format_comparison(diffs)[0]["Relation"]
+    assert result == "~OBJ"
+
+
+def test_formatting_of_relation_description_in_diff_comparison():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "score": 6.26,
+            "coocc_2": Coocc(
+                id=-2,
+                rel="OBJ",
+                lemma1="Apfel",
+                lemma2="vergleichen",
+                form1="Äpfel",
+                form2="verglichen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=101,
+                score=8.1,
+                inverse=1,
+                has_mwe=0,
+                num_concords=100,
+            ),
+        }
+    ]
+    result = form.format_comparison(diffs)[0]["Relation"]
+    assert result == "~OBJ"

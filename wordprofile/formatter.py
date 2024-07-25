@@ -115,7 +115,8 @@ def format_comparison(diffs):
             ):
                 concord_no = concord_no / 2
             coocc_diff["ConcordNoAccessible1"] = concord_no
-            coocc_diff["Relation"] = diff["coocc_1"].rel
+            relation = diff["coocc_1"].rel
+            coocc_diff["Relation"] = ("~" if diff["coocc_1"].inverse else "") + relation
             coocc_diff["Lemma"] = diff["coocc_1"].lemma2
             coocc_diff["Form"] = diff["coocc_1"].form2
             if "coocc_2" in diff:
@@ -135,7 +136,10 @@ def format_comparison(diffs):
                 concord_no = concord_no / 2
             coocc_diff["ConcordNoAccessible2"] = concord_no
             if "coocc_1" not in diff:
-                coocc_diff["Relation"] = diff["coocc_2"].rel
+                relation = diff["coocc_2"].rel
+                coocc_diff["Relation"] = (
+                    "~" if diff["coocc_2"].inverse else ""
+                ) + relation
                 coocc_diff["Lemma"] = diff["coocc_2"].lemma2
                 coocc_diff["Form"] = diff["coocc_2"].form2
                 coocc_diff["Position"] = "right"
