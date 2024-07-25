@@ -105,43 +105,37 @@ def format_comparison(diffs):
         }
         # complete information for first coocc
         if "coocc_1" in diff:
-            coocc_diff["Score"]["Frequency1"] = diff["coocc_1"].freq
-            coocc_diff["Score"]["Assoziation1"] = diff["coocc_1"].score
-            coocc_diff["ConcordId1"] = diff["coocc_1"].id
-            concord_no = diff["coocc_1"].num_concords
-            if (
-                diff["coocc_1"].rel == "KON"
-                and diff["coocc_1"].lemma1 == diff["coocc_1"].lemma2
-            ):
+            coocc_1 = diff["coocc_1"]
+            coocc_diff["Score"]["Frequency1"] = coocc_1.freq
+            coocc_diff["Score"]["Assoziation1"] = coocc_1.score
+            coocc_diff["ConcordId1"] = coocc_1.id
+            concord_no = coocc_1.num_concords
+            if coocc_1.rel == "KON" and coocc_1.lemma1 == coocc_1.lemma2:
                 concord_no = concord_no / 2
             coocc_diff["ConcordNoAccessible1"] = concord_no
-            relation = diff["coocc_1"].rel
-            coocc_diff["Relation"] = ("~" if diff["coocc_1"].inverse else "") + relation
-            coocc_diff["Lemma"] = diff["coocc_1"].lemma2
-            coocc_diff["Form"] = diff["coocc_1"].form2
+            relation = coocc_1.rel
+            coocc_diff["Relation"] = ("~" if coocc_1.inverse else "") + relation
+            coocc_diff["Lemma"] = coocc_1.lemma2
+            coocc_diff["Form"] = coocc_1.form2
             if "coocc_2" in diff:
                 coocc_diff["Position"] = "center"
             else:
                 coocc_diff["Position"] = "left"
         # complete information for second coocc
         if "coocc_2" in diff:
-            coocc_diff["Score"]["Frequency2"] = diff["coocc_2"].freq
-            coocc_diff["Score"]["Assoziation2"] = diff["coocc_2"].score
-            coocc_diff["ConcordId2"] = diff["coocc_2"].id
-            concord_no = diff["coocc_2"].num_concords
-            if (
-                diff["coocc_2"].rel == "KON"
-                and diff["coocc_2"].lemma1 == diff["coocc_2"].lemma2
-            ):
+            coocc_2 = diff["coocc_2"]
+            coocc_diff["Score"]["Frequency2"] = coocc_2.freq
+            coocc_diff["Score"]["Assoziation2"] = coocc_2.score
+            coocc_diff["ConcordId2"] = coocc_2.id
+            concord_no = coocc_2.num_concords
+            if coocc_2.rel == "KON" and coocc_2.lemma1 == coocc_2.lemma2:
                 concord_no = concord_no / 2
             coocc_diff["ConcordNoAccessible2"] = concord_no
             if "coocc_1" not in diff:
-                relation = diff["coocc_2"].rel
-                coocc_diff["Relation"] = (
-                    "~" if diff["coocc_2"].inverse else ""
-                ) + relation
-                coocc_diff["Lemma"] = diff["coocc_2"].lemma2
-                coocc_diff["Form"] = diff["coocc_2"].form2
+                relation = coocc_2.rel
+                coocc_diff["Relation"] = ("~" if coocc_2.inverse else "") + relation
+                coocc_diff["Lemma"] = coocc_2.lemma2
+                coocc_diff["Form"] = coocc_2.form2
                 coocc_diff["Position"] = "right"
         results.append(coocc_diff)
     return results
