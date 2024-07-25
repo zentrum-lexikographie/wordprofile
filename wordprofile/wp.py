@@ -12,7 +12,7 @@ from wordprofile.formatter import (
     format_lemma_pos,
     format_relations,
 )
-from wordprofile.utils import tag_b2f, tag_f2b
+from wordprofile.utils import tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.wpse_spec import WpSeSpec
