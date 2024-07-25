@@ -1,7 +1,7 @@
 import re
 from collections.abc import Iterator
 
-from wordprofile.datatypes import DBToken, Match
+from wordprofile.datatypes import Match, WPToken
 from wordprofile.extract import extract_matches
 
 RE_GK_NORM_ERROR = re.compile(r"^([^-]+-)+[a-zäüöß]+$")
@@ -12,7 +12,7 @@ def remove_invalid_chars(unicode_string):
     return INVALID_CHARS.sub("", unicode_string) or "_"
 
 
-def is_valid_token(tok: DBToken) -> bool:
+def is_valid_token(tok: WPToken) -> bool:
     return not any(
         [
             len(tok.surface) < 2,
@@ -36,7 +36,7 @@ def valid_match(match: Match) -> bool:
     return is_valid_token(match.head) and is_valid_token(match.dep)
 
 
-def extract_matches_from_doc(parses: list[list[DBToken]]) -> Iterator[Match]:
+def extract_matches_from_doc(parses: list[list[WPToken]]) -> Iterator[Match]:
     """
     Extracts valid matches from a given document (list of token sequences).
     """
@@ -82,27 +82,27 @@ def repair_lemma(lemma: str, lemma_tag: str) -> str:
 # REMOVE END
 
 
-def sent_filter_length(sentence: list[DBToken]) -> bool:
+def sent_filter_length(sentence: list[WPToken]) -> bool:
     return 3 <= len(sentence) <= 100
 
 
-def sent_filter_endings(sentence: list[DBToken]) -> bool:
+def sent_filter_endings(sentence: list[WPToken]) -> bool:
     if not sentence:
         return False
     return not sentence[-1].surface in [":", ","] or len(sentence) >= 5
 
 
-def sent_filter_tags(sentence: list[DBToken]) -> bool:
+def sent_filter_tags(sentence: list[WPToken]) -> bool:
     return any(t.tag in ["NOUN", "VERB", "AUX"] for t in sentence)
 
 
-def sent_filter_invalid_tags(sentence: list[DBToken]) -> bool:
+def sent_filter_invalid_tags(sentence: list[WPToken]) -> bool:
     return sum(1 for t in sentence if t.tag in {"X", "SYM"}) < min(
         10, len(sentence) / 3
     )
 
 
-def sentence_is_valid(s: list[DBToken]) -> bool:
+def sentence_is_valid(s: list[WPToken]) -> bool:
     return all(
         [
             sent_filter_length(s),

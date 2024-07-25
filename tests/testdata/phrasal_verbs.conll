@@ -1,0 +1,114 @@
+# DDC:tokid.begin = 4548239
+# DDC:tokid.end = 4551166
+# DDC:meta.n_ = 2646
+# DDC:meta.file_ = politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml
+# DDC:meta.date_ = 2009-06-02
+# DDC:meta.page_ = -1
+# DDC:meta.author = Frank-Walter Steinmeier
+# DDC:meta.avail = -
+# DDC:meta.availability = Distributed under the Creative Commons Attribution-ShareAlike 4.0 International Licence.
+# DDC:meta.basename = de1/DE1_0999_20090602
+# DDC:meta.bibl = Rede von Frank-Walter Steinmeier, 02.06.2009
+# DDC:meta.collection = politische_reden
+# DDC:meta.country = DE
+# DDC:meta.party = SPD
+# DDC:meta.role = Bundesminister
+# DDC:meta.textClass = gesprochen:Rede
+# DDC:meta.timestamp = 2020-02-25T18:27:16Z
+# DDC:meta.title = Rede von Außenminister Frank-Walter Steinmeier in der Akademie der Wissenschaften in Budapest
+# DDC:meta.url = http://www.auswaertiges-amt.de/DE/Infoservice/Presse/Reden/2009/090602-BM-Budapest.html
+# DDC:BREAK.s[238299] = 4548239
+# DDC:BREAK.c[2645] = 4548239
+# DDC:BREAK.p[81870] = 4548239
+# DDC:BREAK.file[2645] = 4548239
+# DDC:BREAK.textarea[2645] = 4548239
+# text = Welche Lehren halten die Ereignisse von 1989 für die Zeitenwende bereit , die wir jetzt gerade erleben ?
+1	Welche	welche	DET	PWAT	Case=Nom|Number=Plur|PronType=Int,Rel	2	det	_	_
+2	Lehren	Lehre	NOUN	NN	Gender=Fem|Number=Plur	3	obj	_	_
+3	halten	halten	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+4	die	d	DET	ART	Case=Nom|Definite=Def|Number=Plur|PronType=Art	5	det	_	_
+5	Ereignisse	Ereignis	NOUN	NN	Gender=Neut|Number=Plur	3	nsubj	_	_
+6	von	von	ADP	APPR	AdpType=Prep|Case=Dat	7	case	_	_
+7	1989	1989	NUM	CARD	NumType=Card|Number=Plur	5	nmod	_	_
+8	für	für	ADP	APPR	AdpType=Prep|Case=Acc	10	case	_	_
+9	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	10	det	_	_
+10	Zeitenwende	Zeitenwende	NOUN	NN	Gender=Fem|Number=Sing	3	obl	_	_
+11	bereit	bereit	ADP	PTKVZ	PartType=Vbp	3	compound:prt	_	SpaceAfter=No
+12	,	,	PUNCT	$,	PunctType=Comm	17	punct	_	_
+13	die	die	PRON	PRELS	Case=Acc|Number=Plur|PronType=Dem,Rel	17	obj	_	_
+14	wir	wir	PRON	PPER	Case=Nom|Number=Plur|Person=1|PronType=Prs	17	nsubj	_	_
+15	jetzt	jetzt	ADV	ADV	_	16	advmod	_	_
+16	gerade	gerade	ADV	ADV	_	17	advmod	_	_
+17	erleben	erleben	VERB	VVINF	VerbForm=Inf	2	acl	_	_
+18	?	?	PUNCT	$.	PunctType=Peri	3	punct	_	_
+
+# DDC:BREAK.s[238381] = 4549586
+# text = Am kommenden Wochenende finden in den 27 Mitgliedstaaten die Wahlen zum Europäischen Parlament statt .
+1	Am	am	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	3	case	_	_
+2	kommenden	kommend	ADJ	ADJA	Degree=Pos|Number=Sing	3	amod	_	_
+3	Wochenende	Wochenende	NOUN	NN	Gender=Neut|Number=Sing	4	obl	_	_
+4	finden	finden	VERB	VVFIN	Mood=Ind|Number=Plur|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+5	in	in	ADP	APPR	AdpType=Prep|Case=Dat	8	case	_	_
+6	den	d	DET	ART	Case=Dat|Definite=Def|Number=Plur|PronType=Art	8	det	_	_
+7	27	27	NUM	CARD	NumType=Card|Number=Plur	8	nummod	_	_
+8	Mitgliedstaaten	Mitgliedstaat	NOUN	NN	Gender=Masc|Number=Plur	4	obl	_	_
+9	die	d	DET	ART	Case=Acc|Definite=Def|Number=Plur|PronType=Art	10	det	_	_
+10	Wahlen	Wahl	NOUN	NN	Gender=Fem|Number=Plur	4	nsubj	_	_
+11	zum	zum	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Masc,Neut|Number=Sing|PronType=Art	13	case	_	_
+12	Europäischen	europäisch	ADJ	ADJA	Degree=Pos|Number=Sing	13	amod	_	_
+13	Parlament	Parlament	NOUN	NN	Gender=Neut|Number=Sing	10	nmod	_	_
+14	statt	statt	ADP	PTKVZ	PartType=Vbp	4	compound:prt	_	_
+15	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	_
+
+# text = Deshalb liegt es nahe , künftig eine engere Abstimmung in der Eurozone zu zentralen wirtschaftlichen Fragen , insbesondere zur Lohn- , Sozial- und Steuerpolitik vorzunehmen .
+1	Deshalb	deshalb	ADV	PROAV	_	2	advmod	_	_
+2	liegt	liegen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+3	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	2	nsubj	_	_
+4	nahe	nahe	ADP	PTKVZ	PartType=Vbp	2	compound:prt	_	SpaceAfter=No
+5	,	,	PUNCT	$,	PunctType=Comm	25	punct	_	_
+6	künftig	künftig	ADJ	ADJD	Degree=Pos|Variant=Short	25	advmod	_	_
+7	eine	eine	DET	ART	Case=Acc|Definite=Ind|Gender=Fem|NumType=Card|Number=Sing|PronType=Art	9	det	_	_
+8	engere	eng	ADJ	ADJA	Degree=Cmp|Gender=Fem|Number=Sing	9	amod	_	_
+9	Abstimmung	Abstimmung	NOUN	NN	Gender=Fem|Number=Sing	25	obj	_	_
+10	in	in	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	_
+11	der	d	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	12	det	_	_
+12	Eurozone	Eurozone	NOUN	NN	Gender=Fem|Number=Sing	9	nmod	_	_
+13	zu	zu	ADP	APPR	AdpType=Prep|Case=Dat	16	case	_	_
+14	zentralen	zentral	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Plur	16	amod	_	_
+15	wirtschaftlichen	wirtschaftlich	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Plur	16	amod	_	_
+16	Fragen	Frage	NOUN	NN	Gender=Fem|Number=Plur	9	nmod	_	SpaceAfter=No
+17	,	,	PUNCT	$,	PunctType=Comm	20	punct	_	_
+18	insbesondere	insbesondere	ADV	ADV	_	20	advmod	_	_
+19	zur	zur	ADP	APPR_ART	AdpType=Prep|Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	20	case	_	_
+20	Lohn-	lohn-	NOUN	TRUNC	Hyph=Yes	9	nmod	_	SpaceAfter=No
+21	,	,	PUNCT	$,	PunctType=Comm	22	punct	_	_
+22	Sozial-	sozial-	NOUN	TRUNC	Hyph=Yes	20	conj	_	_
+23	und	und	CCONJ	KON	_	24	cc	_	_
+24	Steuerpolitik	Steuerpolitik	NOUN	NN	Gender=Fem|Number=Sing	20	conj	_	_
+25	vorzunehmen	vornehmen	VERB	VVIZU	VerbForm=Inf	2	csubj	_	_
+26	.	.	PUNCT	$.	PunctType=Peri	2	punct	_	_
+
+# DDC:BREAK.s[238440] = 4550415
+# text = In krisenhaften Zeiten kommt es gerade in der Politik gegenüber unseren Nachbarn mehr denn je auf den richtigen strategischen Kompass an .
+1	In	in	ADP	APPR	AdpType=Prep|Case=Dat	3	case	_	_
+2	krisenhaften	krisenhaft	ADJ	ADJA	Case=Dat|Degree=Pos|Number=Plur	3	amod	_	_
+3	Zeiten	Zeit	NOUN	NN	Gender=Fem|Number=Plur	4	obl	_	_
+4	kommt	kommen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+5	es	es	PRON	PPER	Case=Nom|Gender=Neut|Number=Sing|Person=3|PronType=Prs	4	nsubj	_	_
+6	gerade	gerade	ADV	ADV	_	4	advmod	_	_
+7	in	in	ADP	APPR	AdpType=Prep|Case=Dat	9	case	_	_
+8	der	d	DET	ART	Case=Dat|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	9	det	_	_
+9	Politik	Politik	NOUN	NN	Gender=Fem|Number=Sing	4	obl	_	_
+10	gegenüber	gegenüber	ADP	APPR	AdpType=Prep|Case=Dat	12	case	_	_
+11	unseren	unsere	DET	PPOSAT	Case=Dat|Number=Plur|Number[psor]=Plur|Person=1|Poss=Yes|PronType=Prs	12	det	_	_
+12	Nachbarn	Nachbar	NOUN	NN	Gender=Masc|Number=Plur	4	obl	_	_
+13	mehr	mehr	ADV	ADV	Degree=Cmp	4	advmod	_	_
+14	denn	denn	CCONJ	KOKOM	ConjType=Comp	4	advmod	_	_
+15	je	je	ADV	ADV	_	4	advmod	_	_
+16	auf	auf	ADP	APPR	AdpType=Prep|Case=Acc	20	case	_	_
+17	den	d	DET	ART	Case=Acc|Definite=Def|Gender=Masc|Number=Sing|PronType=Art	20	det	_	_
+18	richtigen	richtig	ADJ	ADJA	Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	20	amod	_	_
+19	strategischen	strategisch	ADJ	ADJA	Case=Acc|Degree=Pos|Gender=Masc|Number=Sing	20	amod	_	_
+20	Kompass	Kompaß	NOUN	NN	Gender=Masc|Number=Sing	4	obl	_	_
+21	an	an	ADP	PTKVZ	PartType=Vbp	4	compound:prt	_	_
+22	.	.	PUNCT	$.	PunctType=Peri	4	punct	_	_

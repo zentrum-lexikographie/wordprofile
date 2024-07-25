@@ -1,7 +1,7 @@
 from collections import defaultdict
 from collections.abc import Iterator
 
-from wordprofile.datatypes import DBToken, DependencyTree, Match
+from wordprofile.datatypes import DependencyTree, Match, WPToken
 
 RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     "ADV": {
@@ -41,11 +41,16 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         ],
     },
     "OBJ": {
-        "desc": "hat Akkusativ/Dativ-Objekt",
-        "inverse": "ist Akkusativ/Dativ-Objekt von",
+        "desc": "hat Akkusativ-Objekt",
+        "inverse": "ist Akkusativ-Objekt von",
         "rules": [
             ("iobj", "verb", "noun"),
         ],
+    },
+    "OBJO": {
+        "desc": "hat Dativ-/Genitiv-Objekt",
+        "inverse": "ist Dativ-/Genitiv-Objekt von",
+        "rules": [],
     },
     "PP": {
         "desc": "hat Präpositionalgruppe",
@@ -73,15 +78,6 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         "inverse": "ist Passivsubjekt von",
         "rules": [
             ("nsubj:pass", "verb", "noun"),
-        ],
-    },
-    "VZ": {
-        "desc": "hat Verbzusatz",
-        "inverse": "",
-        "rules": [
-            ("compound:prt", "verb", "adp"),  # liegt ... zugrunde
-            ("compound:prt", "aux", "adp"),  # hat ... vor
-            ("compound:prt", "adj", "adp"),  # leid tun
         ],
     },
 }
@@ -153,7 +149,7 @@ def get_inverted_relation_patterns() -> (
 
 def extract_matches_by_pattern(
     relations_inv: dict[str | tuple[str, ...], dict[tuple[str, ...], str]],
-    tokens: list[DBToken],
+    tokens: list[WPToken],
     sid: int,
 ) -> Iterator[Match]:
     """Extracts matches from a sequence of tokens by using a generated
@@ -200,7 +196,7 @@ def extract_matches_by_pattern(
                 )
 
 
-def extract_comparing_groups(tokens: list[DBToken], sid: int) -> Iterator[Match]:
+def extract_comparing_groups(tokens: list[WPToken], sid: int) -> Iterator[Match]:
     """
     Extracts matches for comparison relation from a sequence of tokens.
 
@@ -303,89 +299,13 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     Returns:
         Generator over extracted matches from sentence.
     """
-    determiners = {
-        "aller",
-        "alles",
-        "beider",
-        "Deinen",
-        "deiner",
-        "Deiner",
-        "deines",
-        "Deines",
-        "der",
-        "des",
-        "dieser",
-        "dieses",
-        "dreier",
-        "ebender",
-        "ebendes",
-        "ebendieser",
-        "ebendieses",
-        "ebenjener",
-        "ebenjenes",
-        "ebensolcher",
-        "ebensolches",
-        "einer",
-        "eines",
-        "einiger",
-        "einiges",
-        "etlicher",
-        "etliches",
-        "euerer",
-        "Euerer",
-        "eueres",
-        "Eueres",
-        "euers",
-        "Euers",
-        "eurer",
-        "Eurer",
-        "eures",
-        "Eures",
-        "ihrer",
-        "Ihrer",
-        "ihres",
-        "Ihres",
-        "irgendeiner",
-        "irgendeines",
-        "irgendwelcher",
-        "irgendwelches",
-        "jeder",
-        "jedes",
-        "jedweder",
-        "jedwedes",
-        "jeglicher",
-        "jegliches",
-        "jener",
-        "jenes",
-        "keiner",
-        "keines",
-        "mancher",
-        "manches",
-        "mehrerer",
-        "meiner",
-        "meines",
-        "’ner",
-        "’nes",
-        "sämtlicher",
-        "sämtliches",
-        "seiner",
-        "seines",
-        "solcher",
-        "solches",
-        "unserer",
-        "unseres",
-        "unsers",
-        "unsrer",
-        "unsres",
-        "welcher",
-        "welches",
-        "zweier",
-    }
     for n in dtree.nodes:
         if n.token.tag == "NOUN":
             for nmod in n.children:
                 if nmod.token.rel == "nmod" and nmod.token.tag == "NOUN":
-                    if any(det.token.surface in determiners for det in nmod.children):
+                    if _has_case_marking(nmod.token, "Gen") or any(
+                        _has_case_marking(dep.token, "Gen") for dep in nmod.children
+                    ):
                         if any(c.token.rel == "case" for c in nmod.children):
                             continue
                         yield Match(
@@ -395,6 +315,12 @@ def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             "GMOD",
                             sid,
                         )
+
+
+def _has_case_marking(token: WPToken, case: str) -> bool:
+    if token.morph is None:
+        return False
+    return ("Case", case) in token.morph.items()
 
 
 def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
@@ -426,7 +352,7 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
 
 def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """
-    Extract acc./dat. object relation from a dependency tree.
+    Extract acc./dat./gen. object relation from a dependency tree.
 
     Args:
         dtree: DependencyTree of a single sentence
@@ -438,14 +364,29 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     for node in dtree.nodes:
         if node.token.tag == "VERB":
             for child in node.children:
-                if child.token.rel in {"obj", "obl", "obl:arg"}:
+                if child.token.rel in {"obj", "obl:arg"} and child.token.tag == "NOUN":
                     if any(dep.token.rel == "case" for dep in child.children):
                         continue
-                        # check for genitive?
-                    yield Match(node.token, child.token, None, "OBJ", sid)
+                    if child.token.rel == "obj":
+                        if not (
+                            _has_case_marking(child.token, "Dat")
+                            or _has_case_marking(child.token, "Gen")
+                            or any(
+                                _has_case_marking(dep.token, "Gen")
+                                or _has_case_marking(dep.token, "Dat")
+                                for dep in child.children
+                            )
+                            or _has_case_marking(child.token, "Acc")
+                        ):
+                            relation = "OBJ"
+                        else:
+                            relation = "OBJO"
+                    elif child.token.rel == "obl:arg":
+                        relation = "OBJO"
+                    yield Match(node.token, child.token, None, relation, sid)
 
 
-def extract_matches(parses: list[list[DBToken]]) -> Iterator[Match]:
+def extract_matches(parses: list[list[WPToken]]) -> Iterator[Match]:
     """Extracts various matches from a given list of sentences.
 
     Args:

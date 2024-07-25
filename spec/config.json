@@ -13,12 +13,20 @@
       "$1 ist Adverbialbestimmung von $2"
     ],
     "OBJ": [
-      "hat Akkusativ/Dativ-Objekt",
-      "$1 hat Akkusativ/Dativ-Objekt $2"
+      "hat Akkusativ-Objekt",
+      "$1 hat Akkusativ-Objekt $2"
     ],
     "~OBJ": [
-      "ist Akkusativ/Dativ-Objekt von",
-      "$1 ist Akkusativ/Dativ-Objekt von $2"
+      "ist Akkusativ-Objekt von",
+      "$1 ist Akkusativ-Objekt von $2"
+    ],
+    "OBJO": [
+      "hat Dativ-/Genitiv-Objekt",
+      "$1 hat Dativ-/Genitiv-Objekt $2"
+    ],
+    "~OBJO": [
+      "ist Dativ-/Genitiv-Objekt von",
+      "$1 ist Dativ-/Genitiv-Objekt von $2"
     ],
     "PP": [
       "hat Präpositionalgruppe",
@@ -35,14 +43,6 @@
     "~PRED": [
       "ist Prädikativ von",
       "$1 ist Prädikativ von $2"
-    ],
-    "VZ": [
-      "hat Verbzusatz",
-      "$1 hat Verbzusatz $2"
-    ],
-    "~VZ": [
-      "ist Verbzusatz von",
-      "$1 ist Verbzusatz von $2"
     ],
     "KOM": [
       "hat vergleichende Wortgruppe",
@@ -99,6 +99,8 @@
     "~ATTR",
     "OBJ",
     "~OBJ",
+    "OBJO",
+    "~OBJO",
     "PP",
     "~PP",
     "GMOD",
@@ -110,10 +112,6 @@
     "~KOM",
     "SUBJA",
     "~SUBJA",
-    "SUBJ",
-    "~SUBJ",
-    "VZ",
-    "~VZ",
     "ADV",
     "~ADV",
     "SUBJP",
@@ -133,11 +131,11 @@
       "META",
       "ADV",
       "OBJ",
+      "OBJO",
       "PP",
       "KON",
       "SUBJA",
       "PRED",
-      "VZ",
       "KOM",
       "SUBJP"
     ],
@@ -145,6 +143,7 @@
       "META",
       "ATTR",
       "~OBJ",
+      "~OBJO",
       "~PP",
       "GMOD",
       "KON",

@@ -2,7 +2,7 @@ import http
 import logging
 import time
 from argparse import ArgumentParser
-from typing import List
+from typing import List, Optional
 
 import uvicorn
 from fastapi import FastAPI, Query
@@ -280,7 +280,7 @@ async def get_intersection(
 
 @app.get("/api/v1/mwe/profile", tags=["mwe"])
 def get_mwe_relations(
-    coocc_id: int = None,
+    coocc_id: Optional[int] = None,
     lemma1: str = "",
     lemma2: str = "",
     relations: List[str] = Query([]),

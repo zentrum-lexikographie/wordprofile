@@ -15,7 +15,7 @@ version = os.environ.get('VERSION', version)
 version = f'{version}.{minor_version.strip()}'
 
 for service in ['api']:
-    image = f'docker-registry.zdl.org/zdl-wordprofile/{service}'
+    image = f'docker.zdl.org/zdl-wordprofile/{service}'
     image_tag = f'{image}:latest'
     release_tag = f'{image}:{version}'
     check_call(['docker', 'tag', image_tag, release_tag])

@@ -2,7 +2,7 @@ import logging
 import math
 import re
 from collections import defaultdict
-from typing import List, Union
+from typing import List, Optional, Union
 
 import wordprofile.config
 from wordprofile.errors import InternalError
@@ -10,7 +10,6 @@ from wordprofile.formatter import (
     format_comparison,
     format_concordances,
     format_lemma_pos,
-    format_mwe_concordances,
     format_relations,
 )
 from wordprofile.utils import tag_b2f, tag_f2b
@@ -86,7 +85,7 @@ class Wordprofile:
             for j in list2:
                 if i["POS"] == j["POS"]:
                     relations = set(i["Relations"]) | set(j["Relations"])
-                    relations = [
+                    relations_ordered = [
                         r for r in self.wp_spec.mapRelOrder[i["POS"]] if r in relations
                     ]
                     results.append(
@@ -97,7 +96,7 @@ class Wordprofile:
                             "PosId": i["POS"],
                             "Frequency1": i["Frequency"],
                             "Frequency2": j["Frequency"],
-                            "Relations": relations,
+                            "Relations": relations_ordered,
                         }
                     )
         return results
@@ -106,7 +105,7 @@ class Wordprofile:
         self,
         lemma1: str,
         pos1: str,
-        relations: List[str] = (),
+        relations: Optional[List[str]] = None,
         start: int = 0,
         number: int = 20,
         order_by: str = "log_dice",
@@ -131,6 +130,7 @@ class Wordprofile:
         if lemma1 and not RE_LEMMA.fullmatch(lemma1):
             raise ValueError(f"Request for invalid lemma: ({lemma1})")
 
+        relations = [] if relations is None else relations
         results = []
         for relation in relations:
             # meta relation is a summary of all relations
@@ -191,7 +191,7 @@ class Wordprofile:
     def get_mwe_relations(
         self,
         coocc_ids: List[int],
-        relations: List[str] = (),
+        relations: Optional[List[str]] = None,
         number: int = 20,
         order_by: str = "log_dice",
         min_freq: int = 0,
@@ -220,6 +220,7 @@ class Wordprofile:
                     res.append(c)
             return res
 
+        relations = [] if relations is None else relations
         if not coocc_ids:
             return {"parts": [], "data": {}}
         # TODO BUG checks only first coocc id!
@@ -377,22 +378,22 @@ class Wordprofile:
         Return:
             Sorted list of collocation-diffs.
         """
-        diffs_grouped = defaultdict(dict)
+        collocation_diffs: defaultdict[str, dict] = defaultdict(dict)
         lemma1_ctr = lemma2_ctr = 0
         for i, c in enumerate(diffs):
             if nbest and lemma1_ctr > nbest and lemma2_ctr > nbest:
                 break
             if c.lemma1 == lemma1:
                 if not nbest or lemma1_ctr <= nbest:
-                    diffs_grouped[c.lemma2]["coocc_1"] = c
-                    diffs_grouped[c.lemma2]["rank_1"] = i
-                    diffs_grouped[c.lemma2]["pos"] = c.tag1
+                    collocation_diffs[c.lemma2]["coocc_1"] = c
+                    collocation_diffs[c.lemma2]["rank_1"] = i
+                    collocation_diffs[c.lemma2]["pos"] = c.tag1
                 lemma1_ctr += 1
             elif c.lemma1 == lemma2:
                 if not nbest or lemma2_ctr <= nbest:
-                    diffs_grouped[c.lemma2]["coocc_2"] = c
-                    diffs_grouped[c.lemma2]["rank_2"] = i
-                    diffs_grouped[c.lemma2]["pos"] = c.tag1
+                    collocation_diffs[c.lemma2]["coocc_2"] = c
+                    collocation_diffs[c.lemma2]["rank_2"] = i
+                    collocation_diffs[c.lemma2]["pos"] = c.tag1
                 lemma2_ctr += 1
             elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
                 continue
@@ -403,10 +404,12 @@ class Wordprofile:
         # for intersection, only a subset is used further
         if use_intersection:
             diffs_grouped = [
-                d for d in diffs_grouped.values() if "coocc_1" in d and "coocc_2" in d
+                d
+                for d in collocation_diffs.values()
+                if "coocc_1" in d and "coocc_2" in d
             ]
         else:
-            diffs_grouped = list(diffs_grouped.values())
+            diffs_grouped = list(collocation_diffs.values())
         # compute score based on occurring cooccs
         for d in diffs_grouped:
             coocc1 = d.get("coocc_1", None)
@@ -502,7 +505,7 @@ class Wordprofile:
         """
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
-            relation["Tuples"] = format_mwe_concordances(
+            relation["Tuples"] = format_concordances(
                 self.db_mwe.get_concordances(
                     int(coocc_id), use_context, start_index, result_number
                 )

@@ -188,7 +188,7 @@ class WPConnect:
             JOIN token_freqs tf on (c.lemma1 = tf.lemma && c.lemma1_tag = tf.tag)
             WHERE c.lemma1 = %s AND c.lemma1_tag = %s
             GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params = (lemma, lemma_tag)
+            params: tuple[str, ...] = (lemma, lemma_tag)
         else:
             query = """
                 SELECT c.lemma1, tf.surface, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
@@ -327,7 +327,6 @@ class WPConnect:
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
             lemma1 = %s AND lemma1_tag = %s
-            AND label NOT IN ('VZ')
             AND frequency >= %s AND c.score >= %s
         ORDER BY {order_by} DESC LIMIT %s,%s;
         """
@@ -425,7 +424,6 @@ class WPConnect:
         WHERE
             c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
             AND c.frequency >= %s AND c.score >= %s
-            AND label NOT IN ('VZ')
         ORDER BY {order_by} DESC;"""
         params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
         relation_filter = {split_relation_inversion(relation) for relation in relations}
