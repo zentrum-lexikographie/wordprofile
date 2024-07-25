@@ -105,9 +105,11 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
                     tag=entity_tag_conversion(token),
                     head=token["head"],
                     rel=token["deprel"],
-                    misc=token["misc"].get("SpaceAfter") == "No"
-                    if token["misc"]
-                    else False,
+                    misc=(
+                        token["misc"].get("SpaceAfter") == "No"
+                        if token["misc"]
+                        else False
+                    ),
                     morph=token.get("feats", None),
                 )
             )
@@ -448,16 +450,8 @@ def extract_mwe_from_collocs(
         """Checks whether positions have one overlap."""
         return len(set(pos)) == (len(pos) - 1)
 
-    def update(freqs: dict, ids: dict[tuple, int], xs: tuple) -> int:
-        mwe_id = ids.get(xs)
-        if not mwe_id:
-            mwe_id = len(freqs)
-            ids[xs] = mwe_id
-        freqs[mwe_id] += 1
-        return mwe_id
-
     with open(mwe_match_fout, "w") as mwe_map:
-        mwe_freqs: defaultdict[int, int] = defaultdict(int)
+        mwe_freqs: defaultdict[int, int] = defaultdict(lambda: 1)
         mwe_ids: dict[tuple, int] = {}
         for sent in read_collapsed_sentence_matches(match_fin):
             for m_i, m1 in enumerate(sent):
@@ -477,7 +471,7 @@ def extract_mwe_from_collocs(
                             # m2 - m1.dep_surface
                             lemma = c1.lemma1 if c1.inv else c1.lemma2
                             tag = c1.lemma1_tag if c1.inv else c1.lemma2_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -498,7 +492,7 @@ def extract_mwe_from_collocs(
                             # m2 - m1.head_surface
                             lemma = c1.lemma2 if c1.inv else c1.lemma1
                             tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -521,7 +515,7 @@ def extract_mwe_from_collocs(
                             # m1 - m2.dep_surface
                             lemma = c2.lemma1 if c2.inv else c2.lemma2
                             tag = c2.lemma1_tag if c2.inv else c2.lemma2_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -542,7 +536,7 @@ def extract_mwe_from_collocs(
                             # m1 - m2.head_surface
                             lemma = c2.lemma2 if c2.inv else c2.lemma1
                             tag = c2.lemma2_tag if c2.inv else c2.lemma1_tag
-                            mwe_id = update(
+                            mwe_id = add_mwe_to_inventory(
                                 mwe_freqs,
                                 mwe_ids,
                                 (
@@ -562,7 +556,21 @@ def extract_mwe_from_collocs(
     return mwe_ids, mwe_freqs
 
 
-def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
+def add_mwe_to_inventory(
+    freqs: defaultdict[int, int],
+    ids: dict[tuple, int],
+    xs: tuple,
+) -> int:
+    mwe_id = ids.get(xs)
+    if mwe_id is None:
+        mwe_id = len(ids)
+        ids[xs] = mwe_id
+    else:
+        freqs[mwe_id] += 1
+    return mwe_id
+
+
+def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
     """Calculates Log Dice score"""
     f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
         lambda: defaultdict(int)
@@ -581,6 +589,8 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs) -> None:
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
             mwe_freq = mwe_freqs[mwe_id]
+            if mwe_freq < min_freq:
+                continue
             w1, w2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
@@ -640,7 +650,7 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
                 fh.write(f"{lemma}\t{tag}\t{surface}\t{freq}\n")
 
 
-def load_collocations(fins: list[str], min_rel_freq: int = 3) -> dict[int, Colloc]:
+def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
     relation_dict: defaultdict[
         str, defaultdict[tuple[str, str, str, str], int]
@@ -688,7 +698,7 @@ def compute_token_statistics(
 def post_process_db_files(
     storage_paths: list[str],
     final_path: str,
-    min_rel_freq: int = 3,
+    min_rel_freq: int = 5,
     with_mwe: bool = False,
 ) -> None:
     """Post-processing of generated data files.
@@ -740,8 +750,11 @@ def post_process_db_files(
             os.path.join(final_path, "mwe_match"),
             collocs,
         )
+        collocs = {}
         logger.info("CALCULATE log dice mwe lvl 1")
-        compute_mwe_scores(os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs)
+        compute_mwe_scores(
+            os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
+        )
 
 
 def load_files_into_db(connection: Connection, storage_path: str) -> None:

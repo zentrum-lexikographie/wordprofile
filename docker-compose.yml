@@ -16,7 +16,7 @@ services:
       - "--character-set-server=utf8mb4"
       - "--collation-server=utf8mb4_unicode_ci"
   api:
-    image: docker-registry.zdl.org/zdl-wordprofile/api
+    image: docker.zdl.org/zdl-wordprofile/api
     build:
       context: .
     environment:

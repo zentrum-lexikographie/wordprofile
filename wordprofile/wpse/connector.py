@@ -187,7 +187,7 @@ class WPConnect:
             FROM collocations c
             WHERE c.lemma1 = %s AND c.lemma1_tag = %s
             GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params = (lemma, lemma_tag)
+            params: tuple[str, ...] = (lemma, lemma_tag)
         else:
             query = """
                 SELECT c.lemma1,  c.lemma1_tag, c.label, SUM(c.frequency), c.inv

@@ -402,3 +402,20 @@
 14	zurück	zurück	ADP	PTKVZ	PartType=Vbp	9	compound:prt	_	_
 15	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	_
 
+%%$DDC:BREAK.s[6876874]=92937236
+1	Für	für	ADP	APPR	AdpType=Prep|Case=Acc	4	case	_	_
+2	die	d	DET	ART	Case=Acc|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	4	det	_	_
+3	heikle	heikel	ADJ	ADJA	Degree=Pos|Gender=Fem|Number=Sing	4	amod	_	_
+4	Übernahme	Übernahme	NOUN	NN	Gender=Fem|Number=Sing	9	obl	_	_
+5	der	d	DET	ART	Case=Gen|Definite=Def|Gender=Fem|Number=Sing|PronType=Art	6	det	_	_
+6	Skandalbank	Skandalbank	NOUN	NN	Gender=Fem|Number=Sing	4	nmod	_	_
+7	Credit	credit	NOUN	NN	_	6	appos	_	_
+8	Suisse	suisse	NOUN	NN	_	7	appos	_	_
+9	ruft	rufen	VERB	VVFIN	Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin	0	ROOT	_	_
+10	UBS	UBS_AG	PROPN	NE	_	9	nsubj	_	_
+11	ihre	ihr	DET	PPOSAT	Case=Acc|Gender=Masc|Gender[psor]=Fem|Number=Sing|Number[psor]=Sing|Person=3|Poss=Yes|PronType=Prs	13	det	_	_
+12	frühere	früh	ADJ	ADJA	Case=Acc|Degree=Cmp|Gender=Masc|Number=Sing	13	amod	_	_
+13	Chefin	Chefin	NOUN	NN	Gender=Masc|Number=Sing	9	obj	_	_
+14	zurück	zurück	ADP	PTKVZ	PartType=Vbp	9	compound:prt	_	_
+15	.	.	PUNCT	$.	PunctType=Peri	9	punct	_	_
+

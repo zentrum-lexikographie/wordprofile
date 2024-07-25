@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 from collections import namedtuple
-from dataclasses import asdict, astuple, dataclass
+from dataclasses import asdict, dataclass
 from typing import Optional, Protocol
 
 
@@ -193,7 +193,16 @@ class DBMatch:
 
     def convert_to_database_entry(self, idx: int, collocation_id: int) -> str:
         sep = "\t"
-        return f"{idx}\t{ collocation_id}\t{sep.join( map(str, astuple(self)[5:]))}"
+        match_info = [
+            self.head_surface,
+            self.dep_surface,
+            self.head_position,
+            self.dep_position,
+            self.extra_position,
+            self.corpus_file_id,
+            self.sentence_id,
+        ]
+        return f"{idx}\t{collocation_id}\t{sep.join(map(str, match_info))}"
 
 
 CollocInstance = namedtuple(
