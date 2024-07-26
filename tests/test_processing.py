@@ -1418,3 +1418,20 @@ def test_mwe_freq_and_id_update_previously_seen_mwe():
     mwe_id = pro.add_mwe_to_inventory(mwe_freqencies, mwe_ids, mwe_to_add)
     assert mwe_id == 1
     assert mwe_freqencies[mwe_id] == 5
+
+
+def test_mwe_scores_not_inflated_by_inverses_frequency():
+    mwe_freqs = {1: 10, 2: 10, 3: 25}
+    mwe_ids = {
+        (11, 12, "label", "lemma", "tag", 0): 1,
+        (12, 11, "label", "lemma", "tag", 1): 2,
+        (11, 13, "label", "lemma2", "tag", 0): 3,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        with open(file) as fp:
+            result = [
+                round(float(line.strip().split()[-1]), 2) for line in fp.readlines()
+            ]
+    assert result == [12.3, 12.3, 13.51]
