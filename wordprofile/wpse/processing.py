@@ -572,12 +572,9 @@ def add_mwe_to_inventory(
 
 def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
     """Calculates Log Dice score"""
-    f1: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
     f2: defaultdict[str, int] = defaultdict(int)
     for (w1, w2, label, lemma, tag, inv), mwe_id in mwe_ids.items():
         frequency = mwe_freqs[mwe_id]
-        f1[label][w1] += frequency
-        f1[label][w2] += frequency
         f2[w1] += frequency
         f2[w2] += frequency
 
@@ -588,7 +585,7 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> 
                 continue
             w1, w2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
-                2 * max(1, mwe_freq) / (max(1, f1[label][w1]) + max(1, f2[w2]))
+                2 * max(1, mwe_freq) / (max(1, f2[w1]) + max(1, f2[w2]))
             )
             mwe_out.write(
                 "{}\n".format(
