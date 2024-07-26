@@ -751,6 +751,10 @@ def post_process_db_files(
             collocs,
         )
         collocs = {}
+        # remove all MWE that don't appear in mwe_freqs, i.e. appear only once
+        mwe_ids = {
+            mwe: mwe_id for mwe, mwe_id in mwe_ids.items() if mwe_id in mwe_freqs
+        }
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
             os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
