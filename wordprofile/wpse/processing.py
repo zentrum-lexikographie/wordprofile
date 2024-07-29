@@ -572,19 +572,11 @@ def add_mwe_to_inventory(
 
 def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
     """Calculates Log Dice score"""
-    f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    f1: defaultdict[str, defaultdict[str, int]] = defaultdict(lambda: defaultdict(int))
-    f2: defaultdict[str, int] = defaultdict(int)
+    collocation_freqs: defaultdict[str, int] = defaultdict(int)
     for (w1, w2, label, lemma, tag, inv), mwe_id in mwe_ids.items():
         frequency = mwe_freqs[mwe_id]
-        f12[label][(w1, w2)] += frequency
-        f12[label][(w2, w1)] += frequency
-        f1[label][w1] += frequency
-        f1[label][w2] += frequency
-        f2[w1] += frequency
-        f2[w2] += frequency
+        collocation_freqs[w1] += frequency
+        collocation_freqs[w2] += frequency
 
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
@@ -594,8 +586,8 @@ def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> 
             w1, w2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
-                * max(1, f12[label][(w1, w2)])
-                / (max(1, f1[label][w1]) + max(1, f2[w2]))
+                * max(1, mwe_freq)
+                / (max(1, collocation_freqs[w1]) + max(1, collocation_freqs[w2]))
             )
             mwe_out.write(
                 "{}\n".format(
@@ -751,6 +743,10 @@ def post_process_db_files(
             collocs,
         )
         collocs = {}
+        # remove all MWE that don't appear in mwe_freqs, i.e. appear only once
+        mwe_ids = {
+            mwe: mwe_id for mwe, mwe_id in mwe_ids.items() if mwe_id in mwe_freqs
+        }
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
             os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
