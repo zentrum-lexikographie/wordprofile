@@ -46,7 +46,10 @@ logger = configure_logger(logging.getLogger("wordprofile"), logging.INFO)
 wp = Wordprofile(
     args.db_hostname, args.db_user, args.db_password, args.db_name, args.spec
 )
-app = FastAPI()
+app = FastAPI(
+    title="Wordprofile API",
+    description="Wordprofile API allows retrieval of collocations and their concordances from Wortprofil database.",
+)
 app.mount("/static", StaticFiles(directory="wordprofile/apps/static"), name="static")
 templates = Jinja2Templates(directory="wordprofile/apps/static")
 
@@ -64,53 +67,50 @@ async def status():
 
 @app.get("/api/v1/meta", tags=["info"])
 async def meta():
-    """Ask wordprofile for meta information such as table statistics."""
+    """
+    Return meta information about wordprofile data(base).
+
+    Information contains:
+    - database table names, creation and update dates
+    - frequencies for POS tags and relation labels
+    - document count and time span of subcorpora
+    """
     return wp.get_info_stats()
 
 
 @app.get("/api/v1/tags", tags=["wp"])
-async def get_lemma(lemma: str, pos: str = "", use_external_variations: bool = True):
-    """Gets lemma information from word-profile.
+async def get_lemma(lemma: str, pos: str = ""):
+    """Gets lemma information from wordprofile.
 
     Args:
-        lemma: Lemma of interest.
-        pos: Pos tag of first lemma.
-        use_external_variations (deprecated): Whether to use variations for either lemmas if not found in database.
+    - lemma: Lemma of interest.
+    - pos (optional): POS tag of lemma. Default is empty string.
 
     Returns:
-        List of lemma-pos combinations with stats and possible relations.
+    - List of lemma-POS combinations with stats and possible relations.
     """
     return wp.get_lemma_and_pos(lemma, pos)
 
 
 @app.get("/api/v1/cmp/tags", tags=["cmp"])
-async def get_lemma_and_pos_diff(lemma1: str, lemma2: str, use_variations: bool = True):
-    """Get lemma pairs with common pos tags from word-profile.
+async def get_lemma_and_pos_diff(lemma1: str, lemma2: str):
+    """Get lemma pairs with common POS tags from wordprofile.
 
     Args:
-        lemma1: Lemma of interest.
-        lemma2: Lemma for comparison.
-        use_variations (deprecated): Whether to use variations for either lemmas if not found in database.
+    - lemma1: Lemma of interest.
+    - lemma2: Lemma for comparison.
 
     Returns:
-        List of lemma1–lemma2 combinations with additional information such as frequency and relation.
+    - List of lemma1–lemma2 combinations with additional information such as frequency and relation.
     """
 
     return wp.get_lemma_and_pos_diff(lemma1, lemma2)
-
-
-@app.get("/api/v1/list/tags", tags=["list"])
-def get_lemma_and_pos_by_list(parts: List[str]):
-    """For compatibility to old WP. Just pipes input to output."""
-    return parts
 
 
 @app.get("/api/v1/profile", tags=["wp"])
 async def get_relations(
     lemma1: str,
     pos1: str,
-    lemma2: str = "",
-    pos2: str = "",
     relations: List[str] = Query([]),
     start: int = 0,
     number: int = 20,
@@ -118,22 +118,24 @@ async def get_relations(
     min_freq: int = 0,
     min_stat: float = -1000.0,
 ):
-    """Get collocations from word-profile.
+    """Get collocations from wordprofile.
 
     Args:
-        lemma1: Lemma of interest, first collocate.
-        pos1: Pos tag of first lemma.
-        lemma2 (deprecated): Second collocate.
-        pos2 (deprecated): Pos tag of second lemma.
-        relations (optional): List of relation labels.
-        start (optional): Number of collocations to skip.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
+    - lemma1: Lemma of interest.
+    - pos1: POS tag of lemma.
+    - relations (optional): List of relation labels. If no relation labels are
+        specified, all available relations for the lemma are evaluated.
+    - start (optional): Number of collocations to skip. Default is 0.
+    - number (optional): Number of collocations to take. Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
 
     Return:
-        List of selected collocations grouped by relation.
+    - List of selected collocations grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
@@ -141,8 +143,6 @@ async def get_relations(
     return wp.get_relations(
         lemma1,
         pos1,
-        lemma2,
-        pos2,
         relations,
         start,
         number,
@@ -155,21 +155,20 @@ async def get_relations(
 @app.get("/api/v1/hits", tags=["wp"])
 async def get_concordances_and_relation(
     coocc_id: int,
-    use_context: bool = False,
     start_index: int = 0,
     result_number: int = 20,
 ):
     """Get collocation information and concordances for a specified collocation id.
 
     Args:
-        coocc_id: Collocation id.
-        use_context (optional): If true, returns surrounding sentences for matched collocation.
-        start_index (optional): Collocation id.
-        result_number (optional): Collocation id.
+    - coocc_id: Collocation id.
+    - start_index (optional): Number of concordances to skip. Default is 0.
+    - result_number (optional): Number of concordances to return. Default is 20.
 
     Returns:
-        Dictionary with collocation information and their concordances.
+    - Dictionary with collocation information and their concordances.
     """
+    use_context = False
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number
     )
@@ -185,26 +184,29 @@ async def get_diff(
     order_by: str = "logDice",
     min_freq: int = 0,
     min_stat: float = -1000.0,
-    operation: str = "adiff",
-    use_intersection: bool = False,
-    nbest: int = 0,
 ):
-    """Get collocations of common POS from word-profile database and computes distances for comparison.
+    """
+    Get collocations for two lemmas with common POS from wordprofile
+    database and compute distances for comparison. Distance is calculated
+    as difference of logDice scores.
 
     Args:
-        lemma1: Lemma of interest, first collocate.
-        lemma2: Second collocate.
-        pos: Pos tag for both lemmas.
-        relations (optional): List of relation labels.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
-        operation (optional): Lemma distance metric.
-        use_intersection (optional): If set, only the intersection of both lemma is computed.
-        nbest (optional): Checks only the n highest scored lemmas.
+    - lemma1: Lemma of interest.
+    - lemma2: Comparison lemma.
+    - pos: POS tag for both lemmas.
+    - relations (optional): List of relation labels. If no relation labels
+        are specified, all available relations for the lemma are evaluated.
+    - number (optional): Number of collocations to return per relation.
+        Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
+
     Return:
-        List of collocation-diffs grouped by relation.
+    - List of collocation-diffs grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
@@ -218,9 +220,8 @@ async def get_diff(
         order_by,
         min_freq,
         min_stat,
-        operation,
-        use_intersection,
-        nbest,
+        operation="adiff",
+        use_intersection=False,
     )
 
 
@@ -234,22 +235,29 @@ async def get_intersection(
     order_by: str = "logDice",
     min_freq: int = 0,
     min_stat: float = -1000.0,
-    nbest: int = 0,
 ):
-    """Redirection for get_diff that sets parameters for intersection computation.
+    """
+    Return intersection of collocations for two lemmas with common POS tag.
+    Collocations are ranked by harmonic mean of logDice scores.
 
     Args:
-        lemma1: Lemma of interest, first collocate.
-        lemma2: Second collocate.
-        pos: Pos tag for both lemmas.
-        relations (optional): List of relation labels.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
-        nbest (optional): Checks only the n highest scored lemmas.
+    - lemma1: Lemma of interest.
+    - lemma2: Comparison lemma.
+    - pos: POS tag for both lemmas.
+    - relations (optional): List of relation labels. If no relation labels
+        are specified, all available relations for the lemma pair are
+        evaluated.
+    - number (optional): Number of collocations per relation to return.
+        Default is 20.
+    - order_by (optional): Metric used for comparison, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
+
     Return:
-        List of collocation-diffs grouped by relation.
+    - List of collocation-diffs grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
@@ -265,7 +273,6 @@ async def get_intersection(
         min_stat,
         operation="hmean",
         use_intersection=True,
-        nbest=nbest,
     )
 
 
@@ -275,7 +282,6 @@ def get_mwe_relations(
     lemma1: str = "",
     lemma2: str = "",
     relations: List[str] = Query([]),
-    start: int = 0,
     number: int = 20,
     order_by: str = "logDice",
     min_freq: int = 0,
@@ -290,18 +296,22 @@ def get_mwe_relations(
     query.
 
     Args:
-        coocc_id (optional): MWE's collocation id.
-        lemma1 (optional): First lemma of MWE
-        lemma2 (optional): Second lemma of MWE
-        relations (optional): List of relation labels.
-        start (optional): Collocation id.
-        number (optional): Number of collocations to take.
-        order_by (optional): Metric for ordering, frequency or log-dice.
-        min_freq (optional): Filter collocations with minimal frequency.
-        min_stat (optional): Filter collocations with minimal stats score.
+    - coocc_id (optional): MWE's collocation id.
+    - lemma1 (optional): First lemma of MWE.
+    - lemma2 (optional): Second lemma of MWE.
+    - relations (optional): List of relation labels. If no relation labels
+        are specified, all available relations for the mwe are evaluated.
+    - number (optional): Number of collocations to return per relation.
+        Default is 20.
+    - order_by (optional): Metric for ordering, frequency or logDice.
+        Default is logDice.
+    - min_freq (optional): Filter collocations with minimal frequency.
+        Default is 0.
+    - min_stat (optional): Filter collocations with minimal stats score.
+        Default is -1000.0.
 
     Returns:
-        Dictionary with mwe relations for specific collocation id or pair
+    - Dictionary with mwe relations for specific collocation id or pair
         of lemmata.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
@@ -310,28 +320,30 @@ def get_mwe_relations(
     else:
         coocc_ids = [coocc_id]
     return wp.get_mwe_relations(
-        coocc_ids, relations, start, number, order_by, min_freq, min_stat
+        coocc_ids, relations, number, order_by, min_freq, min_stat
     )
 
 
 @app.get("/api/v1/mwe/hits", tags=["mwe"])
 def get_mwe_concordances_and_relation(
     coocc_id: int,
-    use_context: bool = False,
     start_index: int = 0,
     result_number: int = 20,
 ):
-    """Get mwe collocation information and concordances for a specified collocation id.
+    """
+    Get MWE collocation information and concordances for a specified
+    collocation id.
 
     Args:
-        coocc_id: Collocation id.
-        use_context (optional): If true, returns surrounding sentences for matched collocation.
-        start_index (optional): Collocation id.
-        result_number (optional): Collocation id.
+    - coocc_id: Collocation id of MWE.
+    - start_index (optional): Number of concordances to skip. Default is 0.
+    - result_number (optional): Number of concordances to return.
+        Default is 20.
 
     Returns:
-        Dictionary with collocation information and their concordances.
+    - Dictionary with collocation information and their concordances.
     """
+    use_context = False
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number, is_mwe=True
     )

@@ -105,8 +105,6 @@ class Wordprofile:
         self,
         lemma1: str,
         pos1: str,
-        lemma2: str = "",
-        pos2: str = "",
         relations: Optional[List[str]] = None,
         start: int = 0,
         number: int = 20,
@@ -114,13 +112,11 @@ class Wordprofile:
         min_freq: int = 0,
         min_stat: float = -1000.0,
     ) -> List[dict]:
-        """Fetches collocations from word-profile database.
+        """Fetches collocations from wordprofile database.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            pos1: Pos tag of first lemma.
-            lemma2 (deprecated): Second collocate.
-            pos2 (deprecated): Pos tag of second lemma.
+            lemma1: Lemma of interest.
+            pos1: POS tag of lemma.
             relations (optional): List of relation labels.
             start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
@@ -196,7 +192,6 @@ class Wordprofile:
         self,
         coocc_ids: List[int],
         relations: Optional[List[str]] = None,
-        start: int = 0,
         number: int = 20,
         order_by: str = "log_dice",
         min_freq: int = 0,
@@ -207,7 +202,6 @@ class Wordprofile:
         Args:
             coocc_ids: List of collocation ids.
             relations (optional): List of relation labels to filter results.
-            start (optional): Number of collocations to skip.
             number (optional): Number of collocations to take.
             order_by (optional): Metric for ordering, frequency or log_dice.
             min_freq (optional): Filter collocations with minimal frequency.
