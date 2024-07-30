@@ -12,7 +12,7 @@ from wordprofile.formatter import (
     format_lemma_pos,
     format_relations,
 )
-from wordprofile.utils import tag_b2f, tag_f2b
+from wordprofile.utils import tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.wpse_spec import WpSeSpec
@@ -75,7 +75,7 @@ class Wordprofile:
             lemma2: Lemma for comparison.
 
         Returns:
-            List of lemma1–lemma2 combinations with additional information such as frequency and relation.
+            List of lemma1–lemma2 combinations with additional information such as relation.
         """
         list1 = self.get_lemma_and_pos(lemma1)
         list2 = self.get_lemma_and_pos(lemma2)
@@ -94,8 +94,6 @@ class Wordprofile:
                             "LemmaId2": j["Lemma"],
                             "POS": i["POS"],
                             "PosId": i["POS"],
-                            "Frequency1": i["Frequency"],
-                            "Frequency2": j["Frequency"],
                             "Relations": relations_ordered,
                         }
                     )
@@ -255,8 +253,8 @@ class Wordprofile:
             )
         return {
             "parts": [
-                {"Lemma": coocc_info.lemma1, "POS": tag_b2f[coocc_info.tag1]},
-                {"Lemma": coocc_info.lemma2, "POS": tag_b2f[coocc_info.tag2]},
+                {"Lemma": coocc_info.lemma1},
+                {"Lemma": coocc_info.lemma2},
             ],
             "data": dict(results),
         }
@@ -474,13 +472,8 @@ class Wordprofile:
         description = description.replace("$2", coocc_info.lemma2)
         return {
             "Description": description,
-            "Relation": coocc_info.rel,
             "Lemma1": coocc_info.lemma1,
             "Lemma2": coocc_info.lemma2,
-            "Form1": coocc_info.form1,
-            "Form2": coocc_info.form2,
-            "POS1": coocc_info.tag1,
-            "POS2": coocc_info.tag2,
         }
 
     def get_concordances_and_relation(

@@ -15,10 +15,10 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
     lemma_pos_mapping = defaultdict(list)
     for i in sorted(db_results, key=lambda x: x.freq, reverse=True):
         relation = "~" + i.rel if i.inv else i.rel
-        lemma_pos_mapping[(i.lemma, i.form, i.tag)].append((relation, int(i.freq)))
+        lemma_pos_mapping[(i.lemma, i.tag)].append((relation, int(i.freq)))
 
     results = []
-    for (lemma, form, pos), rel_freqs in lemma_pos_mapping.items():
+    for (lemma, pos), rel_freqs in lemma_pos_mapping.items():
         relations, frequencies = zip(*rel_freqs)
         pos_tag = tag_b2f.get(pos)
         if pos_tag not in relation_order:
@@ -29,7 +29,6 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
             ]
         results.append(
             {
-                "Form": form,
                 "Lemma": lemma,
                 "POS": pos_tag,
                 "PosId": pos_tag,
@@ -52,7 +51,6 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
-                "PosId": tag_b2f.get(coocc.tag2, ""),
                 "Form": coocc.form2,
                 "Lemma": coocc.lemma2,
                 "Score": {
@@ -60,7 +58,6 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     "logDice": coocc.score,
                 },
                 "ConcordId": ("#mwe" if is_mwe else "") + str(coocc.id),
-                "ConcordNo": coocc.num_concords,
                 "ConcordNoAccessible": coocc.num_concords,
                 "HasMwe": coocc.has_mwe,
             }
@@ -72,8 +69,6 @@ def format_concordances(concords: list[WPConcordance]):
     """Converts concordances into output format"""
     results = []
     for c in concords:
-        sentence_left = format_sentence(c.sentence_left)
-        sentence_right = format_sentence(c.sentence_right)
         sentence_main = format_sentence_and_highlight(
             c.sentence, c.get_highlight_positions()
         )
@@ -81,18 +76,9 @@ def format_concordances(concords: list[WPConcordance]):
             {
                 "Bibl": {
                     "Corpus": c.corpus,
-                    "Date": c.date.strftime("%d-%m-%Y"),
-                    "TextClass": c.textclass,
                     "Orig": c.orig.replace("#page#", c.page),
-                    "Scan": c.scan.replace("#page#", c.page),
-                    "Avail": c.avail,
-                    "Page": c.page,
-                    "File": c.file,
                 },
                 "ConcordLine": sentence_main,
-                "ConcordLeft": sentence_left,
-                "ConcordRight": sentence_right,
-                "Score": c.score,
             }
         )
     return results
@@ -105,16 +91,12 @@ def format_comparison(diffs):
         # create result with common/default values
         coocc_diff = {
             "POS": tag_b2f[diff["pos"]],
-            "ConcordId1": 0,
-            "ConcordId2": 0,
-            "ConcordNo1": 0,
-            "ConcordNo2": 0,
+            "ConcordId1": None,
+            "ConcordId2": None,
             "ConcordNoAccessible1": 0,
             "ConcordNoAccessible2": 0,
             "Score": {
                 "AScomp": diff.get("score"),
-                "Rank1": diff.get("rank_1", -1),
-                "Rank2": diff.get("rank_2", -1),
                 "Frequency1": 0,
                 "Assoziation1": 0.0,
                 "Frequency2": 0,
@@ -123,39 +105,37 @@ def format_comparison(diffs):
         }
         # complete information for first coocc
         if "coocc_1" in diff:
-            coocc_diff["Score"]["Frequency1"] = diff["coocc_1"].freq
-            coocc_diff["Score"]["Assoziation1"] = diff["coocc_1"].score
-            coocc_diff["ConcordId1"] = diff["coocc_1"].id
-            concord_no = diff["coocc_1"].freq
-            if (
-                diff["coocc_1"].rel == "KON"
-                and diff["coocc_1"].lemma1 == diff["coocc_1"].lemma2
-            ):
+            coocc_1 = diff["coocc_1"]
+            coocc_diff["Score"]["Frequency1"] = coocc_1.freq
+            coocc_diff["Score"]["Assoziation1"] = coocc_1.score
+            coocc_diff["ConcordId1"] = coocc_1.id
+            concord_no = coocc_1.num_concords
+            if coocc_1.rel == "KON" and coocc_1.lemma1 == coocc_1.lemma2:
                 concord_no = concord_no / 2
-            coocc_diff["ConcordNo1"] = concord_no
-            coocc_diff["Relation"] = diff["coocc_1"].rel
-            coocc_diff["Lemma"] = diff["coocc_1"].lemma2
-            coocc_diff["Form"] = diff["coocc_1"].form2
+            coocc_diff["ConcordNoAccessible1"] = concord_no
+            relation = coocc_1.rel
+            coocc_diff["Relation"] = ("~" if coocc_1.inverse else "") + relation
+            coocc_diff["Lemma"] = coocc_1.lemma2
+            coocc_diff["Form"] = coocc_1.form2
             if "coocc_2" in diff:
                 coocc_diff["Position"] = "center"
             else:
                 coocc_diff["Position"] = "left"
         # complete information for second coocc
         if "coocc_2" in diff:
-            coocc_diff["Score"]["Frequency2"] = diff["coocc_2"].freq
-            coocc_diff["Score"]["Assoziation2"] = diff["coocc_2"].score
-            coocc_diff["ConcordId2"] = diff["coocc_2"].id
-            concord_no = diff["coocc_2"].freq
-            if (
-                diff["coocc_2"].rel == "KON"
-                and diff["coocc_2"].lemma1 == diff["coocc_2"].lemma2
-            ):
+            coocc_2 = diff["coocc_2"]
+            coocc_diff["Score"]["Frequency2"] = coocc_2.freq
+            coocc_diff["Score"]["Assoziation2"] = coocc_2.score
+            coocc_diff["ConcordId2"] = coocc_2.id
+            concord_no = coocc_2.num_concords
+            if coocc_2.rel == "KON" and coocc_2.lemma1 == coocc_2.lemma2:
                 concord_no = concord_no / 2
-            coocc_diff["ConcordNo2"] = concord_no
+            coocc_diff["ConcordNoAccessible2"] = concord_no
             if "coocc_1" not in diff:
-                coocc_diff["Relation"] = diff["coocc_2"].rel
-                coocc_diff["Lemma"] = diff["coocc_2"].lemma2
-                coocc_diff["Form"] = diff["coocc_2"].form2
+                relation = coocc_2.rel
+                coocc_diff["Relation"] = ("~" if coocc_2.inverse else "") + relation
+                coocc_diff["Lemma"] = coocc_2.lemma2
+                coocc_diff["Form"] = coocc_2.form2
                 coocc_diff["Position"] = "right"
         results.append(coocc_diff)
     return results

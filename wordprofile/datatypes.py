@@ -9,7 +9,6 @@ from typing import Optional, Protocol
 @dataclass
 class LemmaInfo:
     lemma: str
-    form: str
     tag: str
     rel: str
     freq: int

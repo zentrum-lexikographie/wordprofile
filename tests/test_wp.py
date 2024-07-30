@@ -69,9 +69,7 @@ class MockDb:
 
     def get_lemma_and_pos(self, lemma, pos):
         return [
-            LemmaInfo(
-                item.lemma1, item.form1, item.tag1, item.rel, item.freq, item.inverse
-            )
+            LemmaInfo(item.lemma1, item.tag1, item.rel, item.freq, item.inverse)
             for item in self.db.values()
             if item.lemma1 == lemma
         ]
@@ -327,6 +325,21 @@ class WordprofileTest(unittest.TestCase):
                 has_mwe=0,
                 num_concords=3,
             ),
+            16: Coocc(
+                id=15,
+                rel="OBJO",
+                lemma1="Kommandant",
+                lemma2="gedenken",
+                form1="Kommandanten",
+                form2="gedacht",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=1,
+                score=0.5,
+                inverse=1,
+                has_mwe=0,
+                num_concords=3,
+            ),
         }
         self.mwe_data = {
             10: [
@@ -426,13 +439,8 @@ class WordprofileTest(unittest.TestCase):
         result = self.wp.get_relation_by_info_id(2)
         expected = {
             "Description": "Feuerwehr hat Genitivattribut Umgebung",
-            "Relation": "GMOD",
             "Lemma1": "Feuerwehr",
             "Lemma2": "Umgebung",
-            "Form1": "Feuerwehr",
-            "Form2": "Umgebung",
-            "POS1": "NOUN",
-            "POS2": "NOUN",
         }
         self.assertEqual(result, expected)
 
@@ -440,13 +448,8 @@ class WordprofileTest(unittest.TestCase):
         result = self.wp.get_relation_by_info_id(-3)
         expected = {
             "Description": "Feuerwehr ist Genitivattribut von Kommandant",
-            "Relation": "GMOD",
             "Lemma1": "Feuerwehr",
             "Lemma2": "Kommandant",
-            "Form1": "Feuerwehr",
-            "Form2": "Kommandant",
-            "POS1": "NOUN",
-            "POS2": "NOUN",
         }
         self.assertEqual(result, expected)
 
@@ -460,7 +463,6 @@ class WordprofileTest(unittest.TestCase):
         result = self.wp.get_lemma_and_pos("Feuerwehr")
         expected = [
             {
-                "Form": "Feuerwehr",
                 "Lemma": "Feuerwehr",
                 "POS": "Substantiv",
                 "PosId": "Substantiv",
@@ -517,8 +519,6 @@ class WordprofileTest(unittest.TestCase):
                 "Assoziation2": 7,
                 "Frequency1": 20,
                 "Frequency2": 10,
-                "Rank1": 0,
-                "Rank2": 1,
             },
         }
         self.assertEqual(len(result), 3)
@@ -576,4 +576,36 @@ class WordprofileTest(unittest.TestCase):
     def test_retrieval_of_objo_relation_description(self):
         result = self.wp.get_relation_by_info_id(15)["Description"]
         expected = "gedenken hat Dativ-/Genitiv-Objekt Heldin"
+        self.assertEqual(result, expected)
+
+    def test_get_lemma_and_pos_returns_empty_list_for_different_pos(self):
+        result = self.wp.get_lemma_and_pos_diff("Feuerwehr", "plüschig")
+        self.assertEqual(result, [])
+
+    def test_get_lemma_and_pos_diff_for_same_pos_aggregates_relations(self):
+        result = self.wp.get_lemma_and_pos_diff("Feuerwehr", "Kommandant")
+        expected = [
+            {
+                "LemmaId1": "Feuerwehr",
+                "LemmaId2": "Kommandant",
+                "POS": "Substantiv",
+                "PosId": "Substantiv",
+                "Relations": ["META", "~OBJO", "GMOD", "~SUBJA", "~GMOD"],
+            }
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_mwe_relation_parts_contains_lemma_information(self):
+        result = self.wp.get_mwe_relations([10])["parts"]
+        expected = [{"Lemma": "Arbeit"}, {"Lemma": "gemeinnützig"}]
+        self.assertEqual(result, expected)
+
+    def test_concordance_result_contains_lemma_info_and_bibl(self):
+        result = self.wp.get_concordances_and_relation(-1)
+        expected = {
+            "Description": "Feuerwehr ist Subjekt von rücken",
+            "Lemma1": "Feuerwehr",
+            "Lemma2": "rücken",
+            "Tuples": [],
+        }
         self.assertEqual(result, expected)
