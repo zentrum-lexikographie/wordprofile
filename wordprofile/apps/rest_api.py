@@ -155,7 +155,6 @@ async def get_relations(
 @app.get("/api/v1/hits", tags=["wp"])
 async def get_concordances_and_relation(
     coocc_id: int,
-    use_context: bool = False,
     start_index: int = 0,
     result_number: int = 20,
 ):
@@ -163,14 +162,13 @@ async def get_concordances_and_relation(
 
     Args:
     - coocc_id: Collocation id.
-    - use_context (optional): If true, returns preceeding and following sentences
-        for concordances. Defaults to False.
     - start_index (optional): Number of concordances to skip. Default is 0.
     - result_number (optional): Number of concordances to return. Default is 20.
 
     Returns:
     - Dictionary with collocation information and their concordances.
     """
+    use_context = False
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number
     )
@@ -329,7 +327,6 @@ def get_mwe_relations(
 @app.get("/api/v1/mwe/hits", tags=["mwe"])
 def get_mwe_concordances_and_relation(
     coocc_id: int,
-    use_context: bool = False,
     start_index: int = 0,
     result_number: int = 20,
 ):
@@ -339,8 +336,6 @@ def get_mwe_concordances_and_relation(
 
     Args:
     - coocc_id: Collocation id of MWE.
-    - use_context (optional): If true, the preceeding and following sentence
-        of each concordance are also returned. Default is False.
     - start_index (optional): Number of concordances to skip. Default is 0.
     - result_number (optional): Number of concordances to return.
         Default is 20.
@@ -348,6 +343,7 @@ def get_mwe_concordances_and_relation(
     Returns:
     - Dictionary with collocation information and their concordances.
     """
+    use_context = False
     return wp.get_concordances_and_relation(
         coocc_id, use_context, start_index, result_number, is_mwe=True
     )
