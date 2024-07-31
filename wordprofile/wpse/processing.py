@@ -488,29 +488,6 @@ def extract_mwe_from_collocs(
                                     "\t".join(map(str, (mwe_id,) + (m2.id, m1.id)))
                                 )
                             )
-                        if has_one_overlap(m1.dep_pos, m2.head_pos, m2.dep_pos):
-                            # m2 - m1.head_surface
-                            lemma = c1.lemma2 if c1.inv else c1.lemma1
-                            tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
-                            mwe_id = add_mwe_to_inventory(
-                                mwe_freqs,
-                                mwe_ids,
-                                (
-                                    m2.collocation_id,
-                                    m1.collocation_id,
-                                    c1.label,
-                                    lemma,
-                                    tag,
-                                    inverse,
-                                ),
-                            )
-                            mwe_map.write(
-                                "{}\n".format(
-                                    "\t".join(map(str, (mwe_id,) + (m2.id, m1.id)))
-                                )
-                            )
-                        if c2.label not in {"KON", "VZ"}:
-                            inverse = 1
                         if has_one_overlap(m2.head_pos, m1.head_pos, m1.dep_pos):
                             # m1 - m2.dep_surface
                             lemma = c2.lemma1 if c2.inv else c2.lemma2
@@ -530,6 +507,29 @@ def extract_mwe_from_collocs(
                             mwe_map.write(
                                 "{}\n".format(
                                     "\t".join(map(str, (mwe_id,) + (m1.id, m2.id)))
+                                )
+                            )
+                        if c2.label not in {"KON", "VZ"}:
+                            inverse = 1
+                        if has_one_overlap(m1.dep_pos, m2.head_pos, m2.dep_pos):
+                            # m2 - m1.head_surface
+                            lemma = c1.lemma2 if c1.inv else c1.lemma1
+                            tag = c1.lemma2_tag if c1.inv else c1.lemma1_tag
+                            mwe_id = add_mwe_to_inventory(
+                                mwe_freqs,
+                                mwe_ids,
+                                (
+                                    m2.collocation_id,
+                                    m1.collocation_id,
+                                    c1.label,
+                                    lemma,
+                                    tag,
+                                    inverse,
+                                ),
+                            )
+                            mwe_map.write(
+                                "{}\n".format(
+                                    "\t".join(map(str, (mwe_id,) + (m2.id, m1.id)))
                                 )
                             )
                         if has_one_overlap(m2.dep_pos, m1.head_pos, m1.dep_pos):
