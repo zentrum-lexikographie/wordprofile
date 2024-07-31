@@ -509,8 +509,7 @@ def extract_mwe_from_collocs(
                                     "\t".join(map(str, (mwe_id,) + (m1.id, m2.id)))
                                 )
                             )
-                        if c2.label not in {"KON", "VZ"}:
-                            inverse = 1
+                        inverse = 1
                         if has_one_overlap(m1.dep_pos, m2.head_pos, m2.dep_pos):
                             # m2 - m1.head_surface
                             lemma = c1.lemma2 if c1.inv else c1.lemma1
@@ -524,7 +523,7 @@ def extract_mwe_from_collocs(
                                     c1.label,
                                     lemma,
                                     tag,
-                                    inverse,
+                                    inverse if c1.label != "KON" else 0,
                                 ),
                             )
                             mwe_map.write(
@@ -545,7 +544,7 @@ def extract_mwe_from_collocs(
                                     c2.label,
                                     lemma,
                                     tag,
-                                    inverse,
+                                    inverse if c2.label != "KON" else 0,
                                 ),
                             )
                             mwe_map.write(
