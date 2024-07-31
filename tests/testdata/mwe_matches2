@@ -1,0 +1,11 @@
+3	6	verbindet	Bekenntnis	35	38	-	2289	16
+4	1	Bekenntnis	gemeinsame	38	37	-	2289	16
+5	3	Bekenntnis	zu Freiheit	38	40	39	2289	16
+6	4	Freiheit	Menschenrechte	40	44	-	2289	16
+7	5	Menschenrechte	unveräußerlichen	44	43	-	2289	16
+8	7	Schritt	ersten	4	3	-	2289	17
+9	8	machen	Schritt	5	4	-	2289	17
+10	10	verletzte	tödlich	4	3	-	2289	18
+11	11	raste	verletzen	2	4	-	2289	18
+12	12	Bau	Sanierung	2	4	-	2289	19
+13	13	Sanierung	Schule	4	6	-	2289	19
