@@ -208,3 +208,17 @@ class WPMweConnectTest(unittest.TestCase):
     def test_retrieval_of_collocation_id_for_non_mwe_collocation(self):
         result = self.connector.get_collocations("Neun", "falsch")
         self.assertEqual(result, [])
+
+    def test_tuples_ordered_by_score(self):
+        res = self.connector.get_relation_tuples(
+            [2006644], order_by="log_dice", min_freq=1, min_stat=1
+        )
+        result = [(c.id, c.score) for c in res]
+        self.assertEqual(result, [(511, 11.0), (515, 10.5), (516, 10.0), (514, 8.0)])
+
+    def test_tuples_ordered_by_frequency(self):
+        res = self.connector.get_relation_tuples(
+            [2006644], order_by="frequency", min_freq=1, min_stat=1
+        )
+        result = [(c.id, c.freq) for c in res]
+        self.assertEqual(result, [(514, 150), (511, 120), (515, 100), (516, 99)])
