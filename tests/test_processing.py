@@ -481,18 +481,6 @@ def test_inverse_attribute_written_to_mwe_file():
     assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
 
 
-def test_extraction_of_inverse_attribute_for_mwe(collocations):
-    with tempfile.TemporaryDirectory() as tmpdir:
-        file = pathlib.Path(tmpdir) / "file"
-        mwe_ids, _ = pro.extract_mwe_from_collocs(
-            "tests/testdata/test_db/matches", file, collocations
-        )
-    assert mwe_ids == {
-        (2373301, 2367256, "VZ", "fest", "ADP", 0): 0,
-        (2367256, 2373301, "SUBJA", "Polizei", "NOUN", 1): 1,
-    }
-
-
 def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
     collocations[2373301] = Colloc(
         2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
@@ -1435,3 +1423,61 @@ def test_mwe_scores_not_inflated_by_inverses_frequency():
                 round(float(line.strip().split()[-1]), 2) for line in fp.readlines()
             ]
     assert result == [12.3, 12.3, 13.51]
+
+
+def test_mwe_inverse_extraction(testdata_dir):
+    collocations = {
+        1: Colloc(1, "ATTR", "Bekenntnis", "gemeinsam", "NOUN", "ADJ", 0, 10.0),
+        2: Colloc(2, "PP", "Bekenntnis zu", "Freiheit", "NOUN", "NOUN", 0, 10.0),
+        3: Colloc(3, "PP", "Bekenntnis", "zu Freiheit", "NOUN", "NOUN", 0, 10.0),
+        4: Colloc(4, "KON", "Freiheit", "Menschenrecht", "NOUN", "NOUN", 0, 10.0),
+        5: Colloc(5, "ATTR", "Menschenrecht", "unveräußerlich", "NOUN", "ADJ", 0, 10.0),
+        6: Colloc(6, "SUBJA", "verbinden", "Bekenntnis", "VERB", "NOUN", 0, 10.0),
+        7: Colloc(7, "ATTR", "Schritt", "erst", "NOUN", "ADJ", 0, 10.0),
+        8: Colloc(8, "OBJ", "machen", "Schritt", "VERB", "NOUN", 0, 10.0),
+    }
+
+    matches_file = testdata_dir / "mwe_matches2"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        mwe_ids, _ = pro.extract_mwe_from_collocs(
+            matches_file, output_file, collocations
+        )
+    expected = {
+        (1, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (1, 6, "SUBJA", "verbinden", "VERB", 1),
+        (3, 1, "ATTR", "gemeinsam", "ADJ", 0),
+        (3, 4, "KON", "Menschenrecht", "NOUN", 0),
+        (3, 6, "SUBJA", "verbinden", "VERB", 1),
+        (4, 3, "PP", "Bekenntnis", "NOUN", 1),
+        (4, 5, "ATTR", "unveräußerlich", "ADJ", 0),
+        (5, 4, "KON", "Freiheit", "NOUN", 0),
+        (6, 1, "ATTR", "gemeinsam", "ADJ", 0),
+        (6, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (7, 8, "OBJ", "machen", "VERB", 1),
+        (8, 7, "ATTR", "erst", "ADJ", 0),
+    }
+    assert mwe_ids.keys() == expected
+
+
+def test_mwe_not_inverted_if_KON_relation(testdata_dir):
+    collocations = {
+        10: Colloc(10, "ADV", "verletzen", "tödlich", "VERB", "ADJ", 0, 10.0),
+        11: Colloc(11, "KON", "rasen", "verletzen", "VERB", "VERB", 0, 10.0),
+        12: Colloc(12, "KON", "Bau", "Sanierung", "NOUN", "NOUN", 0, 10.0),
+        13: Colloc(13, "GMOD", "Sanierung", "Schule", "NOUN", "NOUN", 0, 10.0),
+    }
+
+    matches_file = testdata_dir / "mwe_matches2"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        mwe_ids, _ = pro.extract_mwe_from_collocs(
+            matches_file, output_file, collocations
+        )
+    expected = {
+        (10, 11, "KON", "rasen", "VERB", 0),
+        (11, 10, "ADV", "tödlich", "ADJ", 0),
+        (12, 13, "GMOD", "Schule", "NOUN", 0),
+        (13, 12, "KON", "Bau", "NOUN", 0),
+    }
+    assert mwe_ids.keys() == expected
