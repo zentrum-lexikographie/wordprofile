@@ -27,6 +27,8 @@ def format_lemma_pos(db_results: List[LemmaInfo], relation_order):
             relations_ordered = ["META"] + [
                 r for r in relation_order[pos_tag] if r in relations
             ]
+        else:
+            relations_ordered = list(relations)
         results.append(
             {
                 "Lemma": lemma,
