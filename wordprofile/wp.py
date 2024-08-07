@@ -60,7 +60,8 @@ class Wordprofile:
             List of lemma-pos combinations with stats and possible relations.
         """
         if not RE_LEMMA.fullmatch(lemma):
-            raise ValueError(f"Request for invalid lemma: ({lemma})")
+            logger.info("Request for invalid lemma: (%s)" % lemma)
+            return []
 
         lemma = lemma.replace("+", " ")
         pos = tag_f2b[pos]
@@ -126,7 +127,8 @@ class Wordprofile:
             List of selected collocations grouped by relation.
         """
         if lemma1 and not RE_LEMMA.fullmatch(lemma1):
-            raise ValueError(f"Request for invalid lemma: ({lemma1})")
+            logger.info("Request for invalid lemma: (%s)" % lemma1)
+            return []
 
         relations = [] if relations is None else relations
         results = []
@@ -178,7 +180,8 @@ class Wordprofile:
         """
         for lemma in [lemma1, lemma2]:
             if lemma and not RE_LEMMA.fullmatch(lemma):
-                raise ValueError(f"Request for invalid lemma: ({lemma})")
+                logger.info("Request for invalid lemma: (%s)" % lemma)
+                return []
 
         return [
             abs(c[0])
@@ -304,7 +307,8 @@ class Wordprofile:
         """
         for lemma in [lemma1, lemma2]:
             if lemma and not RE_LEMMA.fullmatch(lemma):
-                raise ValueError(f"Request for invalid lemma: ({lemma})")
+                logger.info("Request for invalid lemma: (%s)" % lemma)
+                return []
 
         results = []
         for rel in relations:
