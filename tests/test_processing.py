@@ -1481,3 +1481,21 @@ def test_mwe_not_inverted_if_KON_relation(testdata_dir):
         (13, 12, "KON", "Bau", "NOUN", 0),
     }
     assert mwe_ids.keys() == expected
+
+
+def test_filter_mwe_matches():
+    mwe_matches = [(1, 2, 3), (2, 3, 44), (3, 43, 23), (4, 5, 3), (5, 23, 21)]
+    mwe_freqs = {2: 2, 3: 10, 5: 3}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        with open(pathlib.Path(tmpdir) / "mwe_match_full", "w") as fh:
+            for match in mwe_matches:
+                print("\t".join(map(str, match)), file=fh)
+        pro.filter_mwe_matches(tmpdir, mwe_freqs)
+        files = [p.name for p in pathlib.Path(tmpdir).iterdir()]
+        assert "mwe_match" in files
+        with open(pathlib.Path(tmpdir) / "mwe_match") as fh:
+            final_ids = []
+            for line in fh:
+                mwe_id = line.strip().split("\t")[0]
+                final_ids.append(mwe_id)
+        assert final_ids == ["2", "3", "5"]
