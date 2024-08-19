@@ -47,11 +47,23 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
 
     prepositional_contract_map: dict[str, str] = {
         "am": "an",
+        "aufs": "auf",
         "ans": "an",
         "beim": "bei",
+        "fürs": "für",
         "im": "in",
         "ins": "in",
+        "hinters": "hinter",
+        "hinterm": "hinter",
+        "ums": "um",
+        "übers": "über",
+        "überm": "über",
+        "unterm": "unter",
+        "unters": "unter",
+        "untern": "unter",
         "vom": "von",
+        "vorm": "vor",
+        "vors": "vor",
         "zum": "zu",
         "zur": "zu",
     }
