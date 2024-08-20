@@ -484,3 +484,22 @@ def test_formatting_of_relation_description_in_diff_comparison():
     ]
     result = form.format_comparison(diffs)[0]["Relation"]
     assert result == "~OBJ"
+
+
+def test_formatting_lemma_pos_if_only_one_result(description_handler):
+    db_result = [LemmaInfo(lemma="schnell", tag="ADJ", rel="ADV", freq=3, inv=0)]
+    result = form.format_lemma_pos(db_result, description_handler.mapRelOrder)
+    assert result == [
+        {
+            "Lemma": "schnell",
+            "POS": "Adjektiv",
+            "PosId": "Adjektiv",
+            "Frequency": 3,
+            "Relations": ["ADV"],
+        }
+    ]
+
+
+def test_formatting_lemma_pos_no_result(description_handler):
+    result = form.format_lemma_pos([], description_handler.mapRelOrder)
+    assert result == []
