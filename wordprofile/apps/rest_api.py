@@ -171,10 +171,7 @@ async def get_concordances_and_relation(
     Returns:
     - Dictionary with collocation information and their concordances.
     """
-    use_context = False
-    return wp.get_concordances_and_relation(
-        coocc_id, use_context, start_index, result_number
-    )
+    return wp.get_concordances_and_relation(coocc_id, start_index, result_number)
 
 
 @app.get("/api/v1/cmp/diff", tags=["cmp"])
@@ -352,9 +349,8 @@ def get_mwe_concordances_and_relation(
     Returns:
     - Dictionary with collocation information and their concordances.
     """
-    use_context = False
     return wp.get_concordances_and_relation(
-        coocc_id, use_context, start_index, result_number, is_mwe=True
+        coocc_id, start_index, result_number, is_mwe=True
     )
 
 

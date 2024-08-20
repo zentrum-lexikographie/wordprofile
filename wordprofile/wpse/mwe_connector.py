@@ -44,53 +44,20 @@ class WPMweConnect:
         return res
 
     def get_concordances(
-        self, mwe_id: int, use_context: bool, start_index: int, result_number: int
+        self, mwe_id: int, start_index: int, result_number: int
     ) -> List[MweConcordance]:
         """Fetches concordances for collocation id from database backend.
 
         Args:
             mwe_id: Collocation id for concordances.
-            use_context: If true, returns surrounding sentences.
             start_index: Row index to start with.
             result_number: Number of results to return.
 
         Return:
             List of Concordance.
         """
-        if use_context:
-            query = """
-            SELECT * FROM
-            (SELECT
-                s_center.sentence AS sent, m1.head_position AS m1_head_pos,
-                m1.dep_position AS m1_dep_pos, m1.prep_position AS m1_prep_pos,
-                m2.head_position AS m2_head_pos, m2.dep_position AS m2_dep_pos,
-                m2.prep_position AS m2_prep_pos, cf.corpus,
-                cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1, s_left.sentence AS 'left', s_right.sentence AS 'right'
-            FROM
-                mwe_match
-            INNER JOIN matches as m1 ON (mwe_match.match1_id = m1.id)
-            INNER JOIN matches as m2 ON (mwe_match.match2_id = m2.id)
-            INNER JOIN corpus_files as cf ON (m1.corpus_file_id = cf.id)
-            INNER JOIN concord_sentences as s_center ON
-                (s_center.corpus_file_id = cf.id
-                and s_center.sentence_id = m1.sentence_id)
-            LEFT JOIN concord_sentences as s_left ON
-                (s_left.corpus_file_id = cf.id
-                and s_left.sentence_id =(m1.sentence_id-1))
-            LEFT JOIN concord_sentences as s_right ON
-                (s_right.corpus_file_id = cf.id
-                and s_right.sentence_id =(m1.sentence_id + 1))
-            WHERE
-                mwe_match.mwe_id = %s
-            ORDER BY s_center.random_val
-            LIMIT %s,%s)
-            AS sample
-            ORDER BY date DESC;
-            """
-            params = (mwe_id, start_index, result_number)
-        else:
-            query = """
+
+        query = """
             SELECT *, '', ''
             FROM
             (SELECT
@@ -115,7 +82,7 @@ class WPMweConnect:
             as sample
             ORDER BY date DESC ;
             """
-            params = (mwe_id, start_index, result_number)
+        params = (mwe_id, start_index, result_number)
         return list(map(lambda i: MweConcordance(*i), self.__fetchall(query, params)))
 
     def get_relation_by_id(self, mwe_id: int) -> Coocc:

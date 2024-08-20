@@ -472,7 +472,6 @@ class Wordprofile:
     def get_concordances_and_relation(
         self,
         coocc_id: int,
-        use_context: bool = False,
         start_index: int = 0,
         result_number: int = 20,
         is_mwe: bool = False,
@@ -481,7 +480,6 @@ class Wordprofile:
 
         Args:
             coocc_id: Collocation id.
-            use_context: If true, returns surrounding sentences for matched collocation.
             start_index: Collocation id.
             result_number: Collocation id.
             is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
@@ -492,14 +490,10 @@ class Wordprofile:
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
             relation["Tuples"] = format_concordances(
-                self.db_mwe.get_concordances(
-                    int(coocc_id), use_context, start_index, result_number
-                )
+                self.db_mwe.get_concordances(int(coocc_id), start_index, result_number)
             )
         else:
             relation["Tuples"] = format_concordances(
-                self.db.get_concordances(
-                    int(coocc_id), use_context, start_index, result_number
-                )
+                self.db.get_concordances(int(coocc_id), start_index, result_number)
             )
         return relation

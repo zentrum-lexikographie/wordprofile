@@ -82,13 +82,12 @@ class WPConnect:
         }
 
     def get_concordances(
-        self, coocc_id: int, use_context: bool, start_index: int, result_number: int
+        self, coocc_id: int, start_index: int, result_number: int
     ) -> List[Concordance]:
         """Fetches concordances for collocation id from database backend.
 
         Args:
             coocc_id: Collocation id for concordances.
-            use_context: If true, returns surrounding sentences.
             start_index: Row index to start with.
             result_number: Number of results to return.
 
@@ -103,40 +102,7 @@ class WPConnect:
             head_lemma, head_tag = coocc_info.lemma1, coocc_info.tag1
             dep_lemma, dep_tag = coocc_info.lemma2, coocc_info.tag2
 
-        if use_context:
-            query = """
-            SELECT * FROM
-            (SELECT
-                s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
-                cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1, s_left.sentence AS 'left' , s_right.sentence AS 'right'
-            FROM
-                matches
-            INNER JOIN collocations as c ON (matches.collocation_id = c.id)
-            INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
-            INNER JOIN concord_sentences as s_center ON
-                (s_center.corpus_file_id = cf.id
-                AND s_center.sentence_id = matches.sentence_id)
-            LEFT JOIN concord_sentences as s_left ON
-                (s_left.corpus_file_id = cf.id
-                AND s_left.sentence_id = (matches.sentence_id-1))
-            LEFT JOIN concord_sentences as s_right ON
-                (s_right.corpus_file_id = cf.id
-                AND s_right.sentence_id = (matches.sentence_id + 1))
-            WHERE (
-                c.label = %s AND
-                c.lemma1 = %s AND
-                c.lemma1_tag = %s AND
-                c.lemma2 = %s AND
-                c.lemma2_tag = %s
-            )
-            ORDER BY s_center.random_val
-            LIMIT %s,%s)
-            AS sample
-            ORDER BY date DESC;
-            """
-        else:
-            query = """
+        query = """
             SELECT *, '', '' FROM
             (SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,

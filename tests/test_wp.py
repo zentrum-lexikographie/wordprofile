@@ -84,7 +84,7 @@ class MockDb:
         ]
 
     def get_concordances(
-        self, coocc_id: int, use_context: bool = False, start_index=0, result_number=3
+        self, coocc_id: int, start_index=0, result_number=3
     ) -> list[Concordance]:
         concordances = self.conc.get(coocc_id, [])
         return concordances[start_index : start_index + result_number]
