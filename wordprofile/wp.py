@@ -274,7 +274,6 @@ class Wordprofile:
         min_stat: float = -1000.0,
         operation: str = "adiff",
         use_intersection: bool = False,
-        nbest: int = 0,
     ) -> List[dict]:
         """
         Compare word profiles for a pair of lemmas per relation.
@@ -301,7 +300,6 @@ class Wordprofile:
                 (harmonic mean). Default is 'adiff'.
             use_intersection (optional): Consider only collocates that
                 occur with both lemmas. Default is 'False'.
-            nbest (optional): Checks only the n highest scored lemmas.
         Return:
             List of collocation-diffs grouped by relation.
         """
@@ -327,7 +325,7 @@ class Wordprofile:
                     lemma1, lemma2, tag_f2b[pos], rel, order_by, min_freq, min_stat
                 )
             diffs = self.__calculate_diff(
-                lemma1, lemma2, diffs, number, nbest, use_intersection, operation
+                lemma1, lemma2, diffs, number, use_intersection, operation
             )
             results.append(
                 {
@@ -346,7 +344,6 @@ class Wordprofile:
         lemma2: str,
         diffs,
         number: int,
-        nbest: int,
         use_intersection: bool,
         operation: str,
     ) -> List[dict]:
@@ -373,7 +370,6 @@ class Wordprofile:
             lemma2: Second lemma of interest.
             diffs: List of cooccurrences (Coocc) for lemma1 or lemma2.
             number: Number of collocations to return.
-            nbest: Checks only the n highest scored lemmas.
             use_intersection: If set, only the intersection of both lemmas
                 is computed.
             operation: Lemma distance metric (hmean or adiff).
@@ -381,22 +377,15 @@ class Wordprofile:
             Sorted list of collocation-diffs.
         """
         collocation_diffs: defaultdict[str, dict] = defaultdict(dict)
-        lemma1_ctr = lemma2_ctr = 0
         for i, c in enumerate(diffs):
-            if nbest and lemma1_ctr > nbest and lemma2_ctr > nbest:
-                break
             if c.lemma1 == lemma1:
-                if not nbest or lemma1_ctr <= nbest:
-                    collocation_diffs[c.lemma2]["coocc_1"] = c
-                    collocation_diffs[c.lemma2]["rank_1"] = i
-                    collocation_diffs[c.lemma2]["pos"] = c.tag1
-                lemma1_ctr += 1
+                collocation_diffs[c.lemma2]["coocc_1"] = c
+                collocation_diffs[c.lemma2]["rank_1"] = i
+                collocation_diffs[c.lemma2]["pos"] = c.tag1
             elif c.lemma1 == lemma2:
-                if not nbest or lemma2_ctr <= nbest:
-                    collocation_diffs[c.lemma2]["coocc_2"] = c
-                    collocation_diffs[c.lemma2]["rank_2"] = i
-                    collocation_diffs[c.lemma2]["pos"] = c.tag1
-                lemma2_ctr += 1
+                collocation_diffs[c.lemma2]["coocc_2"] = c
+                collocation_diffs[c.lemma2]["rank_2"] = i
+                collocation_diffs[c.lemma2]["pos"] = c.tag1
             elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
                 continue
             else:
@@ -421,7 +410,7 @@ class Wordprofile:
                 coocc1.score if coocc1 is not None else 0,
                 coocc2.score if coocc2 is not None else 0,
             )
-        # final sort and cut after nbest cooccs
+        # final sort and cut after desired number of cooccs
         if operation == "adiff":
             diffs_grouped.sort(key=lambda x: math.fabs(x["score"]), reverse=True)
             diffs_grouped = diffs_grouped[:number]
