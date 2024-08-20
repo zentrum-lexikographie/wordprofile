@@ -183,34 +183,57 @@ def test_sentence_conversion_ne_tags():
 
 
 def test_sentence_conversion_contracted_adp():
-    token_list = TokenList(
-        [
-            Token(
-                id=1,
-                form="am",
-                lemma="am",
-                upos="ADP",
-                xpos="",
-                feats={},
-                head="",
-                deprel="",
-                deps=None,
-                misc={},
-            ),
-        ]
-    )
-    assert pro.convert_sentence(token_list) == [
-        WPToken(
-            idx=1,
-            surface="am",
-            lemma="an",
-            tag="ADP",
-            head="",
-            rel="",
-            misc=False,
-            morph={},
-        )
+    prepositions = [
+        ("am", "an"),
+        ("aufs", "auf"),
+        ("ans", "an"),
+        ("beim", "bei"),
+        ("fürs", "für"),
+        ("hinters", "hinter"),
+        ("hinterm", "hinter"),
+        ("im", "in"),
+        ("ins", "in"),
+        ("übers", "über"),
+        ("überm", "über"),
+        ("ums", "um"),
+        ("unterm", "unter"),
+        ("unters", "unter"),
+        ("untern", "unter"),
+        ("vorm", "vor"),
+        ("vors", "vor"),
+        ("vom", "von"),
+        ("zum", "zu"),
+        ("zur", "zu"),
     ]
+    for prep, lemma in prepositions:
+        token_list = TokenList(
+            [
+                Token(
+                    id=1,
+                    form=prep,
+                    lemma=prep,
+                    upos="ADP",
+                    xpos="",
+                    feats={},
+                    head="",
+                    deprel="",
+                    deps=None,
+                    misc={},
+                ),
+            ]
+        )
+        assert pro.convert_sentence(token_list) == [
+            WPToken(
+                idx=1,
+                surface=prep,
+                lemma=lemma,
+                tag="ADP",
+                head="",
+                rel="",
+                misc=False,
+                morph={},
+            )
+        ]
 
 
 def test_sentence_conversion_to_dbtoken_invalid_chars_removed():
