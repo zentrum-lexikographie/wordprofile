@@ -750,7 +750,7 @@ def post_process_db_files(
         logger.info("MAKE MWE LVL 1")
         mwe_ids, mwe_freqs = extract_mwe_from_collocs(
             os.path.join(final_path, "matches"),
-            os.path.join(final_path, "mwe_match"),
+            os.path.join(final_path, "mwe_match_full"),
             collocs,
         )
         collocs = {}
@@ -762,6 +762,22 @@ def post_process_db_files(
         compute_mwe_scores(
             os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
         )
+        mwe_ids = {}
+        mwe_freqs_filtered = {
+            mwe_id: freq for mwe_id, freq in mwe_freqs.items() if freq >= min_rel_freq
+        }
+        filter_mwe_matches(final_path, mwe_freqs_filtered)
+        # remove temporary file with MWE matches
+        os.remove(os.path.join(final_path, "mwe_match_full"))
+
+
+def filter_mwe_matches(final_path: str, mwe_freqs: dict[int, int]) -> None:
+    with open(os.path.join(final_path, "mwe_match_full")) as fh:
+        with open(os.path.join(final_path, "mwe_match"), "w") as fo:
+            for line in fh:
+                mwe_id = int(line.strip().split("\t")[0])
+                if mwe_id in mwe_freqs:
+                    print(line, end="", file=fo)
 
 
 def load_files_into_db(connection: Connection, storage_path: str) -> None:
@@ -777,7 +793,7 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
     ]:
         tb_file = os.path.join(storage_path, tb_name)
         if not os.path.exists(tb_file):
-            logger.warning("Local file '%s' doe not exist." % tb_file)
+            logger.warning("Local file '%s' does not exist." % tb_file)
         else:
             logger.info("LOAD DATA FILE: %s" % tb_name)
             if tb_name == "concord_sentences":

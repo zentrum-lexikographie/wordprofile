@@ -14,6 +14,7 @@ def main():
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
         compute_statistics_with_mwe(tmp_dir)
+        mwe_filtering(tmp_dir)
 
 
 def convert(tmp_dir):
@@ -167,9 +168,26 @@ def check_mwe(tmp_dir):
         lines = fh.readlines()
         mwe_collocations = {tuple(line.split("\t")[1:8]) for line in lines}
     assert mwe_collocations == {
-        ("2", "3", "GMOD", "Skandalbank", "NOUN", "1", "2"),
+        ("2", "3", "GMOD", "Skandalbank", "NOUN", "0", "2"),
         ("3", "2", "ATTR", "heikel", "ADJ", "0", "2"),
     }
+
+
+def mwe_filtering(tmp_dir):
+    cs.main(
+        [
+            os.path.join(tmp_dir, "colloc", "corpus"),
+            "--dest",
+            os.path.join(tmp_dir, "stats_mwe"),
+            "--min-rel-freq",
+            "3",
+            "--mwe",
+        ]
+    )
+    with open(os.path.join(tmp_dir, "stats_mwe", "mwe_match")) as fh:
+        assert fh.read() == ""
+    with open(os.path.join(tmp_dir, "stats_mwe", "mwe")) as fh:
+        assert fh.read() == ""
 
 
 if __name__ == "__main__":
