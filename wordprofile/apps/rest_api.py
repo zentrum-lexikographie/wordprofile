@@ -139,7 +139,10 @@ async def get_relations(
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
-        relations = wp.get_lemma_and_pos(lemma1, pos1)[0]["Relations"]
+        result = wp.get_lemma_and_pos(lemma1, pos1)
+        if len(result) == 0:
+            return []
+        relations = result[0]["Relations"]
     return wp.get_relations(
         lemma1,
         pos1,
@@ -210,7 +213,10 @@ async def get_diff(
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
-        relations = wp.get_lemma_and_pos_diff(lemma1, lemma2)[0]["Relations"]
+        result = wp.get_lemma_and_pos_diff(lemma1, lemma2)
+        if len(result) == 0:
+            return []
+        relations = result[0]["Relations"]
     return wp.get_diff(
         lemma1,
         lemma2,
@@ -261,7 +267,10 @@ async def get_intersection(
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
     if len(relations) == 0:
-        relations = wp.get_lemma_and_pos_diff(lemma1, lemma2)[0]["Relations"]
+        result = wp.get_lemma_and_pos_diff(lemma1, lemma2)
+        if len(result) == 0:
+            return []
+        relations = result[0]["Relations"]
     return wp.get_diff(
         lemma1,
         lemma2,

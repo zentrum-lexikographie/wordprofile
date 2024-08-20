@@ -429,11 +429,21 @@ class WordprofileTest(unittest.TestCase):
         self.wp.db = MockDb(self.cooc_data)
         self.wp.db_mwe = MockMweDb(self.mwe_data)
 
-    def test_invalid_lemma_raises_error(self):
-        invalid_lemmata = ["test+", "string;", "select'", "dot,dot", "U_u\\", "other%"]
+    def test_invalid_lemma_returns_empty_list(self):
+        invalid_lemmata = [
+            "test+",
+            "string;",
+            "select'",
+            "dot,dot",
+            "U_u\\",
+            "other%",
+            "1%",
+            "'rauf",
+        ]
         for lemma in invalid_lemmata:
-            with self.assertRaises(ValueError):
-                self.wp.get_lemma_and_pos(lemma)
+            result = self.wp.get_lemma_and_pos(lemma)
+            with self.subTest():
+                self.assertEqual(result, [])
 
     def test_retrieval_of_relation_info_by_id(self):
         result = self.wp.get_relation_by_info_id(2)
@@ -609,3 +619,48 @@ class WordprofileTest(unittest.TestCase):
             "Tuples": [],
         }
         self.assertEqual(result, expected)
+
+    def test_invalid_lemma_returns_empty_list_for_get_relations(self):
+        lemmata = ["", "10%", "98/15", "eh'", "#tag", "test+"]
+        for lemma in lemmata:
+            result = self.wp.get_relations(lemma, "")
+            with self.subTest():
+                self.assertEqual(result, [])
+
+    def test_invalid_lemma_returns_empty_list_for_collocations_ids(self):
+        lemmata = [
+            "",
+            "10%",
+            "98/15",
+            "eh'",
+            "#tag",
+            "test+",
+            "select'",
+            "dot,dot",
+            "U_u\\",
+            "other%",
+        ]
+        for lemma in lemmata:
+            result = self.wp.get_collocation_ids(lemma, "lemma")
+            with self.subTest():
+                self.assertEqual(result, [])
+
+    def test_invalid_lemma_returns_empty_list_for_diff_comparison(self):
+        lemmata = [
+            "",
+            "10%",
+            "98/15",
+            "eh'",
+            "#tag",
+            "test+",
+            "select'",
+            "dot,dot",
+            "U_u\\",
+            "other%",
+            "...",
+            ".txt",
+        ]
+        for lemma1, lemma2 in zip(lemmata, lemmata[1:] + lemmata[:1]):
+            result = self.wp.get_diff(lemma1, lemma2, pos="", relations=[])
+            with self.subTest():
+                self.assertEqual(result, [])
