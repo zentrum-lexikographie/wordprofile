@@ -59,7 +59,6 @@ def prepare_concord_sentences(
                 )
                 for tok in parse
             ),
-            page="-",
         )
         for sent_i, parse in enumerate(parses, 1)
     ]

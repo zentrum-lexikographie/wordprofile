@@ -36,7 +36,6 @@ def get_table_concord_sentences(meta: MetaData):
         Column("corpus_file_id", CORPUS_FILE_TYPE),
         Column("sentence_id", types.Integer),
         Column("sentence", types.Text),
-        Column("page", types.VARCHAR(10)),
         Column("random_val", types.Float, server_default=func.rand()),
         mysql_engine="Aria",
     )

@@ -798,7 +798,7 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
             logger.info("LOAD DATA FILE: %s" % tb_name)
             if tb_name == "concord_sentences":
                 query = f"""LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name}
-                (corpus_file_id, sentence_id, sentence, page);"""
+                (corpus_file_id, sentence_id, sentence);"""
             else:
                 query = f"LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name};"
             connection.execute(text(query))

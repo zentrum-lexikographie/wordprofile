@@ -120,7 +120,7 @@ DBCorpusFile = namedtuple(
     ["id", "corpus", "file", "orig", "scan", "date", "text_class", "available"],
 )
 DBConcordance = namedtuple(
-    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence", "page"]
+    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence"]
 )
 
 

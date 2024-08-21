@@ -78,7 +78,7 @@ def format_concordances(concords: list[WPConcordance]):
             {
                 "Bibl": {
                     "Corpus": c.corpus,
-                    "Orig": c.orig.replace("#page#", c.page),
+                    "Orig": c.orig.replace("#page#", "-"),
                 },
                 "ConcordLine": sentence_main,
             }

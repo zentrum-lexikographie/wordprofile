@@ -49,7 +49,7 @@ def test_prepare_concord_sentence():
         ]
     ]
     assert pre.prepare_concord_sentences("1", parses) == [
-        DBConcordance(corpus_file_id="1", sentence_id=1, sentence="A\x01B", page="-")
+        DBConcordance(corpus_file_id="1", sentence_id=1, sentence="A\x01B")
     ]
 
 

@@ -473,3 +473,21 @@ def test_formatting_lemma_pos_if_only_one_result(description_handler):
 def test_formatting_lemma_pos_no_result(description_handler):
     result = form.format_lemma_pos([], description_handler.mapRelOrder)
     assert result == []
+
+
+def test_page_replaced_with_dash():
+    concordances = [
+        Concordance(
+            sentence="Auch\x02deshalb\x02habe\x02ich\x02Ihre\x02freundliche\x02Einladung\x02gern\x02angenommen\x01.",
+            token_position_1=7,
+            token_position_2=6,
+            extra_position="-",
+            corpus="corpus",
+            date=datetime.date.fromisoformat("2024-01-01"),
+            orig="Quelle, 01.01.2024, S. #page#",
+            avail="",
+            file="",
+        )
+    ]
+    result = form.format_concordances(concordances)[0]["Bibl"]["Orig"]
+    assert result == "Quelle, 01.01.2024, S. -"
