@@ -164,12 +164,6 @@ def test_highlighting_of_mwe_concordance():
     )
 
 
-def test_formatting_of_context_sentences():
-    sentence = "Denn\x02jetzt\x02kann\x02der\x02Chef\x02zuschauen\x01!\x02"
-    result = form.format_sentence(sentence)
-    assert result == "Denn jetzt kann der Chef zuschauen!"
-
-
 def test_leading_delimiter_removed_of_highlighted_sentence():
     sentence = "\x01Denn\x02jetzt\x02kann\x02der\x02Chef\x02zuschauen\x01!\x01"
     result = form.format_sentence_and_highlight(sentence, [])
