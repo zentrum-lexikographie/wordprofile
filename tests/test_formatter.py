@@ -100,12 +100,9 @@ def test_highlighting_of_single_word_concordance():
         extra_position="0",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -122,12 +119,9 @@ def test_highlighting_of_single_word_concordance_with_prep():
         extra_position="5",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -147,12 +141,9 @@ def test_highlighting_of_mwe_concordance():
         extra2_position="0",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -305,12 +296,9 @@ def test_format_concordances_contains_necessary_bibl_information():
             extra_position="-",
             corpus="corpus",
             date=datetime.date.fromisoformat("2024-01-01"),
-            textclass="tc",
             orig="Quelle, 01.01.2024",
             avail="",
-            page="",
             file="",
-            scan="",
         )
     ]
     result = form.format_concordances(concordances)[0]

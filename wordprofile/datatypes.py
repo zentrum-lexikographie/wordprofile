@@ -40,11 +40,8 @@ class WPConcordance(Protocol):
     extra_position: int
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
 
     def get_highlight_positions(self) -> list[int]:
@@ -60,11 +57,8 @@ class Concordance:
     extra_position: str
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
 
     def get_highlight_positions(self) -> list[int]:
@@ -83,11 +77,8 @@ class MweConcordance:
     extra2_position: str
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
 
     def get_highlight_positions(self) -> list[int]:

@@ -105,9 +105,9 @@ class WPConnect:
         query = """
             SELECT * FROM
             (SELECT
-                s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
-                cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file
+                s_center.sentence, matches.head_position, matches.dep_position,
+                matches.prep_position, cf.corpus, cf.date, cf.orig, cf.available,
+                cf.file
             FROM
                 matches
             INNER JOIN collocations as c ON (matches.collocation_id = c.id)

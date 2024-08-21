@@ -17,12 +17,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -31,12 +28,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -45,12 +39,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
                 ),
             ]
         }
