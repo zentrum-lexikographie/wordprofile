@@ -107,7 +107,7 @@ class WPConnect:
             (SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
                 cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1
+                s_center.page, cf.file
             FROM
                 matches
             INNER JOIN collocations as c ON (matches.collocation_id = c.id)

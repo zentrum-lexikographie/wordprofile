@@ -66,7 +66,7 @@ class WPMweConnect:
                 m2.head_position AS m2_head_pos, m2.dep_position AS m2_dep_pos,
                 m2.prep_position AS m2_prep_pos,
                 cf.corpus, cf.date, cf.text_class, cf.orig, cf.scan, cf.available,
-                s_center.page, cf.file, 1
+                s_center.page, cf.file
             FROM
                 mwe_match
             INNER JOIN matches as m1 ON (mwe_match.match1_id = m1.id)

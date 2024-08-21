@@ -106,7 +106,6 @@ def test_highlighting_of_single_word_concordance():
         page="",
         file="",
         scan="",
-        score=5,
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -129,7 +128,6 @@ def test_highlighting_of_single_word_concordance_with_prep():
         page="",
         file="",
         scan="",
-        score=5,
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -155,7 +153,6 @@ def test_highlighting_of_mwe_concordance():
         page="",
         file="",
         scan="",
-        score=5,
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -314,7 +311,6 @@ def test_format_concordances_contains_necessary_bibl_information():
             page="",
             file="",
             scan="",
-            score=5,
         )
     ]
     result = form.format_concordances(concordances)[0]

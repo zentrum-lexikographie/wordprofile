@@ -23,7 +23,6 @@ class MockDb:
                     page="",
                     file="",
                     scan="",
-                    score=5,
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -38,7 +37,6 @@ class MockDb:
                     page="",
                     file="",
                     scan="",
-                    score=5,
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -53,7 +51,6 @@ class MockDb:
                     page="",
                     file="",
                     scan="",
-                    score=5,
                 ),
             ]
         }
