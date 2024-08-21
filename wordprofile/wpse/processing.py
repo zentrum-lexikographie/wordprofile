@@ -237,10 +237,14 @@ def process_doc_file(
             db_matches_queue.put(db_matches)
         except TypeError:
             logger.exception(
-                "Type Conversion Error: invalid sentence parse in document: %s" % doc_id
+                "Type Conversion Error: invalid sentence parse in document: %s"
+                % sentences[0].metadata.get("DDC:meta.file_")
             )
         except Exception:
-            logger.exception("Couldn't process document: %s" % doc_id)
+            logger.exception(
+                "Couldn't process document: %s"
+                % sentences[0].metadata.get("DDC:meta.file_")
+            )
 
 
 def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> None:
