@@ -82,8 +82,6 @@ def test_retrieval_of_highlighting_positions():
         page="",
         file="",
         score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [0, 1]
@@ -104,8 +102,6 @@ def test_retrieval_of_highlighting_positions_with_extra_positions():
         page="",
         file="",
         score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [1, 2, 3, 5]
@@ -129,8 +125,6 @@ def test_retrieval_of_highlighting_positions_mwe():
         page="",
         file="",
         score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [0, 1, 3, 5, 7, 8]

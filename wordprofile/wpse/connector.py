@@ -103,7 +103,7 @@ class WPConnect:
             dep_lemma, dep_tag = coocc_info.lemma2, coocc_info.tag2
 
         query = """
-            SELECT *, '', '' FROM
+            SELECT * FROM
             (SELECT
                 s_center.sentence, matches.head_position, matches.dep_position, matches.prep_position, cf.corpus,
                 cf.date, cf.text_class, cf.orig, cf.scan, cf.available,

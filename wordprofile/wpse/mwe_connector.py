@@ -58,7 +58,7 @@ class WPMweConnect:
         """
 
         query = """
-            SELECT *, '', ''
+            SELECT *
             FROM
             (SELECT
                 s_center.sentence, m1.head_position AS m1_head_pos,

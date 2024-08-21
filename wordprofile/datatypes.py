@@ -47,8 +47,6 @@ class WPConcordance(Protocol):
     page: str
     file: str
     score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         """Returns list of indices of target tokens."""
@@ -70,8 +68,6 @@ class Concordance:
     page: str
     file: str
     score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         extra_positions = [int(pos) for pos in self.extra_position.split("-") if pos]
@@ -96,8 +92,6 @@ class MweConcordance:
     page: str
     file: str
     score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         extra_positions1 = [int(pos) for pos in self.extra1_position.split("-") if pos]
