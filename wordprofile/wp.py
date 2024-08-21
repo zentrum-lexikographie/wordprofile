@@ -377,14 +377,12 @@ class Wordprofile:
             Sorted list of collocation-diffs.
         """
         collocation_diffs: defaultdict[str, dict] = defaultdict(dict)
-        for i, c in enumerate(diffs):
+        for c in diffs:
             if c.lemma1 == lemma1:
                 collocation_diffs[c.lemma2]["coocc_1"] = c
-                collocation_diffs[c.lemma2]["rank_1"] = i
                 collocation_diffs[c.lemma2]["pos"] = c.tag1
             elif c.lemma1 == lemma2:
                 collocation_diffs[c.lemma2]["coocc_2"] = c
-                collocation_diffs[c.lemma2]["rank_2"] = i
                 collocation_diffs[c.lemma2]["pos"] = c.tag1
             elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
                 continue
