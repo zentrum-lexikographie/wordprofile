@@ -283,13 +283,11 @@ def test_process_doc_file_queues_filled(conll_sentences):
         db_file.corpus,
         db_file.orig,
         db_file.date,
-        db_file.text_class,
     ) == (
         "politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml",
         "politische_reden",
         "Rede von Frank-Walter Steinmeier, 02.06.2009",
         "2009-06-02",
-        "gesprochen:Rede",
     )
     sentences = db_sents_queue.get()
     assert len(sentences) == 3

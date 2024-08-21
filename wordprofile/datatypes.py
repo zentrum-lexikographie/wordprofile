@@ -117,7 +117,7 @@ class WPToken:
 Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])
 DBCorpusFile = namedtuple(
     "DBCorpusFile",
-    ["id", "corpus", "file", "orig", "scan", "date", "text_class", "available"],
+    ["id", "corpus", "file", "orig", "date", "available"],
 )
 DBConcordance = namedtuple(
     "DBConcordance", ["corpus_file_id", "sentence_id", "sentence"]

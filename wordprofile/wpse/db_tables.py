@@ -21,9 +21,7 @@ def get_table_corpus_files(meta: MetaData):
         Column("corpus", types.VARCHAR(50)),
         Column("file", types.VARCHAR(200)),
         Column("orig", types.Text),
-        Column("scan", types.Text),
         Column("date", types.DateTime),
-        Column("text_class", types.Text),
         Column("available", types.Text),
         mysql_engine="Aria",
     )
