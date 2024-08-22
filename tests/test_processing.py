@@ -1520,3 +1520,27 @@ def test_filter_mwe_matches():
                 mwe_id = line.strip().split("\t")[0]
                 final_ids.append(mwe_id)
         assert final_ids == ["2", "3", "5"]
+
+
+def test_reindex_filter_concordances(testdata_dir):
+    input_files = [
+        testdata_dir / "concord_sentences",
+        testdata_dir / "concord_sentences2",
+    ]
+    file_ids = {"file1": 1, "file2": 2, "file3": 3, "file4": 4}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        result = pro.reindex_filter_concordances(
+            input_files,
+            directory / "output_file",
+            file_ids,
+            directory / "duplicates",
+        )
+        with open(directory / "duplicates") as fh:
+            duplicate_sents = fh.readlines()
+        with open(directory / "output_file") as fh:
+            sents = fh.readlines()
+    assert len(result) == len(sents) == 36
+    assert len(duplicate_sents) == 4
+    assert duplicate_sents[0] == "file2\t5\thabe\x01angenommen\n"
+    assert sents[0] == "1\t0\tsiebzig\x01siebzig\n"

@@ -335,16 +335,16 @@ def reindex_filter_concordances(
             logger.info("- %s" % fin)
             with open(fin, "r") as sents_in:
                 for item in sents_in:
-                    doc_corpus, sent_id, sentence, page = item.split("\t")
+                    doc_corpus, sent_id, sentence = item.split("\t")
                     doc_id = str(corpus_file_idx[doc_corpus])
                     sent_hash = get_robust_hash(sentence)
                     # checks for duplicates based on sentence checksum (md5)
                     if sent_hash not in sent_hashes:
                         sent_hashes.add(sent_hash)
-                        sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
+                        sents_out.write("\t".join([doc_id, sent_id, sentence]))
                         sents_idx.append((doc_id, sent_id))
                     else:
-                        dups_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
+                        dups_out.write("\t".join([doc_corpus, sent_id, sentence]))
     return set(sents_idx)
 
 
