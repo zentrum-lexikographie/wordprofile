@@ -1544,3 +1544,19 @@ def test_reindex_filter_concordances(testdata_dir):
     assert len(duplicate_sents) == 4
     assert duplicate_sents[0] == "file2\t5\thabe\x01angenommen\n"
     assert sents[0] == "1\t0\tsiebzig\x01siebzig\n"
+
+
+def test_reindex_corpus_files(testdata_dir):
+    input_files = [testdata_dir / "cf1", testdata_dir / "cf2", testdata_dir / "cf3"]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = pro.reindex_corpus_files(input_files, pathlib.Path(tmpdir) / "docs")
+        with open(pathlib.Path(tmpdir) / "docs") as fh:
+            files = fh.readlines()
+    assert files[0] == "0\tcorpus\tfile0\tQuelle\t2024-01-01\tcorpus\n"
+    assert files[-1] == "14\tcorpus3\tfile4\tQuelle\t2024-01-01\tcorpus3\n"
+    assert len(result) == len(files) == 15
+    assert {
+        ("corpus/file1", 1),
+        ("corpus2/file3", 8),
+        ("corpus3/file2", 12),
+    }.issubset(result.items())
