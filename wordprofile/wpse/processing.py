@@ -152,6 +152,44 @@ class FileReaderQueue(Protocol):
         ...
 
 
+class LemmaCounter(multiprocessing.Process):
+    def __init__(self, path: str) -> None:
+        self.q = multiprocessing.Manager().Queue(maxsize=1000)
+        self.path = path
+        self.freqs = defaultdict(int)
+        super().__init__()
+
+    def run(self) -> None:
+        logger.info("Starting LemmaCounter queue.")
+        while True:
+            batch = self.q.get()
+            if batch is None:
+                logger.info(f"{10:} - CLOSE LemmaCounter queue")
+                with open(os.path.join(self.path, "lemma_freqs"), "w") as fh:
+                    for (lemma, tag), count in self.freqs.items():
+                        if tag not in {
+                            "ADP",
+                            "PUNCT",
+                            "PRON",
+                            "DET",
+                            "CCONJ",
+                            "X",
+                            "SCONJ",
+                            "NUM",
+                            "PART",
+                            "INTJ",
+                            "PROPN",
+                        }:
+                            print("\t".join([lemma, tag, str(count)]), file=fh)
+                break
+            for sent in batch:
+                for tok in sent:
+                    self.freqs[(tok.lemma, tok.tag)] += 1
+
+    def stop(self) -> None:
+        self.q.put(None)
+
+
 class FileWorker(multiprocessing.Process):
     def __init__(self, path: str, fname: str, flush_limit: int = 100) -> None:
         self.q = multiprocessing.Manager().Queue(maxsize=1000)
@@ -220,6 +258,7 @@ def process_doc_file(
     db_files_queue: Queue,
     db_sents_queue: Queue,
     db_matches_queue: Queue,
+    lemma_counter: Queue,
 ) -> None:
     """Extracts information from files and forwards to corresponding queue."""
     while True:
@@ -230,6 +269,7 @@ def process_doc_file(
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
             parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
             db_concord_sentences = prepare_concord_sentences(doc_id, parses)
+            lemma_counter.put(parses)
             matches = extract_matches_from_doc(parses)
             db_matches = prepare_matches(doc_id, matches)
             db_files_queue.put([db_corpus_file])
@@ -257,9 +297,11 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     db_files_worker = FileWorker(storage_path, "corpus_files")
     db_sents_worker = FileWorker(storage_path, "concord_sentences", flush_limit=1000)
     db_matches_worker = FileWorker(storage_path, "matches", flush_limit=10000)
+    lemma_counter = LemmaCounter(storage_path)
     db_files_worker.start()
     db_sents_worker.start()
     db_matches_worker.start()
+    lemma_counter.start()
     pool = []
     for i in range(njobs):
         p = multiprocessing.Process(
@@ -269,6 +311,7 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
                 db_files_worker.q,
                 db_sents_worker.q,
                 db_matches_worker.q,
+                lemma_counter.q,
             ),
         )
         p.start()
@@ -282,8 +325,10 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     logger.info("STOP first queues and wait...")
     db_files_worker.stop()
     db_sents_worker.stop()
+    lemma_counter.stop()
     db_files_worker.join()
     db_sents_worker.join()
+    lemma_counter.join()
     logger.info("STOP final matches queue and wait...")
     db_matches_worker.stop()
     db_matches_worker.join()
