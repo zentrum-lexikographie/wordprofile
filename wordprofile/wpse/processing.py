@@ -168,24 +168,25 @@ class LemmaCounter(multiprocessing.Process):
                 logger.info(f"{10:} - CLOSE LemmaCounter queue")
                 with open(os.path.join(self.path, "lemma_freqs"), "w") as fh:
                     for (lemma, tag), count in self.freqs.items():
-                        if tag not in {
-                            "ADP",
-                            "PUNCT",
-                            "PRON",
-                            "DET",
-                            "CCONJ",
-                            "X",
-                            "SCONJ",
-                            "NUM",
-                            "PART",
-                            "INTJ",
-                            "PROPN",
-                        }:
-                            print("\t".join([lemma, tag, str(count)]), file=fh)
+                        print("\t".join([lemma, tag, str(count)]), file=fh)
                 break
             for sent in batch:
                 for tok in sent:
                     token_key = (tok.lemma, tok.tag)
+                    if tok.tag in {
+                        "ADP",
+                        "PUNCT",
+                        "PRON",
+                        "DET",
+                        "CCONJ",
+                        "X",
+                        "SCONJ",
+                        "NUM",
+                        "PART",
+                        "INTJ",
+                        "PROPN",
+                    }:
+                        continue
                     if token_key in self.freqs:
                         self.freqs[token_key] += 1
                     else:
