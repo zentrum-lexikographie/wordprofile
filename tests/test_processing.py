@@ -1524,3 +1524,39 @@ def test_filter_mwe_matches():
                 mwe_id = line.strip().split("\t")[0]
                 final_ids.append(mwe_id)
         assert final_ids == ["2", "3", "5"]
+
+
+def test_lemma_counting_queue_filled(conll_sentences):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueue()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        lemma_counter = pro.LemmaCounter(tmpdir)
+        lemma_counter.start()
+        pro.process_doc_file(
+            file_reader_queue,
+            db_files_queue,
+            db_sents_queue,
+            db_matches_queue,
+            lemma_counter.q,
+        )
+        lemma_counter.stop()
+        lemma_counter.join()
+    assert dict(lemma_counter.freqs) == {
+        ("sehr", "ADV"): 2,
+        ("geehrt", "ADJ"): 1,
+        ("Herr", "NOUN"): 2,
+        ("Präsident", "NOUN"): 1,
+        ("verehrt", "ADJ"): 1,
+        ("Dame", "NOUN"): 1,
+        ("gehen", "VERB"): 1,
+        ("ganz", "ADJ"): 1,
+        ("Epoche", "NOUN"): 1,
+        ("Ende", "NOUN"): 1,
+        ("neu", "ADJ"): 1,
+        ("Zeit", "NOUN"): 1,
+        ("damals", "ADV"): 1,
+        ("beginnen", "VERB"): 1,
+    }
