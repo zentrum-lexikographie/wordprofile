@@ -273,8 +273,9 @@ def test_process_doc_file_queues_filled(conll_sentences):
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueue()
+    lemma_queue = MockQueue()
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
     )
     assert len(db_files_queue.queue) == 1
     db_file = db_files_queue.get()[0]
@@ -305,9 +306,10 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     file_reader_queue.put(conll_sentences)
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
+    lemma_queue = MockQueue()
     db_matches_queue = MockQueueWithError()
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
     )
     assert "Type Conversion Error:" in caplog.text
     file_reader_queue = MockQueue()
@@ -316,7 +318,7 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueueWithError(ValueError)
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
     )
     assert "ValueError" in caplog.text
     assert (
