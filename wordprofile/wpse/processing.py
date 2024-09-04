@@ -154,9 +154,10 @@ class FileReaderQueue(Protocol):
 
 class LemmaCounter(multiprocessing.Process):
     def __init__(self, path: str) -> None:
-        self.q = multiprocessing.Manager().Queue(maxsize=1000)
+        self._manager = multiprocessing.Manager()
+        self.q = self._manager.Queue(maxsize=1000)
         self.path = path
-        self.freqs = defaultdict(int)
+        self.freqs = self._manager.dict()
         super().__init__()
 
     def run(self) -> None:
@@ -184,7 +185,11 @@ class LemmaCounter(multiprocessing.Process):
                 break
             for sent in batch:
                 for tok in sent:
-                    self.freqs[(tok.lemma, tok.tag)] += 1
+                    token_key = (tok.lemma, tok.tag)
+                    if token_key in self.freqs:
+                        self.freqs[token_key] += 1
+                    else:
+                        self.freqs[token_key] = 1
 
     def stop(self) -> None:
         self.q.put(None)
