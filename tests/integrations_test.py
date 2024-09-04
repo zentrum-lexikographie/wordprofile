@@ -61,6 +61,7 @@ def extract_collocation(tmp_dir):
         "common_surfaces",
         "concord_sentences",
         "corpus_files",
+        "lemma_freqs",
         "matches",
     ]
     check_matches(tmp_dir)
