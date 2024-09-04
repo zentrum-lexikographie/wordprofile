@@ -1996,3 +1996,112 @@ def test_lemma_counts_written_to_file():
         with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
             result = fh.readlines()
         assert "Maßlosigkeit\tNOUN\t1\n" in result
+
+
+def test_counting_lemma_multiple_processes():
+    def fill_queue(queue):
+        parses = [
+            [
+                WPToken(
+                    idx=1,
+                    surface="Maßlosigkeit",
+                    lemma="Maßlosigkeit",
+                    tag="NOUN",
+                    head=4,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="war",
+                    lemma="sein",
+                    tag="AUX",
+                    head=4,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=7,
+                    surface="nicht",
+                    lemma="nicht",
+                    tag="PART",
+                    head=8,
+                    rel="advmod",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ],
+        ]
+        queue.put(parses)
+
+    def fill_queue2(queue):
+        parses = [
+            [
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Test",
+                    lemma="Test",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+            ],
+        ]
+        queue.put(parses)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_process = pro.LemmaCounter(tmpdir)
+        output_process.start()
+        proc1 = mp.Process(target=fill_queue, args=(output_process.q,))
+        proc2 = mp.Process(target=fill_queue2, args=(output_process.q,))
+        proc2.start()
+        proc1.start()
+        proc1.join()
+        proc2.join()
+        output_process.q.put(None)
+        output_process.join()
+        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
+            result = {tuple(line.strip().split("\t")) for line in fh}
+        assert result == {
+            ("Maßlosigkeit", "NOUN", "1"),
+            ("sein", "AUX", "1"),
+            ("denkbar", "ADJ", "3"),
+            ("Tag", "NOUN", "1"),
+            ("Test", "NOUN", "1"),
+        }
