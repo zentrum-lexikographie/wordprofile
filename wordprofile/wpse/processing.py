@@ -822,6 +822,18 @@ def post_process_db_files(
         os.remove(os.path.join(final_path, "mwe_match_full"))
 
 
+def aggregate_lemma_frequencies(
+    input_files: list[str],
+) -> defaultdict[tuple[str, str], int]:
+    lemma_frequencies = defaultdict(int)
+    for file in input_files:
+        with open(file) as fh:
+            for line in fh:
+                lemma, tag, freq = line.strip().split("\t")
+                lemma_frequencies[(lemma, tag)] += int(freq)
+    return lemma_frequencies
+
+
 def filter_mwe_matches(final_path: str, mwe_freqs: dict[int, int]) -> None:
     with open(os.path.join(final_path, "mwe_match_full")) as fh:
         with open(os.path.join(final_path, "mwe_match"), "w") as fo:

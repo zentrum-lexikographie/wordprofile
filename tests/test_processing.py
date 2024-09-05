@@ -2105,3 +2105,37 @@ def test_counting_lemma_multiple_processes():
             ("Tag", "NOUN", "1"),
             ("Test", "NOUN", "1"),
         }
+
+
+def test_lemma_frequency_aggregation_one_file(testdata_dir):
+    result = pro.aggregate_lemma_frequencies([testdata_dir / "lemma_freqs"])
+    assert result == {
+        ("Maßlosigkeit", "NOUN"): 1,
+        ("sein", "AUX"): 2,
+        ("denkbar", "ADJ"): 3,
+        ("Tag", "NOUN"): 1,
+        ("Schiff", "NOUN"): 3,
+        ("neu", "ADJ"): 10,
+    }
+
+
+def test_lemma_frequency_aggregation_multiple_files(testdata_dir):
+    result = pro.aggregate_lemma_frequencies(
+        [
+            testdata_dir / "l_freqs" / "f1",
+            testdata_dir / "l_freqs" / "f2",
+            testdata_dir / "l_freqs" / "f3",
+        ]
+    )
+    assert result == {
+        ("Arbeit", "NOUN"): 7,
+        ("Ferien", "NOUN"): 5,
+        ("geistig", "ADJ"): 2,
+        ("suchen", "VERB"): 18,
+        ("Hilfe", "NOUN"): 3,
+        ("einigermaßen", "ADV"): 4,
+        ("schön", "ADJ"): 10,
+        ("bauen", "VERB"): 23,
+        ("weich", "ADJ"): 3,
+        ("Zeitung", "NOUN"): 7,
+    }
