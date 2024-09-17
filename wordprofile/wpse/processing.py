@@ -802,6 +802,9 @@ def post_process_db_files(
     )
     del corpus_file_idx
     del sents_idx
+    lemma_freqs = aggregate_lemma_frequencies(
+        [os.path.join(p, "lemma_freqs") for p in storage_paths]
+    )
     logger.info("CALCULATE token statistics")
     compute_token_statistics(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
