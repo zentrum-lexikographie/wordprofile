@@ -1522,3 +1522,17 @@ def test_filter_mwe_matches():
                 mwe_id = line.strip().split("\t")[0]
                 final_ids.append(mwe_id)
         assert final_ids == ["2", "3", "5"]
+
+
+def test_extract_collocations(testdata_dir):
+    matches_file = testdata_dir / "matches_pp"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        collocations_file = pathlib.Path(tmpdir) / "collocations"
+        pro.extract_collocations(matches_file, collocations_file)
+        with open(collocations_file) as fh:
+            data = {tuple(line.strip().split("\t")) for line in fh}
+    assert data == {
+        ("ATTR", "Familienpolitik", "NOUN", "modern", "ADJ", "_", "1"),
+        ("PP", "Gast", "NOUN", "Bundestreffen", "NOUN", "bei", "1"),
+    }
+

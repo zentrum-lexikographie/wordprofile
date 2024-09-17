@@ -621,13 +621,13 @@ def extract_collocations(match_fin: str, collocs_fout: str) -> None:
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
-            rel, lemma1, lemma2, tag1, tag2 = m[0:5]
-            relation_dict[rel][lemma1, lemma2, tag1, tag2] += 1
+            rel, lemma1, lemma2, tag1, tag2, prep = m[0:6]
+            relation_dict[rel][lemma1, lemma2, tag1, tag2, prep] += 1
 
     with open(collocs_fout, "w") as fh:
         for rel, cols_dict in relation_dict.items():
-            for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
-                fh.write(f"{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{freq}\n")
+            for (lemma1, lemma2, tag1, tag2, prep), freq in cols_dict.items():
+                fh.write(f"{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{prep}\t{freq}\n")
 
 
 def extract_most_common_surface(match_fin: str, fout: str) -> None:
