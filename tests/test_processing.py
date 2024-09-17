@@ -2139,3 +2139,29 @@ def test_lemma_frequency_aggregation_multiple_files(testdata_dir):
         ("weich", "ADJ"): 3,
         ("Zeitung", "NOUN"): 7,
     }
+
+
+def test_compute_token_stats_result_written_to_file(testdata_dir):
+    lemma_freqs = {
+        ("Richtung", "NOUN"): 10,
+        ("Passagier", "NOUN"): 12,
+        ("Fahrgast", "NOUN"): 15,
+        ("starten", "VERB"): 30,
+        ("bieten", "VERB"): 40,
+        ("neu", "ADJ"): 15,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pro.compute_token_statistics(
+            [testdata_dir / "type_freqs"], pathlib.Path(tmpdir) / "output", lemma_freqs
+        )
+        with open(pathlib.Path(tmpdir) / "output") as fh:
+            data = [tuple(line.strip().split("\t")) for line in fh]
+    assert data == [
+        ("Richtung", "NOUN", "10", "Richtung", "5"),
+        ("Passagier", "NOUN", "12", "Passagiere", "10"),
+        ("Fahrgast", "NOUN", "15", "Fahrgäste", "11"),
+        ("starten", "VERB", "30", "startet", "20"),
+        ("bieten", "VERB", "40", "bietet", "31"),
+        ("neu", "ADJ", "15", "neue", "10"),
+    ]
+

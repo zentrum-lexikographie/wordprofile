@@ -726,13 +726,8 @@ def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Collo
 
 
 def compute_token_statistics(
-    fins: list[str], fout: str, collocs: dict[int, Colloc]
+    fins: list[str], fout: str, lemma_freqs: dict[tuple[str, str], int]
 ) -> None:
-    logger.info("-- compute token frequencies")
-    tokens_stats: defaultdict[tuple[str, str], int] = defaultdict(int)
-    for c in collocs.values():
-        tokens_stats[c.lemma1, c.lemma1_tag] += c.frequency
-        tokens_stats[c.lemma2, c.lemma2_tag] += c.frequency
     logger.info("-- compute common surfaces")
     common_surfaces: dict[tuple[str, str], tuple[str, int]] = {}
     for fin in fins:
@@ -744,8 +739,10 @@ def compute_token_statistics(
                     common_surfaces[lemma, tag] = surface, int(freq)
     logger.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
-        for (lemma, tag), freq in tokens_stats.items():  # type: ignore
-            surface, surface_freq = common_surfaces[lemma, tag]
+        for (lemma, tag), freq in lemma_freqs.items():
+            surface, surface_freq = common_surfaces.get((lemma, tag), ("", 0))
+            if not surface:
+                continue
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
 
@@ -793,7 +790,7 @@ def post_process_db_files(
     compute_token_statistics(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
         os.path.join(final_path, "token_freqs"),
-        collocs,
+        lemma_freqs,
     )
     logger.info("CALCULATE AND WRITE log dice scores")
     compute_collocation_scores(os.path.join(final_path, "collocations"), collocs)
@@ -825,7 +822,7 @@ def post_process_db_files(
 def aggregate_lemma_frequencies(
     input_files: list[str],
 ) -> defaultdict[tuple[str, str], int]:
-    lemma_frequencies = defaultdict(int)
+    lemma_frequencies: defaultdict[tuple[str, str], int] = defaultdict(int)
     for file in input_files:
         with open(file) as fh:
             for line in fh:
