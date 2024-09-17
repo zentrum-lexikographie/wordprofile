@@ -153,8 +153,13 @@ def check_token_freqs(tmp_dir):
             "gestalten",
             "Demokratie",
             "zurückholen",
-            "zurückholen für",
-            "für Übernahme",
+            "wie",
+            "erinnern",
+            "hier",
+            "heute",
+            "Dank",
+            "Mensch",
+            "herzlich",
         }
 
 
