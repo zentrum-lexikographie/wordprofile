@@ -1536,3 +1536,17 @@ def test_extract_collocations(testdata_dir):
         ("PP", "Gast", "NOUN", "Bundestreffen", "NOUN", "bei", "1"),
     }
 
+
+def test_extract_most_common_surface(testdata_dir):
+    matches_file = testdata_dir / "matches_pp"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        types_file = pathlib.Path(tmpdir) / "types"
+        pro.extract_most_common_surface(matches_file, types_file)
+        with open(types_file) as fh:
+            data = {tuple(line.strip().split("\t")) for line in fh}
+    assert data == {
+        ("Gast", "NOUN", "Gast", "1"),
+        ("Familienpolitik", "NOUN", "Familienpolitik", "1"),
+        ("Bundestreffen", "NOUN", "Bundestreffen", "1"),
+        ("modern", "ADJ", "moderne", "1"),
+    }

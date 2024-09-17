@@ -638,7 +638,7 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
-            rel, lemma1, lemma2, tag1, tag2, form1, form2 = m[:7]
+            rel, lemma1, lemma2, tag1, tag2, _, form1, form2 = m[:8]
             common_surfaces[tag1][lemma1][form1] += 1
             common_surfaces[tag2][lemma2][form2] += 1
 
