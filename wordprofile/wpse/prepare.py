@@ -117,22 +117,6 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
                     sentence_id=m.sid,
                 )
             )
-            db_matches.append(
-                DBMatch(
-                    relation_label=m.relation,
-                    head_lemma=m.head.lemma,
-                    dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
-                    head_tag=m.head.tag,
-                    dep_tag=m.dep.tag,
-                    head_surface=m.head.surface,
-                    dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
-                    head_position=m.head.idx,
-                    dep_position=m.dep.idx,
-                    extra_position=extra_positions,
-                    corpus_file_id=doc_id,
-                    sentence_id=m.sid,
-                )
-            )
         else:
             extra_positions = "-".join([str(idx) for idx in extra_pos if idx])
             db_matches.append(

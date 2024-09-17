@@ -112,20 +112,6 @@ def test_conversion_to_db_match_with_prep():
     assert pre.prepare_matches("1", matches) == [
         DBMatch(
             relation_label="REL",
-            head_lemma="A C",
-            dep_lemma="B",
-            head_tag="",
-            dep_tag="",
-            head_surface="A C",
-            dep_surface="B",
-            head_position=1,
-            dep_position=3,
-            extra_position="2",
-            corpus_file_id="1",
-            sentence_id=0,
-        ),
-        DBMatch(
-            relation_label="REL",
             head_lemma="A",
             dep_lemma="B",
             head_tag="",
