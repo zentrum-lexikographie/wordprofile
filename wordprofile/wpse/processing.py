@@ -733,10 +733,26 @@ def compute_token_statistics(
     for fin in fins:
         with open(fin, "r") as f_in:
             for line in f_in:
-                lemma, tag, surface, freq = tuple(line.strip().split("\t"))
-                common_surface, common_freq = common_surfaces.get((lemma, tag), ("", 0))
-                if int(freq) > common_freq:
-                    common_surfaces[lemma, tag] = surface, int(freq)
+                lemma, tag, surface, string_freq = tuple(line.strip().split("\t"))
+                freq = int(string_freq)
+                if len(parts := lemma.split()) == 2:
+                    lemma_left, lemma_right = parts
+                    surface_left, freq_left = common_surfaces.get(
+                        (lemma_left, tag), ("", 0)
+                    )
+                    surface_right, freq_right = common_surfaces.get(
+                        (lemma_right, tag), ("", 0)
+                    )
+                    if freq > freq_left:
+                        common_surfaces[lemma_left, tag] = surface, freq
+                    if freq > freq_right:
+                        common_surfaces[lemma_right, tag] = surface, freq
+                else:
+                    common_surface, common_freq = common_surfaces.get(
+                        (lemma, tag), ("", 0)
+                    )
+                    if freq > common_freq:
+                        common_surfaces[lemma, tag] = surface, freq
     logger.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
         for (lemma, tag), freq in lemma_freqs.items():
