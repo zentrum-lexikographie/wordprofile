@@ -2193,7 +2193,10 @@ def test_lemmata_filtered_for_min_frequency_in_token_stats(testdata_dir):
     }
     with tempfile.TemporaryDirectory() as tmpdir:
         pro.compute_token_statistics(
-            [testdata_dir / "type_freqs"], pathlib.Path(tmpdir) / "output", lemma_freqs
+            [testdata_dir / "type_freqs"],
+            pathlib.Path(tmpdir) / "output",
+            lemma_freqs,
+            min_freq=4,
         )
         with open(pathlib.Path(tmpdir) / "output") as fh:
             data = [tuple(line.strip().split("\t")) for line in fh]
