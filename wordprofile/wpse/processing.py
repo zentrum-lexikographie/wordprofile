@@ -726,7 +726,10 @@ def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Collo
 
 
 def compute_token_statistics(
-    fins: list[str], fout: str, lemma_freqs: dict[tuple[str, str], int]
+    fins: list[str],
+    fout: str,
+    lemma_freqs: dict[tuple[str, str], int],
+    min_freq: int = 5,
 ) -> None:
     logger.info("-- compute common surfaces")
     common_surfaces: dict[tuple[str, str], tuple[str, int]] = {}
@@ -755,7 +758,9 @@ def compute_token_statistics(
                         common_surfaces[lemma, tag] = surface, freq
     logger.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
-        for (lemma, tag), freq in lemma_freqs.items():
+        for (lemma, tag), freq in filter(
+            lambda x: x[1] >= min_freq, lemma_freqs.items()
+        ):
             surface, surface_freq = common_surfaces.get((lemma, tag), ("", 0))
             if not surface:
                 continue
@@ -810,6 +815,7 @@ def post_process_db_files(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
         os.path.join(final_path, "token_freqs"),
         lemma_freqs,
+        min_rel_freq,
     )
     logger.info("CALCULATE AND WRITE log dice scores")
     compute_collocation_scores(os.path.join(final_path, "collocations"), collocs)

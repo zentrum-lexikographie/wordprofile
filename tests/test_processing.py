@@ -2183,3 +2183,21 @@ def test_type_with_preposition_mapped_to_correct_token(testdata_dir):
         ("Schiff", "NOUN", "10", "mit Schiff", "5"),
         ("stellen", "VERB", "10", "stellen nach", "5"),
     ]
+
+
+def test_lemmata_filtered_for_min_frequency_in_token_stats(testdata_dir):
+    lemma_freqs = {
+        ("Schule", "NOUN"): 3,
+        ("Richtung", "NOUN"): 10,
+        ("stellen", "VERB"): 10,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pro.compute_token_statistics(
+            [testdata_dir / "type_freqs"], pathlib.Path(tmpdir) / "output", lemma_freqs
+        )
+        with open(pathlib.Path(tmpdir) / "output") as fh:
+            data = [tuple(line.strip().split("\t")) for line in fh]
+    assert data == [
+        ("Richtung", "NOUN", "10", "Richtung", "5"),
+        ("stellen", "VERB", "10", "stellen nach", "5"),
+    ]
