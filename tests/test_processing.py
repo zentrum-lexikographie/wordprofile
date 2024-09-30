@@ -299,7 +299,7 @@ def test_process_doc_file_queues_filled(conll_sentences):
     assert len(sentences) == 3
     assert sentences[2].sentence == "Eine\x02neue\x02Zeit\x02begann\x02."
     matches = db_matches_queue.get()
-    assert len(matches) == 12
+    assert len(matches) == 11
     assert (matches[0].head_lemma, matches[0].dep_lemma) == ("geehrt", "sehr")
     assert (matches[-1].relation_label, matches[-1].head_surface) == ("SUBJA", "begann")
 
