@@ -930,10 +930,14 @@ def test_convert_line_from_matches_file_to_CollocInstance():
 
 def test_extraction_of_mwe(testdata_dir):
     collocations = {
-        3520378: Colloc(3520378, "KON", "Lust", "Laune", "NOUN", "NOUN", 0, 10.0),
-        281402: Colloc(281402, "PP", "dirigieren", "Lust", "VERB", "NOUN", 0, 10.0),
-        281401: Colloc(281401, "PP", "Lust", "dirigieren", "NOUN", "VERB", 1, 10.0),
-        5: Colloc(5, "GMOD", "Überangebot", "Umgebung", "NOUN", "NOUN", 0, 11.0),
+        3520378: Colloc(3520378, "KON", "Lust", "Laune", "NOUN", "NOUN", "_", 0, 10.0),
+        281402: Colloc(
+            281402, "PP", "dirigieren", "Lust", "VERB", "NOUN", "nach", 0, 10.0
+        ),
+        281401: Colloc(
+            281401, "PP", "Lust", "dirigieren", "NOUN", "VERB", "nach", 1, 10.0
+        ),
+        5: Colloc(5, "GMOD", "Überangebot", "Umgebung", "NOUN", "NOUN", "_", 0, 11.0),
         2028213: Colloc(
             2028213,
             "ATTR",
@@ -941,24 +945,35 @@ def test_extraction_of_mwe(testdata_dir):
             "gastronomisch",
             "NOUN",
             "ADJ",
+            "_",
             0,
             9.0,
         ),
         184977: Colloc(
-            184977, "PP", "versumpfen", "Überangebot", "VERB", "NOUN", 0, 8.0
+            184977, "PP", "versumpfen", "Überangebot", "VERB", "NOUN", "in", 0, 8.0
         ),
         2028618: Colloc(
-            2028618, "ATTR", "Steuersatz", "durchschnittlich", "NOUN", "ADJ", 0, 5.0
+            2028618,
+            "ATTR",
+            "Steuersatz",
+            "durchschnittlich",
+            "NOUN",
+            "ADJ",
+            "_",
+            0,
+            5.0,
         ),
         186151: Colloc(
-            186151, "SUBJA", "setzen", "Steuersatz", "VERB", "NOUN", 0, 11.0
+            186151, "SUBJA", "setzen", "Steuersatz", "VERB", "NOUN", "_", 0, 11.0
         ),
         186152: Colloc(
-            186152, "SUBJA", "Steuersatz", "setzen", "NOUN", "VERB", 1, 11.0
+            186152, "SUBJA", "Steuersatz", "setzen", "NOUN", "VERB", "_", 1, 11.0
         ),
-        185242: Colloc(185242, "PP", "Sparleistung", "Höhe", "NOUN", "NOUN", 0, 10.0),
+        185242: Colloc(
+            185242, "PP", "Sparleistung", "Höhe", "NOUN", "NOUN", "_", 0, 10.0
+        ),
         2028296: Colloc(
-            2028296, "ATTR", "Sparleistung", "eigen", "NOUN", "ADJ", 0, 10.0
+            2028296, "ATTR", "Sparleistung", "eigen", "NOUN", "ADJ", "_", 0, 10.0
         ),
     }
     matches_file = testdata_dir / "mwe_matches"
