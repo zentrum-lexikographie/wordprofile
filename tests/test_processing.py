@@ -510,7 +510,7 @@ def test_inverse_attribute_written_to_mwe_file():
 
 def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
     collocations[2373301] = Colloc(
-        2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
+        2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", "_", 0, 262
     )
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
