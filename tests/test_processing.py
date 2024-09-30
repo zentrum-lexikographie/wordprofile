@@ -1493,14 +1493,15 @@ def test_mwe_scores_not_inflated_by_inverses_frequency():
 
 def test_mwe_inverse_extraction(testdata_dir):
     collocations = {
-        1: Colloc(1, "ATTR", "Bekenntnis", "gemeinsam", "NOUN", "ADJ", 0, 10.0),
-        2: Colloc(2, "PP", "Bekenntnis zu", "Freiheit", "NOUN", "NOUN", 0, 10.0),
-        3: Colloc(3, "PP", "Bekenntnis", "zu Freiheit", "NOUN", "NOUN", 0, 10.0),
-        4: Colloc(4, "KON", "Freiheit", "Menschenrecht", "NOUN", "NOUN", 0, 10.0),
-        5: Colloc(5, "ATTR", "Menschenrecht", "unveräußerlich", "NOUN", "ADJ", 0, 10.0),
-        6: Colloc(6, "SUBJA", "verbinden", "Bekenntnis", "VERB", "NOUN", 0, 10.0),
-        7: Colloc(7, "ATTR", "Schritt", "erst", "NOUN", "ADJ", 0, 10.0),
-        8: Colloc(8, "OBJ", "machen", "Schritt", "VERB", "NOUN", 0, 10.0),
+        1: Colloc(1, "ATTR", "Bekenntnis", "gemeinsam", "NOUN", "ADJ", "_", 0, 10.0),
+        3: Colloc(3, "PP", "Bekenntnis", "Freiheit", "NOUN", "NOUN", "zu", 0, 10.0),
+        4: Colloc(4, "KON", "Freiheit", "Menschenrecht", "NOUN", "NOUN", "_", 0, 10.0),
+        5: Colloc(
+            5, "ATTR", "Menschenrecht", "unveräußerlich", "NOUN", "ADJ", "_", 0, 10.0
+        ),
+        6: Colloc(6, "SUBJA", "verbinden", "Bekenntnis", "VERB", "NOUN", "_", 0, 10.0),
+        7: Colloc(7, "ATTR", "Schritt", "erst", "NOUN", "ADJ", "_", 0, 10.0),
+        8: Colloc(8, "OBJ", "machen", "Schritt", "VERB", "NOUN", "_", 0, 10.0),
     }
 
     matches_file = testdata_dir / "mwe_matches2"
@@ -1510,7 +1511,7 @@ def test_mwe_inverse_extraction(testdata_dir):
             matches_file, output_file, collocations
         )
     expected = {
-        (1, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (1, 3, "PP", "Freiheit", "NOUN", 0),
         (1, 6, "SUBJA", "verbinden", "VERB", 1),
         (3, 1, "ATTR", "gemeinsam", "ADJ", 0),
         (3, 4, "KON", "Menschenrecht", "NOUN", 0),
@@ -1519,7 +1520,7 @@ def test_mwe_inverse_extraction(testdata_dir):
         (4, 5, "ATTR", "unveräußerlich", "ADJ", 0),
         (5, 4, "KON", "Freiheit", "NOUN", 0),
         (6, 1, "ATTR", "gemeinsam", "ADJ", 0),
-        (6, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (6, 3, "PP", "Freiheit", "NOUN", 0),
         (7, 8, "OBJ", "machen", "VERB", 1),
         (8, 7, "ATTR", "erst", "ADJ", 0),
     }
