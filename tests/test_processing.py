@@ -49,12 +49,16 @@ def conll_sentences(testdata_dir):
 @pytest.fixture
 def collocations():
     return {
-        30601: Colloc(30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15),
-        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
-        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
-        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
-        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
-        2373301: Colloc(2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262),
+        30601: Colloc(
+            30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", "_", 0, 15
+        ),
+        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", "_", 0, 389),
+        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", "_", 0, 42),
+        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", "_", 0, 51),
+        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", "_", 0, 386),
+        2373301: Colloc(
+            2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", "_", 0, 262
+        ),
     }
 
 
