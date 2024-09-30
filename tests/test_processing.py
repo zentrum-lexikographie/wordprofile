@@ -1528,10 +1528,10 @@ def test_mwe_inverse_extraction(testdata_dir):
 
 def test_mwe_not_inverted_if_KON_relation(testdata_dir):
     collocations = {
-        10: Colloc(10, "ADV", "verletzen", "tödlich", "VERB", "ADJ", 0, 10.0),
-        11: Colloc(11, "KON", "rasen", "verletzen", "VERB", "VERB", 0, 10.0),
-        12: Colloc(12, "KON", "Bau", "Sanierung", "NOUN", "NOUN", 0, 10.0),
-        13: Colloc(13, "GMOD", "Sanierung", "Schule", "NOUN", "NOUN", 0, 10.0),
+        10: Colloc(10, "ADV", "verletzen", "tödlich", "VERB", "ADJ", "_", 0, 10.0),
+        11: Colloc(11, "KON", "rasen", "verletzen", "VERB", "VERB", "_", 0, 10.0),
+        12: Colloc(12, "KON", "Bau", "Sanierung", "NOUN", "NOUN", "_", 0, 10.0),
+        13: Colloc(13, "GMOD", "Sanierung", "Schule", "NOUN", "NOUN", "_", 0, 10.0),
     }
 
     matches_file = testdata_dir / "mwe_matches2"
