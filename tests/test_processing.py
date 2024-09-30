@@ -850,6 +850,7 @@ def test_write_matches_with_phrasal_verb_to_file():
                 dep_lemma="einfallen",
                 head_tag="ADV",
                 dep_tag="VERB",
+                prep="_",
                 head_surface="gestern",
                 dep_surface="fällt",
                 head_position=2,
@@ -864,6 +865,7 @@ def test_write_matches_with_phrasal_verb_to_file():
                 dep_lemma="einfallen",
                 head_tag="ADV",
                 dep_tag="VERB",
+                prep="_",
                 head_surface="gestern",
                 dep_surface="fällt",
                 head_position=2,
@@ -886,8 +888,8 @@ def test_write_matches_with_phrasal_verb_to_file():
         with open(pathlib.Path(tmpdir) / "matches") as fh:
             result = fh.readlines()
     assert set(result) == {
-        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
-        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
+        "ADV\tgestern\teinfallen\tADV\tVERB\t_\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
+        "ADV\tgestern\teinfallen\tADV\tVERB\t_\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
     }
 
 
