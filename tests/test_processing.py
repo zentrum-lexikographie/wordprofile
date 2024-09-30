@@ -1377,7 +1377,7 @@ def test_morphological_features_parse_from_conll_file(conll_sentences):
 
 def test_inverse_of_objo_written_to_file():
     collocations = {
-        1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", 0, 10.0),
+        1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "_", 0, 10.0),
     }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
@@ -1385,8 +1385,30 @@ def test_inverse_of_objo_written_to_file():
         with open(file) as fp:
             result = [line.split() for line in fp.readlines()]
     assert result == [
-        ["1", "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "0", "10.0", "14.0"],
-        ["-1", "OBJO", "Betrug", "beschuldigen", "NOUN", "VERB", "1", "10.0", "14.0"],
+        [
+            "1",
+            "OBJO",
+            "beschuldigen",
+            "Betrug",
+            "VERB",
+            "NOUN",
+            "_",
+            "0",
+            "10.0",
+            "14.0",
+        ],
+        [
+            "-1",
+            "OBJO",
+            "Betrug",
+            "beschuldigen",
+            "NOUN",
+            "VERB",
+            "_",
+            "1",
+            "10.0",
+            "14.0",
+        ],
     ]
 
 
