@@ -392,8 +392,8 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
     for c_id, c in collocs.items():
         w1 = c.lemma1 + "-" + c.lemma1_tag
         w2 = c.lemma2 + "-" + c.lemma2_tag
-        f12[c.label][(w1, w2)] += c.frequency
-        f12[c.label][(w2, w1)] += c.frequency
+        f12[c.label][(w1, w2, c.prep)] += c.frequency
+        f12[c.label][(w2, w1, c.prep)] += c.frequency
         f1[c.label][w1] += c.frequency
         f1[c.label][w2] += c.frequency
         f2[w1] += c.frequency
@@ -417,17 +417,19 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
             w2 = c.lemma2 + "-" + c.lemma2_tag
             log_dice = 14 + math.log2(
                 2
-                * max(1, f12[c.label][(w1, w2)])
+                * max(1, f12[c.label][(w1, w2, c.prep)])
                 / (max(1, f1[c.label][w1]) + max(1, f2[w2]))
             )
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
-                "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
+                "{c.prep}\t{c.inv}\t{c.frequency}\t{score}\n".format(
+                    c=c, score=log_dice
+                )
             )
             if c.label in inv_relations:
                 f_out.write(
                     "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
-                    "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
+                    "{c.prep}\t1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
                 )
 
 

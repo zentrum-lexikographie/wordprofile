@@ -1550,3 +1550,32 @@ def test_extract_most_common_surface(testdata_dir):
         ("Bundestreffen", "NOUN", "Bundestreffen", "1"),
         ("modern", "ADJ", "moderne", "1"),
     }
+
+
+def test_pp_collocations_with_same_lemmas_and_different_prep_counted_separately():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Tisch", "NOUN", "NOUN", "neben", 0, 20.0),
+        3: Colloc(3, "PP", "Buch", "Tisch", "NOUN", "NOUN", "unter", 0, 30.0),
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations)
+        with open(file) as fp:
+            result = {round(float(line.split("\t")[-1]), 1) for line in fp}
+            assert result == {11.4, 12.4, 13.0}
+
+
+def test_prepositions_written_to_file_with_collocation_scores():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations)
+        with open(file) as fp:
+            result = [line.strip().split("\t") for line in fp]
+    assert result == [
+        ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "0", "10.0", "14.0"],
+        ["-1", "PP", "Tisch", "Buch", "NOUN", "NOUN", "auf", "1", "10.0", "14.0"],
+    ]
