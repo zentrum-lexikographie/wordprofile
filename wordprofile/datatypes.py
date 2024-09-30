@@ -224,7 +224,17 @@ CollocInstance = namedtuple(
 )
 Colloc = namedtuple(
     "Colloc",
-    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
+    [
+        "id",
+        "label",
+        "lemma1",
+        "lemma2",
+        "lemma1_tag",
+        "lemma2_tag",
+        "prep",
+        "inv",
+        "frequency",
+    ],
 )
 
 
