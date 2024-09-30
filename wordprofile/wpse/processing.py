@@ -358,7 +358,7 @@ def filter_transform_matches(
     relation_dict = dict()
     for c in collocs.values():
         relation_dict[
-            "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag])
+            "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.prep])
         ] = c.id
 
     match_i = 0
