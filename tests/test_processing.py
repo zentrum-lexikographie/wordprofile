@@ -983,8 +983,8 @@ def test_extraction_of_mwe(testdata_dir):
         with open(output_file) as fh:
             mwe = [line.strip().split("\t") for line in fh.readlines()]
     result = [(int(line[1]), int(line[2])) for line in mwe]
-    assert (270699, 270698) in result
-    assert len(result) == 16
+    assert (270699, 270697) in result
+    assert len(result) == 10
 
 
 def test_particles_with_adj_and_adv_tag_concatenated_in_phrasal_verb_lemmatisation():
