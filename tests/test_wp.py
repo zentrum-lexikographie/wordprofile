@@ -129,6 +129,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=25,
+                prep="_",
             ),
             2: Coocc(
                 id=2,
@@ -144,6 +145,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=1,
+                prep="_",
             ),
             3: Coocc(
                 id=3,
@@ -159,6 +161,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=1,
+                prep="_",
             ),
             -3: Coocc(
                 id=-3,
@@ -174,6 +177,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=19,
+                prep="_",
             ),
             4: Coocc(
                 id=4,
@@ -189,6 +193,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=8,
+                prep="_",
             ),
             5: Coocc(
                 id=5,
@@ -204,6 +209,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=8,
+                prep="_",
             ),
             6: Coocc(
                 id=6,
@@ -219,6 +225,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=20,
+                prep="_",
             ),
             7: Coocc(
                 id=7,
@@ -234,6 +241,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             8: Coocc(
                 id=8,
@@ -249,6 +257,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=200,
+                prep="_",
             ),
             9: Coocc(
                 id=9,
@@ -264,6 +273,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             11: Coocc(
                 id=11,
@@ -279,6 +289,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             10: Coocc(
                 id=10,
@@ -294,6 +305,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=10,
+                prep="_",
             ),
             14: Coocc(
                 id=141,
@@ -309,6 +321,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=1,
+                prep="_",
             ),
             15: Coocc(
                 id=15,
@@ -324,6 +337,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=3,
+                prep="_",
             ),
             16: Coocc(
                 id=15,
@@ -339,6 +353,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=0,
                 num_concords=3,
+                prep="_",
             ),
         }
         self.mwe_data = {
@@ -357,6 +372,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=1,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
                 Coocc(
                     id=11,
@@ -372,6 +388,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
                 Coocc(
                     id=12,
@@ -387,6 +404,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
             ],
             14: [
@@ -404,6 +422,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=1,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 )
             ],
             -10: [
@@ -421,6 +440,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
             ],
         }
