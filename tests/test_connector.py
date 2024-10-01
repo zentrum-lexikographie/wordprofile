@@ -340,6 +340,7 @@ class WPMweConnectTest(unittest.TestCase):
             inverse=1,
             has_mwe=0,
             num_concords=164,
+            prep="_",
         )
         self.assertEqual(result, expected)
 
@@ -362,6 +363,7 @@ class WPMweConnectTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=0,
+                prep="_",
             )
         ]
         self.assertEqual(result, expected)
@@ -385,6 +387,7 @@ class WPMweConnectTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=0,
                 num_concords=164,
+                prep="_",
             )
         ]
         self.assertEqual(result, expected)
