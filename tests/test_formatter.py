@@ -27,6 +27,7 @@ def test_relation_not_modified_if_not_inverse(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["Relation"] == "GMOD"
@@ -47,6 +48,7 @@ def test_relation_retrieved_correctly_if_inverse(description_handler):
         inverse=1,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["Relation"] == "~GMOD"
@@ -67,6 +69,7 @@ def test_correct_description_retrieved_if_not_inverse(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["RelationDescription"] == "hat Adjektivattribut"
@@ -87,6 +90,7 @@ def test_description_retrieved_correctly_if_inverse(description_handler):
         inverse=1,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["RelationDescription"] == "ist Adjektivattribut von"
@@ -199,6 +203,7 @@ def test_default_coocc_id_in_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=29,
+                prep="_",
             ),
             "rank_1": 0,
             "pos": "NOUN",
@@ -219,6 +224,7 @@ def test_default_coocc_id_in_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=7,
+                prep="_",
             ),
             "rank_2": 16,
             "pos": "NOUN",
@@ -264,6 +270,7 @@ def test_tuples_in_format_relation_contain_all_necessary_keys(description_handle
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     expected = {
@@ -295,6 +302,7 @@ def test_formatting_of_mwe_relation(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=5,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler, is_mwe=True)[0]
     expected = {
@@ -379,6 +387,7 @@ def test_formatting_of_comparison():
                 inverse=0,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
             "coocc_2": Coocc(
                 id=-3,
@@ -394,6 +403,7 @@ def test_formatting_of_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=90,
+                prep="_",
             ),
         }
     ]
@@ -438,6 +448,7 @@ def test_formatting_of_comparison_with_inverse_relation():
                 inverse=1,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
             "coocc_2": Coocc(
                 id=-3,
@@ -453,6 +464,7 @@ def test_formatting_of_comparison_with_inverse_relation():
                 inverse=1,
                 has_mwe=0,
                 num_concords=90,
+                prep="_",
             ),
         }
     ]
@@ -479,6 +491,7 @@ def test_formatting_of_relation_description_in_diff_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
         }
     ]
