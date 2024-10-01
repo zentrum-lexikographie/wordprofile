@@ -30,6 +30,7 @@ class Coocc:
     inverse: int
     has_mwe: int
     num_concords: int
+    prep: str
 
 
 @dataclass
