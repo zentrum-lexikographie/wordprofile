@@ -5,14 +5,8 @@ from collections import defaultdict
 from typing import List, Optional, Union
 
 import wordprofile.config
+import wordprofile.formatter as formatting
 from wordprofile.errors import InternalError
-from wordprofile.formatter import (
-    format_comparison,
-    format_concordances,
-    format_lemma_pos,
-    format_relation_description,
-    format_relations,
-)
 from wordprofile.utils import tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
@@ -67,7 +61,7 @@ class Wordprofile:
         lemma = lemma.replace("+", " ")
         pos = tag_f2b[pos]
         results = self.db.get_lemma_and_pos(lemma, pos)
-        return format_lemma_pos(results, self.wp_spec.mapRelOrder)
+        return formatting.format_lemma_pos(results, self.wp_spec.mapRelOrder)
 
     def get_lemma_and_pos_diff(self, lemma1: str, lemma2: str) -> List[dict]:
         """Fetches lemma pairs with common pos tags from word-profile database.
@@ -163,7 +157,7 @@ class Wordprofile:
                     "Description": self.wp_spec.mapRelDesc.get(
                         relation, self.wp_spec.strRelDesc
                     ),
-                    "Tuples": format_relations(cooccs, self.wp_spec),
+                    "Tuples": formatting.format_relations(cooccs, self.wp_spec),
                     "RelId": "{}#{}#{}".format(lemma1, pos1, relation),
                 }
             )
@@ -249,7 +243,7 @@ class Wordprofile:
                     "Description": self.wp_spec.mapRelDesc.get(
                         relation, self.wp_spec.strRelDesc
                     ),
-                    "Tuples": format_relations(
+                    "Tuples": formatting.format_relations(
                         cooccs[:number], self.wp_spec, is_mwe=True
                     ),
                     "RelId": "{}#{}#{}".format(lemma1, pos1, relation),
@@ -336,7 +330,7 @@ class Wordprofile:
                     "Description": self.wp_spec.mapRelDesc.get(
                         rel, self.wp_spec.strRelDesc
                     ),
-                    "Tuples": format_comparison(diffs),
+                    "Tuples": formatting.format_comparison(diffs),
                 }
             )
         return results
@@ -473,7 +467,7 @@ class Wordprofile:
             description = self.wp_spec.mapRelDescDetail[relation_identifier]
         else:
             description = self.wp_spec.strRelDescDetail
-        return format_relation_description(coocc_info, description)
+        return formatting.format_relation_description(coocc_info, description)
 
     def get_concordances_and_relation(
         self,
@@ -497,13 +491,13 @@ class Wordprofile:
         """
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
-            relation["Tuples"] = format_concordances(
+            relation["Tuples"] = formatting.format_concordances(
                 self.db_mwe.get_concordances(
                     int(coocc_id), use_context, start_index, result_number
                 )
             )
         else:
-            relation["Tuples"] = format_concordances(
+            relation["Tuples"] = formatting.format_concordances(
                 self.db.get_concordances(
                     int(coocc_id), use_context, start_index, result_number
                 )
