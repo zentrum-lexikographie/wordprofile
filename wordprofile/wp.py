@@ -10,6 +10,7 @@ from wordprofile.formatter import (
     format_comparison,
     format_concordances,
     format_lemma_pos,
+    format_relation_description,
     format_relations,
 )
 from wordprofile.utils import tag_f2b
@@ -472,13 +473,7 @@ class Wordprofile:
             description = self.wp_spec.mapRelDescDetail[relation_identifier]
         else:
             description = self.wp_spec.strRelDescDetail
-        description = description.replace("$1", coocc_info.lemma1)
-        description = description.replace("$2", coocc_info.lemma2)
-        return {
-            "Description": description,
-            "Lemma1": coocc_info.lemma1,
-            "Lemma2": coocc_info.lemma2,
-        }
+        return format_relation_description(coocc_info, description)
 
     def get_concordances_and_relation(
         self,
