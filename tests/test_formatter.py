@@ -516,3 +516,87 @@ def test_formatting_lemma_pos_if_only_one_result(description_handler):
 def test_formatting_lemma_pos_no_result(description_handler):
     result = form.format_lemma_pos([], description_handler.mapRelOrder)
     assert result == []
+
+
+def test_format_collocation_description(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="OBJ",
+            lemma1="Gesetz",
+            lemma2="verabschieden",
+            form1="Gesetz",
+            form2="verabschiedet",
+            tag1="NOUN",
+            tag2="VERB",
+            freq=29,
+            score=10.3,
+            inverse=1,
+            has_mwe=0,
+            num_concords=29,
+            prep="_",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Gesetz tritt auf mit verabschieden",
+        "Lemma1": "Gesetz",
+        "Lemma2": "verabschieden",
+    }
+
+
+def test_format_collocation_description_with_preposition(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="PP",
+            lemma1="Bier",
+            lemma2="Oktoberfest",
+            form1="Bier",
+            form2="Oktoberfest",
+            tag1="NOUN",
+            tag2="NOUN",
+            freq=10,
+            score=10,
+            inverse=0,
+            has_mwe=0,
+            num_concords=10,
+            prep="auf",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Bier tritt auf mit auf Oktoberfest",
+        "Lemma1": "Bier",
+        "Lemma2": "auf Oktoberfest",
+    }
+
+
+def test_format_collocation_description_with_preposition_inverse(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="PP",
+            lemma1="Entwicklung",
+            lemma2="beitragen",
+            form1="Entwicklung",
+            form2="trägt",
+            tag1="NOUN",
+            tag2="VERB",
+            freq=10,
+            score=10,
+            inverse=1,
+            has_mwe=0,
+            num_concords=10,
+            prep="zu",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Entwicklung tritt auf mit beitragen zu",
+        "Lemma1": "Entwicklung",
+        "Lemma2": "beitragen zu",
+    }

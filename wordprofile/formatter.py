@@ -166,3 +166,19 @@ def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
         else:
             tokens[idx] = "{}{}".format(token, padding)
     return "".join(tokens)
+
+
+def format_relation_description(colloc: Coocc, description: str) -> dict[str, str]:
+    if colloc.rel == "PP":
+        if colloc.inverse:
+            lemma2 = f"{colloc.lemma2} {colloc.prep}"
+        else:
+            lemma2 = f"{colloc.prep} {colloc.lemma2}"
+    else:
+        lemma2 = colloc.lemma2
+    description = description.replace("$1", colloc.lemma1).replace("$2", lemma2)
+    return {
+        "Description": description,
+        "Lemma1": colloc.lemma1,
+        "Lemma2": lemma2,
+    }
