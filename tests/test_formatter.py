@@ -600,3 +600,18 @@ def test_format_collocation_description_with_preposition_inverse(description_han
         "Lemma1": "Entwicklung",
         "Lemma2": "beitragen zu",
     }
+
+
+def test_format_lemma_with_preposition():
+    result = form.format_lemma_with_preposition("Lemma", "prep", 0)
+    assert result == "prep Lemma"
+
+
+def test_format_lemma_with_preposition_inverse():
+    result = form.format_lemma_with_preposition("Test", "prep", 1)
+    assert result == "Test prep"
+
+
+def test_default_preposition_not_added_to_lemma():
+    result = form.format_lemma_with_preposition("Test", "_", 0)
+    assert result == "Test"

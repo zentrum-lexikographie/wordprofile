@@ -53,8 +53,8 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
-                "Form": coocc.form2,
-                "Lemma": coocc.lemma2,
+                "Form": coocc.form2,  #
+                "Lemma": coocc.lemma2,  #
                 "Score": {
                     "Frequency": coocc.freq,
                     "logDice": coocc.score,
@@ -117,7 +117,7 @@ def format_comparison(diffs):
             coocc_diff["ConcordNoAccessible1"] = concord_no
             relation = coocc_1.rel
             coocc_diff["Relation"] = ("~" if coocc_1.inverse else "") + relation
-            coocc_diff["Lemma"] = coocc_1.lemma2
+            coocc_diff["Lemma"] = coocc_1.lemma2  #
             coocc_diff["Form"] = coocc_1.form2
             if "coocc_2" in diff:
                 coocc_diff["Position"] = "center"
@@ -170,10 +170,9 @@ def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
 
 def format_relation_description(colloc: Coocc, description: str) -> dict[str, str]:
     if colloc.rel == "PP":
-        if colloc.inverse:
-            lemma2 = f"{colloc.lemma2} {colloc.prep}"
-        else:
-            lemma2 = f"{colloc.prep} {colloc.lemma2}"
+        lemma2 = format_lemma_with_preposition(
+            colloc.lemma2, colloc.prep, colloc.inverse
+        )
     else:
         lemma2 = colloc.lemma2
     description = description.replace("$1", colloc.lemma1).replace("$2", lemma2)
@@ -182,3 +181,10 @@ def format_relation_description(colloc: Coocc, description: str) -> dict[str, st
         "Lemma1": colloc.lemma1,
         "Lemma2": lemma2,
     }
+
+
+def format_lemma_with_preposition(lemma: str, preposition: str, inverse: int) -> str:
+    preposition = preposition if preposition != "_" else ""
+    if inverse:
+        return f"{lemma} {preposition}".strip()
+    return f"{preposition} {lemma}".strip()
