@@ -121,8 +121,12 @@ def format_comparison(diffs):
             coocc_diff["ConcordNoAccessible1"] = concord_no
             relation = coocc_1.rel
             coocc_diff["Relation"] = ("~" if coocc_1.inverse else "") + relation
-            coocc_diff["Lemma"] = coocc_1.lemma2  #
-            coocc_diff["Form"] = coocc_1.form2
+            coocc_diff["Lemma"] = format_lemma_with_preposition(
+                coocc_1.lemma2, coocc_1.prep, coocc_1.inverse
+            )
+            coocc_diff["Form"] = format_lemma_with_preposition(
+                coocc_1.form2, coocc_1.prep, coocc_1.inverse
+            )
             if "coocc_2" in diff:
                 coocc_diff["Position"] = "center"
             else:
@@ -140,8 +144,12 @@ def format_comparison(diffs):
             if "coocc_1" not in diff:
                 relation = coocc_2.rel
                 coocc_diff["Relation"] = ("~" if coocc_2.inverse else "") + relation
-                coocc_diff["Lemma"] = coocc_2.lemma2
-                coocc_diff["Form"] = coocc_2.form2
+                coocc_diff["Lemma"] = format_lemma_with_preposition(
+                    coocc_2.lemma2, coocc_2.prep, coocc_2.inverse
+                )
+                coocc_diff["Form"] = format_lemma_with_preposition(
+                    coocc_2.form2, coocc_2.prep, coocc_2.inverse
+                )
                 coocc_diff["Position"] = "right"
         results.append(coocc_diff)
     return results

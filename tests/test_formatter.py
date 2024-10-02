@@ -689,3 +689,57 @@ def test_format_relation_with_pp_mwe(description_handler):
     )
     formatted = form.format_relations([collocation], description_handler, is_mwe=True)
     assert formatted[0]["Lemma"] == "Zugang zu"
+
+
+def test_format_comparison_with_pp_first_lemma():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "coocc_1": Coocc(
+                id=1,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Welle",
+                form1="Meer",
+                form2="Wellen",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=10,
+                score=3.0,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+                prep="mit",
+            ),
+        }
+    ]
+    formatted = form.format_comparison(diffs)
+    assert formatted[0]["Lemma"] == "mit Welle"
+    assert formatted[0]["Form"] == "mit Wellen"
+
+
+def test_format_comparison_with_pp_second_lemma():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "coocc_2": Coocc(
+                id=1,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Haus",
+                form1="Meer",
+                form2="Haus",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=10,
+                score=3.0,
+                inverse=1,
+                has_mwe=0,
+                num_concords=10,
+                prep="an",
+            ),
+        }
+    ]
+    formatted = form.format_comparison(diffs)
+    assert formatted[0]["Lemma"] == "Haus an"
+    assert formatted[0]["Form"] == "Haus an"
