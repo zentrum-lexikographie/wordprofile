@@ -252,7 +252,11 @@ class Wordprofile:
         return {
             "parts": [
                 {"Lemma": coocc_info.lemma1},
-                {"Lemma": coocc_info.lemma2},
+                {
+                    "Lemma": formatting.format_lemma_with_preposition(
+                        coocc_info.lemma2, coocc_info.prep, coocc_info.inverse
+                    )
+                },
             ],
             "data": dict(results),
         }

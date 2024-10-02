@@ -355,6 +355,22 @@ class WordprofileTest(unittest.TestCase):
                 num_concords=3,
                 prep="_",
             ),
+            17: Coocc(
+                id=17,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Sand",
+                form1="Meer",
+                form2="Sand",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=1,
+                score=0.5,
+                inverse=1,
+                has_mwe=0,
+                num_concords=3,
+                prep="an",
+            ),
         }
         self.mwe_data = {
             10: [
@@ -684,3 +700,8 @@ class WordprofileTest(unittest.TestCase):
             result = self.wp.get_diff(lemma1, lemma2, pos="", relations=[])
             with self.subTest():
                 self.assertEqual(result, [])
+
+    def test_formatting_of_lemmata_in_pp_mwe_relation(self):
+        result = self.wp.get_mwe_relations([17])["parts"]
+        expected = [{"Lemma": "Meer"}, {"Lemma": "Sand an"}]
+        self.assertEqual(result, expected)
