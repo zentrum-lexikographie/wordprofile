@@ -371,6 +371,22 @@ class WordprofileTest(unittest.TestCase):
                 num_concords=3,
                 prep="an",
             ),
+            18: Coocc(
+                id=18,
+                rel="ATTR",
+                lemma1="Meer",
+                lemma2="offen",
+                form1="Meer",
+                form2="offenen",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=1,
+                score=0.5,
+                inverse=0,
+                has_mwe=0,
+                num_concords=3,
+                prep="_",
+            ),
         }
         self.mwe_data = {
             10: [
@@ -457,6 +473,40 @@ class WordprofileTest(unittest.TestCase):
                     has_mwe=0,
                     num_concords=1,
                     prep="_",
+                ),
+            ],
+            18: [
+                Coocc(
+                    id=181,
+                    rel="PP",
+                    lemma1="Meer-offen",
+                    lemma2="Zugang",
+                    form1="Meer-offenen",
+                    form2="Zugang",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=1,
+                    score=10.0,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=1,
+                    prep="zu",
+                ),
+                Coocc(
+                    id=182,
+                    rel="PP",
+                    lemma1="Meer-offen",
+                    lemma2="Zugang",
+                    form1="Meer-offenen",
+                    form2="Zugang",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=2,
+                    score=11.0,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=2,
+                    prep="von",
                 ),
             ],
         }
@@ -704,4 +754,33 @@ class WordprofileTest(unittest.TestCase):
     def test_formatting_of_lemmata_in_pp_mwe_relation(self):
         result = self.wp.get_mwe_relations([17])["parts"]
         expected = [{"Lemma": "Meer"}, {"Lemma": "Sand an"}]
+        self.assertEqual(result, expected)
+
+    def test_mwe_pp_collocates_with_different_prepositions_not_discarded(self):
+        result = self.wp.get_mwe_relations([18])["data"]["Meer-offen"][0]["Tuples"]
+        expected = [
+            {
+                "Relation": "~PP",
+                "RelationDescription": "ist in Präpositionalgruppe",
+                "POS": "Substantiv",
+                "Form": "Zugang zu",
+                "Lemma": "Zugang zu",
+                "Score": {"Frequency": 1, "logDice": 10.0},
+                "ConcordId": "#mwe181",
+                "ConcordNoAccessible": 1,
+                "HasMwe": 0,
+            },
+            {
+                "Relation": "~PP",
+                "RelationDescription": "ist in Präpositionalgruppe",
+                "POS": "Substantiv",
+                "Form": "Zugang von",
+                "Lemma": "Zugang von",
+                "Score": {"Frequency": 2, "logDice": 11.0},
+                "ConcordId": "#mwe182",
+                "ConcordNoAccessible": 2,
+                "HasMwe": 0,
+            },
+        ]
+        self.assertEqual(len(result), 2)
         self.assertEqual(result, expected)

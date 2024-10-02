@@ -211,8 +211,11 @@ class Wordprofile:
             res = []
             used = set()
             for c in cs:
-                if c.lemma2 not in used:
-                    used.add(c.lemma2)
+                lemma2 = formatting.format_lemma_with_preposition(
+                    c.lemma2, c.prep, c.inverse
+                )
+                if lemma2 not in used:
+                    used.add(lemma2)
                     res.append(c)
             return res
 
