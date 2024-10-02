@@ -615,3 +615,77 @@ def test_format_lemma_with_preposition_inverse():
 def test_default_preposition_not_added_to_lemma():
     result = form.format_lemma_with_preposition("Test", "_", 0)
     assert result == "Test"
+
+
+def test_format_pp_relation(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer",
+        lemma2="Welle",
+        form1="Meer",
+        form2="Wellen",
+        tag1="NOUN",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=0,
+        has_mwe=0,
+        num_concords=10,
+        prep="mit",
+    )
+    result = form.format_relations([collocation], description_handler)[0]
+    assert result == {
+        "Relation": "PP",
+        "RelationDescription": "hat Präpositionalgruppe",
+        "POS": "Substantiv",
+        "Form": "mit Wellen",
+        "Lemma": "mit Welle",
+        "Score": {"Frequency": 10, "logDice": 3.0},
+        "ConcordId": "1",
+        "ConcordNoAccessible": 10,
+        "HasMwe": 0,
+    }
+
+
+def test_format_pp_relation_inverse(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer",
+        lemma2="Haus",
+        form1="Meer",
+        form2="Haus",
+        tag1="NOUN",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=1,
+        has_mwe=0,
+        num_concords=10,
+        prep="an",
+    )
+    formatted = form.format_relations([collocation], description_handler)
+    assert formatted[0]["Form"] == "Haus an"
+    assert formatted[0]["Lemma"] == "Haus an"
+
+
+def test_format_relation_with_pp_mwe(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer-offen",
+        lemma2="Zugang",
+        form1="Meer-offenen",
+        form2="Zugang",
+        tag1="NOUN-ADJ",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=1,
+        has_mwe=0,
+        num_concords=10,
+        prep="zu",
+    )
+    formatted = form.format_relations([collocation], description_handler, is_mwe=True)
+    assert formatted[0]["Lemma"] == "Zugang zu"

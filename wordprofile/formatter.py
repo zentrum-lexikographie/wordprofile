@@ -53,8 +53,12 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
-                "Form": coocc.form2,  #
-                "Lemma": coocc.lemma2,  #
+                "Form": format_lemma_with_preposition(
+                    coocc.form2, coocc.prep, coocc.inverse
+                ),
+                "Lemma": format_lemma_with_preposition(
+                    coocc.lemma2, coocc.prep, coocc.inverse
+                ),
                 "Score": {
                     "Frequency": coocc.freq,
                     "logDice": coocc.score,
