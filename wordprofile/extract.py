@@ -372,8 +372,14 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             _has_case_marking(child.token, "Dat")
                             or _has_case_marking(child.token, "Gen")
                             or any(
-                                _has_case_marking(dep.token, "Gen")
-                                or _has_case_marking(dep.token, "Dat")
+                                (
+                                    _has_case_marking(dep.token, "Gen")
+                                    and dep.token.rel != "nmod"
+                                )
+                                or (
+                                    _has_case_marking(dep.token, "Dat")
+                                    and dep.token.rel != "nmod"
+                                )
                                 for dep in child.children
                             )
                             or _has_case_marking(child.token, "Acc")
