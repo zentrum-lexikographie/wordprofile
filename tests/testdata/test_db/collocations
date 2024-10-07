@@ -10,3 +10,5 @@
 300	PP	nehmen	Angabe	VERB	NOUN	nach	0	386	11.0
 301	SUBJA	nehmen	Feuerwehr	VERB	NOUN	_	0	210	8.25
 -301	SUBJA	Feuerwehr	nehmen	NOUN	VERB	_	1	210	8.25
+302	PP	liegen	Boden	VERB	NOUN	auf	0	210	8.25
+303	PP	liegen	Lachen	VERB	NOUN	vor	0	20	9.25

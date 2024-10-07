@@ -132,9 +132,10 @@ class WPMweConnect:
             mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
             IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords,
-            c.preposition
+            c2.preposition
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
+        JOIN collocations as c2 ON (mwe.collocation2_id = c2.id)
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag)
@@ -184,9 +185,10 @@ class WPMweConnect:
             c.lemma2, c.lemma1_tag, c.lemma2_tag, IFNULL(mwe.score, 0.0) as log_dice,
             tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv,
             (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords,
-            c.preposition
+            c2.preposition
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
+        JOIN collocations as c2 ON (mwe.collocation2_id = c2.id)
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         JOIN token_freqs tf_mwe ON (mwe.lemma = tf_mwe.lemma && mwe.lemma_tag = tf_mwe.tag)

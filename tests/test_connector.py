@@ -417,3 +417,45 @@ class WPMweConnectTest(unittest.TestCase):
         )
         result = [(c.id, c.freq) for c in res]
         self.assertEqual(result, [(514, 150), (511, 120), (515, 100), (516, 99)])
+
+    def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_id(self):
+        result = self.connector.get_relation_by_id(517)
+        expected = Coocc(
+            id=517,
+            rel="PP",
+            lemma1="liegen-Boden",
+            lemma2="Lachen",
+            form1="liegen-Boden",
+            form2="Lachen",
+            tag1="VERB-NOUN",
+            tag2="NOUN",
+            freq=99,
+            score=10.0,
+            inverse=0,
+            has_mwe=0,
+            num_concords=2,
+            prep="vor",
+        )
+        self.assertEqual(result, expected)
+
+    def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_list(self):
+        result = self.connector.get_relation_tuples(
+            [302], order_by="log_dice", min_freq=1, min_stat=1
+        )
+        expected = Coocc(
+            id=517,
+            rel="PP",
+            lemma1="liegen-Boden",
+            lemma2="Lachen",
+            form1="liegen-Boden",
+            form2="Lachen",
+            tag1="VERB-NOUN",
+            tag2="NOUN",
+            freq=99,
+            score=10.0,
+            inverse=0,
+            has_mwe=0,
+            num_concords=2,
+            prep="vor",
+        )
+        self.assertEqual(result[0], expected)
