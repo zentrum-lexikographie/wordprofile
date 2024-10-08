@@ -661,7 +661,7 @@ def extract_collocations(match_fin: str, collocs_fout: str) -> None:
     and used later for simplifying the matches information.
     """
     relation_dict: defaultdict[
-        str, defaultdict[tuple[str, str, str, str], int]
+        str, defaultdict[tuple[str, str, str, str, str], int]
     ] = defaultdict(lambda: defaultdict(int))
     with open(match_fin, "r") as fin:
         for line in fin:
@@ -701,7 +701,7 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
 def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
     relation_dict: defaultdict[
-        str, defaultdict[tuple[str, str, str, str], int]
+        str, defaultdict[tuple[str, str, str, str, str], int]
     ] = defaultdict(lambda: defaultdict(int))
     for fin in fins:
         with open(fin, "r") as f_in:
