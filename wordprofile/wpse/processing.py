@@ -431,25 +431,12 @@ def filter_transform_matches(
                         match_i += 1
 
 
-def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
+def compute_collocation_scores(
+    fout: str,
+    collocs: dict[int, Colloc],
+    lemma_freqs: defaultdict[tuple[str, str], int],
+) -> None:
     """Computes collocation statistics and writes to file."""
-    f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    f1: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    f2: defaultdict[str, int] = defaultdict(int)
-    for c_id, c in collocs.items():
-        w1 = c.lemma1 + "-" + c.lemma1_tag
-        w2 = c.lemma2 + "-" + c.lemma2_tag
-        f12[c.label][(w1, w2, c.prep)] += c.frequency
-        f12[c.label][(w2, w1, c.prep)] += c.frequency
-        f1[c.label][w1] += c.frequency
-        f1[c.label][w2] += c.frequency
-        f2[w1] += c.frequency
-        f2[w2] += c.frequency
-
     with open(fout, "w") as f_out:
         inv_relations = {
             "SUBJA",
@@ -464,12 +451,13 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
             "KOM",
         }
         for c_id, c in collocs.items():
-            w1 = c.lemma1 + "-" + c.lemma1_tag
-            w2 = c.lemma2 + "-" + c.lemma2_tag
             log_dice = 14 + math.log2(
                 2
-                * max(1, f12[c.label][(w1, w2, c.prep)])
-                / (max(1, f1[c.label][w1]) + max(1, f2[w2]))
+                * max(1, c.frequency)
+                / (
+                    max(1, lemma_freqs[(c.lemma1, c.lemma1_tag)])
+                    + max(1, lemma_freqs[(c.lemma2, c.lemma2_tag)])
+                )
             )
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
@@ -826,7 +814,9 @@ def post_process_db_files(
         min_rel_freq,
     )
     logger.info("CALCULATE AND WRITE log dice scores")
-    compute_collocation_scores(os.path.join(final_path, "collocations"), collocs)
+    compute_collocation_scores(
+        os.path.join(final_path, "collocations"), collocs, lemma_freqs
+    )
     if with_mwe:
         logger.info("MAKE MWE LVL 1")
         mwe_ids, mwe_freqs = extract_mwe_from_collocs(
