@@ -49,12 +49,16 @@ def conll_sentences(testdata_dir):
 @pytest.fixture
 def collocations():
     return {
-        30601: Colloc(30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", 0, 15),
-        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", 0, 389),
-        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", 0, 42),
-        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", 0, 51),
-        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", 0, 386),
-        2373301: Colloc(2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", 0, 262),
+        30601: Colloc(
+            30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", "NOUN", "_", 0, 15
+        ),
+        368: Colloc(368, "GMOD", "Haus", "Kunst", "NOUN", "NOUN", "_", 0, 389),
+        2006644: Colloc(2006644, "ATTR", "Kunst", "schöne", "NOUN", "ADJ", "_", 0, 42),
+        3406416: Colloc(3406416, "KON", "Kunst", "Kultur", "NOUN", "NOUN", "_", 0, 51),
+        2367256: Colloc(2367256, "VZ", "nehmen", "fest", "VERB", "ADP", "_", 0, 386),
+        2373301: Colloc(
+            2373301, "SUBJA", "nehmen", "Polizei", "VERB", "NOUN", "_", 0, 262
+        ),
     }
 
 
@@ -296,7 +300,7 @@ def test_process_doc_file_queues_filled(conll_sentences):
     assert len(sentences) == 3
     assert sentences[2].sentence == "Eine\x02neue\x02Zeit\x02begann\x02."
     matches = db_matches_queue.get()
-    assert len(matches) == 12
+    assert len(matches) == 11
     assert (matches[0].head_lemma, matches[0].dep_lemma) == ("geehrt", "sehr")
     assert (matches[-1].relation_label, matches[-1].head_surface) == ("SUBJA", "begann")
 
@@ -508,7 +512,7 @@ def test_inverse_attribute_written_to_mwe_file():
 
 def test_mwe_relation_not_inverse_if_not_reciprocal(collocations):
     collocations[2373301] = Colloc(
-        2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", 0, 262
+        2373301, "KON", "nehmen", "Polizei", "VERB", "NOUN", "_", 0, 262
     )
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
@@ -523,9 +527,9 @@ def test_load_collocations_freq_filter_applied_to_aggregated_collocations(testda
     collocations = pro.load_collocations(input_files, min_rel_freq=3)
     result = [col[1:] for col in collocations.values()]
     assert len(result) == 3
-    assert ("GMOD", "Thema", "Gegenwart", "NOUN", "NOUN", 0, 2) not in result
-    assert ("ATTR", "Familienpolitik", "modern", "NOUN", "ADJ", 0, 12) in result
-    assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", 0, 3) in result
+    assert ("GMOD", "Thema", "Gegenwart", "NOUN", "NOUN", "_", 0, 2) not in result
+    assert ("ATTR", "Familienpolitik", "modern", "NOUN", "ADJ", "_", 0, 12) in result
+    assert ("ATTR", "Stadtrand", "östlich", "NOUN", "ADJ", "_", 0, 3) in result
 
 
 def test_collocation_ids_start_at_one(testdata_dir):
@@ -848,6 +852,7 @@ def test_write_matches_with_phrasal_verb_to_file():
                 dep_lemma="einfallen",
                 head_tag="ADV",
                 dep_tag="VERB",
+                prep="_",
                 head_surface="gestern",
                 dep_surface="fällt",
                 head_position=2,
@@ -862,6 +867,7 @@ def test_write_matches_with_phrasal_verb_to_file():
                 dep_lemma="einfallen",
                 head_tag="ADV",
                 dep_tag="VERB",
+                prep="_",
                 head_surface="gestern",
                 dep_surface="fällt",
                 head_position=2,
@@ -884,8 +890,8 @@ def test_write_matches_with_phrasal_verb_to_file():
         with open(pathlib.Path(tmpdir) / "matches") as fh:
             result = fh.readlines()
     assert set(result) == {
-        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
-        "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
+        "ADV\tgestern\teinfallen\tADV\tVERB\t_\tgestern\tfällt\t2\t1\t5-3\t1\t0\n",
+        "ADV\tgestern\teinfallen\tADV\tVERB\t_\tgestern\tfällt\t2\t1\t3-5\t1\t0\n",
     }
 
 
@@ -926,10 +932,14 @@ def test_convert_line_from_matches_file_to_CollocInstance():
 
 def test_extraction_of_mwe(testdata_dir):
     collocations = {
-        3520378: Colloc(3520378, "KON", "Lust", "Laune", "NOUN", "NOUN", 0, 10.0),
-        281402: Colloc(281402, "PP", "dirigieren", "Lust", "VERB", "NOUN", 0, 10.0),
-        281401: Colloc(281401, "PP", "Lust", "dirigieren", "NOUN", "VERB", 1, 10.0),
-        5: Colloc(5, "GMOD", "Überangebot", "Umgebung", "NOUN", "NOUN", 0, 11.0),
+        3520378: Colloc(3520378, "KON", "Lust", "Laune", "NOUN", "NOUN", "_", 0, 10.0),
+        281402: Colloc(
+            281402, "PP", "dirigieren", "Lust", "VERB", "NOUN", "nach", 0, 10.0
+        ),
+        281401: Colloc(
+            281401, "PP", "Lust", "dirigieren", "NOUN", "VERB", "nach", 1, 10.0
+        ),
+        5: Colloc(5, "GMOD", "Überangebot", "Umgebung", "NOUN", "NOUN", "_", 0, 11.0),
         2028213: Colloc(
             2028213,
             "ATTR",
@@ -937,24 +947,35 @@ def test_extraction_of_mwe(testdata_dir):
             "gastronomisch",
             "NOUN",
             "ADJ",
+            "_",
             0,
             9.0,
         ),
         184977: Colloc(
-            184977, "PP", "versumpfen", "Überangebot", "VERB", "NOUN", 0, 8.0
+            184977, "PP", "versumpfen", "Überangebot", "VERB", "NOUN", "in", 0, 8.0
         ),
         2028618: Colloc(
-            2028618, "ATTR", "Steuersatz", "durchschnittlich", "NOUN", "ADJ", 0, 5.0
+            2028618,
+            "ATTR",
+            "Steuersatz",
+            "durchschnittlich",
+            "NOUN",
+            "ADJ",
+            "_",
+            0,
+            5.0,
         ),
         186151: Colloc(
-            186151, "SUBJA", "setzen", "Steuersatz", "VERB", "NOUN", 0, 11.0
+            186151, "SUBJA", "setzen", "Steuersatz", "VERB", "NOUN", "_", 0, 11.0
         ),
         186152: Colloc(
-            186152, "SUBJA", "Steuersatz", "setzen", "NOUN", "VERB", 1, 11.0
+            186152, "SUBJA", "Steuersatz", "setzen", "NOUN", "VERB", "_", 1, 11.0
         ),
-        185242: Colloc(185242, "PP", "Sparleistung", "Höhe", "NOUN", "NOUN", 0, 10.0),
+        185242: Colloc(
+            185242, "PP", "Sparleistung", "Höhe", "NOUN", "NOUN", "_", 0, 10.0
+        ),
         2028296: Colloc(
-            2028296, "ATTR", "Sparleistung", "eigen", "NOUN", "ADJ", 0, 10.0
+            2028296, "ATTR", "Sparleistung", "eigen", "NOUN", "ADJ", "_", 0, 10.0
         ),
     }
     matches_file = testdata_dir / "mwe_matches"
@@ -964,8 +985,8 @@ def test_extraction_of_mwe(testdata_dir):
         with open(output_file) as fh:
             mwe = [line.strip().split("\t") for line in fh.readlines()]
     result = [(int(line[1]), int(line[2])) for line in mwe]
-    assert (270699, 270698) in result
-    assert len(result) == 16
+    assert (270699, 270697) in result
+    assert len(result) == 10
 
 
 def test_particles_with_adj_and_adv_tag_concatenated_in_phrasal_verb_lemmatisation():
@@ -1358,7 +1379,7 @@ def test_morphological_features_parse_from_conll_file(conll_sentences):
 
 def test_inverse_of_objo_written_to_file():
     collocations = {
-        1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", 0, 10.0),
+        1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "_", 0, 10.0),
     }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
@@ -1366,8 +1387,30 @@ def test_inverse_of_objo_written_to_file():
         with open(file) as fp:
             result = [line.split() for line in fp.readlines()]
     assert result == [
-        ["1", "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "0", "10.0", "14.0"],
-        ["-1", "OBJO", "Betrug", "beschuldigen", "NOUN", "VERB", "1", "10.0", "14.0"],
+        [
+            "1",
+            "OBJO",
+            "beschuldigen",
+            "Betrug",
+            "VERB",
+            "NOUN",
+            "_",
+            "0",
+            "10.0",
+            "14.0",
+        ],
+        [
+            "-1",
+            "OBJO",
+            "Betrug",
+            "beschuldigen",
+            "NOUN",
+            "VERB",
+            "_",
+            "1",
+            "10.0",
+            "14.0",
+        ],
     ]
 
 
@@ -1452,14 +1495,15 @@ def test_mwe_scores_not_inflated_by_inverses_frequency():
 
 def test_mwe_inverse_extraction(testdata_dir):
     collocations = {
-        1: Colloc(1, "ATTR", "Bekenntnis", "gemeinsam", "NOUN", "ADJ", 0, 10.0),
-        2: Colloc(2, "PP", "Bekenntnis zu", "Freiheit", "NOUN", "NOUN", 0, 10.0),
-        3: Colloc(3, "PP", "Bekenntnis", "zu Freiheit", "NOUN", "NOUN", 0, 10.0),
-        4: Colloc(4, "KON", "Freiheit", "Menschenrecht", "NOUN", "NOUN", 0, 10.0),
-        5: Colloc(5, "ATTR", "Menschenrecht", "unveräußerlich", "NOUN", "ADJ", 0, 10.0),
-        6: Colloc(6, "SUBJA", "verbinden", "Bekenntnis", "VERB", "NOUN", 0, 10.0),
-        7: Colloc(7, "ATTR", "Schritt", "erst", "NOUN", "ADJ", 0, 10.0),
-        8: Colloc(8, "OBJ", "machen", "Schritt", "VERB", "NOUN", 0, 10.0),
+        1: Colloc(1, "ATTR", "Bekenntnis", "gemeinsam", "NOUN", "ADJ", "_", 0, 10.0),
+        3: Colloc(3, "PP", "Bekenntnis", "Freiheit", "NOUN", "NOUN", "zu", 0, 10.0),
+        4: Colloc(4, "KON", "Freiheit", "Menschenrecht", "NOUN", "NOUN", "_", 0, 10.0),
+        5: Colloc(
+            5, "ATTR", "Menschenrecht", "unveräußerlich", "NOUN", "ADJ", "_", 0, 10.0
+        ),
+        6: Colloc(6, "SUBJA", "verbinden", "Bekenntnis", "VERB", "NOUN", "_", 0, 10.0),
+        7: Colloc(7, "ATTR", "Schritt", "erst", "NOUN", "ADJ", "_", 0, 10.0),
+        8: Colloc(8, "OBJ", "machen", "Schritt", "VERB", "NOUN", "_", 0, 10.0),
     }
 
     matches_file = testdata_dir / "mwe_matches2"
@@ -1469,7 +1513,7 @@ def test_mwe_inverse_extraction(testdata_dir):
             matches_file, output_file, collocations
         )
     expected = {
-        (1, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (1, 3, "PP", "Freiheit", "NOUN", 0),
         (1, 6, "SUBJA", "verbinden", "VERB", 1),
         (3, 1, "ATTR", "gemeinsam", "ADJ", 0),
         (3, 4, "KON", "Menschenrecht", "NOUN", 0),
@@ -1478,7 +1522,7 @@ def test_mwe_inverse_extraction(testdata_dir):
         (4, 5, "ATTR", "unveräußerlich", "ADJ", 0),
         (5, 4, "KON", "Freiheit", "NOUN", 0),
         (6, 1, "ATTR", "gemeinsam", "ADJ", 0),
-        (6, 3, "PP", "zu Freiheit", "NOUN", 0),
+        (6, 3, "PP", "Freiheit", "NOUN", 0),
         (7, 8, "OBJ", "machen", "VERB", 1),
         (8, 7, "ATTR", "erst", "ADJ", 0),
     }
@@ -1487,10 +1531,10 @@ def test_mwe_inverse_extraction(testdata_dir):
 
 def test_mwe_not_inverted_if_KON_relation(testdata_dir):
     collocations = {
-        10: Colloc(10, "ADV", "verletzen", "tödlich", "VERB", "ADJ", 0, 10.0),
-        11: Colloc(11, "KON", "rasen", "verletzen", "VERB", "VERB", 0, 10.0),
-        12: Colloc(12, "KON", "Bau", "Sanierung", "NOUN", "NOUN", 0, 10.0),
-        13: Colloc(13, "GMOD", "Sanierung", "Schule", "NOUN", "NOUN", 0, 10.0),
+        10: Colloc(10, "ADV", "verletzen", "tödlich", "VERB", "ADJ", "_", 0, 10.0),
+        11: Colloc(11, "KON", "rasen", "verletzen", "VERB", "VERB", "_", 0, 10.0),
+        12: Colloc(12, "KON", "Bau", "Sanierung", "NOUN", "NOUN", "_", 0, 10.0),
+        13: Colloc(13, "GMOD", "Sanierung", "Schule", "NOUN", "NOUN", "_", 0, 10.0),
     }
 
     matches_file = testdata_dir / "mwe_matches2"
@@ -1524,6 +1568,63 @@ def test_filter_mwe_matches():
                 mwe_id = line.strip().split("\t")[0]
                 final_ids.append(mwe_id)
         assert final_ids == ["2", "3", "5"]
+
+
+def test_extract_collocations(testdata_dir):
+    matches_file = testdata_dir / "matches_pp"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        collocations_file = pathlib.Path(tmpdir) / "collocations"
+        pro.extract_collocations(matches_file, collocations_file)
+        with open(collocations_file) as fh:
+            data = {tuple(line.strip().split("\t")) for line in fh}
+    assert data == {
+        ("ATTR", "Familienpolitik", "NOUN", "modern", "ADJ", "_", "1"),
+        ("PP", "Gast", "NOUN", "Bundestreffen", "NOUN", "bei", "1"),
+    }
+
+
+def test_extract_most_common_surface(testdata_dir):
+    matches_file = testdata_dir / "matches_pp"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        types_file = pathlib.Path(tmpdir) / "types"
+        pro.extract_most_common_surface(matches_file, types_file)
+        with open(types_file) as fh:
+            data = {tuple(line.strip().split("\t")) for line in fh}
+    assert data == {
+        ("Gast", "NOUN", "Gast", "1"),
+        ("Familienpolitik", "NOUN", "Familienpolitik", "1"),
+        ("Bundestreffen", "NOUN", "Bundestreffen", "1"),
+        ("modern", "ADJ", "moderne", "1"),
+    }
+
+
+def test_pp_collocations_with_same_lemmas_and_different_prep_counted_separately():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Tisch", "NOUN", "NOUN", "neben", 0, 20.0),
+        3: Colloc(3, "PP", "Buch", "Tisch", "NOUN", "NOUN", "unter", 0, 30.0),
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations)
+        with open(file) as fp:
+            result = {round(float(line.split("\t")[-1]), 1) for line in fp}
+            assert result == {11.4, 12.4, 13.0}
+
+
+def test_prepositions_written_to_file_with_collocation_scores():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations)
+        with open(file) as fp:
+            result = [line.strip().split("\t") for line in fp]
+    assert result == [
+        ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "0", "10.0", "14.0"],
+        ["-1", "PP", "Tisch", "Buch", "NOUN", "NOUN", "auf", "1", "10.0", "14.0"],
+    ]
 
 
 def test_lemma_counting_queue_filled(conll_sentences):

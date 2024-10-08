@@ -129,6 +129,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=25,
+                prep="_",
             ),
             2: Coocc(
                 id=2,
@@ -144,6 +145,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=1,
+                prep="_",
             ),
             3: Coocc(
                 id=3,
@@ -159,6 +161,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=1,
+                prep="_",
             ),
             -3: Coocc(
                 id=-3,
@@ -174,6 +177,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=19,
+                prep="_",
             ),
             4: Coocc(
                 id=4,
@@ -189,6 +193,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=8,
+                prep="_",
             ),
             5: Coocc(
                 id=5,
@@ -204,6 +209,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=1,
                 num_concords=8,
+                prep="_",
             ),
             6: Coocc(
                 id=6,
@@ -219,6 +225,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=20,
+                prep="_",
             ),
             7: Coocc(
                 id=7,
@@ -234,6 +241,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             8: Coocc(
                 id=8,
@@ -249,6 +257,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=200,
+                prep="_",
             ),
             9: Coocc(
                 id=9,
@@ -264,6 +273,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             11: Coocc(
                 id=11,
@@ -279,6 +289,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=10,
+                prep="_",
             ),
             10: Coocc(
                 id=10,
@@ -294,6 +305,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=10,
+                prep="_",
             ),
             14: Coocc(
                 id=141,
@@ -309,6 +321,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=1,
                 num_concords=1,
+                prep="_",
             ),
             15: Coocc(
                 id=15,
@@ -324,6 +337,7 @@ class WordprofileTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=3,
+                prep="_",
             ),
             16: Coocc(
                 id=15,
@@ -339,6 +353,39 @@ class WordprofileTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=0,
                 num_concords=3,
+                prep="_",
+            ),
+            17: Coocc(
+                id=17,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Sand",
+                form1="Meer",
+                form2="Sand",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=1,
+                score=0.5,
+                inverse=1,
+                has_mwe=0,
+                num_concords=3,
+                prep="an",
+            ),
+            18: Coocc(
+                id=18,
+                rel="ATTR",
+                lemma1="Meer",
+                lemma2="offen",
+                form1="Meer",
+                form2="offenen",
+                tag1="NOUN",
+                tag2="ADJ",
+                freq=1,
+                score=0.5,
+                inverse=0,
+                has_mwe=0,
+                num_concords=3,
+                prep="_",
             ),
         }
         self.mwe_data = {
@@ -357,6 +404,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=1,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
                 Coocc(
                     id=11,
@@ -372,6 +420,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
                 Coocc(
                     id=12,
@@ -387,6 +436,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 ),
             ],
             14: [
@@ -404,6 +454,7 @@ class WordprofileTest(unittest.TestCase):
                     inverse=1,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
                 )
             ],
             -10: [
@@ -421,6 +472,41 @@ class WordprofileTest(unittest.TestCase):
                     inverse=0,
                     has_mwe=0,
                     num_concords=1,
+                    prep="_",
+                ),
+            ],
+            18: [
+                Coocc(
+                    id=181,
+                    rel="PP",
+                    lemma1="Meer-offen",
+                    lemma2="Zugang",
+                    form1="Meer-offenen",
+                    form2="Zugang",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=1,
+                    score=10.0,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=1,
+                    prep="zu",
+                ),
+                Coocc(
+                    id=182,
+                    rel="PP",
+                    lemma1="Meer-offen",
+                    lemma2="Zugang",
+                    form1="Meer-offenen",
+                    form2="Zugang",
+                    tag1="NOUN-ADJ",
+                    tag2="NOUN",
+                    freq=2,
+                    score=11.0,
+                    inverse=1,
+                    has_mwe=0,
+                    num_concords=2,
+                    prep="von",
                 ),
             ],
         }
@@ -664,3 +750,37 @@ class WordprofileTest(unittest.TestCase):
             result = self.wp.get_diff(lemma1, lemma2, pos="", relations=[])
             with self.subTest():
                 self.assertEqual(result, [])
+
+    def test_formatting_of_lemmata_in_pp_mwe_relation(self):
+        result = self.wp.get_mwe_relations([17])["parts"]
+        expected = [{"Lemma": "Meer"}, {"Lemma": "Sand an"}]
+        self.assertEqual(result, expected)
+
+    def test_mwe_pp_collocates_with_different_prepositions_not_discarded(self):
+        result = self.wp.get_mwe_relations([18])["data"]["Meer-offen"][0]["Tuples"]
+        expected = [
+            {
+                "Relation": "~PP",
+                "RelationDescription": "ist in Präpositionalgruppe",
+                "POS": "Substantiv",
+                "Form": "Zugang zu",
+                "Lemma": "Zugang zu",
+                "Score": {"Frequency": 1, "logDice": 10.0},
+                "ConcordId": "#mwe181",
+                "ConcordNoAccessible": 1,
+                "HasMwe": 0,
+            },
+            {
+                "Relation": "~PP",
+                "RelationDescription": "ist in Präpositionalgruppe",
+                "POS": "Substantiv",
+                "Form": "Zugang von",
+                "Lemma": "Zugang von",
+                "Score": {"Frequency": 2, "logDice": 11.0},
+                "ConcordId": "#mwe182",
+                "ConcordNoAccessible": 2,
+                "HasMwe": 0,
+            },
+        ]
+        self.assertEqual(len(result), 2)
+        self.assertEqual(result, expected)
