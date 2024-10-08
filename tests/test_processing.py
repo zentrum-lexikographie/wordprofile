@@ -502,9 +502,13 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
 def test_inverse_attribute_written_to_mwe_file():
     mwe_freqs = {1: 1}
     mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 1.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 1.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=1)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=1)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
@@ -1422,9 +1426,13 @@ def test_mwe_filtered_for_min_freq():
         (13, 14, "label", "lemma", "tag", 0): 1,
         (15, 16, "label", "lemma", "tag", 0): 2,
     }
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 5.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 5.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=4)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["0", "11", "12", "label", "lemma", "tag", "0", "5", "14.0"]
@@ -1484,9 +1492,14 @@ def test_mwe_scores_not_inflated_by_inverses_frequency():
         (12, 11, "label", "lemma", "tag", 1): 2,
         (11, 13, "label", "lemma2", "tag", 0): 3,
     }
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 45.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 20.0),
+        13: Colloc(13, "", "", "", "", "", "_", 0, 25.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=4)
         with open(file) as fp:
             result = [
                 round(float(line.strip().split()[-1]), 2) for line in fp.readlines()

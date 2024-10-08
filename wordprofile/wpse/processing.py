@@ -622,24 +622,28 @@ def add_mwe_to_inventory(
     return mwe_id
 
 
-def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
-    """Calculates Log Dice score"""
-    collocation_freqs: defaultdict[str, int] = defaultdict(int)
-    for (w1, w2, label, lemma, tag, inv), mwe_id in mwe_ids.items():
-        frequency = mwe_freqs[mwe_id]
-        collocation_freqs[w1] += frequency
-        collocation_freqs[w2] += frequency
+def compute_mwe_scores(
+    mwe_fout: str,
+    mwe_ids,
+    mwe_freqs,
+    collocations: dict[int, Colloc],
+    min_freq: int = 5,
+) -> None:
+    """Calculates Log Dice score for MWE"""
 
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
             mwe_freq = mwe_freqs[mwe_id]
             if mwe_freq < min_freq:
                 continue
-            w1, w2, label, lemma, tag, inv = mwe
+            c1, c2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
                 * max(1, mwe_freq)
-                / (max(1, collocation_freqs[w1]) + max(1, collocation_freqs[w2]))
+                / (
+                    max(1, collocations[c1].frequency)
+                    + max(1, collocations[c2].frequency)
+                )
             )
             mwe_out.write(
                 "{}\n".format(
@@ -831,7 +835,11 @@ def post_process_db_files(
         }
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
-            os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
+            os.path.join(final_path, "mwe"),
+            mwe_ids,
+            mwe_freqs,
+            collocs,
+            min_freq=min_rel_freq,
         )
         mwe_ids = {}
         mwe_freqs_filtered = {
