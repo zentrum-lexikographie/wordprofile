@@ -828,7 +828,6 @@ def post_process_db_files(
             os.path.join(final_path, "mwe_match_full"),
             collocs,
         )
-        collocs = {}
         # remove all MWE that don't appear in mwe_freqs, i.e. appear only once
         mwe_ids = {
             mwe: mwe_id for mwe, mwe_id in mwe_ids.items() if mwe_id in mwe_freqs
@@ -841,6 +840,7 @@ def post_process_db_files(
             collocs,
             min_freq=min_rel_freq,
         )
+        collocs = {}
         mwe_ids = {}
         mwe_freqs_filtered = {
             mwe_id: freq for mwe_id, freq in mwe_freqs.items() if freq >= min_rel_freq
