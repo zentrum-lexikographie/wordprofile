@@ -885,7 +885,8 @@ def test_write_matches_with_phrasal_verb_to_file():
         m_queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_process = pro.FileWorker(tmpdir, "matches")
+        manager = mp.Manager()
+        output_process = pro.FileWorker(tmpdir, "matches", manager)
         output_process.start()
         proc = mp.Process(target=fill_queue, args=(output_process.q,))
         proc.start()

@@ -196,8 +196,14 @@ class LemmaCounter(multiprocessing.Process):
 
 
 class FileWorker(multiprocessing.Process):
-    def __init__(self, path: str, fname: str, flush_limit: int = 100) -> None:
-        self.q = multiprocessing.Manager().Queue(maxsize=1000)
+    def __init__(
+        self,
+        path: str,
+        fname: str,
+        manager: multiprocessing.Manager(),
+        flush_limit: int = 100,
+    ) -> None:
+        self.q = manager.Queue(maxsize=1000)
         self.path = path
         self.fname = fname
         self.flush_limit = flush_limit
@@ -301,11 +307,15 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     results are sent to the workers.
     """
     mp_manager = multiprocessing.Manager()
-    fr_queue = multiprocessing.Manager().Queue(maxsize=2 * njobs)
+    fr_queue = mp_manager.Queue(maxsize=2 * njobs)
     file_reader = FileReader(file_path, fr_queue)
-    db_files_worker = FileWorker(storage_path, "corpus_files")
-    db_sents_worker = FileWorker(storage_path, "concord_sentences", flush_limit=1000)
-    db_matches_worker = FileWorker(storage_path, "matches", flush_limit=10000)
+    db_files_worker = FileWorker(storage_path, "corpus_files", mp_manager)
+    db_sents_worker = FileWorker(
+        storage_path, "concord_sentences", mp_manager, flush_limit=1000
+    )
+    db_matches_worker = FileWorker(
+        storage_path, "matches", mp_manager, flush_limit=10000
+    )
     lemma_counter = LemmaCounter(storage_path, mp_manager)
     db_files_worker.start()
     db_sents_worker.start()
