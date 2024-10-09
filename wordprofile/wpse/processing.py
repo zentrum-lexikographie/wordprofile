@@ -153,8 +153,8 @@ class FileReaderQueue(Protocol):
 
 
 class LemmaCounter(multiprocessing.Process):
-    def __init__(self, path: str) -> None:
-        self._manager = multiprocessing.Manager()
+    def __init__(self, path: str, manager: multiprocessing.Manager()) -> None:
+        self._manager = manager
         self.q = self._manager.Queue(maxsize=1000)
         self.path = path
         self.freqs = self._manager.dict()
@@ -300,12 +300,13 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     split into several chunks for parallel processing. The extracted
     results are sent to the workers.
     """
+    mp_manager = multiprocessing.Manager()
     fr_queue = multiprocessing.Manager().Queue(maxsize=2 * njobs)
     file_reader = FileReader(file_path, fr_queue)
     db_files_worker = FileWorker(storage_path, "corpus_files")
     db_sents_worker = FileWorker(storage_path, "concord_sentences", flush_limit=1000)
     db_matches_worker = FileWorker(storage_path, "matches", flush_limit=10000)
-    lemma_counter = LemmaCounter(storage_path)
+    lemma_counter = LemmaCounter(storage_path, mp_manager)
     db_files_worker.start()
     db_sents_worker.start()
     db_matches_worker.start()

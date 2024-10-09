@@ -1650,7 +1650,8 @@ def test_lemma_counting_queue_filled(conll_sentences):
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueue()
     with tempfile.TemporaryDirectory() as tmpdir:
-        lemma_counter = pro.LemmaCounter(tmpdir)
+        manager = mp.Manager()
+        lemma_counter = pro.LemmaCounter(tmpdir, manager)
         lemma_counter.start()
         pro.process_doc_file(
             file_reader_queue,
@@ -1928,7 +1929,8 @@ def test_irrelevant_tags_discarded_for_lemma_count():
         queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_process = pro.LemmaCounter(tmpdir)
+        manager = mp.Manager()
+        output_process = pro.LemmaCounter(tmpdir, manager)
         output_process.start()
         proc = mp.Process(target=fill_queue, args=(output_process.q,))
         proc.start()
@@ -2106,7 +2108,8 @@ def test_lemma_counts_written_to_file():
         queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_process = pro.LemmaCounter(tmpdir)
+        manager = mp.Manager()
+        output_process = pro.LemmaCounter(tmpdir, manager)
         output_process.start()
         proc = mp.Process(target=fill_queue, args=(output_process.q,))
         proc.start()
@@ -2204,7 +2207,8 @@ def test_counting_lemma_multiple_processes():
         queue.put(lemmata)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_process = pro.LemmaCounter(tmpdir)
+        manager = mp.Manager()
+        output_process = pro.LemmaCounter(tmpdir, manager)
         output_process.start()
         proc1 = mp.Process(target=fill_queue, args=(output_process.q,))
         proc2 = mp.Process(target=fill_queue2, args=(output_process.q,))
