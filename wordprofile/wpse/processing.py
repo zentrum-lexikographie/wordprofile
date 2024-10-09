@@ -167,30 +167,29 @@ class LemmaCounter(multiprocessing.Process):
             if batch is None:
                 logger.info(f"{10:} - CLOSE LemmaCounter queue")
                 with open(os.path.join(self.path, "lemma_freqs"), "w") as fh:
-                    for (lemma, tag), count in self.freqs.items():
-                        print("\t".join([lemma, tag, str(count)]), file=fh)
+                    for lemma, count in self.freqs.items():
+                        print("\t".join([lemma, str(count)]), file=fh)
                 break
-            for sent in batch:
-                for tok in sent:
-                    token_key = (tok.lemma, tok.tag)
-                    if tok.tag in {
-                        "ADP",
-                        "PUNCT",
-                        "PRON",
-                        "DET",
-                        "CCONJ",
-                        "X",
-                        "SCONJ",
-                        "NUM",
-                        "PART",
-                        "INTJ",
-                        "PROPN",
-                    }:
-                        continue
-                    if token_key in self.freqs:
-                        self.freqs[token_key] += 1
-                    else:
-                        self.freqs[token_key] = 1
+            for tok in batch:
+                _, tag = tok.split("\t")
+                if tag in {
+                    "ADP",
+                    "PUNCT",
+                    "PRON",
+                    "DET",
+                    "CCONJ",
+                    "X",
+                    "SCONJ",
+                    "NUM",
+                    "PART",
+                    "INTJ",
+                    "PROPN",
+                }:
+                    continue
+                if tok in self.freqs:
+                    self.freqs[tok] += 1
+                else:
+                    self.freqs[tok] = 1
 
     def stop(self) -> None:
         self.q.put(None)
@@ -275,7 +274,10 @@ def process_doc_file(
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
             parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
             db_concord_sentences = prepare_concord_sentences(doc_id, parses)
-            lemma_counter.put(parses)
+            lemmata = [
+                "\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent
+            ]
+            lemma_counter.put(lemmata)
             matches = extract_matches_from_doc(parses)
             db_matches = prepare_matches(doc_id, matches)
             db_files_queue.put([db_corpus_file])

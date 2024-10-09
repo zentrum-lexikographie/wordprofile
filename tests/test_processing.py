@@ -1662,20 +1662,20 @@ def test_lemma_counting_queue_filled(conll_sentences):
         lemma_counter.stop()
         lemma_counter.join()
     assert dict(lemma_counter.freqs) == {
-        ("sehr", "ADV"): 2,
-        ("geehrt", "ADJ"): 1,
-        ("Herr", "NOUN"): 2,
-        ("Präsident", "NOUN"): 1,
-        ("verehrt", "ADJ"): 1,
-        ("Dame", "NOUN"): 1,
-        ("gehen", "VERB"): 1,
-        ("ganz", "ADJ"): 1,
-        ("Epoche", "NOUN"): 1,
-        ("Ende", "NOUN"): 1,
-        ("neu", "ADJ"): 1,
-        ("Zeit", "NOUN"): 1,
-        ("damals", "ADV"): 1,
-        ("beginnen", "VERB"): 1,
+        "sehr\tADV": 2,
+        "geehrt\tADJ": 1,
+        "Herr\tNOUN": 2,
+        "Präsident\tNOUN": 1,
+        "verehrt\tADJ": 1,
+        "Dame\tNOUN": 1,
+        "gehen\tVERB": 1,
+        "ganz\tADJ": 1,
+        "Epoche\tNOUN": 1,
+        "Ende\tNOUN": 1,
+        "neu\tADJ": 1,
+        "Zeit\tNOUN": 1,
+        "damals\tADV": 1,
+        "beginnen\tVERB": 1,
     }
 
 
@@ -1923,7 +1923,8 @@ def test_irrelevant_tags_discarded_for_lemma_count():
                 ),
             ],
         ]
-        queue.put(parses)
+        lemmata = ["\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent]
+        queue.put(lemmata)
         queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -2100,7 +2101,8 @@ def test_lemma_counts_written_to_file():
                 ),
             ],
         ]
-        queue.put(parses)
+        lemmata = ["\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent]
+        queue.put(lemmata)
         queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -2118,89 +2120,88 @@ def test_lemma_counts_written_to_file():
 def test_counting_lemma_multiple_processes():
     def fill_queue(queue):
         parses = [
-            [
-                WPToken(
-                    idx=1,
-                    surface="Maßlosigkeit",
-                    lemma="Maßlosigkeit",
-                    tag="NOUN",
-                    head=4,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=2,
-                    surface="war",
-                    lemma="sein",
-                    tag="AUX",
-                    head=4,
-                    rel="cop",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=7,
-                    surface="nicht",
-                    lemma="nicht",
-                    tag="PART",
-                    head=8,
-                    rel="advmod",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-            ],
+            WPToken(
+                idx=1,
+                surface="Maßlosigkeit",
+                lemma="Maßlosigkeit",
+                tag="NOUN",
+                head=4,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="war",
+                lemma="sein",
+                tag="AUX",
+                head=4,
+                rel="cop",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface="nicht",
+                lemma="nicht",
+                tag="PART",
+                head=8,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
         ]
-        queue.put(parses)
+
+        lemmata = ["\t".join([tok.lemma, tok.tag]) for tok in parses]
+        queue.put(lemmata)
 
     def fill_queue2(queue):
         parses = [
-            [
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tag",
-                    lemma="Tag",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Test",
-                    lemma="Test",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-            ],
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tag",
+                lemma="Tag",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Test",
+                lemma="Test",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
         ]
-        queue.put(parses)
+        lemmata = ["\t".join([tok.lemma, tok.tag]) for tok in parses]
+        queue.put(lemmata)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         output_process = pro.LemmaCounter(tmpdir)
