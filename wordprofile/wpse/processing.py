@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import math
@@ -5,7 +7,7 @@ import multiprocessing
 import os
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
 from typing import Any, Protocol, Union
@@ -152,47 +154,31 @@ class FileReaderQueue(Protocol):
         ...
 
 
-class LemmaCounter(multiprocessing.Process):
-    def __init__(self, path: str, manager: multiprocessing.Manager()) -> None:
-        self._manager = manager
-        self.q = self._manager.Queue(maxsize=1000)
-        self.path = path
-        self.freqs = self._manager.dict()
-        super().__init__()
+class LemmaCounter:
+    def __init__(self) -> None:
+        self.freqs: Counter[str] = Counter()
 
-    def run(self) -> None:
-        logger.info("Starting LemmaCounter queue.")
-        while True:
-            batch = self.q.get()
-            if batch is None:
-                logger.info(f"{10:} - CLOSE LemmaCounter queue")
-                with open(os.path.join(self.path, "lemma_freqs"), "w") as fh:
-                    for lemma, count in self.freqs.items():
-                        print("\t".join([lemma, str(count)]), file=fh)
-                break
-            for tok in batch:
-                _, tag = tok.split("\t")
-                if tag in {
-                    "ADP",
-                    "PUNCT",
-                    "PRON",
-                    "DET",
-                    "CCONJ",
-                    "X",
-                    "SCONJ",
-                    "NUM",
-                    "PART",
-                    "INTJ",
-                    "PROPN",
-                }:
-                    continue
-                if tok in self.freqs:
-                    self.freqs[tok] += 1
-                else:
-                    self.freqs[tok] = 1
-
-    def stop(self) -> None:
-        self.q.put(None)
+    def count_token(self, parses: list[list[WPToken]]) -> None:
+        lemmata = [
+            "\t".join((tok.lemma, tok.tag))
+            for sent in parses
+            for tok in sent
+            if tok.tag
+            not in {
+                "ADP",
+                "PUNCT",
+                "PRON",
+                "DET",
+                "CCONJ",
+                "X",
+                "SCONJ",
+                "NUM",
+                "PART",
+                "INTJ",
+                "PROPN",
+            }
+        ]
+        self.freqs += Counter(lemmata)
 
 
 class FileWorker(multiprocessing.Process):
@@ -200,7 +186,7 @@ class FileWorker(multiprocessing.Process):
         self,
         path: str,
         fname: str,
-        manager: multiprocessing.Manager(),
+        manager: multiprocessing.managers.SyncManager,
         flush_limit: int = 100,
     ) -> None:
         self.q = manager.Queue(maxsize=1000)
@@ -269,21 +255,20 @@ def process_doc_file(
     db_files_queue: Queue,
     db_sents_queue: Queue,
     db_matches_queue: Queue,
-    lemma_counter: Queue,
+    lemma_counters: multiprocessing.managers.ListProxy,
 ) -> None:
     """Extracts information from files and forwards to corresponding queue."""
+    counter = LemmaCounter()
     while True:
         sentences: list[TokenList] = file_reader_queue.get()
         if not sentences:
+            lemma_counters.append(counter)
             break
         try:
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
             parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
             db_concord_sentences = prepare_concord_sentences(doc_id, parses)
-            lemmata = [
-                "\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent
-            ]
-            lemma_counter.put(lemmata)
+            counter.count_token(parses)
             matches = extract_matches_from_doc(parses)
             db_matches = prepare_matches(doc_id, matches)
             db_files_queue.put([db_corpus_file])
@@ -316,12 +301,11 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     db_matches_worker = FileWorker(
         storage_path, "matches", mp_manager, flush_limit=10000
     )
-    lemma_counter = LemmaCounter(storage_path, mp_manager)
     db_files_worker.start()
     db_sents_worker.start()
     db_matches_worker.start()
-    lemma_counter.start()
     pool = []
+    lemma_counters = mp_manager.list()
     for i in range(njobs):
         p = multiprocessing.Process(
             target=process_doc_file,
@@ -330,7 +314,7 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
                 db_files_worker.q,
                 db_sents_worker.q,
                 db_matches_worker.q,
-                lemma_counter.q,
+                lemma_counters,
             ),
         )
         p.start()
@@ -344,14 +328,25 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     logger.info("STOP first queues and wait...")
     db_files_worker.stop()
     db_sents_worker.stop()
-    lemma_counter.stop()
     db_files_worker.join()
     db_sents_worker.join()
-    lemma_counter.join()
     logger.info("STOP final matches queue and wait...")
     db_matches_worker.stop()
     db_matches_worker.join()
     logger.info("ALL JOBS DONE")
+    save_lemma_counts_to_file(lemma_counters, storage_path)
+
+
+def save_lemma_counts_to_file(
+    lemma_counters: multiprocessing.managers.ListProxy,
+    output_path: str,
+) -> None:
+    total: Counter[str] = Counter()
+    for counter in lemma_counters:
+        total += counter.freqs
+    with open(os.path.join(output_path, "lemma_freqs"), "w") as fh:
+        for lemma, freq in total.items():
+            print("\t".join([lemma, str(freq)]), file=fh)
 
 
 def reindex_corpus_files(fins: list[str], fout: str) -> dict[str, int]:

@@ -277,9 +277,13 @@ def test_process_doc_file_queues_filled(conll_sentences):
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueue()
-    lemma_queue = MockQueue()
+    lemma_counters = []
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert len(db_files_queue.queue) == 1
     db_file = db_files_queue.get()[0]
@@ -310,10 +314,14 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     file_reader_queue.put(conll_sentences)
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
-    lemma_queue = MockQueue()
+    lemma_counters = []
     db_matches_queue = MockQueueWithError()
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert "Type Conversion Error:" in caplog.text
     file_reader_queue = MockQueue()
@@ -322,7 +330,11 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueueWithError(ValueError)
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue, lemma_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert "ValueError" in caplog.text
     assert (
@@ -1644,7 +1656,7 @@ def test_prepositions_written_to_file_with_collocation_scores():
     ]
 
 
-def test_lemma_counting_queue_filled(conll_sentences):
+def test_lemma_counter_filled(conll_sentences):
     file_reader_queue = MockQueue()
     file_reader_queue.put(conll_sentences)
     db_files_queue = MockQueue()
@@ -1652,17 +1664,15 @@ def test_lemma_counting_queue_filled(conll_sentences):
     db_matches_queue = MockQueue()
     with tempfile.TemporaryDirectory() as tmpdir:
         manager = mp.Manager()
-        lemma_counter = pro.LemmaCounter(tmpdir, manager)
-        lemma_counter.start()
+        lemma_counters = manager.list()
         pro.process_doc_file(
             file_reader_queue,
             db_files_queue,
             db_sents_queue,
             db_matches_queue,
-            lemma_counter.q,
+            lemma_counters,
         )
-        lemma_counter.stop()
-        lemma_counter.join()
+    lemma_counter = lemma_counters[0]
     assert dict(lemma_counter.freqs) == {
         "sehr\tADV": 2,
         "geehrt\tADJ": 1,
@@ -1682,448 +1692,8 @@ def test_lemma_counting_queue_filled(conll_sentences):
 
 
 def test_irrelevant_tags_discarded_for_lemma_count():
-    def fill_queue(queue):
-        parses = [
-            [
-                WPToken(
-                    idx=1,
-                    surface="Maßlosigkeit",
-                    lemma="Maßlosigkeit",
-                    tag="NOUN",
-                    head=4,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=2,
-                    surface="war",
-                    lemma="sein",
-                    tag="AUX",
-                    head=4,
-                    rel="cop",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=3,
-                    surface="die",
-                    lemma="d",
-                    tag="DET",
-                    head=4,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=4,
-                    surface="Folge",
-                    lemma="Folge",
-                    tag="NOUN",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-            ],
-            [
-                WPToken(
-                    idx=1,
-                    surface="Ohne",
-                    lemma="ohne",
-                    tag="ADP",
-                    head=3,
-                    rel="case",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=2,
-                    surface="die",
-                    lemma="d",
-                    tag="DET",
-                    head=3,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=3,
-                    surface="Entwicklung",
-                    lemma="Entwicklung",
-                    tag="NOUN",
-                    head=8,
-                    rel="obl",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=4,
-                    surface="ist",
-                    lemma="sein",
-                    tag="AUX",
-                    head=8,
-                    rel="cop",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=5,
-                    surface="der",
-                    lemma="d",
-                    tag="DET",
-                    head=8,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tag",
-                    lemma="Tag",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=7,
-                    surface="nicht",
-                    lemma="nicht",
-                    tag="PART",
-                    head=8,
-                    rel="advmod",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-            ],
-            [
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tag",
-                    lemma="Tag",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Test",
-                    lemma="Test",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=7,
-                    surface="2024",
-                    lemma="2024",
-                    tag="NUM",
-                    head=8,
-                    rel="nmod",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="sich",
-                    lemma="sich",
-                    tag="PRON",
-                    head=8,
-                    rel="",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface=".",
-                    lemma=".",
-                    tag="PUNCT",
-                    head=8,
-                    rel="",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="unter",
-                    lemma="unter",
-                    tag="ADP",
-                    head=8,
-                    rel="",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="als",
-                    lemma="als",
-                    tag="CCONJ",
-                    head=8,
-                    rel="",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="dass",
-                    lemma="dass",
-                    tag="SCONJ",
-                    head=8,
-                    rel="mark",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="sans",
-                    lemma="sans",
-                    tag="X",
-                    head=8,
-                    rel="flat",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="zu",
-                    lemma="zu",
-                    tag="PART",
-                    head=8,
-                    rel="mark",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="bitte",
-                    lemma="bitte",
-                    tag="INTJ",
-                    head=8,
-                    rel="",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tussauds",
-                    lemma="Tussauds",
-                    tag="PROPN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-            ],
-        ]
-        lemmata = ["\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent]
-        queue.put(lemmata)
-        queue.put(None)
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        manager = mp.Manager()
-        output_process = pro.LemmaCounter(tmpdir, manager)
-        output_process.start()
-        proc = mp.Process(target=fill_queue, args=(output_process.q,))
-        proc.start()
-        proc.join()
-        output_process.join()
-        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
-            result = {tuple(line.strip().split("\t")) for line in fh.readlines()}
-    assert result == {
-        ("Maßlosigkeit", "NOUN", "1"),
-        ("sein", "AUX", "2"),
-        ("Folge", "NOUN", "1"),
-        ("Entwicklung", "NOUN", "1"),
-        ("Tag", "NOUN", "2"),
-        ("Test", "NOUN", "1"),
-        ("denkbar", "ADJ", "3"),
-    }
-
-
-def test_lemma_counts_written_to_file():
-    def fill_queue(queue):
-        parses = [
-            [
-                WPToken(
-                    idx=1,
-                    surface="Maßlosigkeit",
-                    lemma="Maßlosigkeit",
-                    tag="NOUN",
-                    head=4,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=2,
-                    surface="war",
-                    lemma="sein",
-                    tag="AUX",
-                    head=4,
-                    rel="cop",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=3,
-                    surface="die",
-                    lemma="d",
-                    tag="DET",
-                    head=4,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=4,
-                    surface="Folge",
-                    lemma="Folge",
-                    tag="NOUN",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-            ],
-            [
-                WPToken(
-                    idx=1,
-                    surface="Ohne",
-                    lemma="ohne",
-                    tag="ADP",
-                    head=3,
-                    rel="case",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=2,
-                    surface="die",
-                    lemma="d",
-                    tag="DET",
-                    head=3,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=3,
-                    surface="Entwicklung",
-                    lemma="Entwicklung",
-                    tag="NOUN",
-                    head=8,
-                    rel="obl",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=4,
-                    surface="ist",
-                    lemma="sein",
-                    tag="AUX",
-                    head=8,
-                    rel="cop",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=5,
-                    surface="der",
-                    lemma="d",
-                    tag="DET",
-                    head=8,
-                    rel="det",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tag",
-                    lemma="Tag",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=7,
-                    surface="nicht",
-                    lemma="nicht",
-                    tag="PART",
-                    head=8,
-                    rel="advmod",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-            ],
-            [
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=8,
-                    surface="denkbar",
-                    lemma="denkbar",
-                    tag="ADJ",
-                    head=0,
-                    rel="ROOT",
-                    misc=False,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Tag",
-                    lemma="Tag",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-                WPToken(
-                    idx=6,
-                    surface="Test",
-                    lemma="Test",
-                    tag="NOUN",
-                    head=8,
-                    rel="nsubj",
-                    misc=True,
-                ),
-            ],
-        ]
-        lemmata = ["\t".join([tok.lemma, tok.tag]) for sent in parses for tok in sent]
-        queue.put(lemmata)
-        queue.put(None)
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        manager = mp.Manager()
-        output_process = pro.LemmaCounter(tmpdir, manager)
-        output_process.start()
-        proc = mp.Process(target=fill_queue, args=(output_process.q,))
-        proc.start()
-        proc.join()
-        output_process.join()
-        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
-            result = fh.readlines()
-        assert "Maßlosigkeit\tNOUN\t1\n" in result
-
-
-def test_counting_lemma_multiple_processes():
-    def fill_queue(queue):
-        parses = [
+    parses = [
+        [
             WPToken(
                 idx=1,
                 surface="Maßlosigkeit",
@@ -2140,6 +1710,80 @@ def test_counting_lemma_multiple_processes():
                 tag="AUX",
                 head=4,
                 rel="cop",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=4,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Folge",
+                lemma="Folge",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="Ohne",
+                lemma="ohne",
+                tag="ADP",
+                head=3,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=3,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="Entwicklung",
+                lemma="Entwicklung",
+                tag="NOUN",
+                head=8,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="ist",
+                lemma="sein",
+                tag="AUX",
+                head=8,
+                rel="cop",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=8,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tag",
+                lemma="Tag",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
                 misc=True,
             ),
             WPToken(
@@ -2160,13 +1804,8 @@ def test_counting_lemma_multiple_processes():
                 rel="ROOT",
                 misc=False,
             ),
-        ]
-
-        lemmata = ["\t".join([tok.lemma, tok.tag]) for tok in parses]
-        queue.put(lemmata)
-
-    def fill_queue2(queue):
-        parses = [
+        ],
+        [
             WPToken(
                 idx=8,
                 surface="denkbar",
@@ -2203,22 +1842,382 @@ def test_counting_lemma_multiple_processes():
                 rel="nsubj",
                 misc=True,
             ),
+            WPToken(
+                idx=7,
+                surface="2024",
+                lemma="2024",
+                tag="NUM",
+                head=8,
+                rel="nmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="sich",
+                lemma="sich",
+                tag="PRON",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface=".",
+                lemma=".",
+                tag="PUNCT",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="unter",
+                lemma="unter",
+                tag="ADP",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="als",
+                lemma="als",
+                tag="CCONJ",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="dass",
+                lemma="dass",
+                tag="SCONJ",
+                head=8,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="sans",
+                lemma="sans",
+                tag="X",
+                head=8,
+                rel="flat",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="zu",
+                lemma="zu",
+                tag="PART",
+                head=8,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="bitte",
+                lemma="bitte",
+                tag="INTJ",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tussauds",
+                lemma="Tussauds",
+                tag="PROPN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+        ],
+    ]
+    counter = pro.LemmaCounter()
+    counter.count_token(parses)
+    result = {(key, freq) for key, freq in counter.freqs.items()}
+    assert result == {
+        ("Maßlosigkeit\tNOUN", 1),
+        ("sein\tAUX", 2),
+        ("Folge\tNOUN", 1),
+        ("Entwicklung\tNOUN", 1),
+        ("Tag\tNOUN", 2),
+        ("Test\tNOUN", 1),
+        ("denkbar\tADJ", 3),
+    }
+
+
+def test_lemma_counts_written_to_file():
+    def fill_queue(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=1,
+                    surface="Maßlosigkeit",
+                    lemma="Maßlosigkeit",
+                    tag="NOUN",
+                    head=4,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="war",
+                    lemma="sein",
+                    tag="AUX",
+                    head=4,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=3,
+                    surface="die",
+                    lemma="d",
+                    tag="DET",
+                    head=4,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=4,
+                    surface="Folge",
+                    lemma="Folge",
+                    tag="NOUN",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ],
+            [
+                WPToken(
+                    idx=1,
+                    surface="Ohne",
+                    lemma="ohne",
+                    tag="ADP",
+                    head=3,
+                    rel="case",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="die",
+                    lemma="d",
+                    tag="DET",
+                    head=3,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=3,
+                    surface="Entwicklung",
+                    lemma="Entwicklung",
+                    tag="NOUN",
+                    head=8,
+                    rel="obl",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=4,
+                    surface="ist",
+                    lemma="sein",
+                    tag="AUX",
+                    head=8,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=5,
+                    surface="der",
+                    lemma="d",
+                    tag="DET",
+                    head=8,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=7,
+                    surface="nicht",
+                    lemma="nicht",
+                    tag="PART",
+                    head=8,
+                    rel="advmod",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ],
+            [
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Test",
+                    lemma="Test",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+            ],
         ]
-        lemmata = ["\t".join([tok.lemma, tok.tag]) for tok in parses]
-        queue.put(lemmata)
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         manager = mp.Manager()
-        output_process = pro.LemmaCounter(tmpdir, manager)
-        output_process.start()
-        proc1 = mp.Process(target=fill_queue, args=(output_process.q,))
-        proc2 = mp.Process(target=fill_queue2, args=(output_process.q,))
+        shared_list = manager.list()
+        proc = mp.Process(target=fill_queue, args=(shared_list,))
+        proc.start()
+        proc.join()
+        pro.save_lemma_counts_to_file(shared_list, pathlib.Path(tmpdir))
+        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
+            result = fh.readlines()
+        assert "Maßlosigkeit\tNOUN\t1\n" in result
+
+
+def test_counting_lemma_multiple_processes():
+    def fill_queue(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=1,
+                    surface="Maßlosigkeit",
+                    lemma="Maßlosigkeit",
+                    tag="NOUN",
+                    head=4,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="war",
+                    lemma="sein",
+                    tag="AUX",
+                    head=4,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=7,
+                    surface="nicht",
+                    lemma="nicht",
+                    tag="PART",
+                    head=8,
+                    rel="advmod",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ]
+        ]
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
+
+    def fill_queue2(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Test",
+                    lemma="Test",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+            ]
+        ]
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        counters = mp.Manager().list()
+        proc1 = mp.Process(target=fill_queue, args=(counters,))
+        proc2 = mp.Process(target=fill_queue2, args=(counters,))
         proc2.start()
         proc1.start()
         proc1.join()
         proc2.join()
-        output_process.q.put(None)
-        output_process.join()
+        pro.save_lemma_counts_to_file(counters, pathlib.Path(tmpdir))
         with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
             result = {tuple(line.strip().split("\t")) for line in fh}
         assert result == {
