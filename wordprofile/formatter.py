@@ -53,8 +53,12 @@ def format_relations(cooccs: List[Coocc], wp_spec, is_mwe=False):
                     relation, wp_spec.strRelDesc
                 ),
                 "POS": tag_b2f.get(coocc.tag2, ""),
-                "Form": coocc.form2,
-                "Lemma": coocc.lemma2,
+                "Form": format_lemma_with_preposition(
+                    coocc.form2, coocc.prep, coocc.inverse
+                ),
+                "Lemma": format_lemma_with_preposition(
+                    coocc.lemma2, coocc.prep, coocc.inverse
+                ),
                 "Score": {
                     "Frequency": coocc.freq,
                     "logDice": coocc.score,
@@ -117,8 +121,12 @@ def format_comparison(diffs):
             coocc_diff["ConcordNoAccessible1"] = concord_no
             relation = coocc_1.rel
             coocc_diff["Relation"] = ("~" if coocc_1.inverse else "") + relation
-            coocc_diff["Lemma"] = coocc_1.lemma2
-            coocc_diff["Form"] = coocc_1.form2
+            coocc_diff["Lemma"] = format_lemma_with_preposition(
+                coocc_1.lemma2, coocc_1.prep, coocc_1.inverse
+            )
+            coocc_diff["Form"] = format_lemma_with_preposition(
+                coocc_1.form2, coocc_1.prep, coocc_1.inverse
+            )
             if "coocc_2" in diff:
                 coocc_diff["Position"] = "center"
             else:
@@ -136,8 +144,12 @@ def format_comparison(diffs):
             if "coocc_1" not in diff:
                 relation = coocc_2.rel
                 coocc_diff["Relation"] = ("~" if coocc_2.inverse else "") + relation
-                coocc_diff["Lemma"] = coocc_2.lemma2
-                coocc_diff["Form"] = coocc_2.form2
+                coocc_diff["Lemma"] = format_lemma_with_preposition(
+                    coocc_2.lemma2, coocc_2.prep, coocc_2.inverse
+                )
+                coocc_diff["Form"] = format_lemma_with_preposition(
+                    coocc_2.form2, coocc_2.prep, coocc_2.inverse
+                )
                 coocc_diff["Position"] = "right"
         results.append(coocc_diff)
     return results
@@ -166,3 +178,25 @@ def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:
         else:
             tokens[idx] = "{}{}".format(token, padding)
     return "".join(tokens)
+
+
+def format_relation_description(colloc: Coocc, description: str) -> dict[str, str]:
+    if colloc.rel == "PP":
+        lemma2 = format_lemma_with_preposition(
+            colloc.lemma2, colloc.prep, colloc.inverse
+        )
+    else:
+        lemma2 = colloc.lemma2
+    description = description.replace("$1", colloc.lemma1).replace("$2", lemma2)
+    return {
+        "Description": description,
+        "Lemma1": colloc.lemma1,
+        "Lemma2": lemma2,
+    }
+
+
+def format_lemma_with_preposition(lemma: str, preposition: str, inverse: int) -> str:
+    preposition = preposition if preposition != "_" else ""
+    if inverse:
+        return f"{lemma} {preposition}".strip()
+    return f"{preposition} {lemma}".strip()

@@ -127,8 +127,6 @@ def check_token_freqs(tmp_dir):
             "gestalten",
             "Demokratie",
             "zurückholen",
-            "zurückholen für",
-            "für Übernahme",
         }
 
 
@@ -138,8 +136,7 @@ def check_matches_stats(tmp_dir):
         lemma_pairs = {tuple(line.split("\t")[2:4]) for line in lines}
         assert lemma_pairs == {
             ("gestalten", "Demokratie"),
-            ("holt Für", "Übernahme"),
-            ("holt", "Für Übernahme"),
+            ("holt", "Übernahme"),
             ("Übernahme", "heikle"),
             ("holt", "Chef"),
             ("Übernahme", "Skandalbank"),

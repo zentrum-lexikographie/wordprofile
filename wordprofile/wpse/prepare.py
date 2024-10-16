@@ -103,31 +103,16 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
             db_matches.append(
                 DBMatch(
                     relation_label=m.relation,
-                    head_lemma="{} {}".format(m.head.lemma, m.prep.lemma),
+                    head_lemma=m.head.lemma,
                     dep_lemma=m.dep.lemma,
                     head_tag=m.head.tag,
                     dep_tag=m.dep.tag,
-                    head_surface="{} {}".format(m.head.surface, m.prep.surface),
+                    prep=m.prep.lemma,
+                    head_surface=m.head.surface,
                     dep_surface=m.dep.surface,
                     head_position=m.head.idx,
                     dep_position=m.dep.idx,
                     extra_position=extra_positions if extra_positions else "-",
-                    corpus_file_id=doc_id,
-                    sentence_id=m.sid,
-                )
-            )
-            db_matches.append(
-                DBMatch(
-                    relation_label=m.relation,
-                    head_lemma=m.head.lemma,
-                    dep_lemma="{} {}".format(m.prep.lemma, m.dep.lemma),
-                    head_tag=m.head.tag,
-                    dep_tag=m.dep.tag,
-                    head_surface=m.head.surface,
-                    dep_surface="{} {}".format(m.prep.surface, m.dep.surface),
-                    head_position=m.head.idx,
-                    dep_position=m.dep.idx,
-                    extra_position=extra_positions,
                     corpus_file_id=doc_id,
                     sentence_id=m.sid,
                 )
@@ -141,6 +126,7 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
                     dep_lemma=m.dep.lemma,
                     head_tag=m.head.tag,
                     dep_tag=m.dep.tag,
+                    prep="_",
                     head_surface=m.head.surface,
                     dep_surface=m.dep.surface,
                     head_position=m.head.idx,
