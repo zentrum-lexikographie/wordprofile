@@ -277,8 +277,13 @@ def test_process_doc_file_queues_filled(conll_sentences):
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueue()
+    lemma_counters = []
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert len(db_files_queue.queue) == 1
     db_file = db_files_queue.get()[0]
@@ -309,9 +314,14 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     file_reader_queue.put(conll_sentences)
     db_files_queue = MockQueue()
     db_sents_queue = MockQueue()
+    lemma_counters = []
     db_matches_queue = MockQueueWithError()
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert "Type Conversion Error:" in caplog.text
     file_reader_queue = MockQueue()
@@ -320,7 +330,11 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
     db_sents_queue = MockQueue()
     db_matches_queue = MockQueueWithError(ValueError)
     pro.process_doc_file(
-        file_reader_queue, db_files_queue, db_sents_queue, db_matches_queue
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
     )
     assert "ValueError" in caplog.text
     assert (
@@ -500,9 +514,13 @@ def test_sentence_conversion_token_only_contains_invalid_chars():
 def test_inverse_attribute_written_to_mwe_file():
     mwe_freqs = {1: 1}
     mwe_ids = {(11, 12, "label", "lemma", "tag", 0): 1}
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 1.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 1.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=1)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=1)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["1", "11", "12", "label", "lemma", "tag", "0", "1", "14.0"]
@@ -879,7 +897,8 @@ def test_write_matches_with_phrasal_verb_to_file():
         m_queue.put(None)
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_process = pro.FileWorker(tmpdir, "matches")
+        manager = mp.Manager()
+        output_process = pro.FileWorker(tmpdir, "matches", manager)
         output_process.start()
         proc = mp.Process(target=fill_queue, args=(output_process.q,))
         proc.start()
@@ -1379,9 +1398,10 @@ def test_inverse_of_objo_written_to_file():
     collocations = {
         1: Colloc(1, "OBJO", "beschuldigen", "Betrug", "VERB", "NOUN", "_", 0, 10.0),
     }
+    lemma_frequencies = {("beschuldigen", "VERB"): 10, ("Betrug", "NOUN"): 10}
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_collocation_scores(file, collocations)
+        pro.compute_collocation_scores(file, collocations, lemma_frequencies)
         with open(file) as fp:
             result = [line.split() for line in fp.readlines()]
     assert result == [
@@ -1419,9 +1439,13 @@ def test_mwe_filtered_for_min_freq():
         (13, 14, "label", "lemma", "tag", 0): 1,
         (15, 16, "label", "lemma", "tag", 0): 2,
     }
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 5.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 5.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=4)
         with open(file) as fp:
             result = fp.read().split()
     assert result == ["0", "11", "12", "label", "lemma", "tag", "0", "5", "14.0"]
@@ -1481,9 +1505,14 @@ def test_mwe_scores_not_inflated_by_inverses_frequency():
         (12, 11, "label", "lemma", "tag", 1): 2,
         (11, 13, "label", "lemma2", "tag", 0): 3,
     }
+    collocs = {
+        11: Colloc(11, "", "", "", "", "", "_", 0, 45.0),
+        12: Colloc(12, "", "", "", "", "", "_", 0, 20.0),
+        13: Colloc(13, "", "", "", "", "", "_", 0, 25.0),
+    }
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, min_freq=4)
+        pro.compute_mwe_scores(file, mwe_ids, mwe_freqs, collocs, min_freq=4)
         with open(file) as fp:
             result = [
                 round(float(line.strip().split()[-1]), 2) for line in fp.readlines()
@@ -1602,9 +1631,10 @@ def test_pp_collocations_with_same_lemmas_and_different_prep_counted_separately(
         2: Colloc(2, "PP", "Buch", "Tisch", "NOUN", "NOUN", "neben", 0, 20.0),
         3: Colloc(3, "PP", "Buch", "Tisch", "NOUN", "NOUN", "unter", 0, 30.0),
     }
+    lemma_frequencies = {("Buch", "NOUN"): 60, ("Tisch", "NOUN"): 60}
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_collocation_scores(file, collocations)
+        pro.compute_collocation_scores(file, collocations, lemma_frequencies)
         with open(file) as fp:
             result = {round(float(line.split("\t")[-1]), 1) for line in fp}
             assert result == {11.4, 12.4, 13.0}
@@ -1614,12 +1644,685 @@ def test_prepositions_written_to_file_with_collocation_scores():
     collocations = {
         1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
     }
+    lemma_freqs = {("Buch", "NOUN"): 10, ("Tisch", "NOUN"): 10}
     with tempfile.TemporaryDirectory() as tmpdir:
         file = pathlib.Path(tmpdir) / "file"
-        pro.compute_collocation_scores(file, collocations)
+        pro.compute_collocation_scores(file, collocations, lemma_freqs)
         with open(file) as fp:
             result = [line.strip().split("\t") for line in fp]
     assert result == [
         ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "0", "10.0", "14.0"],
         ["-1", "PP", "Tisch", "Buch", "NOUN", "NOUN", "auf", "1", "10.0", "14.0"],
+    ]
+
+
+def test_lemma_counter_filled(conll_sentences):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueue()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manager = mp.Manager()
+        lemma_counters = manager.list()
+        pro.process_doc_file(
+            file_reader_queue,
+            db_files_queue,
+            db_sents_queue,
+            db_matches_queue,
+            lemma_counters,
+        )
+    lemma_counter = lemma_counters[0]
+    assert dict(lemma_counter.freqs) == {
+        "sehr\tADV": 2,
+        "geehrt\tADJ": 1,
+        "Herr\tNOUN": 2,
+        "Präsident\tNOUN": 1,
+        "verehrt\tADJ": 1,
+        "Dame\tNOUN": 1,
+        "gehen\tVERB": 1,
+        "ganz\tADJ": 1,
+        "Epoche\tNOUN": 1,
+        "Ende\tNOUN": 1,
+        "neu\tADJ": 1,
+        "Zeit\tNOUN": 1,
+        "damals\tADV": 1,
+        "beginnen\tVERB": 1,
+    }
+
+
+def test_irrelevant_tags_discarded_for_lemma_count():
+    parses = [
+        [
+            WPToken(
+                idx=1,
+                surface="Maßlosigkeit",
+                lemma="Maßlosigkeit",
+                tag="NOUN",
+                head=4,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="war",
+                lemma="sein",
+                tag="AUX",
+                head=4,
+                rel="cop",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=4,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Folge",
+                lemma="Folge",
+                tag="NOUN",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="Ohne",
+                lemma="ohne",
+                tag="ADP",
+                head=3,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="die",
+                lemma="d",
+                tag="DET",
+                head=3,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="Entwicklung",
+                lemma="Entwicklung",
+                tag="NOUN",
+                head=8,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="ist",
+                lemma="sein",
+                tag="AUX",
+                head=8,
+                rel="cop",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=8,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tag",
+                lemma="Tag",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface="nicht",
+                lemma="nicht",
+                tag="PART",
+                head=8,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+        ],
+        [
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+            WPToken(
+                idx=8,
+                surface="denkbar",
+                lemma="denkbar",
+                tag="ADJ",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tag",
+                lemma="Tag",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Test",
+                lemma="Test",
+                tag="NOUN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface="2024",
+                lemma="2024",
+                tag="NUM",
+                head=8,
+                rel="nmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="sich",
+                lemma="sich",
+                tag="PRON",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface=".",
+                lemma=".",
+                tag="PUNCT",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="unter",
+                lemma="unter",
+                tag="ADP",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="als",
+                lemma="als",
+                tag="CCONJ",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="dass",
+                lemma="dass",
+                tag="SCONJ",
+                head=8,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="sans",
+                lemma="sans",
+                tag="X",
+                head=8,
+                rel="flat",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="zu",
+                lemma="zu",
+                tag="PART",
+                head=8,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="bitte",
+                lemma="bitte",
+                tag="INTJ",
+                head=8,
+                rel="",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Tussauds",
+                lemma="Tussauds",
+                tag="PROPN",
+                head=8,
+                rel="nsubj",
+                misc=True,
+            ),
+        ],
+    ]
+    counter = pro.LemmaCounter()
+    counter.count_token(parses)
+    result = {(key, freq) for key, freq in counter.freqs.items()}
+    assert result == {
+        ("Maßlosigkeit\tNOUN", 1),
+        ("sein\tAUX", 2),
+        ("Folge\tNOUN", 1),
+        ("Entwicklung\tNOUN", 1),
+        ("Tag\tNOUN", 2),
+        ("Test\tNOUN", 1),
+        ("denkbar\tADJ", 3),
+    }
+
+
+def test_lemma_counts_written_to_file():
+    def fill_queue(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=1,
+                    surface="Maßlosigkeit",
+                    lemma="Maßlosigkeit",
+                    tag="NOUN",
+                    head=4,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="war",
+                    lemma="sein",
+                    tag="AUX",
+                    head=4,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=3,
+                    surface="die",
+                    lemma="d",
+                    tag="DET",
+                    head=4,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=4,
+                    surface="Folge",
+                    lemma="Folge",
+                    tag="NOUN",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ],
+            [
+                WPToken(
+                    idx=1,
+                    surface="Ohne",
+                    lemma="ohne",
+                    tag="ADP",
+                    head=3,
+                    rel="case",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="die",
+                    lemma="d",
+                    tag="DET",
+                    head=3,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=3,
+                    surface="Entwicklung",
+                    lemma="Entwicklung",
+                    tag="NOUN",
+                    head=8,
+                    rel="obl",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=4,
+                    surface="ist",
+                    lemma="sein",
+                    tag="AUX",
+                    head=8,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=5,
+                    surface="der",
+                    lemma="d",
+                    tag="DET",
+                    head=8,
+                    rel="det",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=7,
+                    surface="nicht",
+                    lemma="nicht",
+                    tag="PART",
+                    head=8,
+                    rel="advmod",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ],
+            [
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Test",
+                    lemma="Test",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+            ],
+        ]
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manager = mp.Manager()
+        shared_list = manager.list()
+        proc = mp.Process(target=fill_queue, args=(shared_list,))
+        proc.start()
+        proc.join()
+        pro.save_lemma_counts_to_file(shared_list, pathlib.Path(tmpdir))
+        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
+            result = fh.readlines()
+        assert "Maßlosigkeit\tNOUN\t1\n" in result
+
+
+def test_counting_lemma_multiple_processes():
+    def fill_queue(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=1,
+                    surface="Maßlosigkeit",
+                    lemma="Maßlosigkeit",
+                    tag="NOUN",
+                    head=4,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=2,
+                    surface="war",
+                    lemma="sein",
+                    tag="AUX",
+                    head=4,
+                    rel="cop",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=7,
+                    surface="nicht",
+                    lemma="nicht",
+                    tag="PART",
+                    head=8,
+                    rel="advmod",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+            ]
+        ]
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
+
+    def fill_queue2(shared_list):
+        parses = [
+            [
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=8,
+                    surface="denkbar",
+                    lemma="denkbar",
+                    tag="ADJ",
+                    head=0,
+                    rel="ROOT",
+                    misc=False,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Tag",
+                    lemma="Tag",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+                WPToken(
+                    idx=6,
+                    surface="Test",
+                    lemma="Test",
+                    tag="NOUN",
+                    head=8,
+                    rel="nsubj",
+                    misc=True,
+                ),
+            ]
+        ]
+        counter = pro.LemmaCounter()
+        counter.count_token(parses)
+        shared_list.append(counter)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        counters = mp.Manager().list()
+        proc1 = mp.Process(target=fill_queue, args=(counters,))
+        proc2 = mp.Process(target=fill_queue2, args=(counters,))
+        proc2.start()
+        proc1.start()
+        proc1.join()
+        proc2.join()
+        pro.save_lemma_counts_to_file(counters, pathlib.Path(tmpdir))
+        with open(pathlib.Path(tmpdir) / "lemma_freqs") as fh:
+            result = {tuple(line.strip().split("\t")) for line in fh}
+        assert result == {
+            ("Maßlosigkeit", "NOUN", "1"),
+            ("sein", "AUX", "1"),
+            ("denkbar", "ADJ", "3"),
+            ("Tag", "NOUN", "1"),
+            ("Test", "NOUN", "1"),
+        }
+
+
+def test_lemma_frequency_aggregation_one_file(testdata_dir):
+    result = pro.aggregate_lemma_frequencies([testdata_dir / "lemma_freqs"])
+    assert result == {
+        ("Maßlosigkeit", "NOUN"): 1,
+        ("sein", "AUX"): 2,
+        ("denkbar", "ADJ"): 3,
+        ("Tag", "NOUN"): 1,
+        ("Schiff", "NOUN"): 3,
+        ("neu", "ADJ"): 10,
+    }
+
+
+def test_lemma_frequency_aggregation_multiple_files(testdata_dir):
+    result = pro.aggregate_lemma_frequencies(
+        [
+            testdata_dir / "l_freqs" / "f1",
+            testdata_dir / "l_freqs" / "f2",
+            testdata_dir / "l_freqs" / "f3",
+        ]
+    )
+    assert result == {
+        ("Arbeit", "NOUN"): 7,
+        ("Ferien", "NOUN"): 5,
+        ("geistig", "ADJ"): 2,
+        ("suchen", "VERB"): 18,
+        ("Hilfe", "NOUN"): 3,
+        ("einigermaßen", "ADV"): 4,
+        ("schön", "ADJ"): 10,
+        ("bauen", "VERB"): 23,
+        ("weich", "ADJ"): 3,
+        ("Zeitung", "NOUN"): 7,
+    }
+
+
+def test_compute_token_stats_result_written_to_file(testdata_dir):
+    lemma_freqs = {
+        ("Richtung", "NOUN"): 10,
+        ("Passagier", "NOUN"): 12,
+        ("Fahrgast", "NOUN"): 15,
+        ("starten", "VERB"): 30,
+        ("bieten", "VERB"): 40,
+        ("neu", "ADJ"): 15,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pro.compute_token_statistics(
+            [testdata_dir / "type_freqs"], pathlib.Path(tmpdir) / "output", lemma_freqs
+        )
+        with open(pathlib.Path(tmpdir) / "output") as fh:
+            data = [tuple(line.strip().split("\t")) for line in fh]
+    assert data == [
+        ("Richtung", "NOUN", "10", "Richtung", "5"),
+        ("Passagier", "NOUN", "12", "Passagiere", "10"),
+        ("Fahrgast", "NOUN", "15", "Fahrgäste", "11"),
+        ("starten", "VERB", "30", "startet", "20"),
+        ("bieten", "VERB", "40", "bietet", "31"),
+        ("neu", "ADJ", "15", "neue", "10"),
+    ]
+
+
+def test_type_with_preposition_mapped_to_correct_token(testdata_dir):
+    lemma_freqs = {
+        ("Schule", "NOUN"): 20,
+        ("Schiff", "NOUN"): 10,
+        ("stellen", "VERB"): 10,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pro.compute_token_statistics(
+            [testdata_dir / "type_freqs"], pathlib.Path(tmpdir) / "output", lemma_freqs
+        )
+        with open(pathlib.Path(tmpdir) / "output") as fh:
+            data = [tuple(line.strip().split("\t")) for line in fh]
+    assert data == [
+        ("Schule", "NOUN", "20", "in Schule", "3"),
+        ("Schiff", "NOUN", "10", "mit Schiff", "5"),
+        ("stellen", "VERB", "10", "stellen nach", "5"),
+    ]
+
+
+def test_lemmata_filtered_for_min_frequency_in_token_stats(testdata_dir):
+    lemma_freqs = {
+        ("Schule", "NOUN"): 3,
+        ("Richtung", "NOUN"): 10,
+        ("stellen", "VERB"): 10,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        pro.compute_token_statistics(
+            [testdata_dir / "type_freqs"],
+            pathlib.Path(tmpdir) / "output",
+            lemma_freqs,
+            min_freq=4,
+        )
+        with open(pathlib.Path(tmpdir) / "output") as fh:
+            data = [tuple(line.strip().split("\t")) for line in fh]
+    assert data == [
+        ("Richtung", "NOUN", "10", "Richtung", "5"),
+        ("stellen", "VERB", "10", "stellen nach", "5"),
     ]
