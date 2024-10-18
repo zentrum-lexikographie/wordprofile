@@ -292,13 +292,11 @@ def test_process_doc_file_queues_filled(conll_sentences):
         db_file.corpus,
         db_file.orig,
         db_file.date,
-        db_file.text_class,
     ) == (
         "politische_reden01/../../ddc_xml/data/src/de1/DE1_0999_20090602.ddc.xml",
         "politische_reden",
         "Rede von Frank-Walter Steinmeier, 02.06.2009",
         "2009-06-02",
-        "gesprochen:Rede",
     )
     sentences = db_sents_queue.get()
     assert len(sentences) == 3
@@ -2326,3 +2324,43 @@ def test_lemmata_filtered_for_min_frequency_in_token_stats(testdata_dir):
         ("Richtung", "NOUN", "10", "Richtung", "5"),
         ("stellen", "VERB", "10", "stellen nach", "5"),
     ]
+
+
+def test_reindex_filter_concordances(testdata_dir):
+    input_files = [
+        testdata_dir / "concord_sentences",
+        testdata_dir / "concord_sentences2",
+    ]
+    file_ids = {"file1": 1, "file2": 2, "file3": 3, "file4": 4}
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        result = pro.reindex_filter_concordances(
+            input_files,
+            directory / "output_file",
+            file_ids,
+            directory / "duplicates",
+        )
+        with open(directory / "duplicates") as fh:
+            duplicate_sents = fh.readlines()
+        with open(directory / "output_file") as fh:
+            sents = fh.readlines()
+    assert len(result) == len(sents) == 36
+    assert len(duplicate_sents) == 4
+    assert duplicate_sents[0] == "file2\t5\thabe\x01angenommen\n"
+    assert sents[0] == "1\t0\tsiebzig\x01siebzig\n"
+
+
+def test_reindex_corpus_files(testdata_dir):
+    input_files = [testdata_dir / "cf1", testdata_dir / "cf2", testdata_dir / "cf3"]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = pro.reindex_corpus_files(input_files, pathlib.Path(tmpdir) / "docs")
+        with open(pathlib.Path(tmpdir) / "docs") as fh:
+            files = fh.readlines()
+    assert files[0] == "0\tcorpus\tfile0\tQuelle\t2024-01-01\tcorpus\n"
+    assert files[-1] == "14\tcorpus3\tfile4\tQuelle\t2024-01-01\tcorpus3\n"
+    assert len(result) == len(files) == 15
+    assert {
+        ("corpus/file1", 1),
+        ("corpus2/file3", 8),
+        ("corpus3/file2", 12),
+    }.issubset(result.items())

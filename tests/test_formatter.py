@@ -104,15 +104,9 @@ def test_highlighting_of_single_word_concordance():
         extra_position="0",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
-        score=5,
-        sentence_left="",
-        sentence_right="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -129,15 +123,9 @@ def test_highlighting_of_single_word_concordance_with_prep():
         extra_position="5",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
-        score=5,
-        sentence_left="",
-        sentence_right="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
@@ -157,27 +145,15 @@ def test_highlighting_of_mwe_concordance():
         extra2_position="0",
         corpus="corpus",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="tc",
         orig="",
         avail="",
-        page="",
         file="",
-        scan="",
-        score=5,
-        sentence_left="",
-        sentence_right="",
     )
     result = form.format_concordances([sentence])[0]
     assert (
         result["ConcordLine"]
         == "Man könne _&Fahrgäste&_ _&schließlich&_ nicht _&zwingen&_, _&sich&_ _&zu&_ waschen."
     )
-
-
-def test_formatting_of_context_sentences():
-    sentence = "Denn\x02jetzt\x02kann\x02der\x02Chef\x02zuschauen\x01!\x02"
-    result = form.format_sentence(sentence)
-    assert result == "Denn jetzt kann der Chef zuschauen!"
 
 
 def test_leading_delimiter_removed_of_highlighted_sentence():
@@ -328,15 +304,9 @@ def test_format_concordances_contains_necessary_bibl_information():
             extra_position="-",
             corpus="corpus",
             date=datetime.date.fromisoformat("2024-01-01"),
-            textclass="tc",
             orig="Quelle, 01.01.2024",
             avail="",
-            page="",
             file="",
-            scan="",
-            score=5,
-            sentence_left="",
-            sentence_right="",
         )
     ]
     result = form.format_concordances(concordances)[0]
@@ -743,3 +713,21 @@ def test_format_comparison_with_pp_second_lemma():
     formatted = form.format_comparison(diffs)
     assert formatted[0]["Lemma"] == "Haus an"
     assert formatted[0]["Form"] == "Haus an"
+
+
+def test_page_replaced_with_dash():
+    concordances = [
+        Concordance(
+            sentence="Auch\x02deshalb\x02habe\x02ich\x02Ihre\x02freundliche\x02Einladung\x02gern\x02angenommen\x01.",
+            token_position_1=7,
+            token_position_2=6,
+            extra_position="-",
+            corpus="corpus",
+            date=datetime.date.fromisoformat("2024-01-01"),
+            orig="Quelle, 01.01.2024, S. #page#",
+            avail="",
+            file="",
+        )
+    ]
+    result = form.format_concordances(concordances)[0]["Bibl"]["Orig"]
+    assert result == "Quelle, 01.01.2024, S. -"

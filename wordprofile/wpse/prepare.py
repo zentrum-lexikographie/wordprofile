@@ -25,9 +25,7 @@ def prepare_corpus_file(meta: Metadata) -> tuple[str, DBCorpusFile]:
         corpus=meta.get("DDC:meta.collection"),
         file=meta.get("DDC:meta.basename"),
         orig=meta.get("DDC:meta.bibl"),
-        scan=meta.get("DDC:meta.biblLex"),
         date=meta.get("DDC:meta.date_"),
-        text_class=meta.get("DDC:meta.textClass"),
         available=meta.get("DDC:meta.collection"),
     )
 
@@ -59,7 +57,6 @@ def prepare_concord_sentences(
                 )
                 for tok in parse
             ),
-            page="-",
         )
         for sent_i, parse in enumerate(parses, 1)
     ]

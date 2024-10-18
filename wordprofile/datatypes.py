@@ -41,15 +41,9 @@ class WPConcordance(Protocol):
     extra_position: int
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
-    score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         """Returns list of indices of target tokens."""
@@ -64,15 +58,9 @@ class Concordance:
     extra_position: str
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
-    score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         extra_positions = [int(pos) for pos in self.extra_position.split("-") if pos]
@@ -90,15 +78,9 @@ class MweConcordance:
     extra2_position: str
     corpus: str
     date: datetime.date
-    textclass: str
     orig: str
-    scan: str
     avail: str
-    page: str
     file: str
-    score: int
-    sentence_left: str
-    sentence_right: str
 
     def get_highlight_positions(self) -> list[int]:
         extra_positions1 = [int(pos) for pos in self.extra1_position.split("-") if pos]
@@ -136,10 +118,10 @@ class WPToken:
 Match = namedtuple("Match", ["head", "dep", "prep", "relation", "sid"])
 DBCorpusFile = namedtuple(
     "DBCorpusFile",
-    ["id", "corpus", "file", "orig", "scan", "date", "text_class", "available"],
+    ["id", "corpus", "file", "orig", "date", "available"],
 )
 DBConcordance = namedtuple(
-    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence", "page"]
+    "DBConcordance", ["corpus_file_id", "sentence_id", "sentence"]
 )
 
 

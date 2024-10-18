@@ -17,15 +17,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -34,15 +28,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
                 ),
                 Concordance(
                     sentence="Vor\x02allem\x02die\x01,\x02die\x02beiden\x02immer\x02besonders\x02wichtig\x02waren\x01.",
@@ -51,15 +39,9 @@ class MockDb:
                     extra_position="0",
                     corpus="corpus",
                     date=datetime.date.fromisoformat("2024-01-01"),
-                    textclass="tc",
                     orig="",
                     avail="",
-                    page="",
                     file="",
-                    scan="",
-                    score=5,
-                    sentence_left="",
-                    sentence_right="",
                 ),
             ]
         }
@@ -84,7 +66,7 @@ class MockDb:
         ]
 
     def get_concordances(
-        self, coocc_id: int, use_context: bool = False, start_index=0, result_number=3
+        self, coocc_id: int, start_index=0, result_number=3
     ) -> list[Concordance]:
         concordances = self.conc.get(coocc_id, [])
         return concordances[start_index : start_index + result_number]

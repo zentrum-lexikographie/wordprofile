@@ -32,10 +32,10 @@ class WPConnectTest(unittest.TestCase):
 
     def test_random_examples_extracted(self):
         concordances = self.connector.get_concordances(
-            -30601, use_context=False, start_index=0, result_number=5
+            -30601, start_index=0, result_number=5
         )
         all_available_concordance = self.connector.get_concordances(
-            -30601, use_context=False, start_index=0, result_number=100
+            -30601, start_index=0, result_number=100
         )
         with self.subTest():
             for conc in concordances:
@@ -53,7 +53,7 @@ class WPConnectTest(unittest.TestCase):
                     example.date,
                 )
                 for example in self.connector.get_concordances(
-                    368, use_context=False, start_index=0, result_number=1
+                    368, start_index=0, result_number=1
                 )
             )
         self.assertEqual(len(result), 1)
@@ -62,22 +62,7 @@ class WPConnectTest(unittest.TestCase):
         result = [
             conc.date
             for conc in self.connector.get_concordances(
-                -30601, use_context=False, start_index=0, result_number=100
-            )
-        ]
-        self.assertEqual(result, sorted(result, reverse=True))
-
-    def test_get_concordances_with_context(self):
-        concordances = self.connector.get_concordances(
-            2006644, use_context=True, start_index=0, result_number=1000
-        )
-        self.assertEqual(len(concordances), 40)
-
-    def test_get_concordances_with_context_sorted_in_descending_order(self):
-        result = [
-            conc.date
-            for conc in self.connector.get_concordances(
-                3406416, use_context=True, start_index=0, result_number=100
+                -30601, start_index=0, result_number=100
             )
         ]
         self.assertEqual(result, sorted(result, reverse=True))
@@ -283,11 +268,9 @@ class WPMweConnectTest(unittest.TestCase):
         )
 
     def test_random_examples_extracted_for_mwe(self):
-        sample = self.connector.get_concordances(
-            512, use_context=False, start_index=0, result_number=5
-        )
+        sample = self.connector.get_concordances(512, start_index=0, result_number=5)
         all_available_concordances = self.connector.get_concordances(
-            512, use_context=False, start_index=0, result_number=1000
+            512, start_index=0, result_number=1000
         )
         with self.subTest():
             for conc in sample:
@@ -298,28 +281,7 @@ class WPMweConnectTest(unittest.TestCase):
         result = [
             conc.date
             for conc in self.connector.get_concordances(
-                512, use_context=False, start_index=0, result_number=100
-            )
-        ]
-        self.assertEqual(result, sorted(result, reverse=True))
-
-    def test_get_concordances_with_context(self):
-        sample = self.connector.get_concordances(
-            512, use_context=True, start_index=0, result_number=5
-        )
-        all_available_concordances = self.connector.get_concordances(
-            512, use_context=True, start_index=0, result_number=1000
-        )
-        with self.subTest():
-            for conc in sample:
-                self.assertTrue(conc in all_available_concordances)
-        self.assertNotEqual(sample, all_available_concordances[:5])
-
-    def test_get_concordances_with_context_sorted_in_descending_order(self):
-        result = [
-            conc.date
-            for conc in self.connector.get_concordances(
-                512, use_context=True, start_index=0, result_number=100
+                512, start_index=0, result_number=100
             )
         ]
         self.assertEqual(result, sorted(result, reverse=True))

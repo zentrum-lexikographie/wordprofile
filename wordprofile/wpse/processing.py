@@ -276,10 +276,14 @@ def process_doc_file(
             db_matches_queue.put(db_matches)
         except TypeError:
             logger.exception(
-                "Type Conversion Error: invalid sentence parse in document: %s" % doc_id
+                "Type Conversion Error: invalid sentence parse in document: %s"
+                % sentences[0].metadata.get("DDC:meta.file_")
             )
         except Exception:
-            logger.exception("Couldn't process document: %s" % doc_id)
+            logger.exception(
+                "Couldn't process document: %s"
+                % sentences[0].metadata.get("DDC:meta.file_")
+            )
 
 
 def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> None:
@@ -390,16 +394,16 @@ def reindex_filter_concordances(
             logger.info("- %s" % fin)
             with open(fin, "r") as sents_in:
                 for item in sents_in:
-                    doc_corpus, sent_id, sentence, page = item.split("\t")
+                    doc_corpus, sent_id, sentence = item.split("\t")
                     doc_id = str(corpus_file_idx[doc_corpus])
                     sent_hash = get_robust_hash(sentence)
                     # checks for duplicates based on sentence checksum (md5)
                     if sent_hash not in sent_hashes:
                         sent_hashes.add(sent_hash)
-                        sents_out.write("\t".join([doc_id, sent_id, sentence, page]))
+                        sents_out.write("\t".join([doc_id, sent_id, sentence]))
                         sents_idx.append((doc_id, sent_id))
                     else:
-                        dups_out.write("\t".join([doc_corpus, sent_id, sentence, page]))
+                        dups_out.write("\t".join([doc_corpus, sent_id, sentence]))
     return set(sents_idx)
 
 
@@ -897,7 +901,7 @@ def load_files_into_db(connection: Connection, storage_path: str) -> None:
             logger.info("LOAD DATA FILE: %s" % tb_name)
             if tb_name == "concord_sentences":
                 query = f"""LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name}
-                (corpus_file_id, sentence_id, sentence, page);"""
+                (corpus_file_id, sentence_id, sentence);"""
             else:
                 query = f"LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name};"
             connection.execute(text(query))

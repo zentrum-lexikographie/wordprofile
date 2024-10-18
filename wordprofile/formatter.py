@@ -82,7 +82,7 @@ def format_concordances(concords: list[WPConcordance]):
             {
                 "Bibl": {
                     "Corpus": c.corpus,
-                    "Orig": c.orig.replace("#page#", c.page),
+                    "Orig": c.orig.replace("#page#", "-"),
                 },
                 "ConcordLine": sentence_main,
             }
@@ -153,16 +153,6 @@ def format_comparison(diffs):
                 coocc_diff["Position"] = "right"
         results.append(coocc_diff)
     return results
-
-
-def format_sentence(sent: str) -> str:
-    """Format of single concordance sentence.
-
-    All special characters are removed from the concordance taken from the database.
-    """
-    if not sent:
-        return ""
-    return sent.replace("\x02", " ").replace("\x01", "").strip()
 
 
 def format_sentence_and_highlight(sent: str, positions: List[int]) -> str:

@@ -21,9 +21,7 @@ def get_table_corpus_files(meta: MetaData):
         Column("corpus", types.VARCHAR(50)),
         Column("file", types.VARCHAR(200)),
         Column("orig", types.Text),
-        Column("scan", types.Text),
         Column("date", types.DateTime),
-        Column("text_class", types.Text),
         Column("available", types.Text),
         mysql_engine="Aria",
     )
@@ -36,7 +34,6 @@ def get_table_concord_sentences(meta: MetaData):
         Column("corpus_file_id", CORPUS_FILE_TYPE),
         Column("sentence_id", types.Integer),
         Column("sentence", types.Text),
-        Column("page", types.VARCHAR(10)),
         Column("random_val", types.Float, server_default=func.rand()),
         mysql_engine="Aria",
     )

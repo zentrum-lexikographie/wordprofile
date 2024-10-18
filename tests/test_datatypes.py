@@ -78,15 +78,9 @@ def test_retrieval_of_highlighting_positions():
         extra_position="-",
         corpus="",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="",
         orig="",
-        scan="",
         avail="",
-        page="",
         file="",
-        score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [0, 1]
@@ -100,15 +94,9 @@ def test_retrieval_of_highlighting_positions_with_extra_positions():
         extra_position="3-5",
         corpus="",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="",
         orig="",
-        scan="",
         avail="",
-        page="",
         file="",
-        score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [1, 2, 3, 5]
@@ -125,15 +113,9 @@ def test_retrieval_of_highlighting_positions_mwe():
         extra2_position="-",
         corpus="",
         date=datetime.date.fromisoformat("2024-01-01"),
-        textclass="",
         orig="",
-        scan="",
         avail="",
-        page="",
         file="",
-        score=10,
-        sentence_left="",
-        sentence_right="",
     )
     result = conc.get_highlight_positions()
     assert result == [0, 1, 3, 5, 7, 8]
