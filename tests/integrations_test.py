@@ -61,10 +61,36 @@ def extract_collocation(tmp_dir):
         "common_surfaces",
         "concord_sentences",
         "corpus_files",
+        "lemma_freqs",
         "matches",
     ]
     check_matches(tmp_dir)
     check_sentences(tmp_dir)
+    check_lemma_freqs(tmp_dir)
+
+
+def check_lemma_freqs(tmp_dir):
+    with open(os.path.join(tmp_dir, "colloc", "corpus", "lemma_freqs")) as fh:
+        lemma_freqs = {tuple(line.strip().split("\t")) for line in fh}
+        assert ("Zeit", "NOUN", "1") in lemma_freqs
+        assert ("erinnern", "VERB", "3") in lemma_freqs
+        assert ("heute", "ADV", "2") in lemma_freqs
+    ec.main(
+        [
+            "--input",
+            os.path.join(
+                tmp_dir,
+                "data.anno.conll",
+            ),
+            "--dest",
+            os.path.join(tmp_dir, "colloc-j"),
+            "--njobs",
+            "10",
+        ]
+    )
+    with open(os.path.join(tmp_dir, "colloc-j", "lemma_freqs")) as fh:
+        lemma_freqs_j = {tuple(line.strip().split("\t")) for line in fh}
+    assert lemma_freqs == lemma_freqs_j
 
 
 def check_sentences(tmp_dir):
@@ -127,8 +153,13 @@ def check_token_freqs(tmp_dir):
             "gestalten",
             "Demokratie",
             "zurückholen",
-            "zurückholen für",
-            "für Übernahme",
+            "wie",
+            "erinnern",
+            "hier",
+            "heute",
+            "Dank",
+            "Mensch",
+            "herzlich",
         }
 
 
@@ -138,8 +169,7 @@ def check_matches_stats(tmp_dir):
         lemma_pairs = {tuple(line.split("\t")[2:4]) for line in lines}
         assert lemma_pairs == {
             ("gestalten", "Demokratie"),
-            ("holt Für", "Übernahme"),
-            ("holt", "Für Übernahme"),
+            ("holt", "Übernahme"),
             ("Übernahme", "heikle"),
             ("holt", "Chef"),
             ("Übernahme", "Skandalbank"),

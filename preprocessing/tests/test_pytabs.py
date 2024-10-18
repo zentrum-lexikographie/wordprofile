@@ -67,6 +67,13 @@ class TabsDocumentTest(unittest.TestCase):
         sent = doc.sentences[1]
         self.assertEqual(sent.tokens[1], ("trägt", "VAFIN", "tragen", "1"))
 
+    def test_empty_sentence_not_added_to_conll_output(self):
+        doc = TabsDocument.from_tabs(self.test_dir / "sample.tabs")
+        doc.sentences.append(TabsSentence([], []))
+        result = doc.as_conllu()
+        expected = (self.test_dir / "sample.conllu").read_text()
+        self.assertEqual(result, expected)
+
 
 class TabsSentenceTest(unittest.TestCase):
     def test_space_information_before_last_punctuation_mark_set_correctly(self):
@@ -172,3 +179,8 @@ class TabsSentenceTest(unittest.TestCase):
         expected = ["sehr", "verehrt", "Dame", "und", "Herr"]
         result = [token[2] for token in sent.tokens]
         self.assertEqual(result, expected)
+
+    def test_empty_sentence_conll_converts_to_empty_list(self):
+        sent = TabsSentence([], [])
+        result = sent.to_conll({"Token": 0, "Lemma": 1, "Pos": 2, "WordSep": 3})
+        self.assertEqual(result, [])

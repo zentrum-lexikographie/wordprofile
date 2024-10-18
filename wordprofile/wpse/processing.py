@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import hashlib
 import logging
 import math
@@ -5,7 +7,7 @@ import multiprocessing
 import os
 import re
 import sys
-from collections import defaultdict
+from collections import Counter, defaultdict
 from collections.abc import Callable, Iterator
 from multiprocessing.queues import Queue
 from typing import Any, Protocol, Union
@@ -152,9 +154,42 @@ class FileReaderQueue(Protocol):
         ...
 
 
+class LemmaCounter:
+    def __init__(self) -> None:
+        self.freqs: Counter[str] = Counter()
+
+    def count_token(self, parses: list[list[WPToken]]) -> None:
+        lemmata = [
+            "\t".join((tok.lemma, tok.tag))
+            for sent in parses
+            for tok in sent
+            if tok.tag
+            not in {
+                "ADP",
+                "PUNCT",
+                "PRON",
+                "DET",
+                "CCONJ",
+                "X",
+                "SCONJ",
+                "NUM",
+                "PART",
+                "INTJ",
+                "PROPN",
+            }
+        ]
+        self.freqs += Counter(lemmata)
+
+
 class FileWorker(multiprocessing.Process):
-    def __init__(self, path: str, fname: str, flush_limit: int = 100) -> None:
-        self.q = multiprocessing.Manager().Queue(maxsize=1000)
+    def __init__(
+        self,
+        path: str,
+        fname: str,
+        manager: multiprocessing.managers.SyncManager,
+        flush_limit: int = 100,
+    ) -> None:
+        self.q = manager.Queue(maxsize=1000)
         self.path = path
         self.fname = fname
         self.flush_limit = flush_limit
@@ -220,16 +255,20 @@ def process_doc_file(
     db_files_queue: Queue,
     db_sents_queue: Queue,
     db_matches_queue: Queue,
+    lemma_counters: multiprocessing.managers.ListProxy,
 ) -> None:
     """Extracts information from files and forwards to corresponding queue."""
+    counter = LemmaCounter()
     while True:
         sentences: list[TokenList] = file_reader_queue.get()
         if not sentences:
+            lemma_counters.append(counter)
             break
         try:
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
             parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
             db_concord_sentences = prepare_concord_sentences(doc_id, parses)
+            counter.count_token(parses)
             matches = extract_matches_from_doc(parses)
             db_matches = prepare_matches(doc_id, matches)
             db_files_queue.put([db_corpus_file])
@@ -256,15 +295,21 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     split into several chunks for parallel processing. The extracted
     results are sent to the workers.
     """
-    fr_queue = multiprocessing.Manager().Queue(maxsize=2 * njobs)
+    mp_manager = multiprocessing.Manager()
+    fr_queue = mp_manager.Queue(maxsize=2 * njobs)
     file_reader = FileReader(file_path, fr_queue)
-    db_files_worker = FileWorker(storage_path, "corpus_files")
-    db_sents_worker = FileWorker(storage_path, "concord_sentences", flush_limit=1000)
-    db_matches_worker = FileWorker(storage_path, "matches", flush_limit=10000)
+    db_files_worker = FileWorker(storage_path, "corpus_files", mp_manager)
+    db_sents_worker = FileWorker(
+        storage_path, "concord_sentences", mp_manager, flush_limit=1000
+    )
+    db_matches_worker = FileWorker(
+        storage_path, "matches", mp_manager, flush_limit=10000
+    )
     db_files_worker.start()
     db_sents_worker.start()
     db_matches_worker.start()
     pool = []
+    lemma_counters = mp_manager.list()
     for i in range(njobs):
         p = multiprocessing.Process(
             target=process_doc_file,
@@ -273,6 +318,7 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
                 db_files_worker.q,
                 db_sents_worker.q,
                 db_matches_worker.q,
+                lemma_counters,
             ),
         )
         p.start()
@@ -292,6 +338,19 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     db_matches_worker.stop()
     db_matches_worker.join()
     logger.info("ALL JOBS DONE")
+    save_lemma_counts_to_file(lemma_counters, storage_path)
+
+
+def save_lemma_counts_to_file(
+    lemma_counters: multiprocessing.managers.ListProxy,
+    output_path: str,
+) -> None:
+    total: Counter[str] = Counter()
+    for counter in lemma_counters:
+        total += counter.freqs
+    with open(os.path.join(output_path, "lemma_freqs"), "w") as fh:
+        for lemma, freq in total.items():
+            print("\t".join([lemma, str(freq)]), file=fh)
 
 
 def reindex_corpus_files(fins: list[str], fout: str) -> dict[str, int]:
@@ -362,7 +421,7 @@ def filter_transform_matches(
     relation_dict = dict()
     for c in collocs.values():
         relation_dict[
-            "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag])
+            "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.prep])
         ] = c.id
 
     match_i = 0
@@ -384,25 +443,12 @@ def filter_transform_matches(
                         match_i += 1
 
 
-def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
+def compute_collocation_scores(
+    fout: str,
+    collocs: dict[int, Colloc],
+    lemma_freqs: defaultdict[tuple[str, str], int],
+) -> None:
     """Computes collocation statistics and writes to file."""
-    f12: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    f1: defaultdict[str, defaultdict[tuple[str, str], int]] = defaultdict(
-        lambda: defaultdict(int)
-    )
-    f2: defaultdict[str, int] = defaultdict(int)
-    for c_id, c in collocs.items():
-        w1 = c.lemma1 + "-" + c.lemma1_tag
-        w2 = c.lemma2 + "-" + c.lemma2_tag
-        f12[c.label][(w1, w2)] += c.frequency
-        f12[c.label][(w2, w1)] += c.frequency
-        f1[c.label][w1] += c.frequency
-        f1[c.label][w2] += c.frequency
-        f2[w1] += c.frequency
-        f2[w2] += c.frequency
-
     with open(fout, "w") as f_out:
         inv_relations = {
             "SUBJA",
@@ -417,21 +463,24 @@ def compute_collocation_scores(fout: str, collocs: dict[int, Colloc]) -> None:
             "KOM",
         }
         for c_id, c in collocs.items():
-            w1 = c.lemma1 + "-" + c.lemma1_tag
-            w2 = c.lemma2 + "-" + c.lemma2_tag
             log_dice = 14 + math.log2(
                 2
-                * max(1, f12[c.label][(w1, w2)])
-                / (max(1, f1[c.label][w1]) + max(1, f2[w2]))
+                * max(1, c.frequency)
+                / (
+                    max(1, lemma_freqs[(c.lemma1, c.lemma1_tag)])
+                    + max(1, lemma_freqs[(c.lemma2, c.lemma2_tag)])
+                )
             )
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
-                "{c.inv}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
+                "{c.prep}\t{c.inv}\t{c.frequency}\t{score}\n".format(
+                    c=c, score=log_dice
+                )
             )
             if c.label in inv_relations:
                 f_out.write(
                     "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
-                    "1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
+                    "{c.prep}\t1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
                 )
 
 
@@ -585,24 +634,28 @@ def add_mwe_to_inventory(
     return mwe_id
 
 
-def compute_mwe_scores(mwe_fout: str, mwe_ids, mwe_freqs, min_freq: int = 5) -> None:
-    """Calculates Log Dice score"""
-    collocation_freqs: defaultdict[str, int] = defaultdict(int)
-    for (w1, w2, label, lemma, tag, inv), mwe_id in mwe_ids.items():
-        frequency = mwe_freqs[mwe_id]
-        collocation_freqs[w1] += frequency
-        collocation_freqs[w2] += frequency
+def compute_mwe_scores(
+    mwe_fout: str,
+    mwe_ids,
+    mwe_freqs,
+    collocations: dict[int, Colloc],
+    min_freq: int = 5,
+) -> None:
+    """Calculates Log Dice score for MWE"""
 
     with open(mwe_fout, "w") as mwe_out:
         for mwe, mwe_id in mwe_ids.items():
             mwe_freq = mwe_freqs[mwe_id]
             if mwe_freq < min_freq:
                 continue
-            w1, w2, label, lemma, tag, inv = mwe
+            c1, c2, label, lemma, tag, inv = mwe
             log_dice = 14 + math.log2(
                 2
                 * max(1, mwe_freq)
-                / (max(1, collocation_freqs[w1]) + max(1, collocation_freqs[w2]))
+                / (
+                    max(1, collocations[c1].frequency)
+                    + max(1, collocations[c2].frequency)
+                )
             )
             mwe_out.write(
                 "{}\n".format(
@@ -620,18 +673,18 @@ def extract_collocations(match_fin: str, collocs_fout: str) -> None:
     and used later for simplifying the matches information.
     """
     relation_dict: defaultdict[
-        str, defaultdict[tuple[str, str, str, str], int]
+        str, defaultdict[tuple[str, str, str, str, str], int]
     ] = defaultdict(lambda: defaultdict(int))
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
-            rel, lemma1, lemma2, tag1, tag2 = m[0:5]
-            relation_dict[rel][lemma1, lemma2, tag1, tag2] += 1
+            rel, lemma1, lemma2, tag1, tag2, prep = m[0:6]
+            relation_dict[rel][lemma1, lemma2, tag1, tag2, prep] += 1
 
     with open(collocs_fout, "w") as fh:
         for rel, cols_dict in relation_dict.items():
-            for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
-                fh.write(f"{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{freq}\n")
+            for (lemma1, lemma2, tag1, tag2, prep), freq in cols_dict.items():
+                fh.write(f"{rel}\t{lemma1}\t{tag1}\t{lemma2}\t{tag2}\t{prep}\t{freq}\n")
 
 
 def extract_most_common_surface(match_fin: str, fout: str) -> None:
@@ -642,7 +695,7 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
-            rel, lemma1, lemma2, tag1, tag2, form1, form2 = m[:7]
+            rel, lemma1, lemma2, tag1, tag2, _, form1, form2 = m[:8]
             common_surfaces[tag1][lemma1][form1] += 1
             common_surfaces[tag2][lemma2][form2] += 1
 
@@ -660,45 +713,69 @@ def extract_most_common_surface(match_fin: str, fout: str) -> None:
 def load_collocations(fins: list[str], min_rel_freq: int = 5) -> dict[int, Colloc]:
     """Load collocations from file and filter by frequency limit."""
     relation_dict: defaultdict[
-        str, defaultdict[tuple[str, str, str, str], int]
+        str, defaultdict[tuple[str, str, str, str, str], int]
     ] = defaultdict(lambda: defaultdict(int))
     for fin in fins:
         with open(fin, "r") as f_in:
             for line in f_in:
                 m = tuple(line.strip().split("\t"))
-                rel, (lemma1, tag1, lemma2, tag2), freq = m[0], m[1:5], int(m[5])
-                relation_dict[rel][(lemma1, lemma2, tag1, tag2)] += freq
+                rel, (lemma1, tag1, lemma2, tag2, prep), freq = (
+                    m[0],
+                    m[1:6],
+                    int(m[6]),
+                )
+                relation_dict[rel][(lemma1, lemma2, tag1, tag2, prep)] += freq
     collocs = {}
     c_id = 1
     for rel, cols_dict in relation_dict.items():
-        for (lemma1, lemma2, tag1, tag2), freq in cols_dict.items():
+        for (lemma1, lemma2, tag1, tag2, prep), freq in cols_dict.items():
             if freq >= min_rel_freq:
-                collocs[c_id] = Colloc(c_id, rel, lemma1, lemma2, tag1, tag2, 0, freq)
+                collocs[c_id] = Colloc(
+                    c_id, rel, lemma1, lemma2, tag1, tag2, prep, 0, freq
+                )
                 c_id += 1
     return collocs
 
 
 def compute_token_statistics(
-    fins: list[str], fout: str, collocs: dict[int, Colloc]
+    fins: list[str],
+    fout: str,
+    lemma_freqs: dict[tuple[str, str], int],
+    min_freq: int = 5,
 ) -> None:
-    logger.info("-- compute token frequencies")
-    tokens_stats: defaultdict[tuple[str, str], int] = defaultdict(int)
-    for c in collocs.values():
-        tokens_stats[c.lemma1, c.lemma1_tag] += c.frequency
-        tokens_stats[c.lemma2, c.lemma2_tag] += c.frequency
     logger.info("-- compute common surfaces")
     common_surfaces: dict[tuple[str, str], tuple[str, int]] = {}
     for fin in fins:
         with open(fin, "r") as f_in:
             for line in f_in:
-                lemma, tag, surface, freq = tuple(line.strip().split("\t"))
-                common_surface, common_freq = common_surfaces.get((lemma, tag), ("", 0))
-                if int(freq) > common_freq:
-                    common_surfaces[lemma, tag] = surface, int(freq)
+                lemma, tag, surface, string_freq = tuple(line.strip().split("\t"))
+                freq = int(string_freq)
+                if len(parts := lemma.split()) == 2:
+                    lemma_left, lemma_right = parts
+                    surface_left, freq_left = common_surfaces.get(
+                        (lemma_left, tag), ("", 0)
+                    )
+                    surface_right, freq_right = common_surfaces.get(
+                        (lemma_right, tag), ("", 0)
+                    )
+                    if freq > freq_left:
+                        common_surfaces[lemma_left, tag] = surface, freq
+                    if freq > freq_right:
+                        common_surfaces[lemma_right, tag] = surface, freq
+                else:
+                    common_surface, common_freq = common_surfaces.get(
+                        (lemma, tag), ("", 0)
+                    )
+                    if freq > common_freq:
+                        common_surfaces[lemma, tag] = surface, freq
     logger.info("-- write token stats with common surfaces")
     with open(fout, "w") as fh:
-        for (lemma, tag), freq in tokens_stats.items():  # type: ignore
-            surface, surface_freq = common_surfaces[lemma, tag]
+        for (lemma, tag), freq in filter(
+            lambda x: x[1] >= min_freq, lemma_freqs.items()
+        ):
+            surface, surface_freq = common_surfaces.get((lemma, tag), ("", 0))
+            if not surface:
+                continue
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
 
@@ -742,14 +819,20 @@ def post_process_db_files(
     )
     del corpus_file_idx
     del sents_idx
+    lemma_freqs = aggregate_lemma_frequencies(
+        [os.path.join(p, "lemma_freqs") for p in storage_paths]
+    )
     logger.info("CALCULATE token statistics")
     compute_token_statistics(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
         os.path.join(final_path, "token_freqs"),
-        collocs,
+        lemma_freqs,
+        min_rel_freq,
     )
     logger.info("CALCULATE AND WRITE log dice scores")
-    compute_collocation_scores(os.path.join(final_path, "collocations"), collocs)
+    compute_collocation_scores(
+        os.path.join(final_path, "collocations"), collocs, lemma_freqs
+    )
     if with_mwe:
         logger.info("MAKE MWE LVL 1")
         mwe_ids, mwe_freqs = extract_mwe_from_collocs(
@@ -757,15 +840,19 @@ def post_process_db_files(
             os.path.join(final_path, "mwe_match_full"),
             collocs,
         )
-        collocs = {}
         # remove all MWE that don't appear in mwe_freqs, i.e. appear only once
         mwe_ids = {
             mwe: mwe_id for mwe, mwe_id in mwe_ids.items() if mwe_id in mwe_freqs
         }
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
-            os.path.join(final_path, "mwe"), mwe_ids, mwe_freqs, min_freq=min_rel_freq
+            os.path.join(final_path, "mwe"),
+            mwe_ids,
+            mwe_freqs,
+            collocs,
+            min_freq=min_rel_freq,
         )
+        collocs = {}
         mwe_ids = {}
         mwe_freqs_filtered = {
             mwe_id: freq for mwe_id, freq in mwe_freqs.items() if freq >= min_rel_freq
@@ -773,6 +860,18 @@ def post_process_db_files(
         filter_mwe_matches(final_path, mwe_freqs_filtered)
         # remove temporary file with MWE matches
         os.remove(os.path.join(final_path, "mwe_match_full"))
+
+
+def aggregate_lemma_frequencies(
+    input_files: list[str],
+) -> defaultdict[tuple[str, str], int]:
+    lemma_frequencies: defaultdict[tuple[str, str], int] = defaultdict(int)
+    for file in input_files:
+        with open(file) as fh:
+            for line in fh:
+                lemma, tag, freq = line.strip().split("\t")
+                lemma_frequencies[(lemma, tag)] += int(freq)
+    return lemma_frequencies
 
 
 def filter_mwe_matches(final_path: str, mwe_freqs: dict[int, int]) -> None:

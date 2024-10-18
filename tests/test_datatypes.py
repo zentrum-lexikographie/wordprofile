@@ -6,13 +6,14 @@ from wordprofile.datatypes import Concordance, DBMatch, MweConcordance
 
 
 def test_create_dbmatch_from_line():
-    line = "ADV\tgestern\teinfallen\tADV\tVERB\tgestern\tfällt\t2\t1\t3-5\t1\t0\n"
+    line = "ADV\tgestern\teinfallen\tADV\tVERB\t_\tgestern\tfällt\t2\t1\t3-5\t1\t0\n"
     assert DBMatch.fromline(line) == DBMatch(
         "ADV",
         "gestern",
         "einfallen",
         "ADV",
         "VERB",
+        "_",
         "gestern",
         "fällt",
         2,
@@ -36,6 +37,7 @@ def test_retrieval_of_collocation_key_for_db_match():
         "einfallen",
         "ADV",
         "VERB",
+        "_",
         "gestern",
         "fällt",
         2,
@@ -44,7 +46,7 @@ def test_retrieval_of_collocation_key_for_db_match():
         "1",
         0,
     )
-    assert match.get_collocation_key() == "ADV-gestern-einfallen-ADV-VERB"
+    assert match.get_collocation_key() == "ADV-gestern-einfallen-ADV-VERB-_"
 
 
 def test_conversion_of_db_match_to_database_entry():
@@ -54,6 +56,7 @@ def test_conversion_of_db_match_to_database_entry():
         "einfallen",
         "ADV",
         "VERB",
+        "_",
         "gestern",
         "fällt",
         2,

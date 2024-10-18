@@ -30,6 +30,7 @@ class Coocc:
     inverse: int
     has_mwe: int
     num_concords: int
+    prep: str
 
 
 @dataclass
@@ -131,6 +132,7 @@ class DBMatch:
     dep_lemma: str
     head_tag: str
     dep_tag: str
+    prep: str
     head_surface: str
     dep_surface: str
     head_position: int
@@ -145,7 +147,7 @@ class DBMatch:
     @classmethod
     def fromline(cls, line: str) -> DBMatch:
         args = line.strip().split("\t")
-        if len(args) != 12:
+        if len(args) != 13:
             raise ValueError
         return cls(
             relation_label=args[0],
@@ -153,13 +155,14 @@ class DBMatch:
             dep_lemma=args[2],
             head_tag=args[3],
             dep_tag=args[4],
-            head_surface=args[5],
-            dep_surface=args[6],
-            head_position=int(args[7]),
-            dep_position=int(args[8]),
-            extra_position=args[9],
-            corpus_file_id=args[10],
-            sentence_id=int(args[11]),
+            prep=args[5],
+            head_surface=args[6],
+            dep_surface=args[7],
+            head_position=int(args[8]),
+            dep_position=int(args[9]),
+            extra_position=args[10],
+            corpus_file_id=args[11],
+            sentence_id=int(args[12]),
         )
 
     def get_collocation_key(self) -> str:
@@ -170,6 +173,7 @@ class DBMatch:
                 self.dep_lemma,
                 self.head_tag,
                 self.dep_tag,
+                self.prep,
             ]
         )
 
@@ -203,7 +207,17 @@ CollocInstance = namedtuple(
 )
 Colloc = namedtuple(
     "Colloc",
-    ["id", "label", "lemma1", "lemma2", "lemma1_tag", "lemma2_tag", "inv", "frequency"],
+    [
+        "id",
+        "label",
+        "lemma1",
+        "lemma2",
+        "lemma1_tag",
+        "lemma2_tag",
+        "prep",
+        "inv",
+        "frequency",
+    ],
 )
 
 

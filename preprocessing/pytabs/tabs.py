@@ -60,6 +60,8 @@ class TabsSentence:
         ]
         # .tabs encodes space before current token
         # convert information to space after for previous token
+        if not tokens:
+            return []
         for t_i, t in enumerate(tokens):
             if t_i == 0:
                 continue
@@ -156,6 +158,8 @@ class TabsDocument:
             for meta_name, meta_val in sent.meta:
                 buf.write("# DDC:BREAK.{} = {}\n".format(meta_name, meta_val))
             conll_sent = sent.to_conll(self.index)
+            if not conll_sent:
+                continue
             buf.write("# text = {}\n".format(" ".join(t.surface for t in conll_sent)))
             for token_i, token in enumerate(conll_sent):
                 buf.write(

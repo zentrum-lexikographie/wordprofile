@@ -66,6 +66,7 @@ def get_table_collocations(meta: MetaData):
         Column("lemma2", LEMMA_TYPE),
         Column("lemma1_tag", Enum(TAG_TYPE)),
         Column("lemma2_tag", Enum(TAG_TYPE)),
+        Column("preposition", LEMMA_TYPE),
         Column("inv", types.Boolean, default=0),
         Column("frequency", types.Integer, default=1),
         Column("score", types.Float),

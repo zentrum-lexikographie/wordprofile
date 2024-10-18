@@ -67,6 +67,198 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, sorted(result, reverse=True))
 
+    def test_retrieval_of_collocation_with_preposition_via_id(self):
+        result = self.connector.get_relation_by_id(300)
+        expected = Coocc(
+            id=300,
+            rel="PP",
+            lemma1="nehmen",
+            lemma2="Angabe",
+            form1="nehmen",
+            form2="Angaben",
+            tag1="VERB",
+            tag2="NOUN",
+            freq=386,
+            score=11.0,
+            inverse=0,
+            has_mwe=0,
+            num_concords=1,
+            prep="nach",
+        )
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_collocation_with_prep_via_tuple(self):
+        result = self.connector.get_relation_tuples(
+            "nehmen", "VERB", 0, 3, "log_dice", 0, 0, "SUBJA"
+        )
+        expected = [
+            Coocc(
+                id=2373301,
+                rel="SUBJA",
+                lemma1="nehmen",
+                lemma2="Polizei",
+                form1="nehmen",
+                form2="Polizei",
+                tag1="VERB",
+                tag2="NOUN",
+                freq=262,
+                score=8.5,
+                inverse=0,
+                has_mwe=1,
+                num_concords=261,
+                prep="_",
+            ),
+            Coocc(
+                id=301,
+                rel="SUBJA",
+                lemma1="nehmen",
+                lemma2="Feuerwehr",
+                form1="nehmen",
+                form2="Feuerwehr",
+                tag1="VERB",
+                tag2="NOUN",
+                freq=210,
+                score=8.25,
+                inverse=0,
+                has_mwe=0,
+                num_concords=0,
+                prep="_",
+            ),
+        ]
+        self.assertEqual(expected, result)
+
+    def test_retrieval_of_meta_relation(self):
+        result = self.connector.get_relation_meta(
+            "Kunst", "NOUN", 0, 10, "log_dice", 0, 0, ["KON", "~GMOD"]
+        )
+        expected = [
+            Coocc(
+                id=-368,
+                rel="GMOD",
+                lemma1="Kunst",
+                lemma2="Haus",
+                form1="Kunst",
+                form2="Haus",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=389,
+                score=11.125,
+                inverse=1,
+                has_mwe=0,
+                num_concords=374,
+                prep="_",
+            ),
+            Coocc(
+                id=3406416,
+                rel="KON",
+                lemma1="Kunst",
+                lemma2="Kultur",
+                form1="Kunst",
+                form2="Kultur",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=51,
+                score=9.5,
+                inverse=0,
+                has_mwe=0,
+                num_concords=50,
+                prep="_",
+            ),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_diff_comparision(self):
+        result = self.connector.get_relation_tuples_diff(
+            lemma1="Feuerwehr",
+            lemma2="Polizei",
+            lemma_tag="NOUN",
+            relation="~SUBJA",
+            order_by="log_dice",
+            min_freq=0,
+            min_stat=0,
+        )
+        expected = [
+            Coocc(
+                id=-2373301,
+                rel="SUBJA",
+                lemma1="Polizei",
+                lemma2="nehmen",
+                form1="Polizei",
+                form2="nehmen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=262,
+                score=8.5,
+                inverse=1,
+                has_mwe=1,
+                num_concords=261,
+                prep="_",
+            ),
+            Coocc(
+                id=-301,
+                rel="SUBJA",
+                lemma1="Feuerwehr",
+                lemma2="nehmen",
+                form1="Feuerwehr",
+                form2="nehmen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=210,
+                score=8.25,
+                inverse=1,
+                has_mwe=0,
+                num_concords=0,
+                prep="_",
+            ),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_diff_meta(self):
+        result = self.connector.get_relation_tuples_diff_meta(
+            lemma1="Feuerwehr",
+            lemma2="Polizei",
+            lemma_tag="NOUN",
+            order_by="log_dice",
+            min_freq=0,
+            min_stat=0,
+            relations=["~SUBJA"],
+        )
+        expected = [
+            Coocc(
+                id=-2373301,
+                rel="SUBJA",
+                lemma1="Polizei",
+                lemma2="nehmen",
+                form1="Polizei",
+                form2="nehmen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=262,
+                score=8.5,
+                inverse=1,
+                has_mwe=0,
+                num_concords=261,
+                prep="_",
+            ),
+            Coocc(
+                id=-301,
+                rel="SUBJA",
+                lemma1="Feuerwehr",
+                lemma2="nehmen",
+                form1="Feuerwehr",
+                form2="nehmen",
+                tag1="NOUN",
+                tag2="VERB",
+                freq=210,
+                score=8.25,
+                inverse=1,
+                has_mwe=0,
+                num_concords=0,
+                prep="_",
+            ),
+        ]
+        self.assertEqual(result, expected)
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
@@ -110,6 +302,7 @@ class WPMweConnectTest(unittest.TestCase):
             inverse=1,
             has_mwe=0,
             num_concords=164,
+            prep="_",
         )
         self.assertEqual(result, expected)
 
@@ -132,6 +325,7 @@ class WPMweConnectTest(unittest.TestCase):
                 inverse=0,
                 has_mwe=0,
                 num_concords=0,
+                prep="_",
             )
         ]
         self.assertEqual(result, expected)
@@ -155,6 +349,7 @@ class WPMweConnectTest(unittest.TestCase):
                 inverse=1,
                 has_mwe=0,
                 num_concords=164,
+                prep="_",
             )
         ]
         self.assertEqual(result, expected)
@@ -184,3 +379,45 @@ class WPMweConnectTest(unittest.TestCase):
         )
         result = [(c.id, c.freq) for c in res]
         self.assertEqual(result, [(514, 150), (511, 120), (515, 100), (516, 99)])
+
+    def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_id(self):
+        result = self.connector.get_relation_by_id(517)
+        expected = Coocc(
+            id=517,
+            rel="PP",
+            lemma1="liegen-Boden",
+            lemma2="Lachen",
+            form1="liegen-Boden",
+            form2="Lachen",
+            tag1="VERB-NOUN",
+            tag2="NOUN",
+            freq=99,
+            score=10.0,
+            inverse=0,
+            has_mwe=0,
+            num_concords=2,
+            prep="vor",
+        )
+        self.assertEqual(result, expected)
+
+    def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_list(self):
+        result = self.connector.get_relation_tuples(
+            [302], order_by="log_dice", min_freq=1, min_stat=1
+        )
+        expected = Coocc(
+            id=517,
+            rel="PP",
+            lemma1="liegen-Boden",
+            lemma2="Lachen",
+            form1="liegen-Boden",
+            form2="Lachen",
+            tag1="VERB-NOUN",
+            tag2="NOUN",
+            freq=99,
+            score=10.0,
+            inverse=0,
+            has_mwe=0,
+            num_concords=2,
+            prep="vor",
+        )
+        self.assertEqual(result[0], expected)

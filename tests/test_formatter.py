@@ -27,6 +27,7 @@ def test_relation_not_modified_if_not_inverse(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["Relation"] == "GMOD"
@@ -47,6 +48,7 @@ def test_relation_retrieved_correctly_if_inverse(description_handler):
         inverse=1,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["Relation"] == "~GMOD"
@@ -67,6 +69,7 @@ def test_correct_description_retrieved_if_not_inverse(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["RelationDescription"] == "hat Adjektivattribut"
@@ -87,6 +90,7 @@ def test_description_retrieved_correctly_if_inverse(description_handler):
         inverse=1,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     assert result["RelationDescription"] == "ist Adjektivattribut von"
@@ -175,6 +179,7 @@ def test_default_coocc_id_in_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=29,
+                prep="_",
             ),
             "rank_1": 0,
             "pos": "NOUN",
@@ -195,6 +200,7 @@ def test_default_coocc_id_in_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=7,
+                prep="_",
             ),
             "rank_2": 16,
             "pos": "NOUN",
@@ -240,6 +246,7 @@ def test_tuples_in_format_relation_contain_all_necessary_keys(description_handle
         inverse=0,
         has_mwe=0,
         num_concords=10,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler)[0]
     expected = {
@@ -271,6 +278,7 @@ def test_formatting_of_mwe_relation(description_handler):
         inverse=0,
         has_mwe=0,
         num_concords=5,
+        prep="_",
     )
     result = form.format_relations([collocation], description_handler, is_mwe=True)[0]
     expected = {
@@ -349,6 +357,7 @@ def test_formatting_of_comparison():
                 inverse=0,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
             "coocc_2": Coocc(
                 id=-3,
@@ -364,6 +373,7 @@ def test_formatting_of_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=90,
+                prep="_",
             ),
         }
     ]
@@ -408,6 +418,7 @@ def test_formatting_of_comparison_with_inverse_relation():
                 inverse=1,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
             "coocc_2": Coocc(
                 id=-3,
@@ -423,6 +434,7 @@ def test_formatting_of_comparison_with_inverse_relation():
                 inverse=1,
                 has_mwe=0,
                 num_concords=90,
+                prep="_",
             ),
         }
     ]
@@ -449,6 +461,7 @@ def test_formatting_of_relation_description_in_diff_comparison():
                 inverse=1,
                 has_mwe=0,
                 num_concords=100,
+                prep="_",
             ),
         }
     ]
@@ -473,6 +486,233 @@ def test_formatting_lemma_pos_if_only_one_result(description_handler):
 def test_formatting_lemma_pos_no_result(description_handler):
     result = form.format_lemma_pos([], description_handler.mapRelOrder)
     assert result == []
+
+
+def test_format_collocation_description(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="OBJ",
+            lemma1="Gesetz",
+            lemma2="verabschieden",
+            form1="Gesetz",
+            form2="verabschiedet",
+            tag1="NOUN",
+            tag2="VERB",
+            freq=29,
+            score=10.3,
+            inverse=1,
+            has_mwe=0,
+            num_concords=29,
+            prep="_",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Gesetz tritt auf mit verabschieden",
+        "Lemma1": "Gesetz",
+        "Lemma2": "verabschieden",
+    }
+
+
+def test_format_collocation_description_with_preposition(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="PP",
+            lemma1="Bier",
+            lemma2="Oktoberfest",
+            form1="Bier",
+            form2="Oktoberfest",
+            tag1="NOUN",
+            tag2="NOUN",
+            freq=10,
+            score=10,
+            inverse=0,
+            has_mwe=0,
+            num_concords=10,
+            prep="auf",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Bier tritt auf mit auf Oktoberfest",
+        "Lemma1": "Bier",
+        "Lemma2": "auf Oktoberfest",
+    }
+
+
+def test_format_collocation_description_with_preposition_inverse(description_handler):
+    description = description_handler.strRelDescDetail
+    result = form.format_relation_description(
+        Coocc(
+            id=-1,
+            rel="PP",
+            lemma1="Entwicklung",
+            lemma2="beitragen",
+            form1="Entwicklung",
+            form2="trägt",
+            tag1="NOUN",
+            tag2="VERB",
+            freq=10,
+            score=10,
+            inverse=1,
+            has_mwe=0,
+            num_concords=10,
+            prep="zu",
+        ),
+        description,
+    )
+    assert result == {
+        "Description": "Entwicklung tritt auf mit beitragen zu",
+        "Lemma1": "Entwicklung",
+        "Lemma2": "beitragen zu",
+    }
+
+
+def test_format_lemma_with_preposition():
+    result = form.format_lemma_with_preposition("Lemma", "prep", 0)
+    assert result == "prep Lemma"
+
+
+def test_format_lemma_with_preposition_inverse():
+    result = form.format_lemma_with_preposition("Test", "prep", 1)
+    assert result == "Test prep"
+
+
+def test_default_preposition_not_added_to_lemma():
+    result = form.format_lemma_with_preposition("Test", "_", 0)
+    assert result == "Test"
+
+
+def test_format_pp_relation(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer",
+        lemma2="Welle",
+        form1="Meer",
+        form2="Wellen",
+        tag1="NOUN",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=0,
+        has_mwe=0,
+        num_concords=10,
+        prep="mit",
+    )
+    result = form.format_relations([collocation], description_handler)[0]
+    assert result == {
+        "Relation": "PP",
+        "RelationDescription": "hat Präpositionalgruppe",
+        "POS": "Substantiv",
+        "Form": "mit Wellen",
+        "Lemma": "mit Welle",
+        "Score": {"Frequency": 10, "logDice": 3.0},
+        "ConcordId": "1",
+        "ConcordNoAccessible": 10,
+        "HasMwe": 0,
+    }
+
+
+def test_format_pp_relation_inverse(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer",
+        lemma2="Haus",
+        form1="Meer",
+        form2="Haus",
+        tag1="NOUN",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=1,
+        has_mwe=0,
+        num_concords=10,
+        prep="an",
+    )
+    formatted = form.format_relations([collocation], description_handler)
+    assert formatted[0]["Form"] == "Haus an"
+    assert formatted[0]["Lemma"] == "Haus an"
+
+
+def test_format_relation_with_pp_mwe(description_handler):
+    collocation = Coocc(
+        id=1,
+        rel="PP",
+        lemma1="Meer-offen",
+        lemma2="Zugang",
+        form1="Meer-offenen",
+        form2="Zugang",
+        tag1="NOUN-ADJ",
+        tag2="NOUN",
+        freq=10,
+        score=3.0,
+        inverse=1,
+        has_mwe=0,
+        num_concords=10,
+        prep="zu",
+    )
+    formatted = form.format_relations([collocation], description_handler, is_mwe=True)
+    assert formatted[0]["Lemma"] == "Zugang zu"
+
+
+def test_format_comparison_with_pp_first_lemma():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "coocc_1": Coocc(
+                id=1,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Welle",
+                form1="Meer",
+                form2="Wellen",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=10,
+                score=3.0,
+                inverse=0,
+                has_mwe=0,
+                num_concords=10,
+                prep="mit",
+            ),
+        }
+    ]
+    formatted = form.format_comparison(diffs)
+    assert formatted[0]["Lemma"] == "mit Welle"
+    assert formatted[0]["Form"] == "mit Wellen"
+
+
+def test_format_comparison_with_pp_second_lemma():
+    diffs = [
+        {
+            "pos": "NOUN",
+            "coocc_2": Coocc(
+                id=1,
+                rel="PP",
+                lemma1="Meer",
+                lemma2="Haus",
+                form1="Meer",
+                form2="Haus",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=10,
+                score=3.0,
+                inverse=1,
+                has_mwe=0,
+                num_concords=10,
+                prep="an",
+            ),
+        }
+    ]
+    formatted = form.format_comparison(diffs)
+    assert formatted[0]["Lemma"] == "Haus an"
+    assert formatted[0]["Form"] == "Haus an"
 
 
 def test_page_replaced_with_dash():
