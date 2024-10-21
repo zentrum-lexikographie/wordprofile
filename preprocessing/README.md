@@ -128,6 +128,8 @@ If the environment has gpu/cuda enabled, use the `de_dwds_dep_hdt_dist`, otherwi
 To download a model, run for example:
 
     pip install https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg/resolve/main/de_dwds_dep_hdt_lg-any-py3-none-any.whl
+    # For newer versions of pip (>=24.0), state the model name explicitly
+    pip install "de_dwds_dep_hdt_lg @ https://huggingface.co/zentrum-lexikographie/de_dwds_dep_hdt_lg/resolve/main/de_dwds_dep_hdt_lg-any-py3-none-any.whl"
 
 For the annotation, the script `annotate_deprel.py` can be used:
 ```sh
