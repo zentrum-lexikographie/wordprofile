@@ -447,8 +447,13 @@ def compute_collocation_scores(
     fout: str,
     collocs: dict[int, Colloc],
     lemma_freqs: defaultdict[tuple[str, str], int],
-) -> None:
-    """Computes collocation statistics and writes to file."""
+) -> set[int]:
+    """
+    Computes logDice values and writes collocations to file.
+
+    Collocations with negative logDice are not written to the final file
+    but instead their ids are collected and returned.
+    """
     with open(fout, "w") as f_out:
         inv_relations = {
             "SUBJA",
@@ -462,6 +467,7 @@ def compute_collocation_scores(
             "PP",
             "KOM",
         }
+        invalid_ids = set()
         for c_id, c in collocs.items():
             log_dice = 14 + math.log2(
                 2
@@ -471,6 +477,9 @@ def compute_collocation_scores(
                     + max(1, lemma_freqs[(c.lemma2, c.lemma2_tag)])
                 )
             )
+            if log_dice < 0:
+                invalid_ids.add(c_id)
+                continue
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
                 "{c.prep}\t{c.inv}\t{c.frequency}\t{score}\n".format(
@@ -482,6 +491,15 @@ def compute_collocation_scores(
                     "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
                     "{c.prep}\t1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
                 )
+    return invalid_ids
+
+
+def filter_invalid_collocations(
+    collocations: dict[int, Colloc], invalid_ids: set[int]
+) -> dict[int, Colloc]:
+    return {
+        col_id: col for col_id, col in collocations.items() if col_id not in invalid_ids
+    }
 
 
 def extract_mwe_from_collocs(

@@ -2364,3 +2364,53 @@ def test_reindex_corpus_files(testdata_dir):
         ("corpus2/file3", 8),
         ("corpus3/file2", 12),
     }.issubset(result.items())
+
+
+def test_collocations_with_invalid_id_removed():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 20.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 30.0),
+    }
+    invalid_ids = {1}
+    filtered_collocs = pro.filter_invalid_collocations(collocations, invalid_ids)
+    assert len(filtered_collocs) == 2
+    assert 1 not in filtered_collocs
+
+
+def test_collocations_with_negative_logDice_not_written_to_file():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 5.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 300.0),
+    }
+    lemma_freqs = {
+        ("Buch", "NOUN"): 70000,
+        ("Tisch", "NOUN"): 300000,
+        ("Boden", "NOUN"): 100000,
+        ("Regal", "NOUN"): 330,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations, lemma_freqs)
+        with open(file) as fp:
+            result = [int(line.split("\t")[0]) for line in fp]
+    assert result == [3, -3]
+
+
+def test_ids_for_collocations_with_negative_logDice_returned():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 5.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 300.0),
+    }
+    lemma_freqs = {
+        ("Buch", "NOUN"): 70000,
+        ("Tisch", "NOUN"): 300000,
+        ("Boden", "NOUN"): 100000,
+        ("Regal", "NOUN"): 330,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        invalid_ids = pro.compute_collocation_scores(file, collocations, lemma_freqs)
+    assert invalid_ids == {1, 2}
