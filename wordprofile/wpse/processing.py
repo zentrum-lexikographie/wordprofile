@@ -797,6 +797,35 @@ def compute_token_statistics(
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
 
+def compute_statistics(
+    storage_paths: list[str],
+    output_path: str,
+    min_freq: int = 5,
+    with_mwe: bool = False,
+) -> None:
+    "Aggregate data from subcorpora and compute collocations scores."
+    logger.info("LOAD FILTERED collocations")
+    collocs = load_collocations(
+        [os.path.join(p, "collocations") for p in storage_paths], min_rel_freq
+    )
+    logger.info(
+        "%d collocations with at least %d frequency collected."
+        % (len(collocs, min_rel_freq))
+    )
+    lemma_freqs = aggregate_lemma_frequencies(
+        [os.path.join(p, "lemma_freqs") for p in storage_paths]
+    )
+    logger.info("CALCULATE AND WRITE log dice scores")
+    invalid_collocation_ids = compute_collocation_scores(
+        os.path.join(output_path, "collocations"), collocs, lemma_freqs
+    )
+    collocs = filter_invalid_collocations(collocs, invalid_collocation_ids)
+    logger.info(
+        "Removed %d collocations with negative logDice score."
+        % len(invalid_collocation_ids)
+    )
+
+
 def post_process_db_files(
     storage_paths: list[str],
     final_path: str,
