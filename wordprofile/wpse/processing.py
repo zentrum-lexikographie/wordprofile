@@ -811,7 +811,7 @@ def compute_stats(
     # define output file paths
     corpus_file = os.path.join(output_path, "corpus_files")
     corpus_file_tmp = os.path.join(output_path, "corpus_files.tmp")
-    concordance_file = os.path.join(output_path, "concord_sentences.tmp")
+    concordance_file = os.path.join(output_path, "concord_sentences")
     concordance_file_tmp = os.path.join(output_path, "concord_sentences.tmp")
     duplicate_sents_file = os.path.join(output_path, "concord_sentences.duplicate")
 
@@ -862,8 +862,8 @@ def compute_stats(
     sents_idx = set()
     corpus_file_idx = {}
     logger.info("FILTER corpus files and sentences.")
-    filter_concordances(corpus_file_tmp, corpus_file, valid_sentence_ids)
-    filter_corpus_files(concordance_file_tmp, concordance_file, valid_sentence_ids)
+    filter_corpus_files(corpus_file_tmp, corpus_file, valid_sentence_ids)
+    filter_concordances(concordance_file_tmp, concordance_file, valid_sentence_ids)
     valid_sentence_ids = set()
     logger.info("Remove temporary files")
     os.remove(concordance_file_tmp)
