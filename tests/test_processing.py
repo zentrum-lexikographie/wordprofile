@@ -2457,11 +2457,13 @@ def test_invalid_concordances_removed():
     ]
     with tempfile.TemporaryDirectory() as tmpdir:
         directory = pathlib.Path(tmpdir)
-        with open(directory / "concord_sentences.tmp", "w") as fh:
+        with open(directory / "tmp_sents", "w") as fh:
             for sent in sentence_data:
                 print("\t".join(map(str, sent)), file=fh)
-        pro.filter_concordances(directory, valid_sentence_ids)
-        with open(directory / "concord_sentences") as fh:
+        pro.filter_concordances(
+            directory / "tmp_sents", directory / "final_sents", valid_sentence_ids
+        )
+        with open(directory / "final_sents") as fh:
             result = [line.strip().split("\t") for line in fh]
         assert result == [["0", "1", "sent1"], ["0", "2", "sent2"], ["2", "1", "sent5"]]
 
@@ -2478,11 +2480,13 @@ def test_unnecessary_corpus_files_removed():
     ]
     with tempfile.TemporaryDirectory() as tmpdir:
         directory = pathlib.Path(tmpdir)
-        with open(directory / "corpus_files.tmp", "w") as fh:
+        with open(directory / "tmp_files", "w") as fh:
             for doc in doc_data:
                 print("\t".join(doc), file=fh)
-        pro.filter_corpus_files(directory, valid_sentence_ids)
-        with open(directory / "corpus_files") as fh:
+        pro.filter_corpus_files(
+            directory / "tmp_files", directory / "final_files", valid_sentence_ids
+        )
+        with open(directory / "final_files") as fh:
             result = [line.strip().split("\t") for line in fh]
         assert result == [
             ["0", "corpus1", "file1", "bibl", "date", "corpus1"],

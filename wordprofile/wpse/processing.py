@@ -848,10 +848,10 @@ def compute_statistics(
 
 
 def filter_concordances(
-    output_path: str, valid_sentence_ids: set[tuple[str, str]]
+    tmp_file: str, final_file: str, valid_sentence_ids: set[tuple[str, str]]
 ) -> None:
-    with open(os.path.join(output_path, "concord_sentences.tmp")) as fh:
-        with open(os.path.join(output_path, "concord_sentences"), "w") as fo:
+    with open(tmp_file) as fh:
+        with open(final_file, "w") as fo:
             for line in fh:
                 sent_id = tuple(line.strip().split("\t")[:2])
                 if sent_id in valid_sentence_ids:
@@ -859,11 +859,11 @@ def filter_concordances(
 
 
 def filter_corpus_files(
-    output_path: str, valid_sentence_ids: set[tuple[str, str]]
+    tmp_file: str, final_file: str, valid_sentence_ids: set[tuple[str, str]]
 ) -> None:
     valid_doc_ids = {sent_id[0] for sent_id in valid_sentence_ids}
-    with open(os.path.join(output_path, "corpus_files.tmp")) as fh:
-        with open(os.path.join(output_path, "corpus_files"), "w") as fo:
+    with open(tmp_file) as fh:
+        with open(final_file, "w") as fo:
             for line in fh:
                 doc_id = line.strip().split("\t")[0]
                 if doc_id in valid_doc_ids:
