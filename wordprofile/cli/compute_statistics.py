@@ -4,7 +4,7 @@ import sys
 from argparse import ArgumentParser
 
 from wordprofile.utils import configure_logs_to_file
-from wordprofile.wpse.processing import post_process_db_files
+from wordprofile.wpse.processing import compute_stats
 
 
 def parse_arguments(args):
@@ -26,9 +26,7 @@ def main(arguments: list):
     configure_logs_to_file(level=logging.INFO, log_file_identifier="compute-statistics")
     args = parse_arguments(arguments)
     os.makedirs(args.dest, exist_ok=True)
-    post_process_db_files(
-        args.src, args.dest, min_rel_freq=args.min_rel_freq, with_mwe=args.mwe
-    )
+    compute_stats(args.src, args.dest, min_freq=args.min_rel_freq, with_mwe=args.mwe)
     logger.info("DONE compute statistics.")
 
 
