@@ -2443,3 +2443,49 @@ def test_match_processing_returns_index_of_valid_concordances(testdata_dir):
             collocations,
         )
     assert result == {("1", "4")}
+
+
+def test_invalid_concordances_removed():
+    valid_sentence_ids = {("0", "1"), ("0", "2"), ("2", "1")}
+    sentence_data = [
+        (0, 1, "sent1"),
+        (0, 2, "sent2"),
+        (1, 1, "sent3"),
+        (1, 2, "sent4"),
+        (2, 1, "sent5"),
+        (3, 1, "sent6"),
+    ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        with open(directory / "concord_sentences.tmp", "w") as fh:
+            for sent in sentence_data:
+                print("\t".join(map(str, sent)), file=fh)
+        pro.filter_concordances(directory, valid_sentence_ids)
+        with open(directory / "concord_sentences") as fh:
+            result = [line.strip().split("\t") for line in fh]
+        assert result == [["0", "1", "sent1"], ["0", "2", "sent2"], ["2", "1", "sent5"]]
+
+
+def test_unnecessary_corpus_files_removed():
+    valid_sentence_ids = {("0", "1"), ("1", "2"), ("4", "1")}
+    doc_data = [
+        ("0", "corpus1", "file1", "bibl", "date", "corpus1"),
+        ("1", "corpus1", "file2", "bibl", "date", "corpus1"),
+        ("2", "corpus1", "file3", "bibl", "date", "corpus1"),
+        ("3", "corpus2", "file4", "bibl", "date", "corpus2"),
+        ("4", "corpus2", "file5", "bibl", "date", "corpus2"),
+        ("5", "corpus3", "file6", "bibl", "date", "corpus3"),
+    ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        with open(directory / "corpus_files.tmp", "w") as fh:
+            for doc in doc_data:
+                print("\t".join(doc), file=fh)
+        pro.filter_corpus_files(directory, valid_sentence_ids)
+        with open(directory / "corpus_files") as fh:
+            result = [line.strip().split("\t") for line in fh]
+        assert result == [
+            ["0", "corpus1", "file1", "bibl", "date", "corpus1"],
+            ["1", "corpus1", "file2", "bibl", "date", "corpus1"],
+            ["4", "corpus2", "file5", "bibl", "date", "corpus2"],
+        ]

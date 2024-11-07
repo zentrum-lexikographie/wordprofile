@@ -828,6 +828,46 @@ def compute_statistics(
         "Removed %d collocations with negative logDice score."
         % len(invalid_collocation_ids)
     )
+    logger.info("FILTER matches.")
+    valid_sentence_ids = filter_transform_matches(
+        [os.path.join(p, "matches") for p in storage_paths],
+        os.path.join(output_path, "matches"),
+        corpus_file_idx,
+        sents_idx,
+        collocs,
+    )
+    logger.info(
+        "Found %d valid concordances (of %d)."
+        % (len(valid_sentence_ids), len(sents_idx))
+    )
+    sents_idx = set()
+    corpus_file_idx = {}
+    filter_concordances(output_path, valid_sentence_ids)
+    filter_corpus_files(output_path, valid_sentence_ids)
+    valid_sentence_ids = set()
+
+
+def filter_concordances(
+    output_path: str, valid_sentence_ids: set[tuple[str, str]]
+) -> None:
+    with open(os.path.join(output_path, "concord_sentences.tmp")) as fh:
+        with open(os.path.join(output_path, "concord_sentences"), "w") as fo:
+            for line in fh:
+                sent_id = tuple(line.strip().split("\t")[:2])
+                if sent_id in valid_sentence_ids:
+                    print(line, end="", file=fo)
+
+
+def filter_corpus_files(
+    output_path: str, valid_sentence_ids: set[tuple[str, str]]
+) -> None:
+    valid_doc_ids = {sent_id[0] for sent_id in valid_sentence_ids}
+    with open(os.path.join(output_path, "corpus_files.tmp")) as fh:
+        with open(os.path.join(output_path, "corpus_files"), "w") as fo:
+            for line in fh:
+                doc_id = line.strip().split("\t")[0]
+                if doc_id in valid_doc_ids:
+                    print(line, end="", file=fo)
 
 
 def post_process_db_files(
