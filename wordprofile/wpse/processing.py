@@ -368,7 +368,7 @@ def reindex_corpus_files(fins: list[str], fout: str) -> dict[str, int]:
     return corpus_file_idx
 
 
-def reindex_filter_concordances(
+def reindex_concordances(
     fins: list[str],
     fout: str,
     corpus_file_idx: dict[str, int],

@@ -2334,7 +2334,7 @@ def test_reindex_filter_concordances(testdata_dir):
     file_ids = {"file1": 1, "file2": 2, "file3": 3, "file4": 4}
     with tempfile.TemporaryDirectory() as tmpdir:
         directory = pathlib.Path(tmpdir)
-        result = pro.reindex_filter_concordances(
+        result = pro.reindex_concordances(
             input_files,
             directory / "output_file",
             file_ids,
