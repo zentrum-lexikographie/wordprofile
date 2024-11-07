@@ -2414,3 +2414,32 @@ def test_ids_for_collocations_with_negative_logDice_returned():
         file = pathlib.Path(tmpdir) / "file"
         invalid_ids = pro.compute_collocation_scores(file, collocations, lemma_freqs)
     assert invalid_ids == {1, 2}
+
+
+def test_match_processing_returns_index_of_valid_concordances(testdata_dir):
+    collocations = {
+        1: Colloc(
+            id=1,
+            label="ATTR",
+            lemma1="Familienpolitik",
+            lemma2="modern",
+            lemma1_tag="NOUN",
+            lemma2_tag="ADJ",
+            prep="_",
+            inv=0,
+            frequency=12,
+        )
+    }
+    corpus_file_ids = {"doc1": 1}
+    sentence_ids = {("1", "3"), ("1", "4")}
+    matches_dir = testdata_dir / "matches_agg"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        result = pro.filter_transform_matches(
+            list(matches_dir.iterdir()),
+            output_file,
+            corpus_file_ids,
+            sentence_ids,
+            collocations,
+        )
+    assert result == {("1", "4")}

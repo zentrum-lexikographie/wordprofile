@@ -413,7 +413,7 @@ def filter_transform_matches(
     corpus_file_idx: dict[str, int],
     sents_idx: set[tuple[str, str]],
     collocs: dict[int, Colloc],
-) -> None:
+) -> set[tuple[str, str]]:
     """
     Filter matches with any missing entry for corpus file, sentence,
     or collocation, then transform using collocation id.
@@ -424,6 +424,7 @@ def filter_transform_matches(
             "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.prep])
         ] = c.id
 
+    valid_sentence_ids = set()
     match_i = 0
     with open(fout, "w") as matches_out:
         for fin in fins:
@@ -436,11 +437,14 @@ def filter_transform_matches(
                     colloc_id = relation_dict.get(match.get_collocation_key())
                     if colloc_id is None:
                         continue
-                    if (match.corpus_file_id, str(match.sentence_id)) in sents_idx:
+                    sentence_id = (match.corpus_file_id, str(match.sentence_id))
+                    if sentence_id in sents_idx:
                         matches_out.write(
                             match.convert_to_database_entry(match_i, colloc_id) + "\n"
                         )
                         match_i += 1
+                        valid_sentence_ids.add(sentence_id)
+    return valid_sentence_ids
 
 
 def compute_collocation_scores(
