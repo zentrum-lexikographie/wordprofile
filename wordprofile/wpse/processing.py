@@ -832,7 +832,7 @@ def compute_stats(
         [os.path.join(p, "collocations") for p in storage_paths], min_freq
     )
     logger.info(
-        "%d collocations with at least %d frequency collected."
+        "%d collocations with at least frequency %d collected."
         % (len(collocs), min_freq)
     )
     lemma_freqs = aggregate_lemma_frequencies(
