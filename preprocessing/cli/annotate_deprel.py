@@ -13,9 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 class SpacyParser:
-    def __init__(
-        self, model: str = "de_dwds_dep_hdt_dist", batch_size: int = 128
-    ) -> None:
+    def __init__(self, model: str = "de_hdt_dist", batch_size: int = 128) -> None:
         import spacy
 
         spacy.prefer_gpu()
@@ -90,9 +88,9 @@ def configure_logging():
 @click.option(
     "--model",
     "-m",
-    default="de_dwds_dep_hdt_dist",
+    default="de_hdt_dist",
     type=str,
-    help="Name of spacy model, default is 'de_dwds_dep_hdt_dist'.",
+    help="Name of spacy model, default is 'de_hdt_dist'.",
 )
 @click.option(
     "--batch-size",
