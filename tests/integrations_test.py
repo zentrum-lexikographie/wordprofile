@@ -34,7 +34,7 @@ def annotate_dependency_relations(tmp_dir):
             "-o",
             os.path.join(tmp_dir, "data.anno.conll"),
             "-m",
-            "de_dwds_dep_hdt_lg",
+            "de_hdt_lg",
         ],
         standalone_mode=False,
     )
