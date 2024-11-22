@@ -7,7 +7,7 @@ import wordprofile.cli.extract_collocations as ec
 from preprocessing.pytabs.tabs import TabsDocument
 
 
-def main():
+def test_integration():
     with tempfile.TemporaryDirectory() as tmp_dir:
         convert(tmp_dir)
         annotate_dependency_relations(tmp_dir)
@@ -221,4 +221,4 @@ def mwe_filtering(tmp_dir):
 
 
 if __name__ == "__main__":
-    main()
+    test_integration()

@@ -2364,7 +2364,7 @@ def test_reindex_filter_concordances(testdata_dir):
     file_ids = {"file1": 1, "file2": 2, "file3": 3, "file4": 4}
     with tempfile.TemporaryDirectory() as tmpdir:
         directory = pathlib.Path(tmpdir)
-        result = pro.reindex_filter_concordances(
+        result = pro.reindex_concordances(
             input_files,
             directory / "output_file",
             file_ids,
@@ -2446,3 +2446,132 @@ def test_sentence_initial_particle_of_phrasal_verbs_normalized():
         misc=True,
         prt_pos=1,
     )
+
+
+def test_collocations_with_invalid_id_removed():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 20.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 30.0),
+    }
+    invalid_ids = {1}
+    filtered_collocs = pro.filter_invalid_collocations(collocations, invalid_ids)
+    assert len(filtered_collocs) == 2
+    assert 1 not in filtered_collocs
+
+
+def test_collocations_with_negative_logDice_not_written_to_file():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 5.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 300.0),
+    }
+    lemma_freqs = {
+        ("Buch", "NOUN"): 70000,
+        ("Tisch", "NOUN"): 300000,
+        ("Boden", "NOUN"): 100000,
+        ("Regal", "NOUN"): 330,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        pro.compute_collocation_scores(file, collocations, lemma_freqs)
+        with open(file) as fp:
+            result = [int(line.split("\t")[0]) for line in fp]
+    assert result == [3, -3]
+
+
+def test_ids_for_collocations_with_negative_logDice_returned():
+    collocations = {
+        1: Colloc(1, "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", 0, 10.0),
+        2: Colloc(2, "PP", "Buch", "Boden", "NOUN", "NOUN", "neben", 0, 5.0),
+        3: Colloc(3, "PP", "Buch", "Regal", "NOUN", "NOUN", "unter", 0, 300.0),
+    }
+    lemma_freqs = {
+        ("Buch", "NOUN"): 70000,
+        ("Tisch", "NOUN"): 300000,
+        ("Boden", "NOUN"): 100000,
+        ("Regal", "NOUN"): 330,
+    }
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file = pathlib.Path(tmpdir) / "file"
+        invalid_ids = pro.compute_collocation_scores(file, collocations, lemma_freqs)
+    assert invalid_ids == {1, 2}
+
+
+def test_match_processing_returns_index_of_valid_concordances(testdata_dir):
+    collocations = {
+        1: Colloc(
+            id=1,
+            label="ATTR",
+            lemma1="Familienpolitik",
+            lemma2="modern",
+            lemma1_tag="NOUN",
+            lemma2_tag="ADJ",
+            prep="_",
+            inv=0,
+            frequency=12,
+        )
+    }
+    corpus_file_ids = {"doc1": 1}
+    sentence_ids = {("1", "3"), ("1", "4")}
+    matches_dir = testdata_dir / "matches_agg"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_file = pathlib.Path(tmpdir) / "file"
+        result = pro.filter_transform_matches(
+            list(matches_dir.iterdir()),
+            output_file,
+            corpus_file_ids,
+            sentence_ids,
+            collocations,
+        )
+    assert result == {("1", "4")}
+
+
+def test_invalid_concordances_removed():
+    valid_sentence_ids = {("0", "1"), ("0", "2"), ("2", "1")}
+    sentence_data = [
+        (0, 1, "sent1"),
+        (0, 2, "sent2"),
+        (1, 1, "sent3"),
+        (1, 2, "sent4"),
+        (2, 1, "sent5"),
+        (3, 1, "sent6"),
+    ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        with open(directory / "tmp_sents", "w") as fh:
+            for sent in sentence_data:
+                print("\t".join(map(str, sent)), file=fh)
+        pro.filter_concordances(
+            directory / "tmp_sents", directory / "final_sents", valid_sentence_ids
+        )
+        with open(directory / "final_sents") as fh:
+            result = [line.strip().split("\t") for line in fh]
+        assert result == [["0", "1", "sent1"], ["0", "2", "sent2"], ["2", "1", "sent5"]]
+
+
+def test_unnecessary_corpus_files_removed():
+    valid_sentence_ids = {("0", "1"), ("1", "2"), ("4", "1")}
+    doc_data = [
+        ("0", "corpus1", "file1", "bibl", "date", "corpus1"),
+        ("1", "corpus1", "file2", "bibl", "date", "corpus1"),
+        ("2", "corpus1", "file3", "bibl", "date", "corpus1"),
+        ("3", "corpus2", "file4", "bibl", "date", "corpus2"),
+        ("4", "corpus2", "file5", "bibl", "date", "corpus2"),
+        ("5", "corpus3", "file6", "bibl", "date", "corpus3"),
+    ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        directory = pathlib.Path(tmpdir)
+        with open(directory / "tmp_files", "w") as fh:
+            for doc in doc_data:
+                print("\t".join(doc), file=fh)
+        pro.filter_corpus_files(
+            directory / "tmp_files", directory / "final_files", valid_sentence_ids
+        )
+        with open(directory / "final_files") as fh:
+            result = [line.strip().split("\t") for line in fh]
+        assert result == [
+            ["0", "corpus1", "file1", "bibl", "date", "corpus1"],
+            ["1", "corpus1", "file2", "bibl", "date", "corpus1"],
+            ["4", "corpus2", "file5", "bibl", "date", "corpus2"],
+        ]

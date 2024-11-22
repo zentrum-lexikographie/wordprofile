@@ -369,7 +369,7 @@ def reindex_corpus_files(fins: list[str], fout: str) -> dict[str, int]:
     return corpus_file_idx
 
 
-def reindex_filter_concordances(
+def reindex_concordances(
     fins: list[str],
     fout: str,
     corpus_file_idx: dict[str, int],
@@ -414,7 +414,7 @@ def filter_transform_matches(
     corpus_file_idx: dict[str, int],
     sents_idx: set[tuple[str, str]],
     collocs: dict[int, Colloc],
-) -> None:
+) -> set[tuple[str, str]]:
     """
     Filter matches with any missing entry for corpus file, sentence,
     or collocation, then transform using collocation id.
@@ -425,6 +425,7 @@ def filter_transform_matches(
             "-".join([c.label, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag, c.prep])
         ] = c.id
 
+    valid_sentence_ids = set()
     match_i = 0
     with open(fout, "w") as matches_out:
         for fin in fins:
@@ -437,19 +438,27 @@ def filter_transform_matches(
                     colloc_id = relation_dict.get(match.get_collocation_key())
                     if colloc_id is None:
                         continue
-                    if (match.corpus_file_id, str(match.sentence_id)) in sents_idx:
+                    sentence_id = (match.corpus_file_id, str(match.sentence_id))
+                    if sentence_id in sents_idx:
                         matches_out.write(
                             match.convert_to_database_entry(match_i, colloc_id) + "\n"
                         )
                         match_i += 1
+                        valid_sentence_ids.add(sentence_id)
+    return valid_sentence_ids
 
 
 def compute_collocation_scores(
     fout: str,
     collocs: dict[int, Colloc],
     lemma_freqs: defaultdict[tuple[str, str], int],
-) -> None:
-    """Computes collocation statistics and writes to file."""
+) -> set[int]:
+    """
+    Computes logDice values and writes collocations to file.
+
+    Collocations with negative logDice are not written to the final file
+    but instead their ids are collected and returned.
+    """
     with open(fout, "w") as f_out:
         inv_relations = {
             "SUBJA",
@@ -463,6 +472,7 @@ def compute_collocation_scores(
             "PP",
             "KOM",
         }
+        invalid_ids = set()
         for c_id, c in collocs.items():
             log_dice = 14 + math.log2(
                 2
@@ -472,6 +482,9 @@ def compute_collocation_scores(
                     + max(1, lemma_freqs[(c.lemma2, c.lemma2_tag)])
                 )
             )
+            if log_dice < 0:
+                invalid_ids.add(c_id)
+                continue
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
                 "{c.prep}\t{c.inv}\t{c.frequency}\t{score}\n".format(
@@ -483,6 +496,15 @@ def compute_collocation_scores(
                     "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
                     "{c.prep}\t1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
                 )
+    return invalid_ids
+
+
+def filter_invalid_collocations(
+    collocations: dict[int, Colloc], invalid_ids: set[int]
+) -> dict[int, Colloc]:
+    return {
+        col_id: col for col_id, col in collocations.items() if col_id not in invalid_ids
+    }
 
 
 def extract_mwe_from_collocs(
@@ -780,65 +802,86 @@ def compute_token_statistics(
             fh.write(f"{lemma}\t{tag}\t{freq}\t{surface}\t{surface_freq}\n")
 
 
-def post_process_db_files(
+def compute_stats(
     storage_paths: list[str],
-    final_path: str,
-    min_rel_freq: int = 5,
+    output_path: str,
+    min_freq: int = 5,
     with_mwe: bool = False,
 ) -> None:
-    """Post-processing of generated data files.
+    "Aggregate data from subcorpora and compute collocations scores."
+    # define output file paths
+    corpus_file = os.path.join(output_path, "corpus_files")
+    corpus_file_tmp = os.path.join(output_path, "corpus_files.tmp")
+    concordance_file = os.path.join(output_path, "concord_sentences")
+    concordance_file_tmp = os.path.join(output_path, "concord_sentences.tmp")
+    duplicate_sents_file = os.path.join(output_path, "concord_sentences.duplicate")
 
-    Filter concordances that satisfy sentence form and remove duplicate
-    sentences.
-    Filter collocations with too little occurrences.
-    Filter matches with respect to available concordances and collocations.
-    """
-    logger.info("REPLACE INDEX corpus files")
+    logger.info("REINDEX corpus files")
     corpus_file_idx = reindex_corpus_files(
         [os.path.join(p, "corpus_files") for p in storage_paths],
-        os.path.join(final_path, "corpus_files"),
+        corpus_file_tmp,
     )
-    logger.info("FILTER concordances")
-    sents_idx = reindex_filter_concordances(
+    logger.info("DEDUPLICATE concordances")
+    sents_idx = reindex_concordances(
         [os.path.join(p, "concord_sentences") for p in storage_paths],
-        os.path.join(final_path, "concord_sentences"),
+        concordance_file_tmp,
         corpus_file_idx,
-        # os.path.join(final_path, "concord_sentences.invalid"),
-        os.path.join(final_path, "concord_sentences.duplicate"),
+        duplicate_sents_file,
     )
     logger.info("LOAD FILTERED collocations")
     collocs = load_collocations(
-        [os.path.join(p, "collocations") for p in storage_paths], min_rel_freq
+        [os.path.join(p, "collocations") for p in storage_paths], min_freq
     )
-    logger.info("FILTER TRANSFORM matches")
-    filter_transform_matches(
+    logger.info(
+        "%d collocations with at least frequency %d collected."
+        % (len(collocs), min_freq)
+    )
+    lemma_freqs = aggregate_lemma_frequencies(
+        [os.path.join(p, "lemma_freqs") for p in storage_paths]
+    )
+    logger.info("CALCULATE AND WRITE log dice scores")
+    invalid_collocation_ids = compute_collocation_scores(
+        os.path.join(output_path, "collocations"), collocs, lemma_freqs
+    )
+    collocs = filter_invalid_collocations(collocs, invalid_collocation_ids)
+    logger.info(
+        "Removed %d collocations with negative logDice score."
+        % len(invalid_collocation_ids)
+    )
+    logger.info("FILTER matches.")
+    valid_sentence_ids = filter_transform_matches(
         [os.path.join(p, "matches") for p in storage_paths],
-        os.path.join(final_path, "matches"),
+        os.path.join(output_path, "matches"),
         corpus_file_idx,
         sents_idx,
         collocs,
     )
-    del corpus_file_idx
-    del sents_idx
-    lemma_freqs = aggregate_lemma_frequencies(
-        [os.path.join(p, "lemma_freqs") for p in storage_paths]
+    logger.info(
+        "Found %d valid concordances (of %d)."
+        % (len(valid_sentence_ids), len(sents_idx))
     )
+    sents_idx = set()
+    corpus_file_idx = {}
+    logger.info("FILTER corpus files and sentences.")
+    filter_corpus_files(corpus_file_tmp, corpus_file, valid_sentence_ids)
+    filter_concordances(concordance_file_tmp, concordance_file, valid_sentence_ids)
+    valid_sentence_ids = set()
+    logger.info("Remove temporary files")
+    os.remove(concordance_file_tmp)
+    os.remove(corpus_file_tmp)
+
     logger.info("CALCULATE token statistics")
     compute_token_statistics(
         [os.path.join(p, "common_surfaces") for p in storage_paths],
-        os.path.join(final_path, "token_freqs"),
+        os.path.join(output_path, "token_freqs"),
         lemma_freqs,
-        min_rel_freq,
-    )
-    logger.info("CALCULATE AND WRITE log dice scores")
-    compute_collocation_scores(
-        os.path.join(final_path, "collocations"), collocs, lemma_freqs
+        min_freq,
     )
     if with_mwe:
         logger.info("MAKE MWE LVL 1")
         mwe_ids, mwe_freqs = extract_mwe_from_collocs(
-            os.path.join(final_path, "matches"),
-            os.path.join(final_path, "mwe_match_full"),
+            os.path.join(output_path, "matches"),
+            os.path.join(output_path, "mwe_match_full"),
             collocs,
         )
         # remove all MWE that don't appear in mwe_freqs, i.e. appear only once
@@ -847,20 +890,43 @@ def post_process_db_files(
         }
         logger.info("CALCULATE log dice mwe lvl 1")
         compute_mwe_scores(
-            os.path.join(final_path, "mwe"),
+            os.path.join(output_path, "mwe"),
             mwe_ids,
             mwe_freqs,
             collocs,
-            min_freq=min_rel_freq,
+            min_freq=min_freq,
         )
         collocs = {}
         mwe_ids = {}
         mwe_freqs_filtered = {
-            mwe_id: freq for mwe_id, freq in mwe_freqs.items() if freq >= min_rel_freq
+            mwe_id: freq for mwe_id, freq in mwe_freqs.items() if freq >= min_freq
         }
-        filter_mwe_matches(final_path, mwe_freqs_filtered)
+        filter_mwe_matches(output_path, mwe_freqs_filtered)
         # remove temporary file with MWE matches
-        os.remove(os.path.join(final_path, "mwe_match_full"))
+        os.remove(os.path.join(output_path, "mwe_match_full"))
+
+
+def filter_concordances(
+    tmp_file: str, final_file: str, valid_sentence_ids: set[tuple[str, str]]
+) -> None:
+    with open(tmp_file) as fh:
+        with open(final_file, "w") as fo:
+            for line in fh:
+                sent_id = tuple(line.strip().split("\t")[:2])
+                if sent_id in valid_sentence_ids:
+                    print(line, end="", file=fo)
+
+
+def filter_corpus_files(
+    tmp_file: str, final_file: str, valid_sentence_ids: set[tuple[str, str]]
+) -> None:
+    valid_doc_ids = {sent_id[0] for sent_id in valid_sentence_ids}
+    with open(tmp_file) as fh:
+        with open(final_file, "w") as fo:
+            for line in fh:
+                doc_id = line.strip().split("\t")[0]
+                if doc_id in valid_doc_ids:
+                    print(line, end="", file=fo)
 
 
 def aggregate_lemma_frequencies(
