@@ -23,13 +23,13 @@ def multiple_docs_conll_file():
 def parser():
     # determine which model to use
     try:
-        import de_dwds_dep_hdt_lg
+        import de_hdt_lg
 
-        model = "de_dwds_dep_hdt_lg"
+        model = "de_hdt_lg"
     except ImportError:
-        import de_dwds_dep_hdt_dist
+        import de_hdt_dist
 
-        model = "de_dwds_dep_hdt_dist"
+        model = "de_hdt_dist"
     return deprel.SpacyParser(model)
 
 

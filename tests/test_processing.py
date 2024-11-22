@@ -1341,11 +1341,41 @@ def test_phrasal_verb_with_recht_as_particle_not_concatenated():
                 misc=True,
             ),
         ],
+        [
+            WPToken(
+                idx=1,
+                surface="Recht",
+                lemma="recht",
+                tag="ADP",
+                head=2,
+                rel="compound:prt",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="hat",
+                lemma="haben",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="sie",
+                lemma="sie",
+                tag="PRON",
+                head=2,
+                rel="nsubj",
+                misc=True,
+            ),
+        ],
     ]
     for sent in sentences:
         pro.collapse_phrasal_verbs(sent)
     assert sentences[0][0].lemma == "haben"
     assert sentences[1][1].lemma == "geben"
+    assert sentences[2][1].lemma == "haben"
 
 
 def test_morphological_features_parse_from_conll_token():
@@ -2364,6 +2394,58 @@ def test_reindex_corpus_files(testdata_dir):
         ("corpus2/file3", 8),
         ("corpus3/file2", 12),
     }.issubset(result.items())
+
+
+def test_sentence_initial_particle_of_phrasal_verbs_normalized():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Hinzu",
+            lemma="hinzu",
+            tag="ADP",
+            head=2,
+            rel="compound:prt",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="kommen",
+            lemma="kommen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="unerklärliche",
+            lemma="unerklärlich",
+            tag="ADJ",
+            head=4,
+            rel="amod",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Gliederschmerzen",
+            lemma="Gliederschmerz",
+            tag="NOUN",
+            head=2,
+            rel="nsuj",
+            misc=True,
+        ),
+    ]
+    pro.collapse_phrasal_verbs(sentence)
+    assert sentence[1] == WPToken(
+        idx=2,
+        surface="kommen",
+        lemma="hinzukommen",
+        tag="VERB",
+        head=0,
+        rel="ROOT",
+        misc=True,
+        prt_pos=1,
+    )
 
 
 def test_collocations_with_invalid_id_removed():

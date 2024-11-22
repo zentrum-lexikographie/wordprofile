@@ -134,7 +134,8 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
 
 def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
     for token in sentence:
-        if token.surface == "recht":
+        particle = token.surface.lower()
+        if particle == "recht":
             continue
         if token.rel == "compound:prt" and token.tag in {"ADP", "ADJ", "ADV"}:
             head = sentence[token.head - 1]
@@ -142,7 +143,7 @@ def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
                 if head.lemma == "sein":
                     continue
                 head.prt_pos = token.idx
-                head.lemma = repair_lemma(f"{token.surface}{head.lemma}", "VERB")
+                head.lemma = repair_lemma(f"{particle}{head.lemma}", "VERB")
     return sentence
 
 
