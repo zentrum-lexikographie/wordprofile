@@ -8,11 +8,11 @@ pymysql = "*"
 starlette = "0.40.0"
 
 [dev-packages]
-autoflake = "*"
 flake8 = "*"
 pytest = "*"
 black = "*"
 mypy = "*"
+isort ="*"
 
 [requires]
 python_version = "3.12"
