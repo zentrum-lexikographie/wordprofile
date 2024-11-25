@@ -21,13 +21,13 @@ python_version = "3.12"
 conllu = "*"
 click = "*"
 sqlalchemy = "*"
-spacy-transformers = "*"
-six = "*"
-spacy = {extras = ["cuda12x"], version = "*"}
 
 [prep]
 click = "*"
+conllu = "*"
 typing-extensions = "*"
+spacy = {extras = ["cuda11x"], version = "*"}
+spacy-transformers = "*"
 
 [api]
 jinja2 = "*"
