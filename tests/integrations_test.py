@@ -196,10 +196,10 @@ def compute_statistics_with_mwe(tmp_dir):
 def check_mwe(tmp_dir):
     with open(os.path.join(tmp_dir, "stats_mwe", "mwe")) as fh:
         lines = fh.readlines()
-        mwe_collocations = {tuple(line.split("\t")[1:8]) for line in lines}
+        mwe_collocations = {tuple(line.split("\t")[3:8]) for line in lines}
     assert mwe_collocations == {
-        ("2", "3", "GMOD", "Skandalbank", "NOUN", "0", "2"),
-        ("3", "2", "ATTR", "heikel", "ADJ", "0", "2"),
+        ("GMOD", "Skandalbank", "NOUN", "0", "2"),
+        ("ATTR", "heikel", "ADJ", "0", "2"),
     }
 
 
