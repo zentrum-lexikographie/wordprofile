@@ -7,7 +7,7 @@ from typing import Optional
 
 from typing_extensions import Self
 
-from preprocessing.pytabs.consts import UD_POS_MAP
+from wordprofile.preprocessing.pytabs.consts import UD_POS_MAP
 
 
 @dataclass

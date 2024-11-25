@@ -7,7 +7,7 @@ from typing import Dict, List, Set
 
 import click
 
-from preprocessing.pytabs.tabs import TabsDocument
+from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 
 logger = logging.getLogger(__name__)
 
