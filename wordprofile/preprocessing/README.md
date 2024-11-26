@@ -47,7 +47,7 @@ Options:
 
 ```
 
-Log files are stored in a `log` directory under `preprocessing`.
+Log files are stored in a `log` directory in the project root directory.
 
 #### Example of directory structure for `data-root`
 Structure of the data directory with existing data.
@@ -119,7 +119,7 @@ see [readme](../../README.md) for `wordprofile`.
 
 Tests:
 
-- Run Unit Tests: `pytest -v`
+- Run Unit Tests: `pytest -v wordprofile/preprocessing`
 
 # II Annotation of Dependency Relations
 For the annotation of  dependeny relations, a model should be used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/), e.g. [`de_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_hdt_dist) for  parsing with [`spacy`](https://spacy.io/).
