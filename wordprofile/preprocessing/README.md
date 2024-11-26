@@ -1,6 +1,7 @@
 # Preprocessing
 
 I [Data conversion](#I-data-conversion)
+
 II [Annotation of Dependency Relations](#II-annotation-of-dependency-relations)
 
 # I Data conversion
@@ -114,7 +115,7 @@ $ tabs2conllu -i "some/**/*.tabs" --output here/is/the/corpus
 ## Setup and Testing
 
 ### Installation
-see [readme](../README.md) for `wordprofile`.
+see [readme](../../README.md) for `wordprofile`.
 
 Tests:
 

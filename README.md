@@ -105,9 +105,9 @@ docker-compose build
 ```
 
 ## Vorverarbeitung
-Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `preprocessing/data_update.py` oder `perprocessing/tabs2conllu.py` verwendet werden.
+Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `data_update.py` oder `tabs2conllu.py` verwendet werden (im Verzeichnis `wordprofile/preprocessing/cli/`).
 
-Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis.
+Benutzung siehe [readme](wordprofile/preprocessing/README.md) im `wordprofile/preprocessing`-Verzeichnis.
 
 ### Installation
 Die Installation der für die Vorverarbeitung nötigen Pakete erfolgt folgendermaßen:
