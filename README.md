@@ -2,9 +2,6 @@
 
 Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
 Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
-Grundlage für eine Wortprofil-Datenbank und deren Abfrage ist eine Wortprofil-Spezifikation.
-Diverse Konfigurationen und zusätzliche Daten liegen unter `spec`.
-Im Ordner `log` werden Server-Logfiles hinterlegt.
 
 ## Project setup
 
@@ -19,67 +16,94 @@ virtual environments and Python version management is done via
 
 To install the full project and dev dependencies, run:
 
-    pipenv install --categories="packages api build prep dev-packages"
+    pipenv sync --categories="packages api build prep dev-packages"
 
 If not all parts of the project are necessary, specify the relevant ones using the `categories` option.
 
+The default category (`packages`) and the `api` category contain the packages necessary to run the wordprofile as a service.
+The `build` category is necessary for data processing (collocation extraction, statistics, database population).
+The `prep` category corresponds to the preprocessing step (data conversion, annotation). A model for dependency annotation has to be installed separately (see below).
+`dev-packages` (or `--dev`) contains packages for testing and code maintenance.
+
+
 ## Erstellen eines Wortprofils
-Ausgeführte Aufgaben:
-1. Extraktion der Relationen
-2. Berechnung der Statistiken
-3. Finden von MWE aus extrahierten Matches
-4. Initialisieren der Datenbank
-5. Befüllen der DB Tabellen mit extrahierten Matches
+Für das Erstellen eines *Wortprofils* sind folgende Schritte nötig:
 
-Wortprofile werden in zwei Schritten erstellt:
-Bevor ein vollständiges Wortprofil erstellt wird, werden die einzelnen Korpora separat verarbeitet, Matches extrahiert und darauf Kollokationen gezählt. Dies reduziert die Arbeit im zweiten Schritt, wenn die gesamten Daten verarbeitet werden sollen.
+0. Datenkonvertierung + Annotation
+1. Kollokationsextraktion
+2. Aggregation der Teilkorpora
+  2.1. Berechnung der Statistiken
+  2.2. Finden von MWE aus extrahierten Matches
+3. Befüllen der Datenbank
 
-Erstellt werden soll ein Test-Wortprofil aus zwei Korpora: `dradio` und `pnn`, welche bereits im CoNLL Format vorliegen und entsprechende Annotationen (POS, NER, DEPREL) besitzen.
+Falls das Korpus für das Wortprofil aus verschiedenen Teilen (Subkorpora) besteht, wird der Schritt der Konvertierung und Annotation sowie die Extraktion der Kollokationen für jedes Subkorpus separat durchgeführt. Im zweiten Schritt werden die Daten aus den Teilkorpora aggregiert.
 
-### Kollokationsextraktion
+### 0. Datenkonvertierung + Annotation
+Sofern die Korpusdaten noch nicht annotiert und im `.conll`-Format vorliegen, müssen sie zunächst konvertiert und mit Dependenzannotationen und morphologischen Annotationen versehen werden (s. `preprocessing`).
 
+### 1. Kollokationsextraktion
+
+In diesem Schritt werden für jedes Teilkorpus die jeweiligen Kollokationen mit Treffern (Matches) extrahiert und die Belegsätze verarbeitet.
+Hierzu wird das Skript `wordprofile/cli/extract_collocations.py` verwendet (bei Aufruf als Skript muss der Pythonpath richtig gesetzt sein):
+
+```sh
+options:
+  -h, --help           show this help message and exit
+  --input [INPUT ...]  conll input file(s). As default stdin is used, if this option is not used.
+  --dest DEST          temporary storage path
+  --njobs NJOBS        number of process jobs
 ```
--rw-r--r-- 1 knaebel users  127M Feb 24  2023 sz_regional.conll.bz2
--rw-r--r-- 1 knaebel users  554M Feb 24  2023 tsp_regional.conll.bz2
--rw-r--r-- 1 knaebel users  590M Feb 24  2023 noz.conll.bz2
--rw-r--r-- 1 knaebel users  727M Feb 24  2023 noz_regional.conll.bz2
--rw-r--r-- 1 knaebel users 1000M Feb 24  2023 nzz_regional.conll.bz2
--rw-r--r-- 1 knaebel users  931M Feb 24  2023 tsp_legacy.conll.bz2
--rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 welt.conll.bz2
--rw-r--r-- 1 knaebel users  1,9G Feb 24  2023 tsp.conll.bz2
--rw-r--r-- 1 knaebel users  2,2G Feb 24  2023 fr_regional.conll.bz2
--rw-r--r-- 1 knaebel users  2,9G Feb 24  2023 sz.conll.bz2
--rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 nzz.conll.bz2
--rw-r--r-- 1 knaebel users  3,2G Feb 24  2023 sz_legacy.conll.bz2
--rw-r--r-- 1 knaebel users  3,8G Feb 24  2023 fr.conll.bz2
--rw-r--r-- 1 knaebel users   60M Mär  7  2023 wikivoyage.conll.bz2
--rw-r--r-- 1 knaebel users  5,7G Mär  7  2023 wikipedia.conll.bz2
--rw-r--r-- 1 knaebel users  838M Mär 22  2023 nnzz_regional.conll.bz2
--rw-r--r-- 1 knaebel users  2,7G Mär 22  2023 nnzz.conll.bz2
-```
-
-In diesem ersten Schritt werden für jeden Korpus (dradio und pnn) die jeweiligen Matches extrahiert, die Satzbelege aufgearbeitet und die Korpus-Kollokationsstatistik berechnet.
-Die Daten liegen in nicht-komprimierter Form vor.
-Dies erleichtert den Schritt der Vereinigung aller Teilkorpora erheblich.
+Als `--input` werden mehrere `.conll`-Dateien akzeptiert.
+Beispielaufruf:
 ```shell
-python -m wordprofile.cli.extract_collocations --input corpora/dradio.conll --dest test_wp/stage/dradio --njobs 4
-python -m wordprofile.cli.extract_collocations --input corpora/pnn.conll --dest test_wp/stage/pnn --njobs 4
+python -m wordprofile.cli.extract_collocations --input corpora/test_corpus.conll --dest test_wp/colloc/test_corpus --njobs 4
+```
+Die Datei `test_corpus.conll` wird verarbeitet, die extrahierten Daten werden nach `test_wp/colloc/test_corpus` geschrieben.
+
+### 2. Aggregation der Teilkorpora
+In diesem Schritt werden die Ergebnisse der Teilkorpora zusammengeführt und die Statistiken über das gesamte Korpus berechnet.
+Hierfür ist das Skript `wordprofile/cli/compute_statistics.py` vorgesehen:
+
+```sh
+usage: compute_statistics.py [-h] [--dest DEST] [--min-rel-freq MIN_REL_FREQ] [--mwe] src [src ...]
+
+positional arguments:
+  src                           Path to input data
+
+options:
+  -h, --help                    show this help message and exit
+  --dest DEST                   Output path
+  --min-rel-freq MIN_REL_FREQ   Minimal frequency filter for aggregated collocations
+  --mwe                         Extract MWE collocations
 ```
 
-### Berechnung Wortprofil
-Als nächstes werden die extrahierten Informationen beider Korpora aus `test_wp/stage` vereint und unter `test_wp/final` gespeichert.
-Weiterhin werden die Daten für die Datenbank vorbereitet und komprimiert bzw. normalisiert.
-Statistiken werden in der jeweiligen Kollokationsdatei ergänzt, bevor diese ausgeschrieben wird.
-
+#### 2.1. Berechnung der Statistiken
+Beispielaufruf:
 ```shell
-python wordprofile/cli/compute_statistics.py test_wp/stage/* --dest test_wp/final --min-rel-freq 5 --mwe
+python wordprofile/cli/compute_statistics.py test_wp/colloc/* --dest test_wp/stats --min-rel-freq 5
 ```
-In diesem Aufruf werden bei der Berechnung des Wortprofils alle Kollokationen entfernt, die nicht mindestens eine Frequenz von 5 aufweisen.
-Im Anschluss werden aus den Kollokationen MWAs berechnet, die sich aus der Kombination zweier sich überlappender Kollokationen ergeben.
+In diesem Aufruf werden die Teilkorpora in `test_wp/colloc` zusammengeführt, die Frequenzen der Kollokationen addiert und die logDice-Werte berechnet. Kollokationen, die insgesamt die Mindestfrequenz (`--min-rel-freq`) nicht erreichen, werden aus den Ergebnissen entfernt (Default ist 5). Ebenso werden Kookurrenzen entfernt, deren logDice-Wert kleiner null ist.
 
-### DB befüllen
-Im letzten Schritt wird das finale, komprimierte und für die Datenbank vorbereitete Wortprofil in die Datenbank transferiert.
-Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Diese Dateien werden in ein lokales Verzeichnis (`data/db`) geschrieben, das in den Dockercontainer gemountet wird.
+
+#### 2.2. Finden von MWE aus extrahierten Matches
+Mit der Option `--mwe` werden nach der Zusammenführung der Teilkorpora Verkettungen von Kollokationen ("Mehrwortausdrücke") gesucht, d.h. Überlappungen zweier Kollokationen.
+
+### 3. Befüllen der Datenbank
+In diesem Schritt werden die Ergebnisse in die Datenbank geschrieben und Indizes auf den Datenbanktabellen erstellt, um eine performante Abfrage der Kollokationen zu ermöglichen.
+
+```sh
+usage: load_database.py [-h] [--user USER] [--db DB] source
+
+positional arguments:
+  source       temporary storage path
+
+options:
+  -h, --help   show this help message and exit
+  --user USER  database username
+  --db DB      database name
+```
+
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Die Datenbank wird in ein lokales Verzeichnis (`data/db`) geschrieben, das in den Dockercontainer gemountet wird.
 Bevor der Dockercontainer gestartet wird, sollte sichergestellt werden, dass dieses Verzeichnis existiert und dem korrekten User gehört, z.B.:
 ```sh
 mkdir -p data/db
@@ -90,19 +114,15 @@ export USER_GROUP=$(id -u):$(id -g)
 ```
 Danach kann der Container gestartet werden mit
 ```sh
+docker compose build # falls Container noch nicht existiert
 docker compose up
 ```
 
-Anschließend werden noch notwendige Indizes erstellt, welche eine performante Abfrage der Kollokationen und ihrer Informationen ermöglichen.
+Beispielaufruf:
 ```shell
-python wordprofile/cli/load_database.py test_wp/final --user wpuser --db test_wp
+python wordprofile/cli/load_database.py test_wp/stats --user wpuser --db test_wp
 ```
 
-## Build
-
-```shell
-docker-compose build
-```
 
 ## Vorverarbeitung
 Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `preprocessing/data_update.py` oder `perprocessing/tabs2conllu.py` verwendet werden.
@@ -112,16 +132,17 @@ Benutzung siehe [readme](preprocessing/README.md) im `preprocessing`-Verzeichnis
 ### Installation
 Die Installation der für die Vorverarbeitung nötigen Pakete erfolgt folgendermaßen:
 ```
-pipenv install --categories prep
+pipenv sync --categories prep
 ```
 
 ## Entwicklungssetup
 
 ```shell
-pipenv install --dev
+pipenv sync --dev
 ```
 
 ### Tests
+Tests für das gesamt Projekt werden ausgeführt via:
 
 ```shell
 pytest
@@ -132,3 +153,4 @@ Um diejenigen Tests auszuführen, die eine Datenbankverbindung benötigen, wird 
 export USER_GROUP=$(id -u):$(id -g)
 docker compose -f docker-compose-test.yml up
 ```
+Für die Integrationstests in `integrations_test.py` und einige Tests aus dem `preprocessing`-Modul wird die Installtion des Modells `de_hdt_lg` vorausgesetzt.
