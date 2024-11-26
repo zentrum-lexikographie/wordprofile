@@ -8,6 +8,7 @@ from typing import Dict, List, Set
 import click
 
 from wordprofile.preprocessing.pytabs.tabs import TabsDocument
+from wordprofile.utils import configure_logs_to_file
 
 logger = logging.getLogger(__name__)
 
@@ -51,17 +52,6 @@ def filter_new_files(
     ]
 
 
-def configure_logging() -> None:
-    parent = os.path.dirname
-    log_dir = os.path.join(parent(parent(parent(__file__))), "log")
-    os.makedirs(log_dir, exist_ok=True)
-    logging.basicConfig(
-        filename=os.path.join(log_dir, f"{date.today().isoformat()}-data-update.log"),
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(name)s: %(message)s",
-    )
-
-
 @click.command()
 @click.option(
     "--corpus",
@@ -102,7 +92,7 @@ def main(
     using the current date as name. A .toc file with the new basenames is
     added there as well.
     """
-    configure_logging()
+    configure_logs_to_file(log_file_identifier="data-update")
     old_basenames = collect_current_basenames(data_root, corpus)
     logger.info(
         "Found existing %d existing basenames for corpus %s."
