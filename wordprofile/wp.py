@@ -491,3 +491,17 @@ class Wordprofile:
                 self.db.get_concordances(int(coocc_id), start_index, result_number)
             )
         return relation
+
+    def get_reduced_profile(
+        self,
+        lemma1: str,
+        pos1: str,
+        number: int = 20,
+        order_by: str = "log_dice",
+        min_freq: int = 5,
+        min_stat: float = 0.0,
+    ) -> list[dict]:
+        collocates = self.db.get_collocates(
+            lemma1, tag_f2b[pos1], number, order_by, min_freq, min_stat
+        )
+        return [formatting.format_collocate(coll) for coll in collocates]
