@@ -117,6 +117,7 @@ async def get_relations(
     order_by: str = "logDice",
     min_freq: int = 0,
     min_stat: float = -1000.0,
+    reduced: bool = False,
 ):
     """Get collocations from wordprofile.
 
@@ -133,11 +134,20 @@ async def get_relations(
         Default is 0.
     - min_stat (optional): Filter collocations with minimal stats score.
         Default is -1000.0.
+    - reduced (optional): Return only reduced results, i.e. collocates and
+        logDice score or frequency from META relation. The retrieval of
+        collocates is relation-agnostic and ignores prepositions. Thus, a
+        lemma *might* appear more than once in the results with different
+        scores. This implies 'relations=[META]'. Default is False.
 
     Return:
     - List of selected collocations grouped by relation.
     """
     order_by = "log_dice" if order_by.lower() == "logdice" else "frequency"
+    if reduced is True:
+        return wp.get_reduced_profile(
+            lemma1, pos1, number, order_by, min_freq, min_stat
+        )
     if len(relations) == 0:
         result = wp.get_lemma_and_pos(lemma1, pos1)
         if len(result) == 0:
