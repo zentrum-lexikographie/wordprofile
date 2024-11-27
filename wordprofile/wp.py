@@ -500,7 +500,23 @@ class Wordprofile:
         order_by: str = "log_dice",
         min_freq: int = 5,
         min_stat: float = 0.0,
-    ) -> list[dict]:
+    ) -> list[dict[str, str | int | float]]:
+        """
+        Retrieve only collocates and metric from all relations for lemma1.
+
+        Results are ordered by score (frequency or logDice).
+
+        Args:
+            lemma1:     Target lemma.
+            pos1:       POS tag of target lemma.
+            number:     Number of collocates to return.
+            order_by:   Metric retrieved and used for ordering. 'log_dice'
+                        or 'frequency'. Default is 'log_dice'.
+            min_freq:   Frequency threshold for collocations. Default is 5.
+            min_stat:   Minimal logDice score that collocations must exceed.
+                        Default is 0.0.
+
+        """
         collocates = self.db.get_collocates(
             lemma1, tag_f2b[pos1], number, order_by, min_freq, min_stat
         )
