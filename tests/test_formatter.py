@@ -731,3 +731,9 @@ def test_page_replaced_with_dash():
     ]
     result = form.format_concordances(concordances)[0]["Bibl"]["Orig"]
     assert result == "Quelle, 01.01.2024, S. -"
+
+
+def test_format_collocate():
+    collocate = ("Collocate1", 10)
+    result = form.format_collocate(collocate)
+    assert result == {"Lemma": "Collocate1", "Score": 10}
