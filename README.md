@@ -162,12 +162,8 @@ Das *DWDS Wortprofil* wird im Rahmen des Zentrums für digitale Lexikographie de
 
 [2] Didakowski, J. und Geyken, A. (2014). 'From DWDS corpora to a German word proﬁle – methodological problems and solutions'. In: OPAL – Online publizierte Arbeiten zur Linguistik 2/2014, S. 39–47. [[PDF](https://www.dwds.de/dwds_static/publications/pdf/didakowski_geyken_internetlexikografie_2012_final.pdf)]
 
-## Autor
-Zentrum für digitale Lexikographie der deutschen Sprache (ZDL)
-
-Bis Herbst 2023 wurde das DWDS Wortprofil hauptsächlich durch René Knaebel entwickelt.
-
-Kontakt: [Luise Köhler](mailto:luise.koehler@bbaw.de)
+## Kontakt
+Bis Herbst 2023 wurde das DWDS Wortprofil hauptsächlich durch René Knaebel entwickelt. Seitdem wurde Entwicklung und Maintenance von [Luise Köhler](mailto:luise.koehler@bbaw.de) übernommen.
 
 # License
 The DWDS Wortprofil (wordprofile) is licensed under the GNU General Public License v3.0.
