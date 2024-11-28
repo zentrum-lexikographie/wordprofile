@@ -4,7 +4,7 @@ import conllu
 import pytest
 import spacy
 
-import preprocessing.cli.annotate_deprel as deprel
+import wordprofile.preprocessing.cli.annotate_deprel as deprel
 
 TEST_DIR = Path(__file__).parent
 

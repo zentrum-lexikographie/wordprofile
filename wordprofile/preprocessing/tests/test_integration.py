@@ -5,7 +5,7 @@ from shutil import rmtree
 
 from click.testing import CliRunner
 
-from preprocessing.cli import data_update, tabs2conllu
+from wordprofile.preprocessing.cli import data_update, tabs2conllu
 
 
 class Tabs2ConlluTest(unittest.TestCase):

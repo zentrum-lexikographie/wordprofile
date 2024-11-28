@@ -9,6 +9,8 @@ import click
 import conllu
 from spacy.tokens import Doc
 
+from wordprofile.utils import configure_logs_to_file
+
 logger = logging.getLogger(__name__)
 
 
@@ -58,18 +60,6 @@ def add_annotation_to_tokens(
         )
 
 
-def configure_logging():
-    log_directory = os.path.join(os.path.dirname(os.path.dirname(__file__)), "log")
-    os.makedirs(log_directory, exist_ok=True)
-    logging.basicConfig(
-        filename=os.path.join(
-            log_directory, f"{date.today().isoformat()}-annotate-deprel.log"
-        ),
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(name)s: %(message)s",
-    )
-
-
 @click.command(help="Parse conll file and add dependency relation annotations.")
 @click.option(
     "-i",
@@ -100,7 +90,7 @@ def configure_logging():
     help="Batch size used by model during processing. Default is 128 (sentences).",
 )
 def main(input, output, model, batch_size):
-    configure_logging()
+    configure_logs_to_file(log_file_identifier="annotate-deprel")
     input_file = input.name if input != "-" else "from stdin"
     logger.info(
         "Processing corpus %s with %s model (batch size: %d)."

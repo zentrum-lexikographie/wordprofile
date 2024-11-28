@@ -1,10 +1,10 @@
 import os
 import tempfile
 
-import preprocessing.cli.annotate_deprel as ad
 import wordprofile.cli.compute_statistics as cs
 import wordprofile.cli.extract_collocations as ec
-from preprocessing.pytabs.tabs import TabsDocument
+import wordprofile.preprocessing.cli.annotate_deprel as ad
+from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 
 
 def test_integration():

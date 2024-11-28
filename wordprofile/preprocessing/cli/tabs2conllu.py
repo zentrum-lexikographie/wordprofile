@@ -4,7 +4,7 @@ from glob import glob
 
 import click
 
-from preprocessing.pytabs.tabs import TabsDocument
+from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 
 
 @click.command()

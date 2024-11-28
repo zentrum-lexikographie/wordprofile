@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from preprocessing.pytabs.tabs import ConllToken, TabsDocument, TabsSentence
+from wordprofile.preprocessing.pytabs.tabs import ConllToken, TabsDocument, TabsSentence
 
 
 class TabsDocumentTest(unittest.TestCase):

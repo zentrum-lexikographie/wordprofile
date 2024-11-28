@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-import preprocessing.cli.data_update as du
+import wordprofile.preprocessing.cli.data_update as du
 
 
 def test_current_basename_discovery():
