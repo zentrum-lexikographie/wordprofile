@@ -168,3 +168,6 @@ Zentrum für digitale Lexikographie der deutschen Sprache (ZDL)
 Bis Herbst 2023 wurde das DWDS Wortprofil hauptsächlich durch René Knaebel entwickelt.
 
 Kontakt: [Luise Köhler](mailto:luise.koehler@bbaw.de)
+
+# License
+The DWDS Wortprofil (wordprofile) is licensed under the GNU General Public License v3.0.
