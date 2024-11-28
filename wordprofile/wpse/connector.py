@@ -304,6 +304,50 @@ class WPConnect:
             )
         )
 
+    def get_collocates(
+        self,
+        lemma: str,
+        tag: str,
+        number: int = 20,
+        order_by: str = "log_dice",
+        min_freq: int = 5,
+        min_stat: float = 0.0,
+    ) -> list[tuple[str, int | float]]:
+        """
+        Fetch only collocates and metrics (logDice or frequency) for target
+        lemma from all relations.
+
+        The result is a list of tuples (collocate, score) sorted by the
+        retrieved metric in descending order. Collocations are filtered
+        by frequency and logDice score.
+        N.B.: The look-up of collocates is relation-agnostic and returns
+        only the lemma of the collocate. I.e. the same lemma might appear
+        more than once with different scores because they originate from
+        different relations or are differentiated by their preposition.
+
+        Args:
+            lemma:      Target lemma.
+            tag:        POS tag of lemma.
+            number:     Number of collocates to return.
+            order_by:   Metric retrieved and used for ordering. 'log_dice'
+                        or 'frequency'; default is 'log_dice'.
+            min_freq:   Frequency threshold of collocations. Default is 5.
+            min_stat:   Minimal logDice score that collocations must have.
+                        Default is 0.0.
+        """
+        metric = "score" if order_by == "log_dice" else "frequency"
+        query = f"""
+        SELECT
+        c.lemma2, IFNULL(c.{metric}, 0) as metric
+        FROM collocations c
+        WHERE
+            lemma1 = %s AND lemma1_tag = %s
+            AND c.frequency >= %s AND c.score >= %s
+        ORDER BY metric DESC LIMIT 0,%s;
+        """
+        params = (lemma, tag, min_freq, min_stat, number)
+        return list(self.__fetchall(query, params))
+
     def get_relation_tuples_diff(
         self,
         lemma1: str,

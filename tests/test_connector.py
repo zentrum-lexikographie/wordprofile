@@ -259,6 +259,51 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
+    def test_retrieval_of_collocates_order_by_logdice(self):
+        result = [
+            (col[0], round(col[1], 2))
+            for col in self.connector.get_collocates(
+                "Feuerwehr", "NOUN", order_by="log_dice"
+            )
+        ]
+        expected = [("nehmen", 8.25), ("Sprecher", 7.05)]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_collocates_order_by_freq(self):
+        result = self.connector.get_collocates("Kunst", "NOUN", order_by="frequency")
+        expected = [("Haus", 389), ("Kultur", 51), ("schöne", 42)]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_collocates_cutoff(self):
+        result = self.connector.get_collocates(
+            "nehmen", "VERB", order_by="frequency", number=3
+        )
+        expected = [
+            ("fest", 386),
+            ("Angabe", 386),
+            ("Polizei", 262),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_collocates_returns_empty_list_for_oov(self):
+        result = self.connector.get_collocates("Unknown", "NOUN")
+        self.assertEqual(result, [])
+
+    def test_collocates_filtered_by_frequency(self):
+        result = self.connector.get_collocates(
+            "liegen", "VERB", order_by="frequency", min_freq=200
+        )
+        self.assertEqual(result, [("Boden", 210)])
+
+    def test_collocates_filtered_by_logdice(self):
+        result = [
+            (col[0], round(col[1], 1))
+            for col in self.connector.get_collocates(
+                "nehmen", "VERB", order_by="log_dice", min_stat=10.0
+            )
+        ]
+        self.assertEqual(result, [("Angabe", 11.0), ("fest", 10.9)])
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod

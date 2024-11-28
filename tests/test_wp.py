@@ -71,6 +71,17 @@ class MockDb:
         concordances = self.conc.get(coocc_id, [])
         return concordances[start_index : start_index + result_number]
 
+    def get_collocates(
+        self, lemma, lemma_tag, number, order_by, min_freq=5, min_stat=0
+    ):
+        collocates = []
+        for id, coocc in self.db.items():
+            if coocc.lemma1 == lemma and coocc.tag1 == lemma_tag:
+                if coocc.freq >= min_freq and coocc.score >= min_stat:
+                    score = coocc.score if order_by == "log_dice" else coocc.freq
+                    collocates.append((coocc.lemma2, score))
+        return sorted(collocates, key=lambda x: x[1], reverse=True)[:number]
+
 
 class MockMweDb(MockDb):
     def get_relation_tuples(
@@ -766,3 +777,29 @@ class WordprofileTest(unittest.TestCase):
         ]
         self.assertEqual(len(result), 2)
         self.assertEqual(result, expected)
+
+    def test_reduced_profile_order_by_logdice(self):
+        response = self.wp.get_reduced_profile(
+            "Feuerwehr", "Substantiv", number=4, order_by="log_dice", min_freq=1
+        )
+        result = []
+        for col in response:
+            score = col["Score"]
+            col["Score"] = round(score, 1)
+            result.append(col)
+        expected = [
+            {"Lemma": "Kommandant", "Score": 8.5},
+            {"Lemma": "rücken", "Score": 8.5},
+            {"Lemma": "Umgebung", "Score": 4.8},
+        ]
+
+        self.assertEqual(result, expected)
+
+    def test_reduced_profile_order_by_freq(self):
+        result = self.wp.get_reduced_profile(
+            "Sofa", "Substantiv", number=2, order_by="frequency"
+        )
+        self.assertEqual(
+            result,
+            [{"Lemma": "plüschig", "Score": 200}, {"Lemma": "gemütlich", "Score": 20}],
+        )
