@@ -153,4 +153,18 @@ Um diejenigen Tests auszuführen, die eine Datenbankverbindung benötigen, wird 
 export USER_GROUP=$(id -u):$(id -g)
 docker compose -f docker-compose-test.yml up
 ```
-Für die Integrationstests in `integrations_test.py` und einige Tests aus dem `preprocessing`-Modul wird die Installtion des Modells `de_hdt_lg` vorausgesetzt.
+Für die Integrationstests in `integrations_test.py` und einige Tests aus dem `preprocessing`-Modul wird die Installation des Modells `de_hdt_lg` vorausgesetzt.
+
+## Hintergrund
+Das *DWDS Wortprofil* wird im Rahmen des Zentrums für digitale Lexikographie der deutschen Sprache ([ZDL](https://www.zdl.org/)) an der Berlin-Brandenburgischen Akademie der Wissenschaften ([BBAW](https://www.bbaw.de/)) entwickelt. Dieses Projekt ist eine Neuimplementierung des Wortprofils von Jörg Didakowski ([1],[2]) und ersetzt u.a. dessen Syntaxanalyse mittels formaler (handgeschriebener) Grammatiken durch einen auf [UD](https://universaldependencies.org/) trainierten Dependenzparser.
+
+[1] Geyken, A., Didakowski, J., & Siebert, A. (2009). 'Generation of word profiles for large German corpora'. Corpus Analysis and Variation in Linguistics, 141-157. [[PDF](https://www.dwds.de/dwds_static/publications/text/Geyken_Didakowksi_Siebert_WordProfiles_Ms.pdf)]
+
+[2] Didakowski, J. und Geyken, A. (2014). 'From DWDS corpora to a German word proﬁle – methodological problems and solutions'. In: OPAL – Online publizierte Arbeiten zur Linguistik 2/2014, S. 39–47. [[PDF](https://www.dwds.de/dwds_static/publications/pdf/didakowski_geyken_internetlexikografie_2012_final.pdf)]
+
+## Autor
+Zentrum für digitale Lexikographie der deutschen Sprache (ZDL)
+
+Bis Herbst 2023 wurde das DWDS Wortprofil hauptsächlich durch René Knaebel entwickelt.
+
+Kontakt: [Luise Köhler](mailto:luise.koehler@bbaw.de)
