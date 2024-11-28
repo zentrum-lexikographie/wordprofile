@@ -167,3 +167,5 @@ Bis Herbst 2023 wurde das DWDS Wortprofil hauptsächlich durch René Knaebel ent
 
 # License
 The DWDS Wortprofil (wordprofile) is licensed under the GNU General Public License v3.0.
+
+[Luise Köhler](mailto:luise.koehler@bbaw.de)
