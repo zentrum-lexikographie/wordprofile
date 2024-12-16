@@ -1,6 +1,10 @@
+import os
 import pathlib
+from subprocess import check_call
 import unittest
+from time import sleep
 
+import pytest
 import sqlalchemy as sq
 
 import wordprofile.wpse.create as wc
@@ -10,9 +14,19 @@ from wordprofile.wpse.mwe_connector import WPMweConnect
 from wordprofile.wpse.processing import load_files_into_db
 
 
+@pytest.fixture(autouse=True, scope="session")
+def test_db():
+    if os.environ.get("WP_SKIP_TEST_DB_FIXTURE"):
+        yield False
+    else:
+        check_call(["docker", "compose", "-p", "wp_test", "up", "db", "--wait"])
+        yield True
+        check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
+
+
 def create_database():
     engine = sq.create_engine(
-        "mysql+pymysql://test:test@localhost:3306/test?charset=utf8mb4&local_infile=1"
+        "mysql+pymysql://wp:wp@localhost:3306/wp?charset=utf8mb4&local_infile=1"
     )
     with engine.connect() as conn:
         wc.init_word_profile_tables(conn, "test")
@@ -27,7 +41,7 @@ class WPConnectTest(unittest.TestCase):
     def setUpClass(cls):
         create_database()
         cls.connector = WPConnect(
-            host="localhost", user="test", passwd="test", dbname="test"
+            host="localhost", user="wp", passwd="wp", dbname="wp"
         )
 
     def test_random_examples_extracted(self):
@@ -309,7 +323,7 @@ class WPMweConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.connector = WPMweConnect(
-            host="localhost", user="test", passwd="test", dbname="test"
+            host="localhost", user="wp", passwd="wp", dbname="wp"
         )
 
     def test_random_examples_extracted_for_mwe(self):

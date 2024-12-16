@@ -9,14 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 def init_word_profile_tables(connection: Connection, database: str):
-    connection.execute(text(f"DROP DATABASE IF EXISTS {database}"))
-    connection.execute(
-        text(
-            f"CREATE DATABASE {database} CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin"
-        )
-    )
-    connection.execute(text("USE " + database))
-
     meta = MetaData()
     wordprofile.wpse.db_tables.get_table_corpus_files(meta)
     wordprofile.wpse.db_tables.get_table_concord_sentences(meta)

@@ -10,9 +10,9 @@ jobs:
       db:
         image: mariadb:10
         env:
-          MYSQL_DATABASE: "test"
-          MYSQL_USER: "test"
-          MYSQL_PASSWORD: "test"
+          MYSQL_DATABASE: "wp"
+          MYSQL_USER: "wp"
+          MYSQL_PASSWORD: "wp"
           MYSQL_RANDOM_ROOT_PASSWORD: "yes"
         ports:
           - 3306:3306
@@ -36,4 +36,4 @@ jobs:
         pip install -U pip pipenv
         pipenv install --system --deploy --categories='packages api build prep dev-packages'
     - name: Run tests
-      run: pytest tests/integration_test.py tests/test_connector.py
+      run: WP_SKIP_TEST_DB_FIXTURE=1 pytest
