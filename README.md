@@ -148,13 +148,6 @@ Tests für das gesamt Projekt werden ausgeführt via:
 pytest
 ```
 
-Um diejenigen Tests auszuführen, die eine Datenbankverbindung benötigen, wird zunächst ein Test-Docker-Container gestartet:
-```shell
-export USER_GROUP=$(id -u):$(id -g)
-docker compose -f docker-compose-test.yml up
-```
-Für die Integrationstests in `integrations_test.py` und einige Tests aus dem `preprocessing`-Modul wird die Installation des Modells `de_hdt_lg` vorausgesetzt.
-
 ## Hintergrund
 Das *DWDS Wortprofil* wird im Rahmen des Zentrums für digitale Lexikographie der deutschen Sprache ([ZDL](https://www.zdl.org/)) an der Berlin-Brandenburgischen Akademie der Wissenschaften ([BBAW](https://www.bbaw.de/)) entwickelt. Dieses Projekt ist eine Neuimplementierung des Wortprofils von Jörg Didakowski ([1],[2]) und ersetzt u.a. dessen Syntaxanalyse mittels formaler (handgeschriebener) Grammatiken durch einen auf [UD](https://universaldependencies.org/) trainierten Dependenzparser.
 
