@@ -3,10 +3,12 @@ import os
 import sys
 import time
 from datetime import date, datetime
+from subprocess import check_call
 from typing import Iterable, Iterator
-
+import warnings
 import click
 import conllu
+import spacy
 from spacy.tokens import Doc
 
 from wordprofile.utils import configure_logs_to_file
@@ -14,18 +16,39 @@ from wordprofile.utils import configure_logs_to_file
 logger = logging.getLogger(__name__)
 
 
+def zdl_model_to_hf_url(model):
+    return (
+        f"https://huggingface.co/zentrum-lexikographie/{model}/resolve/main/"
+        f"{model}-any-py3-none-any.whl"
+    )
+
+
+def load_zdl_spacy_model(model: str = "de_hdt_dist"):
+    with warnings.catch_warnings():
+        warnings.simplefilter(action='ignore', category=FutureWarning)
+        spacy.prefer_gpu()
+        try:
+            return spacy.load(model)
+        except OSError:
+            requirement = f"{model} @ {zdl_model_to_hf_url(model)}"
+            check_call([
+                sys.executable,
+                "-m",
+                "pip",
+                "install",
+                "-qqq",
+                "--progress-bar",
+                "off",
+                requirement
+            ])
+            return spacy.load(model)
+
+
 class SpacyParser:
     def __init__(self, model: str = "de_hdt_dist", batch_size: int = 128) -> None:
-        import spacy
-
-        spacy.prefer_gpu()
-
-        tmp_stdout = sys.stdout
-        sys.stdout = sys.stderr
-        self.nlp = spacy.load(model)
-        self.batch_size = batch_size
-        sys.stdout = tmp_stdout
+        self.nlp = load_zdl_spacy_model(model)
         self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
+        self.batch_size = batch_size
 
     def custom_tokenizer(
         self, sentence: conllu.models.TokenList
