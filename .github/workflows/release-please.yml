@@ -1,0 +1,17 @@
+on:
+  push:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+name: Release Please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          token: ${{ secrets.RP_TOKEN }}
+          release-type: python
