@@ -3,9 +3,7 @@ import io
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
-
-from typing_extensions import Self
+from typing import Optional, Self
 
 from wordprofile.preprocessing.pytabs.consts import UD_POS_MAP
 
