@@ -1,12 +1,11 @@
+name: rp
 on:
   push:
-
+    branches:
+      - 'master'
 permissions:
   contents: write
   pull-requests: write
-
-name: Release Please
-
 jobs:
   release-please:
     runs-on: ubuntu-latest
