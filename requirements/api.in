@@ -1,0 +1,4 @@
+-c base.txt
+fastapi==0.115.2
+uvicorn[standard]
+jinja2

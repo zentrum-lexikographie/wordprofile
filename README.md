@@ -5,26 +5,10 @@ Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der B
 
 ## Project setup
 
-Dependency management is done via [pipenv](https://pipenv.pypa.io/),
-virtual environments and Python version management is done via
-[pyenv](https://github.com/pyenv/pyenv#getting-pyenv):
+To install the full editable project including dev dependencies, run:
 
-    curl https://pyenv.run | bash
-    # add pyenv hooks to ~/.bashrc
-    pip install --user pipenv
-
-
-To install the full project and dev dependencies, run:
-
-    pipenv sync --categories="packages api build prep dev-packages"
-
-If not all parts of the project are necessary, specify the relevant ones using the `categories` option.
-
-The default category (`packages`) and the `api` category contain the packages necessary to run the wordprofile as a service.
-The `build` category is necessary for data processing (collocation extraction, statistics, database population).
-The `prep` category corresponds to the preprocessing step (data conversion, annotation). A model for dependency annotation has to be installed separately (see below).
-`dev-packages` (or `--dev`) contains packages for testing and code maintenance.
-
+    pip install -U pip pip-tools setuptools
+    pip-sync requirements/*.txt
 
 ## Erstellen eines Wortprofils
 Für das Erstellen eines *Wortprofils* sind folgende Schritte nötig:
@@ -128,18 +112,6 @@ python wordprofile/cli/load_database.py test_wp/stats --user wpuser --db test_wp
 Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `data_update.py` oder `tabs2conllu.py` verwendet werden (im Verzeichnis `wordprofile/preprocessing/cli/`).
 
 Benutzung siehe [readme](wordprofile/preprocessing/README.md) im `wordprofile/preprocessing`-Verzeichnis.
-
-### Installation
-Die Installation der für die Vorverarbeitung nötigen Pakete erfolgt folgendermaßen:
-```
-pipenv sync --categories prep
-```
-
-## Entwicklungssetup
-
-```shell
-pipenv sync --dev
-```
 
 ### Tests
 Tests für das gesamt Projekt werden ausgeführt via:

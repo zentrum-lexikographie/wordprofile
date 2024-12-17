@@ -2,7 +2,8 @@
 
 !/spec
 !/wordprofile
-!/Pipfile*
+!/pyproject.toml
+!/requirements
 
 **/__pycache__
 **/*.py[cod]

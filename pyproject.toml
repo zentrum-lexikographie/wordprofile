@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wordprofile"
+description = "Collocation Extraction @ DWDS/ZDL"
+authors = [
+    {name = "Luise Köhler", email = "luise.koehler@bbaw.de"},
+    {name = "René Knaebel", email = "reneknaebel90@gmail.com"},
+    {name = "Gregor Middell", email = "gregor.middell@bbaw.de"}
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Text Processing :: Linguistic"
+]
+requires-python = ">=3.12"
+dynamic = ["readme", "version", "dependencies", "optional-dependencies"]
+
+[project.urls]
+Homepage = "https://github.com/zentrum-lexikographie/wordprofile"
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.setuptools.dynamic]
+readme = {file = ["README.md"], content-type = "text/markdown"}
+version = {attr = "wordprofile.version.__version__"}
+dependencies = { file = ["requirements/base.in"] }
+optional-dependencies.dev = { file = ["requirements/dev.in"] }
+optional-dependencies.api = { file = ["requirements/api.in"] }
+optional-dependencies.build = { file = ["requirements/build.in"] }
+
+[tool.setuptools.packages.find]
+exclude = ["tests"]

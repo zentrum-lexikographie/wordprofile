@@ -24,18 +24,18 @@ jobs:
     - uses: actions/setup-python@v5
       with:
         python-version: "3.12"
-    - name: Cache pipenv
+    - name: Cache Python Dependencies
       uses: actions/cache@v3
       id: cache-python
       with:
         path: ${{ env.pythonLocation }}
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/Pipfile.lock') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements/*.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pipenv
+          ${{ runner.os }}-python-env
     - name: Install Python dependencies
       if: steps.cache-python.outputs.cache-hit != 'true'
       run: |
-        pip install -U pip pipenv
-        pipenv install --system --deploy --categories='packages api build prep dev-packages'
+        pip install -U pip pip-tools setuptools
+        pip-sync requirements/*.txt
     - name: Run tests
       run: WP_SKIP_TEST_DB_FIXTURE=1 pytest

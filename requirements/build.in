@@ -1,0 +1,4 @@
+-c base.txt
+conllu
+spacy[cuda11x]==3.7.5
+spacy-transformers
