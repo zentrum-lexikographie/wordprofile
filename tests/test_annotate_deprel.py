@@ -21,16 +21,7 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    # determine which model to use
-    try:
-        import de_hdt_lg
-
-        model = "de_hdt_lg"
-    except ImportError:
-        import de_hdt_dist
-
-        model = "de_hdt_dist"
-    return deprel.SpacyParser(model)
+    return deprel.SpacyParser(model="de_hdt_lg")
 
 
 def test_custom_tokenizer(parser, short_conll_file):
