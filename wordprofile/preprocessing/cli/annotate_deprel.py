@@ -2,6 +2,7 @@ import logging
 import time
 from datetime import datetime
 from typing import Iterable, Iterator
+
 import click
 import conllu
 import spacy
@@ -87,6 +88,7 @@ def main(input, output, model, batch_size):
         "Processing corpus %s with %s model (batch size: %d)."
         % (input_file, model, batch_size)
     )
+    spacy.prefer_gpu()
     parser = SpacyParser(model=model, batch_size=batch_size)
 
     start = time.time()
