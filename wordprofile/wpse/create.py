@@ -19,19 +19,6 @@ def init_word_profile_tables(connection: Connection, database: str):
     wordprofile.wpse.db_tables.get_table_mwe_match(meta)
     meta.create_all(connection)
 
-    connection.execute(
-        text(
-            """
-        CREATE OR REPLACE
-        VIEW corpus_file_freqs
-        AS
-        SELECT cf.corpus, COUNT(cf.file)
-        FROM corpus_files cf
-        GROUP BY cf.corpus
-    """
-        )
-    )
-
 
 def create_indices(connection: Connection):
     logger.info("CREATE INDEX indices for files, concordances, and matches")
