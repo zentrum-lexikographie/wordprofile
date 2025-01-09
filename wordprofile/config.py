@@ -21,3 +21,5 @@ HTTP_WORKERS = config("WP_HTTP_WORKERS", cast=int, default=1)
 MIN_REL_FREQ = config("WP_MIN_REL_FREQ", cast=int, default=3)
 
 MWE = config("WP_MWE", cast=bool, default=False)
+
+max_form_length = 50

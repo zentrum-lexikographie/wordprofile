@@ -31,6 +31,10 @@ profile = "black"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
+[[tool.mypy.overrides]]
+module = ["pymysql", "MySQLdb"]
+ignore_missing_imports = true
+
 [tool.setuptools.dynamic]
 readme = {file = ["README.md"], content-type = "text/markdown"}
 version = {attr = "wordprofile.version.__version__"}

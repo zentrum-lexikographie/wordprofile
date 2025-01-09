@@ -14,7 +14,6 @@ from typing import Any, Protocol, Union
 
 import conllu
 from conllu.models import Token, TokenList
-from sqlalchemy import Connection, text
 
 from wordprofile.datatypes import Colloc, CollocInstance, DBMatch, WPToken
 from wordprofile.sentence_filter import (
@@ -948,27 +947,3 @@ def filter_mwe_matches(final_path: str, mwe_freqs: dict[int, int]) -> None:
                 mwe_id = int(line.strip().split("\t")[0])
                 if mwe_id in mwe_freqs:
                     print(line, end="", file=fo)
-
-
-def load_files_into_db(connection: Connection, storage_path: str) -> None:
-    """Load generated data files into their corresponding db tables."""
-    for tb_name in [
-        "corpus_files",
-        "concord_sentences",
-        "collocations",
-        "token_freqs",
-        "matches",
-        "mwe",
-        "mwe_match",
-    ]:
-        tb_file = os.path.join(storage_path, tb_name)
-        if not os.path.exists(tb_file):
-            logger.warning("Local file '%s' does not exist." % tb_file)
-        else:
-            logger.info("LOAD DATA FILE: %s" % tb_name)
-            if tb_name == "concord_sentences":
-                query = f"""LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name}
-                (corpus_file_id, sentence_id, sentence);"""
-            else:
-                query = f"LOAD DATA LOCAL INFILE '{tb_file}' INTO TABLE {tb_name};"
-            connection.execute(text(query))

@@ -1,17 +1,14 @@
 import os
-import pathlib
+from pathlib import Path
 from subprocess import check_call
 import unittest
-from time import sleep
 
 import pytest
-import sqlalchemy as sq
 
-import wordprofile.wpse.create as wc
+from wordprofile.db import open_db, load_db
 from wordprofile.datatypes import Coocc
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
-from wordprofile.wpse.processing import load_files_into_db
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -24,22 +21,13 @@ def test_db():
         check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
 
 
-def create_database():
-    engine = sq.create_engine(
-        "mysql+pymysql://wp:wp@localhost:3306/wp?charset=utf8mb4&local_infile=1"
-    )
-    with engine.connect() as conn:
-        wc.init_word_profile_tables(conn, "test")
-        data_dir = pathlib.Path(__file__).parent / "testdata" / "test_db"
-        load_files_into_db(conn, data_dir)
-        wc.create_indices(conn)
-        wc.create_statistics(conn)
+db_test_data_dir = Path(__file__).parent / "testdata" / "test_db"
 
 
 class WPConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        create_database()
+        load_db(open_db(clear=True), db_test_data_dir)
         cls.connector = WPConnect(
             host="localhost", user="wp", passwd="wp", dbname="wp"
         )

@@ -73,40 +73,37 @@ In diesem Aufruf werden die Teilkorpora in `test_wp/colloc` zusammengeführt, di
 Mit der Option `--mwe` werden nach der Zusammenführung der Teilkorpora Verkettungen von Kollokationen ("Mehrwortausdrücke") gesucht, d.h. Überlappungen zweier Kollokationen.
 
 ### 3. Befüllen der Datenbank
+
 In diesem Schritt werden die Ergebnisse in die Datenbank geschrieben und Indizes auf den Datenbanktabellen erstellt, um eine performante Abfrage der Kollokationen zu ermöglichen.
 
+#### 3.1. Starten einer lokalen Datenbankinstanz
+
+Wenn per Umgebungsvariablen keine anderen Einstellungen vorliegen, wird eine lokale Datenbankinstanz befüllt. Um eine solche in einem zur Verfügung zu stellen, wird per Docker ein entsprechender MariaDB-Container gestartet:
+
 ```sh
-usage: load_database.py [-h] [--user USER] [--db DB] source
-
-positional arguments:
-  source       temporary storage path
-
-options:
-  -h, --help   show this help message and exit
-  --user USER  database username
-  --db DB      database name
+docker compose up db
 ```
 
-Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB geladen werden können. Die Datenbank wird in ein lokales Verzeichnis (`data/db`) geschrieben, das in den Dockercontainer gemountet wird.
-Bevor der Dockercontainer gestartet wird, sollte sichergestellt werden, dass dieses Verzeichnis existiert und dem korrekten User gehört, z.B.:
+Die Daten der Instanz befinden sich auf einem Docker-Volume, von wo sie zur Verbringung auf andere Systeme kopiert werden können. Unter GNU/Linux befindet sich das Volume z. B. standardmäßig im Dateisystem unter
+
+`/var/lib/docker/volumes/wordprofile_db/_data`
+
+Zum Entfernen des Containers und seiner Daten nach Erstellung eines Profils, dient das Kommando
+
+``` sh
+docker compose down db -v
+```
+
+#### 3.2. Befüllen der Datenbank
+
+Die Daten liegen in Dateiform so vor, dass sie direkt in eine SQL DB
+geladen werden können. Hierzu dient folgendes Skript:
+
 ```sh
-mkdir -p data/db
-```
-Der Dockercontainer wird unter dem entsprechenden User gestartet; dazu muss die Umgebungsvariable `USER_GROUP` gesetzt sein:
-```sh
-export USER_GROUP=$(id -u):$(id -g)
-```
-Danach kann der Container gestartet werden mit
-```sh
-docker compose build # falls Container noch nicht existiert
-docker compose up
+python wordprofile/cli/load_database.py test_wp/stats
 ```
 
-Beispielaufruf:
-```shell
-python wordprofile/cli/load_database.py test_wp/stats --user wpuser --db test_wp
-```
-
+Mit dem optionalen Parameter `--clear` kann die Datenbank vor einem (erneuten) Befüllen bereinigt werden.
 
 ## Vorverarbeitung
 Für die Umwandlung von `.tabs`-Dateien nach `.conll` können die Python-Skripte `data_update.py` oder `tabs2conllu.py` verwendet werden (im Verzeichnis `wordprofile/preprocessing/cli/`).

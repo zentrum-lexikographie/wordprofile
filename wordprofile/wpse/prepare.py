@@ -3,8 +3,8 @@ from collections.abc import Iterable
 
 from conllu.models import Metadata
 
+from wordprofile.config import max_form_length
 from wordprofile.datatypes import DBConcordance, DBCorpusFile, DBMatch, Match, WPToken
-from wordprofile.wpse.db_tables import LEMMA_TYPE, SURFACE_TYPE
 
 logger = logging.getLogger(__name__)
 
@@ -74,14 +74,12 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
         by additional matches generated for prepositions.
     """
     db_matches = []
-    max_surface_length = 50 if SURFACE_TYPE.length is None else SURFACE_TYPE.length
-    max_lemma_length = 50 if LEMMA_TYPE.length is None else LEMMA_TYPE.length
     for m in matches:
         if (
-            len(m.head.surface) > max_surface_length
-            or len(m.dep.surface) > max_surface_length
-            or len(m.head.lemma) > max_lemma_length
-            or len(m.dep.lemma) > max_lemma_length
+            len(m.head.surface) > max_form_length
+            or len(m.dep.surface) > max_form_length
+            or len(m.head.lemma) > max_form_length
+            or len(m.dep.lemma) > max_form_length
         ):
             logger.warning(f"SKIP LONG MATCH {doc_id} {m}")
             continue
@@ -90,10 +88,10 @@ def prepare_matches(doc_id: str, matches: Iterable[Match]) -> list[DBMatch]:
             extra_pos.add(m.prep.idx)
             extra_positions = "-".join([str(idx) for idx in extra_pos if idx])
             if (
-                len(m.head.surface) + len(m.prep.surface) + 1 > max_surface_length
-                or len(m.dep.surface) + len(m.prep.surface) + 1 > max_surface_length
-                or len(m.head.lemma) + len(m.prep.surface) + 1 > max_lemma_length
-                or len(m.dep.lemma) + len(m.prep.surface) + 1 > max_lemma_length
+                len(m.head.surface) + len(m.prep.surface) + 1 > max_form_length
+                or len(m.dep.surface) + len(m.prep.surface) + 1 > max_form_length
+                or len(m.head.lemma) + len(m.prep.surface) + 1 > max_form_length
+                or len(m.dep.lemma) + len(m.prep.surface) + 1 > max_form_length
             ):
                 logger.warning(f"SKIP LONG MATCH {doc_id[:7]}...{doc_id[-15:-8]} {m}")
                 continue

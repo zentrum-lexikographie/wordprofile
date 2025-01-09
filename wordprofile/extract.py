@@ -1,3 +1,5 @@
+from enum import Enum
+
 from collections import defaultdict
 from collections.abc import Iterator
 
@@ -82,39 +84,28 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     },
 }
 
-
-def get_relation_types() -> list[str]:
-    """Extract wordprofile relation types from relation patterns.
-
-    Returns:
-        Alphabetically sorted list of relation types for wordprofile.
-    """
-    return sorted(list(RELATION_PATTERNS.keys()))
+relation_types = Enum("RELATION_TYPE", sorted(  # type: ignore[misc]
+    list(RELATION_PATTERNS.keys())
+))
 
 
-def get_word_classes() -> list[str]:
-    """Extract word classes from relation patterns.
+def word_classes_of_rule(rule):
+    if len(rule) == 3:
+        return rule[1:]
+    elif len(rule) == 5:
+        return rule[2:]
+    else:
+        raise ValueError("Unexpected pattern length.")
 
-    Returns:
-        Alphabetically sorted list of word classes for wordprofile.
-    """
 
-    def get_classes(rule):
-        if len(rule) == 3:
-            return rule[1:]
-        elif len(rule) == 5:
-            return rule[2:]
-        else:
-            raise ValueError("Unexpected pattern length.")
-
-    return sorted(
-        set(
-            c.upper()
-            for pattern in RELATION_PATTERNS.values()
-            for rule in pattern["rules"]
-            for c in get_classes(rule)
-        )
+word_classes = Enum("TAG_TYPE", sorted(  # type: ignore[misc]
+    set(
+        c.upper()
+        for pattern in RELATION_PATTERNS.values()
+        for rule in pattern["rules"]
+        for c in word_classes_of_rule(rule)
     )
+))
 
 
 def get_inverted_relation_patterns() -> (
