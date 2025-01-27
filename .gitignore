@@ -32,3 +32,4 @@ tests/testdata/db
 test-data/
 
 .coverage*
+.mypy_cache/
