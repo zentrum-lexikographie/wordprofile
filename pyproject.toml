@@ -25,6 +25,10 @@ dynamic = ["readme", "version", "dependencies", "optional-dependencies"]
 [project.urls]
 Homepage = "https://github.com/zentrum-lexikographie/wordprofile"
 
+[project.scripts]
+wp-annotate = "wordprofile.annotate:main"
+wp-ddc2conllu = "wordprofile.ddc:main"
+
 [tool.isort]
 profile = "black"
 

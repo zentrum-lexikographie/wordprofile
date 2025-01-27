@@ -8,6 +8,8 @@ annotated-types==0.7.0
     # via pydantic
 blis==0.7.11
     # via thinc
+cachetools==5.5.1
+    # via -r requirements/build.in
 catalogue==2.0.10
     # via
     #   spacy
@@ -88,6 +90,7 @@ numpy==1.26.4
     # via
     #   blis
     #   cupy-cuda11x
+    #   py3langid
     #   spacy
     #   spacy-transformers
     #   thinc
@@ -139,6 +142,8 @@ preshed==3.0.9
     #   thinc
 prompt-toolkit==3.0.50
     # via inquirerpy
+py3langid==0.2.2
+    # via -r requirements/build.in
 pydantic==2.10.3
     # via
     #   confection
@@ -204,6 +209,7 @@ torch==2.5.1
     # via spacy-transformers
 tqdm==4.67.1
     # via
+    #   -r requirements/build.in
     #   huggingface-hub
     #   spacy
     #   transformers

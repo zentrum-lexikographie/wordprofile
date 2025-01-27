@@ -1,5 +1,8 @@
 -c base.txt
+cachetools
 conllu
 dwdsmor
+py3langid
 spacy[cuda11x]==3.7.5
 spacy-transformers
+tqdm
