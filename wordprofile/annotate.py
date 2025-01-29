@@ -205,6 +205,12 @@ def main():
     logger.info("Loading spaCy models (%s)", "fast" if args.fast else "accurate")
     hdt = spacy_model("de_hdt_lg" if args.fast else "de_hdt_dist")
     wikiner = spacy_model("de_wikiner_lg" if args.fast else "de_wikiner_dist")
+    if args.fast:
+        to_replace = "tok2vec"
+    else:
+        to_replace = "transformer"
+    wikiner.replace_listeners(to_replace, "ner",["model.tok2vec"])
+    hdt.add_pipe("ner", source=wikiner, name="wikiner")
     logger.info("Loading DWDSmor lemmatizer")
     lemmatizer = dwdsmor.lemmatizer()
     sentences = conllu.parse_incr(args.input_file)
