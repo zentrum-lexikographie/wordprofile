@@ -58,6 +58,23 @@ def spacy_model(model):
         return spacy.load(model)
 
 
+def load_spacy(accurate=True, gpu_id=-1):
+    if gpu_id >= 0:
+        logger.info("Using GPU #%d", gpu_id)
+        thinc.api.set_gpu_allocator("pytorch")
+        thinc.api.require_gpu(gpu_id)
+        spacy.prefer_gpu()
+    nlp = spacy_model("de_hdt_dist" if accurate else "de_hdt_lg")
+    ner = spacy_model("de_wikiner_dist" if accurate else "de_wikiner_lg")
+    ner.replace_listeners(
+        "transformer" if accurate else "tok2vec",
+        "ner",
+        ("model.tok2vec", )
+    )
+    nlp.add_pipe("ner", source=ner, name="wikiner")
+    return nlp
+
+
 def spacy_doc(nlp, s):
     return spacy.tokens.Doc(
         nlp.vocab,
@@ -66,27 +83,25 @@ def spacy_doc(nlp, s):
     )
 
 
-def spacy_nlp(hdt, wikiner, sentences, batch_size=128, **kwargs):
-    sents, hdt_sents, ner_sents = itertools.tee(sentences, 3)
-    hdt_docs = (spacy_doc(hdt, s) for s in hdt_sents)
-    ner_docs = (spacy_doc(wikiner, s) for s in ner_sents)
-    hdt_docs = hdt.pipe(hdt_docs, batch_size=batch_size, **kwargs)
-    ner_docs = wikiner.pipe(ner_docs, batch_size=batch_size, **kwargs)
-    for s, hdt_doc, ner_doc in zip(sents, hdt_docs, ner_docs):
-        for token, hdt_token in zip(s, hdt_doc):
-            feats = conllu.parser.parse_dict_value(str(hdt_token.morph)) if hdt_token.morph else None
-            is_root = hdt_token.dep_ == "ROOT"
+def spacy_nlp(nlp, sentences, batch_size=128, **kwargs):
+    doc_sents, sentences = itertools.tee(sentences, 2)
+    docs = (spacy_doc(nlp, s) for s in doc_sents)
+    docs = nlp.pipe(docs, batch_size=batch_size, **kwargs)
+    for s, doc in zip(sentences, docs):
+        for token, nlp_token in zip(s, doc):
+            feats = conllu.parser.parse_dict_value(str(nlp_token.morph)) if nlp_token.morph else None
+            is_root = nlp_token.dep_ == "ROOT"
             token.update({
-                "upos": hdt_token.pos_,
-                "xpos": hdt_token.tag_,
+                "upos": nlp_token.pos_,
+                "xpos": nlp_token.tag_,
                 "feats": feats,
-                "head": 0 if is_root else hdt_token.head.i + 1,
-                "deprel": "root" if is_root else hdt_token.dep_,
+                "head": 0 if is_root else nlp_token.head.i + 1,
+                "deprel": "root" if is_root else nlp_token.dep_,
             })
-        if ner_doc.ents:
+        if doc.ents:
             s.metadata["entities"] = json.dumps(tuple(
                 (e.label_, *(i + 1 for i in range(e.start, e.end)))
-                for e in ner_doc.ents
+                for e in doc.ents
             ))
         yield s
 
@@ -156,7 +171,6 @@ def lemmatize(lemmatizer, sentence, cache_size=10000):
 
 
 def post_annotate(sentence):
-    print(sentence)
     sentence = collapse_phrasal_verbs(sentence)
     sentence = extract_collocs(sentence)
     sentence = detect_language(sentence)
@@ -197,20 +211,8 @@ arg_parser.add_argument(
 
 def main():
     args = arg_parser.parse_args()
-    if args.gpu >= 0:
-        logger.info("Using GPU #%d", args.gpu)
-        thinc.api.set_gpu_allocator("pytorch")
-        thinc.api.require_gpu(args.gpu)
-    spacy.prefer_gpu()
     logger.info("Loading spaCy models (%s)", "fast" if args.fast else "accurate")
-    hdt = spacy_model("de_hdt_lg" if args.fast else "de_hdt_dist")
-    wikiner = spacy_model("de_wikiner_lg" if args.fast else "de_wikiner_dist")
-    if args.fast:
-        to_replace = "tok2vec"
-    else:
-        to_replace = "transformer"
-    wikiner.replace_listeners(to_replace, "ner",["model.tok2vec"])
-    hdt.add_pipe("ner", source=wikiner, name="wikiner")
+    nlp = load_spacy(not args.fast, args.gpu)
     logger.info("Loading DWDSmor lemmatizer")
     lemmatizer = dwdsmor.lemmatizer()
     sentences = conllu.parse_incr(args.input_file)
@@ -221,7 +223,7 @@ def main():
             unit=" tokens",
             unit_scale=True,
         )
-    sentences = spacy_nlp(hdt, wikiner, sentences)
+    sentences = spacy_nlp(nlp, sentences)
     sentences = (lemmatize(lemmatizer, s) for s in sentences)
     if args.concurrency < 0:
         sentences = (post_annotate(s) for s in sentences)
@@ -229,7 +231,7 @@ def main():
     else:
         mp_ctx = multiprocessing.get_context("forkserver")
         with mp_ctx.Pool(args.concurrency) as p:
-            sentences = p.imap(post_annotate, sentences, 1024)
+            sentences = p.imap(post_annotate, sentences, 128)
             output(sentences, args.output_file, progress)
 
 
