@@ -201,6 +201,7 @@ def main():
         logger.info("Using GPU #%d", args.gpu)
         thinc.api.set_gpu_allocator("pytorch")
         thinc.api.require_gpu(args.gpu)
+    spacy.prefer_gpu()
     logger.info("Loading spaCy models (%s)", "fast" if args.fast else "accurate")
     hdt = spacy_model("de_hdt_lg" if args.fast else "de_hdt_dist")
     wikiner = spacy_model("de_wikiner_lg" if args.fast else "de_wikiner_dist")
