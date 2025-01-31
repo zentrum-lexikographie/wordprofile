@@ -3,37 +3,78 @@ from collections import defaultdict
 from itertools import chain
 
 relations = {
-    "ADV": [
-        ("advmod", "verb", "adv"),
-        ("advmod", "adj", "adv"),
-        ("advmod", "verb", "adj"),
-        ("advmod", "adj", "adj"),
-    ],
-    "ATTR": [("amod", "noun", "adj")],
-    "GMOD": [],
-    "KOM": [],
-    "KON": [
-        ("conj", "cc", "noun", "noun", "cconj"),
-        ("conj", "cc", "verb", "verb", "cconj"),
-        ("conj", "cc", "adj", "adj", "cconj"),
-    ],
-    "OBJ": [("iobj", "verb", "noun")],
-    "OBJO": [],
-    "PP": [
-        ("nmod", "case", "noun", "noun", "adp"),
-        ("obl", "case", "verb", "noun", "adp"),
-        ("obl", "case", "verb", "adj", "adp"),
-        ("obl", "case", "verb", "adv", "adp"),
-        ("obj", "case", "verb", "noun", "adp"),
-    ],
-    "PRED": [],
-    "SUBJA": [],
-    "SUBJP": [("nsubj:pass", "verb", "noun")],
+    "ADV": {
+        "patterns": (
+            ("advmod", "verb", "adv"),
+            ("advmod", "adj", "adv"),
+            ("advmod", "verb", "adj"),
+            ("advmod", "adj", "adj")
+        )
+    },
+    "ATTR": {
+        "patterns": (
+            ("amod", "noun", "adj"),
+        )
+    },
+    "GMOD": {
+        "tags": ("noun", )
+    },
+    "KOM": {
+        "tags": ("adj", "noun", "verb")
+    },
+    "KON": {
+        "patterns": (
+            ("conj", "cc", "noun", "noun", "cconj"),
+            ("conj", "cc", "verb", "verb", "cconj"),
+            ("conj", "cc", "adj", "adj", "cconj")
+        )
+    },
+    "OBJ": {
+        "patterns": (
+            ("iobj", "verb", "noun"),
+        )
+    },
+    "OBJO": {
+        "tags": ("noun", "verb")
+    },
+    "PP": {
+        "patterns": (
+            ("nmod", "case", "noun", "noun", "adp"),
+            ("obl", "case", "verb", "noun", "adp"),
+            ("obl", "case", "verb", "adj", "adp"),
+            ("obl", "case", "verb", "adv", "adp"),
+            ("obj", "case", "verb", "noun", "adp"),
+        )
+    },
+    "PRED": {
+        "tags": ("adj", "noun", "verb")
+    },
+    "SUBJA": {
+        "tags": ("adj", "noun", "verb")
+    },
+    "SUBJP": {
+        "patterns": (
+            ("nsubj:pass", "verb", "noun"),
+        )
+    },
 }
 
-index = defaultdict(lambda: defaultdict(str))  # type: ignore
-for colloc, patterns in relations.items():
-    for p in patterns:  # type: ignore
+
+def tags_of_relation(r):
+    tags = set(r.get("tags", tuple()))
+    for pattern in r.get("patterns", tuple()):
+        s_idx = 1 if len(pattern) == 3 else 2
+        tags.update(pattern[s_idx:s_idx + 2])
+    return tags
+
+
+all_relation_types = frozenset(relations.keys())
+all_tags = frozenset((t.upper() for r in relations.values() for t in tags_of_relation(r)))
+
+
+pattern_index = defaultdict(lambda: defaultdict(str))  # type: ignore
+for colloc, desc in relations.items():
+    for p in desc.get("patterns", tuple()):  # type: ignore
         l_p = len(p)
         assert l_p == 3 or l_p == 5, "Pattern has unknown dimension"
         if len(p) == 3:
@@ -44,7 +85,7 @@ for colloc, patterns in relations.items():
             r1, r2, t1, t2, t3 = p
             r_k = (r1, r2)
             t_k = (t1.upper(), t2.upper(), t3.upper())  # type: ignore
-        index[r_k][t_k] = colloc
+        pattern_index[r_k][t_k] = colloc
 
 
 def extract_by_patterns(tokens):
@@ -56,16 +97,16 @@ def extract_by_patterns(tokens):
             continue
         t_head_1 = tokens[t_head_1_n - 1]
         t_deprel = t["deprel"]
-        if match := index.get(t_deprel):
-            if colloc := match[(t_head_1["upos"], t["upos"])]:
+        if pattern := pattern_index.get(t_deprel):
+            if colloc := pattern[(t_head_1["upos"], t["upos"])]:
                 yield (colloc, t_head_1_n, t_n)
         t_head_2_n = int(t_head_1["head"])
         if t_head_2_n <= 0:
             # token head is root, cannot make ternary relation
             continue
-        if match := index.get((t_head_1["deprel"], t_deprel)):
+        if pattern := pattern_index.get((t_head_1["deprel"], t_deprel)):
             t_head_2 = tokens[t_head_2_n - 1]
-            if colloc := match.get((t_head_2["upos"], t_head_1["upos"], t["upos"])):
+            if colloc := pattern.get((t_head_2["upos"], t_head_1["upos"], t["upos"])):
                 if colloc == "KON":
                     yield (colloc, t_head_2_n, t_head_1_n)
                 else:
