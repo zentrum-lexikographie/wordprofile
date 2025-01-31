@@ -116,10 +116,9 @@ def detect_languages(lang_detector, sentences, batch_size=128):
         for lang in lang_detector.detect_languages_in_parallel_of(tuple(tb))
     )
     for sentence, lang in zip(sentences, langs):
-        if lang:
+        if lang and lang.iso_code_639_1:
             sentence.metadata["lang"] = lang.iso_code_639_1.name.lower()
         yield sentence
-    return sentence
 
 
 def collapse_phrasal_verbs(sentence):
