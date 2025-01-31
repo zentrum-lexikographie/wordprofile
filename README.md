@@ -117,6 +117,12 @@ Tests für das gesamt Projekt werden ausgeführt via:
 pytest
 ```
 
+
+#### Testdaten
+
+    wp-polspeech --limit 1000 --sample 0.0001 | xz -z -c >tests/testdata/polspeech.conll.xz
+    xzcat tests/testdata/polspeech.conll.xz | wp-annotate | xz -z -c >tests/testdata/polspeech.anno.conll.xz
+
 ## Hintergrund
 Das *DWDS Wortprofil* wird im Rahmen des Zentrums für digitale Lexikographie der deutschen Sprache ([ZDL](https://www.zdl.org/)) an der Berlin-Brandenburgischen Akademie der Wissenschaften ([BBAW](https://www.bbaw.de/)) entwickelt. Dieses Projekt ist eine Neuimplementierung des Wortprofils von Jörg Didakowski ([1],[2]) und ersetzt u.a. dessen Syntaxanalyse mittels formaler (handgeschriebener) Grammatiken durch einen auf [UD](https://universaldependencies.org/) trainierten Dependenzparser.
 

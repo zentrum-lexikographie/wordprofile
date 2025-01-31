@@ -6,6 +6,7 @@ import re
 from conllu.models import Metadata, Token, TokenList
 
 from .conllu import serialize, text
+from .utils import look_ahead
 
 
 def metadata_val(line, prefix):
@@ -55,16 +56,6 @@ def parse(lines):
                 "date": date
             }
         yield (tokens, metadata)
-
-
-def look_ahead(iterable):
-    el = None
-    for next_el in iterable:
-        if el:
-            yield (el, next_el)
-        el = next_el
-    if el:
-        yield (el, None)
 
 
 def as_conll(lines):

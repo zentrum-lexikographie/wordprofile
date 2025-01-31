@@ -9,6 +9,16 @@ def chunks(lst, n):
         yield lst[i : i + n]
 
 
+def look_ahead(iterable):
+    el = None
+    for next_el in iterable:
+        if el:
+            yield (el, next_el)
+        el = next_el
+    if el:
+        yield (el, None)
+
+
 def configure_logger(logger, level=logging.DEBUG, log_file=None):
     handler = logging.FileHandler(log_file) if log_file else logging.StreamHandler()
     handler.setLevel(logging.DEBUG)

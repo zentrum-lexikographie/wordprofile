@@ -28,6 +28,7 @@ Homepage = "https://github.com/zentrum-lexikographie/wordprofile"
 [project.scripts]
 wp-annotate = "wordprofile.annotate:main"
 wp-ddc2conllu = "wordprofile.ddc:main"
+wp-polspeech = "wordprofile.polspeech:main"
 
 [tool.isort]
 profile = "black"
