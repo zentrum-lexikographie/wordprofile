@@ -2,7 +2,7 @@
 cachetools
 conllu
 dwdsmor
-py3langid
+lingua-language-detector
 spacy[cuda11x]==3.7.5
 spacy-transformers
 tqdm

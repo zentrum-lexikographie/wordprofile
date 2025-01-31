@@ -10,11 +10,11 @@ import conllu
 import conllu.parser
 import dwdsmor
 import dwdsmor.tag.hdt
-import py3langid as langid
 import spacy
 import spacy.tokens
 import thinc.api
 from cachetools import cached, LFUCache
+from lingua import Language, LanguageDetectorBuilder
 from tqdm import tqdm
 
 from .colloc import extract_collocs
@@ -106,9 +106,19 @@ def spacy_nlp(nlp, sentences, batch_size=128, **kwargs):
         yield s
 
 
-def detect_language(sentence):
-    lang, _prob = langid.classify(text(sentence))
-    sentence.metadata["lang"] = lang
+def detect_languages(lang_detector, sentences, batch_size=128):
+    sentences, sents = itertools.tee(sentences, 2)
+    texts = (text(s) for s in sentences)
+    texts = itertools.batched(texts, batch_size)
+    langs = (
+        lang
+        for tb in texts
+        for lang in lang_detector.detect_languages_in_parallel_of(tuple(tb))
+    )
+    for sentence, lang in zip(sentences, langs):
+        if lang:
+            sentence.metadata["lang"] = lang.iso_code_639_1.name.lower()
+        yield sentence
     return sentence
 
 
@@ -173,7 +183,6 @@ def lemmatize(lemmatizer, sentence, cache_size=10000):
 def post_annotate(sentence):
     sentence = collapse_phrasal_verbs(sentence)
     sentence = extract_collocs(sentence)
-    sentence = detect_language(sentence)
     return sentence
 
 
@@ -211,10 +220,19 @@ arg_parser.add_argument(
 
 def main():
     args = arg_parser.parse_args()
-    logger.info("Loading spaCy models (%s)", "fast" if args.fast else "accurate")
+    logger.info("Loading spaCy models (%s mode)", "fast" if args.fast else "accurate")
     nlp = load_spacy(not args.fast, args.gpu)
     logger.info("Loading DWDSmor lemmatizer")
     lemmatizer = dwdsmor.lemmatizer()
+    logger.info("Loading Lingua language detector")
+    languages = (
+        Language.ENGLISH,
+        Language.FRENCH,
+        Language.GERMAN,
+        Language.SPANISH,
+        Language.LATIN
+    )
+    lang_detector = LanguageDetectorBuilder.from_languages(*languages).build()
     sentences = conllu.parse_incr(args.input_file)
     progress = None
     if args.progress:
@@ -225,6 +243,7 @@ def main():
         )
     sentences = spacy_nlp(nlp, sentences)
     sentences = (lemmatize(lemmatizer, s) for s in sentences)
+    sentences = detect_languages(lang_detector, sentences)
     if args.concurrency < 0:
         sentences = (post_annotate(s) for s in sentences)
         output(sentences, args.output_file, progress)
