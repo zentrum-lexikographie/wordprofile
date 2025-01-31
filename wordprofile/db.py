@@ -7,14 +7,29 @@ from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Index
 
 import wordprofile.config as config
-from wordprofile.extract import relation_types, word_classes
+from wordprofile.colloc import relations
 
 logger = logging.getLogger(__name__)
 
+
+def word_classes_of_relation_pattern(pattern):
+    if len(pattern) == 3:
+        return pattern[1:]
+    elif len(pattern) == 5:
+        return pattern[2:]
+    else:
+        raise ValueError("Unexpected pattern length.")
+
+
 FORM_TYPE = types.VARCHAR(config.max_form_length)
 CORPUS_FILE_TYPE = types.Integer
-RELATION_TYPE = Enum(relation_types)
-TAG_TYPE = Enum(word_classes)
+RELATION_TYPE = Enum(*relations.keys())
+TAG_TYPE = Enum(*{
+    word_class.upper()
+    for patterns in relations.values()
+    for pattern in patterns  # type: ignore
+    for word_class in word_classes_of_relation_pattern(pattern)
+})
 
 meta = MetaData()
 corpus_files = Table(
