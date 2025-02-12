@@ -110,11 +110,18 @@ token_freqs = Table(
 indices = (
     Index("corpus_index", corpus_files.c.id, unique=True),
     Index("concord_corpus_index", concord_sentences.c.corpus_file_id),
-    Index("concord_corpus_sentence_index", concord_sentences.c.corpus_file_id, concord_sentences.c.sentence_id, unique=True),
+    Index(
+        "concord_corpus_sentence_index",
+        concord_sentences.c.corpus_file_id,
+        concord_sentences.c.sentence_id,
+        unique=True,
+    ),
     Index("rand_val", concord_sentences.c.random_val),
     Index("matches_index", matches.c.id, unique=True),
     Index("matches_corpus_index", matches.c.corpus_file_id),
-    Index("matches_corpus_sentence_index", matches.c.corpus_file_id, matches.c.sentence_id),
+    Index(
+        "matches_corpus_sentence_index", matches.c.corpus_file_id, matches.c.sentence_id
+    ),
     Index("matches_collocation_index", matches.c.collocation_id),
     Index("mwe_index", mwe.c.id, unique=True),
     Index("mwe_collocation1_index", mwe.c.collocation1_id),
@@ -125,7 +132,7 @@ indices = (
     Index("colloc_lemma2_tag_index", collocations.c.lemma2, collocations.c.lemma2_tag),
     Index("colloc_lemma_index", collocations.c.lemma1, collocations.c.lemma2),
     Index("token_freq_lemma", token_freqs.c.lemma),
-    Index("token_freq_lemma_tag", token_freqs.c.lemma, token_freqs.c.tag)
+    Index("token_freq_lemma_tag", token_freqs.c.lemma, token_freqs.c.tag),
 )
 
 
@@ -153,7 +160,7 @@ loaded_tables = (
     "token_freqs",
     "matches",
     "mwe",
-    "mwe_match"
+    "mwe_match",
 )
 
 
@@ -176,14 +183,16 @@ def load_db(db, data_dir):
             sql += ";"
             c.execute(text(sql))
         logger.info("Creating corpus frequency statistics")
-        c.execute(text(
-            """
+        c.execute(
+            text(
+                """
             INSERT INTO corpus_freqs (label, freq)
             SELECT label, SUM(frequency) as freq
             FROM collocations c
             GROUP BY label
             """
-        ))
+            )
+        )
         for index in indices:
             logger.info("Creating index '%s" % index.name)
             index.create(c)
