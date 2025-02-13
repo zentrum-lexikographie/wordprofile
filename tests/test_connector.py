@@ -1,12 +1,12 @@
 import os
+import unittest
 from pathlib import Path
 from subprocess import check_call
-import unittest
 
 import pytest
 
-from wordprofile.db import open_db, load_db
-from wordprofile.datatypes import Coocc
+from wordprofile.datatypes import Coocc, LemmaInfo
+from wordprofile.db import load_db, open_db
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 
@@ -28,9 +28,7 @@ class WPConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         load_db(open_db(clear=True), db_test_data_dir)
-        cls.connector = WPConnect(
-            host="localhost", user="wp", passwd="wp", dbname="wp"
-        )
+        cls.connector = WPConnect(host="localhost", user="wp", passwd="wp", dbname="wp")
 
     def test_random_examples_extracted(self):
         concordances = self.connector.get_concordances(
