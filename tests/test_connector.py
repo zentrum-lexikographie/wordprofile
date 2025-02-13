@@ -304,6 +304,34 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, [("Angabe", 11.0), ("fest", 10.9)])
 
+    def test_get_lemma_and_pos_no_inverse(self):
+        result = self.connector.get_lemma_and_pos(lemma="liegen", lemma_tag="VERB")
+        self.assertEqual(
+            result,
+            [LemmaInfo(lemma="liegen", tag="VERB", rel="PP", freq=230, inv=0)],
+        )
+
+    def test_get_lemma_and_pos_with_inverse(self):
+        result = sorted(
+            self.connector.get_lemma_and_pos(lemma="Kunst", lemma_tag="NOUN"),
+            key=lambda x: x.freq,
+        )
+        self.assertEqual(
+            result,
+            [
+                LemmaInfo(lemma="Kunst", tag="NOUN", rel="ATTR", freq=42, inv=0),
+                LemmaInfo(lemma="Kunst", tag="NOUN", rel="KON", freq=51, inv=0),
+                LemmaInfo(lemma="Kunst", tag="NOUN", rel="GMOD", freq=389, inv=1),
+            ],
+        )
+
+    def test_get_lemma_and_pos_oov(self):
+        result = self.connector.get_lemma_and_pos(lemma="Karate", lemma_tag="NOUN")
+        self.assertEqual(
+            result,
+            [],
+        )
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
