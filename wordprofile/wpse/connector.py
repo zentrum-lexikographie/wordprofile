@@ -208,7 +208,9 @@ class WPConnect:
         min_stat: float,
         relation: str,
     ) -> List[Coocc]:
-        """Fetches collocations with related statistics for a specific relation from database backend.
+        """
+        Fetches collocations with related statistics for a specific relation
+        from database backend.
 
         Args:
             lemma1: Lemma of interest, first collocate.
