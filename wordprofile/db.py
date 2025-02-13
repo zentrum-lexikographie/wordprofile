@@ -1,5 +1,4 @@
 import logging
-
 from pathlib import Path
 
 from sqlalchemy import Column, Enum, MetaData, Table, create_engine, text, types
