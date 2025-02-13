@@ -1,3 +1,4 @@
+import datetime
 import os
 import unittest
 from pathlib import Path
@@ -330,6 +331,75 @@ class WPConnectTest(unittest.TestCase):
         self.assertEqual(
             result,
             [],
+        )
+
+    def test_metadata_retrieval_tables(self):
+        tables = sorted(
+            [
+                {"name": t["name"], "rows": t["rows"]}
+                for t in self.connector.get_db_infos()
+            ],
+            key=lambda x: x["rows"],
+        )
+        expected = [
+            {
+                "name": "corpus_freqs",
+                "rows": 6,
+            },
+            {
+                "name": "mwe",
+                "rows": 8,
+            },
+            {
+                "name": "token_freqs",
+                "rows": 13,
+            },
+            {
+                "name": "collocations",
+                "rows": 14,
+            },
+            {
+                "name": "mwe_match",
+                "rows": 166,
+            },
+            {
+                "name": "corpus_files",
+                "rows": 660,
+            },
+            {
+                "name": "matches",
+                "rows": 1126,
+            },
+            {
+                "name": "concord_sentences",
+                "rows": 20626,
+            },
+        ]
+
+        self.assertEqual(tables, expected)
+
+    def test_metadata_retrieval_tags(self):
+        tags = self.connector.get_tag_frequencies()
+        self.assertEqual(tags, {"ADJ": 115, "ADP": 3282, "NOUN": 50438, "VERB": 34897})
+
+    def test_metadata_retrieval_labels(self):
+        labels = self.connector.get_label_frequencies()
+        self.assertEqual(
+            labels,
+            {"ATTR": 42, "GMOD": 808, "OBJ": 386, "KON": 51, "SUBJA": 944, "PP": 616},
+        )
+
+    def test_metadata_retrieval_corpora(self):
+        corpora = self.connector.get_corpus_file_stats()
+        self.assertEqual(
+            corpora,
+            {
+                "corpus": {
+                    "count": 660,
+                    "max_date": datetime.datetime(2023, 10, 14, 0, 0),
+                    "min_date": datetime.datetime(2005, 1, 13, 0, 0),
+                }
+            },
         )
 
 
