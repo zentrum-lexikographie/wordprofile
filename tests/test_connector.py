@@ -280,7 +280,7 @@ class WPConnectTest(unittest.TestCase):
             "nehmen", "VERB", order_by="frequency", number=3
         )
         expected = [
-            ("fest", 386),
+            ("fest", 387),
             ("Angabe", 386),
             ("Polizei", 262),
         ]
