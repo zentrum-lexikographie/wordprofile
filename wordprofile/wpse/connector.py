@@ -337,19 +337,27 @@ class WPConnect:
         """
         metric = "score" if order_by == "log_dice" else "frequency"
         query = f"""
-            (SELECT c.lemma2, IFNULL(c.{metric}, 0) as metric
-            FROM collocations c
-            WHERE
-                lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
-                AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
-        UNION
-            (SELECT c.lemma1, IFNULL(c.{metric}, 0) as metric
-            FROM collocations c
-            WHERE
-                c.lemma2 = %(lemma)s AND c.lemma2_tag = %(tag)s
-                AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
-        ORDER BY metric DESC LIMIT 0,%(number)s;
-        """
+        SELECT
+          CASE
+            WHEN %(lemma)s = c.lemma1
+                THEN c.lemma2
+            WHEN %(lemma)s = c.lemma2
+                THEN c.lemma1
+          END AS lemma, IFNULL(c.{metric}, 0) as metric
+        FROM collocations c
+        WHERE
+          (
+            (%(lemma)s = c.lemma1
+             AND c.lemma1_tag = %(tag)s
+             AND c.frequency >= %(min_freq)s
+             AND c.score >= %(min_stat)s)
+            OR
+            (%(lemma)s = c.lemma2
+             AND c.lemma2_tag = %(tag)s
+             AND c.frequency >= %(min_freq)s
+             AND c.score >= %(min_stat)s)
+          )
+        ORDER BY metric DESC LIMIT 0,%(number)s;"""
         params = {
             "lemma": lemma,
             "tag": tag,
