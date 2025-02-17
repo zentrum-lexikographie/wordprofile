@@ -215,8 +215,6 @@ class WPConnect:
         Args:
             lemma1: Lemma of interest, first collocate.
             lemma1_tag: Pos tag of first lemma.
-            lemma2: Second collocate.
-            lemma2_tag: Pos tag of second lemma.
             start: Number of collocations to skip.
             number: Number of collocations to take.
             order_by: Metric for ordering, frequency or log_dice.
