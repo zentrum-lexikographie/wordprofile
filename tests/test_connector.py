@@ -402,6 +402,11 @@ class WPConnectTest(unittest.TestCase):
             },
         )
 
+    def test_retrieval_of_inverse_collocates(self):
+        result = self.connector.get_collocates("Polizei", "NOUN", order_by="frequency")
+        expected = [("nehmen", 262)]
+        self.assertEqual(result, expected)
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod

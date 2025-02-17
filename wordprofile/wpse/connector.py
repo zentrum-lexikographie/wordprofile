@@ -337,15 +337,26 @@ class WPConnect:
         """
         metric = "score" if order_by == "log_dice" else "frequency"
         query = f"""
-        SELECT
-        c.lemma2, IFNULL(c.{metric}, 0) as metric
-        FROM collocations c
-        WHERE
-            lemma1 = %s AND lemma1_tag = %s
-            AND c.frequency >= %s AND c.score >= %s
-        ORDER BY metric DESC LIMIT 0,%s;
+            (SELECT c.lemma2, IFNULL(c.{metric}, 0) as metric
+            FROM collocations c
+            WHERE
+                lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+                AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
+        UNION
+            (SELECT c.lemma1, IFNULL(c.{metric}, 0) as metric
+            FROM collocations c
+            WHERE
+                c.lemma2 = %(lemma)s AND c.lemma2_tag = %(tag)s
+                AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
+        ORDER BY metric DESC LIMIT 0,%(number)s;
         """
-        params = (lemma, tag, min_freq, min_stat, number)
+        params = {
+            "lemma": lemma,
+            "tag": tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "number": number,
+        }
         return list(self.__fetchall(query, params))
 
     def get_relation_tuples_diff(
