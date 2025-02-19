@@ -407,6 +407,13 @@ class WPConnectTest(unittest.TestCase):
         expected = [("nehmen", 262)]
         self.assertEqual(result, expected)
 
+    def test_get_lemma_and_pos_without_pos(self):
+        result = self.connector.get_lemma_and_pos(lemma="Boden")
+        self.assertEqual(
+            result,
+            [LemmaInfo(lemma="Boden", tag="NOUN", rel="PP", freq=210, inv=1)],
+        )
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod

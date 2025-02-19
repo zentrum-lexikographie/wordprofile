@@ -149,18 +149,52 @@ class WPConnect:
         """
         if lemma_tag:
             query = """
-            SELECT c.lemma1, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
-            FROM collocations c
-            WHERE c.lemma1 = %s AND c.lemma1_tag = %s
-            GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params: tuple[str, ...] = (lemma, lemma_tag)
+            SELECT
+                CASE
+                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
+                        THEN c.lemma1
+                    WHEN %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag
+                        THEN c.lemma2
+                    END AS lemma,
+                CASE
+                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
+                        THEN c.lemma1_tag
+                    WHEN %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag
+                        THEN c.lemma2_tag
+                    END AS tag, c.label, SUM(c.frequency) AS freq,
+                CASE
+                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
+                        THEN c.inv
+                    ELSE 1
+                    END AS inv
+                FROM collocations c
+                WHERE
+                ( %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag )
+                OR ( %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag )
+                GROUP BY lemma, tag, label, inv;"""
+
+            params: dict[str, str] = {"lemma": lemma, "tag": lemma_tag}
         else:
             query = """
-                SELECT c.lemma1,  c.lemma1_tag, c.label, SUM(c.frequency), c.inv
+            SELECT
+                CASE
+                    WHEN %(lemma)s = c.lemma1 THEN c.lemma1
+                    WHEN %(lemma)s = c.lemma2 THEN c.lemma2
+                    END AS lemma,
+                CASE
+                    WHEN %(lemma)s = c.lemma1 THEN c.lemma1_tag
+                    WHEN %(lemma)s = c.lemma2 THEN c.lemma2_tag
+                    END AS tag, c.label, SUM(c.frequency) AS freq,
+                CASE
+                    WHEN %(lemma)s = c.lemma1 THEN c.inv
+                    ELSE 1
+                    END AS inv
                 FROM collocations c
-                WHERE c.lemma1 = %s
-                GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params = (lemma,)
+                WHERE
+                ( %(lemma)s = c.lemma1) OR ( %(lemma)s = c.lemma2 )
+                GROUP BY lemma, tag, label, inv;
+                """
+            params = {"lemma": lemma}
         return list(
             filter(
                 lambda l: l.lemma.lower() == lemma.lower(),
