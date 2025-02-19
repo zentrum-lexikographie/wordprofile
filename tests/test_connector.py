@@ -11,6 +11,8 @@ from wordprofile.db import load_db, open_db
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
 
+db_test_data_dir = Path(__file__).parent / "testdata" / "test_db"
+
 
 @pytest.fixture(autouse=True, scope="session")
 def test_db():
@@ -18,17 +20,14 @@ def test_db():
         yield False
     else:
         check_call(["docker", "compose", "-p", "wp_test", "up", "db", "--wait"])
+        load_db(open_db(clear=True), db_test_data_dir)
         yield True
         check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
-
-
-db_test_data_dir = Path(__file__).parent / "testdata" / "test_db"
 
 
 class WPConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        load_db(open_db(clear=True), db_test_data_dir)
         cls.connector = WPConnect(host="localhost", user="wp", passwd="wp", dbname="wp")
 
     def test_random_examples_extracted(self):
