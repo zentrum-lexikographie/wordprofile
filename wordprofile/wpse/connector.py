@@ -223,7 +223,7 @@ class WPConnect:
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE c.id = %s;
         """
-        res = self.__fetchall(query, (min_freq, coocc_id))
+        res = self.__fetchall(query, (min_freq, abs(coocc_id)))
         if len(res) == 0:
             raise ValueError("Invalid Id")
         elif len(res) > 1:
