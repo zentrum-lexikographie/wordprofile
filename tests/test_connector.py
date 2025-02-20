@@ -350,12 +350,12 @@ class WPConnectTest(unittest.TestCase):
                 "rows": 8,
             },
             {
-                "name": "token_freqs",
-                "rows": 13,
+                "name": "collocations",
+                "rows": 10,
             },
             {
-                "name": "collocations",
-                "rows": 14,
+                "name": "token_freqs",
+                "rows": 13,
             },
             {
                 "name": "mwe_match",
@@ -385,7 +385,7 @@ class WPConnectTest(unittest.TestCase):
         labels = self.connector.get_label_frequencies()
         self.assertEqual(
             labels,
-            {"ATTR": 42, "GMOD": 808, "OBJ": 386, "KON": 51, "SUBJA": 944, "PP": 616},
+            {"ATTR": 42, "GMOD": 404, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
         )
 
     def test_metadata_retrieval_corpora(self):
