@@ -413,6 +413,26 @@ class WPConnectTest(unittest.TestCase):
             [LemmaInfo(lemma="Boden", tag="NOUN", rel="PP", freq=210, inv=1)],
         )
 
+    def test_retrieve_inverse_coocc_by_id(self):
+        result = self.connector.get_relation_by_id(-300)
+        expected = Coocc(
+            id=-300,
+            rel="PP",
+            lemma1="Angabe",
+            lemma2="nehmen",
+            form1="Angaben",
+            form2="nehmen",
+            tag1="NOUN",
+            tag2="VERB",
+            freq=386,
+            score=11.0,
+            inverse=1,
+            has_mwe=0,
+            num_concords=1,
+            prep="nach",
+        )
+        self.assertEqual(result, expected)
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod

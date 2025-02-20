@@ -229,7 +229,18 @@ class WPConnect:
         elif len(res) > 1:
             raise InternalError(f"Too many results for coocc id {coocc_id}.")
         else:
-            return Coocc(*res[0])
+            result = Coocc(*res[0])
+            if coocc_id < 0:
+                return self._invert_coocc(result)
+            return result
+
+    def _invert_coocc(self, coocc: Coocc) -> Coocc:
+        coocc.inverse = 1
+        coocc.id = coocc.id * -1
+        coocc.lemma1, coocc.lemma2 = coocc.lemma2, coocc.lemma1
+        coocc.tag1, coocc.tag2 = coocc.tag2, coocc.tag1
+        coocc.form1, coocc.form2 = coocc.form2, coocc.form1
+        return coocc
 
     def get_relation_tuples(
         self,
