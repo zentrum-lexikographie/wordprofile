@@ -437,13 +437,15 @@ class WPConnectTest(unittest.TestCase):
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.connector = WPMweConnect(
+        cls.mwe_connector = WPMweConnect(
             host="localhost", user="wp", passwd="wp", dbname="wp"
         )
 
     def test_random_examples_extracted_for_mwe(self):
-        sample = self.connector.get_concordances(512, start_index=0, result_number=5)
-        all_available_concordances = self.connector.get_concordances(
+        sample = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=5
+        )
+        all_available_concordances = self.mwe_connector.get_concordances(
             512, start_index=0, result_number=1000
         )
         with self.subTest():
@@ -454,14 +456,14 @@ class WPMweConnectTest(unittest.TestCase):
     def test_examples_sorted_in_descending_order(self):
         result = [
             conc.date
-            for conc in self.connector.get_concordances(
+            for conc in self.mwe_connector.get_concordances(
                 512, start_index=0, result_number=100
             )
         ]
         self.assertEqual(result, sorted(result, reverse=True))
 
     def test_retrieval_of_inverse_attribute_from_database_by_id(self):
-        result = self.connector.get_relation_by_id(512)
+        result = self.mwe_connector.get_relation_by_id(512)
         expected = Coocc(
             id=512,
             rel="OBJ",
@@ -481,7 +483,7 @@ class WPMweConnectTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_retrieval_of_mwe_relation_tuples(self):
-        result = self.connector.get_relation_tuples(
+        result = self.mwe_connector.get_relation_tuples(
             [2367256], order_by="log_dice", min_freq=1, min_stat=1
         )
         expected = [
@@ -505,7 +507,7 @@ class WPMweConnectTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_retrieval_of_mwe_relation_tuples_if_inverse(self):
-        result = self.connector.get_relation_tuples(
+        result = self.mwe_connector.get_relation_tuples(
             [2373301], order_by="log_dice", min_freq=1, min_stat=1
         )
         expected = [
@@ -529,33 +531,33 @@ class WPMweConnectTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_retrieve_collocation_id_via_lemmata(self):
-        result = self.connector.get_collocations("nehmen", "Polizei")
+        result = self.mwe_connector.get_collocations("nehmen", "Polizei")
         self.assertEqual(result, [(2373301,)])
 
     def test_retrieve_collocation_id_via_lemmata_inverse(self):
-        result = self.connector.get_collocations("Polizei", "nehmen")
+        result = self.mwe_connector.get_collocations("Polizei", "nehmen")
         self.assertEqual(result, [(2373301,)])
 
     def test_retrieval_of_collocation_id_for_non_mwe_collocation(self):
-        result = self.connector.get_collocations("Neun", "falsch")
+        result = self.mwe_connector.get_collocations("Neun", "falsch")
         self.assertEqual(result, [])
 
     def test_tuples_ordered_by_score(self):
-        res = self.connector.get_relation_tuples(
+        res = self.mwe_connector.get_relation_tuples(
             [2006644], order_by="log_dice", min_freq=1, min_stat=1
         )
         result = [(c.id, c.score) for c in res]
         self.assertEqual(result, [(511, 11.0), (515, 10.5), (516, 10.0), (514, 8.0)])
 
     def test_tuples_ordered_by_frequency(self):
-        res = self.connector.get_relation_tuples(
+        res = self.mwe_connector.get_relation_tuples(
             [2006644], order_by="frequency", min_freq=1, min_stat=1
         )
         result = [(c.id, c.freq) for c in res]
         self.assertEqual(result, [(514, 150), (511, 120), (515, 100), (516, 99)])
 
     def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_id(self):
-        result = self.connector.get_relation_by_id(517)
+        result = self.mwe_connector.get_relation_by_id(517)
         expected = Coocc(
             id=517,
             rel="PP",
@@ -575,7 +577,7 @@ class WPMweConnectTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_correct_prepositions_fetched_for_pp_collocates_of_pp_mwe_by_list(self):
-        result = self.connector.get_relation_tuples(
+        result = self.mwe_connector.get_relation_tuples(
             [302], order_by="log_dice", min_freq=1, min_stat=1
         )
         expected = Coocc(
