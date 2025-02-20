@@ -433,6 +433,30 @@ class WPConnectTest(unittest.TestCase):
         )
         self.assertEqual(result, expected)
 
+    def test_retrieve_relation_tuples_with_inverse(self):
+        result = self.connector.get_relation_tuples(
+            "Kunst", "NOUN", 0, 3, "log_dice", 0, 0, "~GMOD"
+        )
+        expected = [
+            Coocc(
+                id=-368,
+                rel="GMOD",
+                lemma1="Kunst",
+                lemma2="Haus",
+                form1="Kunst",
+                form2="Haus",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=389,
+                score=11.125,
+                inverse=1,
+                has_mwe=0,
+                num_concords=374,
+                prep="_",
+            )
+        ]
+        self.assertEqual(result, expected)
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
