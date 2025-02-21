@@ -167,7 +167,7 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    def test_retrieval_of_diff_comparision(self):
+    def test_retrieval_of_diff_comparison(self):
         result = self.connector.get_relation_tuples_diff(
             lemma1="Feuerwehr",
             lemma2="Polizei",
@@ -266,7 +266,7 @@ class WPConnectTest(unittest.TestCase):
                 "Feuerwehr", "NOUN", order_by="log_dice"
             )
         ]
-        expected = [("nehmen", 8.25), ("Sprecher", 7.05)]
+        expected = [("nehmen", 8.25), ("Angabe", 7.25), ("Sprecher", 7.05)]
         self.assertEqual(result, expected)
 
     def test_retrieval_of_collocates_order_by_freq(self):
@@ -351,7 +351,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "collocations",
-                "rows": 10,
+                "rows": 11,
             },
             {
                 "name": "token_freqs",
@@ -385,7 +385,7 @@ class WPConnectTest(unittest.TestCase):
         labels = self.connector.get_label_frequencies()
         self.assertEqual(
             labels,
-            {"ATTR": 42, "GMOD": 404, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
+            {"ATTR": 42, "GMOD": 424, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
         )
 
     def test_metadata_retrieval_corpora(self):
@@ -455,6 +455,16 @@ class WPConnectTest(unittest.TestCase):
                 prep="_",
             )
         ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_relation_tuples_with_inverse_order_by_frequency(self):
+        result = [
+            (c.lemma2, c.freq)
+            for c in self.connector.get_relation_tuples(
+                "Feuerwehr", "NOUN", 0, 3, "frequency", 0, 0, "~GMOD"
+            )
+        ]
+        expected = [("Angabe", 20), ("Sprecher", 15)]
         self.assertEqual(result, expected)
 
 
