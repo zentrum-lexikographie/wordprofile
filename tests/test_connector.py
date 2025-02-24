@@ -181,7 +181,7 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    def test_retrieval_of_diff_comparison(self):
+    def test_retrieval_of_diff_comparison_inverse(self):
         result = self.connector.get_relation_tuples_diff(
             lemma1="Feuerwehr",
             lemma2="Polizei",
@@ -502,6 +502,25 @@ class WPConnectTest(unittest.TestCase):
                 num_concords=374,
                 prep="_",
             )
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_diff_comparison_no_inverse(self):
+        result = [
+            (c.id, c.rel, c.lemma1, c.lemma2, c.tag2, c.inverse, c.freq)
+            for c in self.connector.get_relation_tuples_diff(
+                lemma1="Sprecher",
+                lemma2="Angabe",
+                lemma_tag="NOUN",
+                relation="GMOD",
+                order_by="frequency",
+                min_freq=0,
+                min_stat=0,
+            )
+        ]
+        expected = [
+            (304, "GMOD", "Angabe", "Feuerwehr", "NOUN", 0, 20),
+            (30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", 0, 15),
         ]
         self.assertEqual(result, expected)
 
