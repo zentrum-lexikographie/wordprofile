@@ -354,17 +354,24 @@ class WPConnect:
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            lemma1 = %s AND lemma1_tag = %s
-            AND frequency >= %s AND c.score >= %s
-        ORDER BY {order_by} DESC LIMIT %s,%s;
+            lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+            AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND label in %(labels)s
+        ORDER BY {order_by} DESC LIMIT %(start)s,%(number)s;
         """
-        params = (lemma1, lemma1_tag, min_freq, min_stat, start, number)
+
+        params = {
+            "lemma": lemma1,
+            "tag": lemma1_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "start": start,
+            "number": number,
+            "labels": relations,
+        }
         relation_filter = {split_relation_inversion(relation) for relation in relations}
         return list(
-            filter(
-                lambda c: (c.rel, c.inverse) in relation_filter,
-                map(lambda i: Coocc(*i), self.__fetchall(query, params)),
-            )
+            map(lambda i: Coocc(*i), self.__fetchall(query, params)),
         )
 
     def get_collocates(

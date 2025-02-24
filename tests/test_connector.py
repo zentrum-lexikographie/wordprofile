@@ -127,6 +127,20 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(expected, result)
 
+    def test_retrieval_of_meta_relation_no_inverse(self):
+        result = [
+            (c.lemma2, c.rel, c.inverse, c.freq)
+            for c in self.connector.get_relation_meta(
+                "nehmen", "VERB", 0, 10, "frequency", 0, 0, ["SUBJA", "OBJ"]
+            )
+        ]
+        expected = [
+            ("fest", "OBJ", 0, 387),
+            ("Polizei", "SUBJA", 0, 262),
+            ("Feuerwehr", "SUBJA", 0, 210),
+        ]
+        self.assertEqual(result, expected)
+
     def test_retrieval_of_meta_relation(self):
         result = self.connector.get_relation_meta(
             "Kunst", "NOUN", 0, 10, "log_dice", 0, 0, ["KON", "~GMOD"]
