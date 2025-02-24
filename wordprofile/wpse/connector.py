@@ -489,29 +489,34 @@ class WPConnect:
         query = f"""
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %s), 1, 0) as has_mwe,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, %(inv)s,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %(min_freq)s), 1, 0)
+            as has_mwe, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
             c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
-            AND c.label = %s AND c.inv = %s
-            AND c.frequency >= %s AND c.score >= %s
+            ((c.lemma1 IN %(lemmata)s AND c.lemma1_tag = %(tag)s
+            AND c.label = %(relation)s AND c.frequency >= %(min_freq)s
+            AND c.score >= %(min_stat)s)
+            OR
+            (c.lemma2 IN %(lemmata)s AND c.lemma2_tag = %(tag)s
+            AND c.label = %(relation)s AND c.frequency >=%(min_freq)s
+            AND c.score >=%(min_stat)s
+            ))
         ORDER BY {order_by} DESC;"""
-        params = (
-            min_freq,
-            lemma1,
-            lemma2,
-            lemma_tag,
-            relation,
-            inv,
-            min_freq,
-            min_stat,
+        params = {
+            "lemmata": (lemma1, lemma2),
+            "tag": lemma_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "relation": relation,
+            "inv": inv,
+        }
+        return list(
+            map(lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params))
         )
-        return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_tuples_diff_meta(
         self,
