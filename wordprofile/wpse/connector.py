@@ -346,20 +346,36 @@ class WPConnect:
         """
         query = f"""
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
-            c.preposition
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag,
+            c.lemma2_tag, IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0)
+            as log_dice,
+            CASE
+                WHEN lemma1 = %(lemma)s
+                    THEN 0
+                WHEN lemma2 = %(lemma)s
+                    THEN 1
+            END AS inv, 0, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id))
+            as num_concords, c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+            ((lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
             AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s
-            AND label in %(labels)s
+            AND label in %(base_relations)s )
+            OR
+            (lemma2 = %(lemma)s AND lemma2_tag = %(tag)s
+            AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND label in %(inverse_relations)s )
+            )
         ORDER BY {order_by} DESC LIMIT %(start)s,%(number)s;
         """
-
+        base_relations = {
+            relation for relation in relations if not relation.startswith("~")
+        }
+        inverse_relations = {
+            relation.strip("~") for relation in relations if relation.startswith("~")
+        }
         params = {
             "lemma": lemma1,
             "tag": lemma1_tag,
@@ -367,12 +383,20 @@ class WPConnect:
             "min_stat": min_stat,
             "start": start,
             "number": number,
-            "labels": relations,
+            "base_relations": base_relations or {""},
+            "inverse_relations": inverse_relations or {""},
         }
-        relation_filter = {split_relation_inversion(relation) for relation in relations}
         return list(
-            map(lambda i: Coocc(*i), self.__fetchall(query, params)),
+            map(
+                lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params)
+            ),
         )
+
+    def _coocc_from_db_result(self, result) -> Coocc:
+        coocc = Coocc(*result)
+        if coocc.inverse == 1:
+            return self._invert_coocc(coocc)
+        return coocc
 
     def get_collocates(
         self,
