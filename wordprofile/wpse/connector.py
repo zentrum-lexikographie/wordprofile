@@ -259,7 +259,7 @@ class WPConnect:
 
         Args:
             lemma1: Lemma of interest, first collocate.
-            lemma1_tag: Pos tag of first lemma.
+            lemma1_tag: Pos tag of lemma.
             start: Number of collocations to skip.
             number: Number of collocations to take.
             order_by: Metric for ordering, frequency or log_dice.
@@ -333,10 +333,10 @@ class WPConnect:
 
         Args:
             lemma1: Lemma of interest, first collocate.
-            lemma1_tag: Pos tag of first lemma.
+            lemma1_tag: Pos tag of lemma.
             start: Number of collocations to skip.
             number: Number of collocations to take.
-            order_by: Metric for ordering, frequency or log_dice.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
             relations: List of relations to be returned.
@@ -474,11 +474,11 @@ class WPConnect:
         """Fetches collocations for both lemmas with related statistics for a specific relation from database backend.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            lemma_tag: Pos tag of second lemma.
-            relation: List of relation labels.
-            order_by: Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest for comparison.
+            lemma2: Second lemma of interest.
+            lemma_tag: Pos tag of compared lemmata.
+            relation: Relation label.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
 
@@ -526,10 +526,10 @@ class WPConnect:
         """Fetches collocations for both lemmas with related statistics for all relations from database backend.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            lemma_tag: Pos tag of second lemma.
-            order_by: Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest for comparison.
+            lemma2: Second lemma of interest.
+            lemma_tag: Pos tag of lemmata.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
             relations: List of relations to be returned.
