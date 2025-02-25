@@ -9,3 +9,5 @@
 302	PP	liegen	Boden	VERB	NOUN	auf	0	210	8.25
 303	PP	liegen	Lachen	VERB	NOUN	vor	0	20	9.25
 304	GMOD	Angabe	Feuerwehr	NOUN	NOUN	_	0	20	7.25
+305	ATTR	Kultur	modern	NOUN	ADJ	_	0	20	5.25
+306	GMOD	Festival	Kultur	NOUN	NOUN	_	0	25	6.25
