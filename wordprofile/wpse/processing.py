@@ -335,7 +335,6 @@ def process_files(file_path: list[str], storage_path: str, njobs: int = 1) -> No
     db_files_worker.join()
     db_sents_worker.join()
     logger.info("STOP final matches queue and wait...")
-    db_matches_worker.stop()
     db_matches_worker.join()
     logger.info("ALL JOBS DONE")
     save_lemma_counts_to_file(lemma_counters, storage_path)
