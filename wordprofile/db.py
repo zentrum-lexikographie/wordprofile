@@ -7,20 +7,21 @@ from sqlalchemy.sql import func
 from sqlalchemy.sql.schema import Index
 
 import wordprofile.config as config
-from wordprofile.extract import relation_types, word_classes
+from wordprofile.colloc import all_relation_types, all_tags
 
 logger = logging.getLogger(__name__)
 
-FORM_TYPE = types.VARCHAR(config.max_form_length)
-CORPUS_FILE_TYPE = types.Integer
-RELATION_TYPE = Enum(relation_types)
-TAG_TYPE = Enum(word_classes)
+FormType = types.VARCHAR(config.max_form_length)
+CorpusFileType = types.Integer
+RelationType = Enum(*all_relation_types)
+TagType = Enum(*all_tags)
 
 meta = MetaData()
+
 corpus_files = Table(
     "corpus_files",
     meta,
-    Column("id", CORPUS_FILE_TYPE),
+    Column("id", CorpusFileType),
     Column("corpus", types.VARCHAR(50)),
     Column("file", types.VARCHAR(200)),
     Column("orig", types.Text),
@@ -31,7 +32,7 @@ corpus_files = Table(
 concord_sentences = Table(
     "concord_sentences",
     meta,
-    Column("corpus_file_id", CORPUS_FILE_TYPE),
+    Column("corpus_file_id", CorpusFileType),
     Column("sentence_id", types.Integer),
     Column("sentence", types.Text),
     Column("random_val", types.Float, server_default=func.rand()),
@@ -42,12 +43,12 @@ matches = Table(
     meta,
     Column("id", types.Integer),
     Column("collocation_id", types.Integer),
-    Column("head_surface", FORM_TYPE),
-    Column("dep_surface", FORM_TYPE),
+    Column("head_surface", FormType),
+    Column("dep_surface", FormType),
     Column("head_position", types.Integer),
     Column("dep_position", types.Integer),
     Column("prep_position", types.Text),
-    Column("corpus_file_id", CORPUS_FILE_TYPE),
+    Column("corpus_file_id", CorpusFileType),
     Column("sentence_id", types.Integer),
     mysql_engine="Aria",
 )
@@ -55,12 +56,12 @@ collocations = Table(
     "collocations",
     meta,
     Column("id", types.Integer),
-    Column("label", RELATION_TYPE),
-    Column("lemma1", FORM_TYPE),
-    Column("lemma2", FORM_TYPE),
-    Column("lemma1_tag", TAG_TYPE),
-    Column("lemma2_tag", TAG_TYPE),
-    Column("preposition", FORM_TYPE),
+    Column("label", RelationType),
+    Column("lemma1", FormType),
+    Column("lemma2", FormType),
+    Column("lemma1_tag", TagType),
+    Column("lemma2_tag", TagType),
+    Column("preposition", FormType),
     Column("inv", types.Boolean, default=0),
     Column("frequency", types.Integer, default=1),
     Column("score", types.Float),
@@ -72,9 +73,9 @@ mwe = Table(
     Column("id", types.Integer),
     Column("collocation1_id", types.Integer),
     Column("collocation2_id", types.Integer),
-    Column("label", RELATION_TYPE),
-    Column("lemma", FORM_TYPE),
-    Column("lemma_tag", TAG_TYPE),
+    Column("label", RelationType),
+    Column("lemma", FormType),
+    Column("lemma_tag", TagType),
     Column("inv", types.Boolean, default=0),
     Column("frequency", types.Integer, default=1),
     Column("score", types.Float),
@@ -91,18 +92,17 @@ mwe_match = Table(
 corpus_freqs = Table(
     "corpus_freqs",
     meta,
-    Column("label", RELATION_TYPE),
+    Column("label", RelationType),
     Column("freq", types.Integer),
-    Index("label_index", "label"),
     mysql_engine="Aria",
 )
 token_freqs = Table(
     "token_freqs",
     meta,
-    Column("lemma", FORM_TYPE),
-    Column("tag", TAG_TYPE),
+    Column("lemma", FormType),
+    Column("tag", TagType),
     Column("freq", types.Integer),
-    Column("surface", FORM_TYPE),
+    Column("surface", FormType),
     Column("surface_freq", types.Integer),
     mysql_engine="Aria",
 )
@@ -124,6 +124,7 @@ indices = (
     Index("colloc_lemma1_tag_index", collocations.c.lemma1, collocations.c.lemma1_tag),
     Index("colloc_lemma2_tag_index", collocations.c.lemma2, collocations.c.lemma2_tag),
     Index("colloc_lemma_index", collocations.c.lemma1, collocations.c.lemma2),
+    Index("corpus_freqs_label", corpus_freqs.c.label),
     Index("token_freq_lemma", token_freqs.c.lemma),
     Index("token_freq_lemma_tag", token_freqs.c.lemma, token_freqs.c.tag)
 )
