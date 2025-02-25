@@ -544,22 +544,44 @@ class WPConnect:
         """
         query = f"""
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv, 0,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
-            c.preposition
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag,
+            c.lemma2_tag, IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0)
+            as log_dice,
+            CASE
+                WHEN lemma1 IN %(lemmata)s
+                    THEN 0
+                WHEN lemma2 IN %(lemmata)s
+                    THEN 1
+            END AS inv, 0, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id))
+            as num_concords, c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
-            AND c.frequency >= %s AND c.score >= %s
+            ((c.lemma1 IN %(lemmata)s AND c.lemma1_tag = %(tag)s
+            AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND c.label IN %(base_relations)s)
+            OR
+            (c.lemma2 IN %(lemmata)s AND c.lemma2_tag = %(tag)s
+            AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND c.label IN %(inverse_relations)s))
         ORDER BY {order_by} DESC;"""
-        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
-        relation_filter = {split_relation_inversion(relation) for relation in relations}
+        base_relations = {
+            relation for relation in relations if not relation.startswith("~")
+        }
+        inverse_relations = {
+            relation.strip("~") for relation in relations if relation.startswith("~")
+        }
+        params = {
+            "lemmata": (lemma1, lemma2),
+            "tag": lemma_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "base_relations": base_relations or {""},
+            "inverse_relations": inverse_relations or {""},
+        }
         return list(
-            filter(
-                lambda c: (c.rel, c.inverse) in relation_filter,
-                map(lambda i: Coocc(*i), self.__fetchall(query, params)),
-            )
+            map(
+                lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params)
+            ),
         )

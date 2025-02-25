@@ -227,7 +227,7 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    def test_retrieval_of_diff_meta(self):
+    def test_retrieval_of_diff_meta_inverse(self):
         result = self.connector.get_relation_tuples_diff_meta(
             lemma1="Feuerwehr",
             lemma2="Polizei",
@@ -369,7 +369,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "token_freqs",
-                "rows": 13,
+                "rows": 15,
             },
             {
                 "name": "mwe_match",
@@ -393,7 +393,7 @@ class WPConnectTest(unittest.TestCase):
 
     def test_metadata_retrieval_tags(self):
         tags = self.connector.get_tag_frequencies()
-        self.assertEqual(tags, {"ADJ": 115, "ADP": 3282, "NOUN": 50438, "VERB": 34897})
+        self.assertEqual(tags, {"ADJ": 437, "ADP": 3282, "NOUN": 50720, "VERB": 34897})
 
     def test_metadata_retrieval_labels(self):
         labels = self.connector.get_label_frequencies()
@@ -516,6 +516,46 @@ class WPConnectTest(unittest.TestCase):
                 order_by="frequency",
                 min_freq=0,
                 min_stat=0,
+            )
+        ]
+        expected = [
+            (304, "GMOD", "Angabe", "Feuerwehr", "NOUN", 0, 20),
+            (30601, "GMOD", "Sprecher", "Feuerwehr", "NOUN", 0, 15),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_diff_meta_mixed(self):
+        result = [
+            (c.id, c.rel, c.lemma1, c.lemma2, c.tag2, c.inverse, c.freq)
+            for c in self.connector.get_relation_tuples_diff_meta(
+                lemma1="Kunst",
+                lemma2="Kultur",
+                lemma_tag="NOUN",
+                order_by="frequency",
+                min_freq=0,
+                min_stat=0,
+                relations=["ATTR", "~GMOD"],
+            )
+        ]
+        expected = [
+            (-368, "GMOD", "Kunst", "Haus", "NOUN", 1, 389),
+            (2006644, "ATTR", "Kunst", "schön", "ADJ", 0, 42),
+            (-306, "GMOD", "Kultur", "Festival", "NOUN", 1, 25),
+            (305, "ATTR", "Kultur", "modern", "ADJ", 0, 20),
+        ]
+        self.assertEqual(result, expected)
+
+    def test_retrieval_of_diff_meta_no_inverse(self):
+        result = [
+            (c.id, c.rel, c.lemma1, c.lemma2, c.tag2, c.inverse, c.freq)
+            for c in self.connector.get_relation_tuples_diff_meta(
+                lemma1="Sprecher",
+                lemma2="Angabe",
+                lemma_tag="NOUN",
+                order_by="frequency",
+                min_freq=0,
+                min_stat=0,
+                relations=["GMOD"],
             )
         ]
         expected = [
