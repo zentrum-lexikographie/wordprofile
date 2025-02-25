@@ -285,7 +285,7 @@ class WPConnectTest(unittest.TestCase):
 
     def test_retrieval_of_collocates_order_by_freq(self):
         result = self.connector.get_collocates("Kunst", "NOUN", order_by="frequency")
-        expected = [("Haus", 389), ("Kultur", 51), ("schöne", 42)]
+        expected = [("Haus", 389), ("Kultur", 51), ("schön", 42)]
         self.assertEqual(result, expected)
 
     def test_retrieval_of_collocates_cutoff(self):
