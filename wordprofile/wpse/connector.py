@@ -450,6 +450,7 @@ class WPConnect:
              AND c.lemma2_tag = %(tag)s
              AND c.frequency >= %(min_freq)s
              AND c.score >= %(min_stat)s)
+             AND c.label != "KON"
           )
         ORDER BY metric DESC LIMIT 0,%(number)s;"""
         params = {
