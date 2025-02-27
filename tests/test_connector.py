@@ -280,7 +280,12 @@ class WPConnectTest(unittest.TestCase):
                 "Feuerwehr", "NOUN", order_by="log_dice"
             )
         ]
-        expected = [("nehmen", 8.25), ("Angabe", 7.25), ("Sprecher", 7.05)]
+        expected = [
+            ("nehmen", 8.25),
+            ("Angabe", 7.25),
+            ("Stadt", 7.15),
+            ("Sprecher", 7.05),
+        ]
         self.assertEqual(result, expected)
 
     def test_retrieval_of_collocates_order_by_freq(self):
@@ -365,7 +370,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "collocations",
-                "rows": 13,
+                "rows": 14,
             },
             {
                 "name": "token_freqs",
@@ -399,7 +404,7 @@ class WPConnectTest(unittest.TestCase):
         labels = self.connector.get_label_frequencies()
         self.assertEqual(
             labels,
-            {"ATTR": 62, "GMOD": 449, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
+            {"ATTR": 62, "GMOD": 489, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
         )
 
     def test_metadata_retrieval_corpora(self):
@@ -571,6 +576,36 @@ class WPConnectTest(unittest.TestCase):
             ("modern", 20),
         ]
         self.assertEqual(result, expected)
+
+    def test_inverse_relation_preserved_in_lemma_and_pos_retrieval(self):
+        result = [
+            c
+            for c in self.connector.get_lemma_and_pos(lemma="Feuerwehr")
+            if c.rel == "GMOD"
+        ]
+        self.assertEqual(
+            result,
+            [
+                LemmaInfo(lemma="Feuerwehr", tag="NOUN", rel="GMOD", freq=40, inv=0),
+                LemmaInfo(lemma="Feuerwehr", tag="NOUN", rel="GMOD", freq=35, inv=1),
+            ],
+        )
+
+    def test_inverse_relation_preserved_in_lemma_and_pos_retrieval_with_pos(self):
+        result = [
+            c
+            for c in self.connector.get_lemma_and_pos(
+                lemma="Feuerwehr", lemma_tag="NOUN"
+            )
+            if c.rel == "GMOD"
+        ]
+        self.assertEqual(
+            result,
+            [
+                LemmaInfo(lemma="Feuerwehr", tag="NOUN", rel="GMOD", freq=40, inv=0),
+                LemmaInfo(lemma="Feuerwehr", tag="NOUN", rel="GMOD", freq=35, inv=1),
+            ],
+        )
 
 
 class WPMweConnectTest(unittest.TestCase):

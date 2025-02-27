@@ -149,51 +149,63 @@ class WPConnect:
         """
         if lemma_tag:
             query = """
-            SELECT
-                CASE
-                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
-                        THEN c.lemma1
-                    WHEN %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag
-                        THEN c.lemma2
-                    END AS lemma,
-                CASE
-                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
-                        THEN c.lemma1_tag
-                    WHEN %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag
-                        THEN c.lemma2_tag
-                    END AS tag, c.label, SUM(c.frequency) AS freq,
-                CASE
-                    WHEN %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag
-                        THEN c.inv
-                    ELSE 1
-                    END AS inv
-                FROM collocations c
-                WHERE
-                ( %(lemma)s = c.lemma1 AND %(tag)s = c.lemma1_tag )
-                OR ( %(lemma)s = c.lemma2 AND %(tag)s = c.lemma2_tag )
-                GROUP BY lemma, tag, label, inv;"""
+                SELECT
+                    sub.lemma,
+                    sub.tag,
+                    sub.label,
+                    SUM(sub.frequency) AS freq,
+                    sub.inv
+                FROM (
+                    SELECT
+                        lemma1 AS lemma,
+                        lemma1_tag AS tag,
+                        label,
+                        frequency,
+                        0 AS inv
+                    FROM collocations
+                    WHERE lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+                    UNION ALL
+                    SELECT
+                        lemma2 AS lemma,
+                        lemma2_tag AS tag,
+                        label,
+                        frequency,
+                        1 AS inv
+                    FROM collocations
+                    WHERE lemma2 = %(lemma)s AND lemma2 != lemma1
+                        AND lemma2_tag = %(tag)s
+                ) AS sub
+                GROUP BY sub.lemma, sub.tag, sub.label, sub.inv;"""
 
             params: dict[str, str] = {"lemma": lemma, "tag": lemma_tag}
         else:
             query = """
-            SELECT
-                CASE
-                    WHEN %(lemma)s = c.lemma1 THEN c.lemma1
-                    WHEN %(lemma)s = c.lemma2 THEN c.lemma2
-                    END AS lemma,
-                CASE
-                    WHEN %(lemma)s = c.lemma1 THEN c.lemma1_tag
-                    WHEN %(lemma)s = c.lemma2 THEN c.lemma2_tag
-                    END AS tag, c.label, SUM(c.frequency) AS freq,
-                CASE
-                    WHEN %(lemma)s = c.lemma1 THEN c.inv
-                    ELSE 1
-                    END AS inv
-                FROM collocations c
-                WHERE
-                ( %(lemma)s = c.lemma1) OR ( %(lemma)s = c.lemma2 )
-                GROUP BY lemma, tag, label, inv;
-                """
+                SELECT
+                    sub.lemma,
+                    sub.tag,
+                    sub.label,
+                    SUM(sub.frequency) AS freq,
+                    sub.inv
+                FROM (
+                    SELECT
+                        lemma1 AS lemma,
+                        lemma1_tag AS tag,
+                        label,
+                        frequency,
+                        0 AS inv
+                    FROM collocations
+                    WHERE lemma1 = %(lemma)s
+                    UNION ALL
+                    SELECT
+                        lemma2 AS lemma,
+                        lemma2_tag AS tag,
+                        label,
+                        frequency,
+                        1 AS inv
+                    FROM collocations
+                    WHERE lemma2 = %(lemma)s and lemma2 != lemma1
+                ) AS sub
+                GROUP BY sub.lemma, sub.tag, sub.label, sub.inv;"""
             params = {"lemma": lemma}
         return list(
             filter(
