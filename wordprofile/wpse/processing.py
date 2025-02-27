@@ -459,18 +459,6 @@ def compute_collocation_scores(
     but instead their ids are collected and returned.
     """
     with open(fout, "w") as f_out:
-        inv_relations = {
-            "SUBJA",
-            "SUBJP",
-            "OBJ",
-            "OBJO",
-            "PRED",
-            "ADV",
-            "ATTR",
-            "GMOD",
-            "PP",
-            "KOM",
-        }
         invalid_ids = set()
         for c_id, c in collocs.items():
             log_dice = 14 + math.log2(
@@ -490,11 +478,6 @@ def compute_collocation_scores(
                     c=c, score=log_dice
                 )
             )
-            if c.label in inv_relations:
-                f_out.write(
-                    "-{c.id}\t{c.label}\t{c.lemma2}\t{c.lemma1}\t{c.lemma2_tag}\t{c.lemma1_tag}\t"
-                    "{c.prep}\t1\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
-                )
     return invalid_ids
 
 

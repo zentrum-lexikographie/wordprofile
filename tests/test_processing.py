@@ -1444,19 +1444,7 @@ def test_inverse_of_objo_written_to_file():
             "0",
             "10.0",
             "14.0",
-        ],
-        [
-            "-1",
-            "OBJO",
-            "Betrug",
-            "beschuldigen",
-            "NOUN",
-            "VERB",
-            "_",
-            "1",
-            "10.0",
-            "14.0",
-        ],
+        ]
     ]
 
 
@@ -1680,7 +1668,6 @@ def test_prepositions_written_to_file_with_collocation_scores():
             result = [line.strip().split("\t") for line in fp]
     assert result == [
         ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "0", "10.0", "14.0"],
-        ["-1", "PP", "Tisch", "Buch", "NOUN", "NOUN", "auf", "1", "10.0", "14.0"],
     ]
 
 
@@ -2477,7 +2464,7 @@ def test_collocations_with_negative_logDice_not_written_to_file():
         pro.compute_collocation_scores(file, collocations, lemma_freqs)
         with open(file) as fp:
             result = [int(line.split("\t")[0]) for line in fp]
-    assert result == [3, -3]
+    assert result == [3]
 
 
 def test_ids_for_collocations_with_negative_logDice_returned():
