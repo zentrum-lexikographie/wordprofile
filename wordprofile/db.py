@@ -60,7 +60,6 @@ collocations = Table(
     Column("lemma1_tag", TAG_TYPE),
     Column("lemma2_tag", TAG_TYPE),
     Column("preposition", FORM_TYPE),
-    Column("inv", types.Boolean, default=0),
     Column("frequency", types.Integer, default=1),
     Column("score", types.Float),
     mysql_engine="Aria",

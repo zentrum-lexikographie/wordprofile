@@ -227,7 +227,7 @@ class WPConnect:
         query = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, 0,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %s), 1, 0) as has_mwe,
             (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords, c.preposition
         FROM collocations c
