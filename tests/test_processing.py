@@ -1441,7 +1441,6 @@ def test_inverse_of_objo_written_to_file():
             "VERB",
             "NOUN",
             "_",
-            "0",
             "10.0",
             "14.0",
         ]
@@ -1667,7 +1666,7 @@ def test_prepositions_written_to_file_with_collocation_scores():
         with open(file) as fp:
             result = [line.strip().split("\t") for line in fp]
     assert result == [
-        ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "0", "10.0", "14.0"],
+        ["1", "PP", "Buch", "Tisch", "NOUN", "NOUN", "auf", "10.0", "14.0"],
     ]
 
 

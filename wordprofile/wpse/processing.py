@@ -474,9 +474,7 @@ def compute_collocation_scores(
                 continue
             f_out.write(
                 "{c.id}\t{c.label}\t{c.lemma1}\t{c.lemma2}\t{c.lemma1_tag}\t{c.lemma2_tag}\t"
-                "{c.prep}\t{c.inv}\t{c.frequency}\t{score}\n".format(
-                    c=c, score=log_dice
-                )
+                "{c.prep}\t{c.frequency}\t{score}\n".format(c=c, score=log_dice)
             )
     return invalid_ids
 
