@@ -512,12 +512,12 @@ class WPConnect:
         WHERE
             ((c.lemma1 IN %(lemmata)s AND c.lemma1_tag = %(tag)s
             AND c.label = %(relation)s AND c.frequency >= %(min_freq)s
-            AND c.score >= %(min_stat)s)
+            AND c.score >= %(min_stat)s AND %(inv)s = 0)
             OR
             (c.lemma2 IN %(lemmata)s AND c.lemma2_tag = %(tag)s
             AND c.label = %(relation)s AND c.frequency >=%(min_freq)s
-            AND c.score >=%(min_stat)s
-            ))
+            AND c.score >=%(min_stat)s AND %(inv)s = 1)
+            )
         ORDER BY {order_by} DESC;"""
         params = {
             "lemmata": (lemma1, lemma2),

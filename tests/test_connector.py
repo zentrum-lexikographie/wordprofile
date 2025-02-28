@@ -607,6 +607,32 @@ class WPConnectTest(unittest.TestCase):
             ],
         )
 
+    def test_colloc_with_target_as_head_not_returned_if_query_for_inv_rel_in_diff(self):
+        result = self.connector.get_relation_tuples_diff(
+            lemma1="Sprecher",
+            lemma2="Angabe",
+            lemma_tag="NOUN",
+            order_by="log_dice",
+            min_freq=0,
+            min_stat=0,
+            relation="~GMOD",
+        )
+        self.assertEqual(result, [])
+
+    def test_colloc_with_target_as_dep_not_returned_if_query_for_regular_rel_in_diff(
+        self,
+    ):
+        result = self.connector.get_relation_tuples_diff(
+            lemma1="Kunst",
+            lemma2="Arbeit",
+            lemma_tag="NOUN",
+            order_by="log_dice",
+            min_freq=0,
+            min_stat=0,
+            relation="GMOD",
+        )
+        self.assertEqual(result, [])
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
