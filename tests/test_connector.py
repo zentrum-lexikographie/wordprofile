@@ -633,6 +633,19 @@ class WPConnectTest(unittest.TestCase):
         )
         self.assertEqual(result, [])
 
+    def test_collocation_with_target_as_head_not_returned_for_inv_relations(self):
+        result = self.connector.get_relation_tuples(
+            "Kultur", "NOUN", 0, 3, "frequency", 0, 0, "~ATTR"
+        )
+
+        self.assertEqual(result, [])
+
+    def test_collocation_with_target_as_dep_not_returned_for_regular_relation(self):
+        result = self.connector.get_relation_tuples(
+            "Feuerwehr", "NOUN", 0, 3, "frequency", 0, 0, "GMOD"
+        )
+        self.assertEqual(result, [])
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
