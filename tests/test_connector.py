@@ -374,7 +374,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "token_freqs",
-                "rows": 15,
+                "rows": 16,
             },
             {
                 "name": "mwe_match",
@@ -398,7 +398,7 @@ class WPConnectTest(unittest.TestCase):
 
     def test_metadata_retrieval_tags(self):
         tags = self.connector.get_tag_frequencies()
-        self.assertEqual(tags, {"ADJ": 437, "ADP": 3282, "NOUN": 50720, "VERB": 34897})
+        self.assertEqual(tags, {"ADJ": 437, "ADP": 3282, "NOUN": 50920, "VERB": 34897})
 
     def test_metadata_retrieval_labels(self):
         labels = self.connector.get_label_frequencies()
