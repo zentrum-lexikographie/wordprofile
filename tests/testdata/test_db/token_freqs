@@ -3,7 +3,7 @@ Feuerwehr	NOUN	1704	Feuerwehr	1473
 Haus	NOUN	12757	Haus	7258
 Kunst	NOUN	2946	Kunst	2684
 Kultur	NOUN	1858	Kultur	1644
-schöne	ADJ	115	schön	92
+schön	ADJ	115	schön	92
 nehmen	VERB	31725	nehmen	9874
 Polizei	NOUN	15838	Polizei	15833
 fest	ADP	3282	fest	3110
@@ -11,3 +11,6 @@ Angabe	NOUN	3282	Angaben	3110
 liegen	VERB	3172	liegen	9870
 Boden	NOUN	3282	Boden	3110
 Lachen	NOUN	3282	Lachen	3110
+Festival	NOUN	282	Festival	110
+modern	ADJ	322	modern	310
+Stadt	NOUN	200	Stadt	110

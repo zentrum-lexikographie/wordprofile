@@ -149,18 +149,64 @@ class WPConnect:
         """
         if lemma_tag:
             query = """
-            SELECT c.lemma1, c.lemma1_tag, c.label, SUM(c.frequency), c.inv
-            FROM collocations c
-            WHERE c.lemma1 = %s AND c.lemma1_tag = %s
-            GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params: tuple[str, ...] = (lemma, lemma_tag)
+                SELECT
+                    sub.lemma,
+                    sub.tag,
+                    sub.label,
+                    SUM(sub.frequency) AS freq,
+                    sub.inv
+                FROM (
+                    SELECT
+                        lemma1 AS lemma,
+                        lemma1_tag AS tag,
+                        label,
+                        frequency,
+                        0 AS inv
+                    FROM collocations
+                    WHERE lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+                    UNION ALL
+                    SELECT
+                        lemma2 AS lemma,
+                        lemma2_tag AS tag,
+                        label,
+                        frequency,
+                        1 AS inv
+                    FROM collocations
+                    WHERE lemma2 = %(lemma)s AND lemma2 != lemma1
+                        AND lemma2_tag = %(tag)s
+                ) AS sub
+                GROUP BY sub.lemma, sub.tag, sub.label, sub.inv;"""
+
+            params: dict[str, str] = {"lemma": lemma, "tag": lemma_tag}
         else:
             query = """
-                SELECT c.lemma1,  c.lemma1_tag, c.label, SUM(c.frequency), c.inv
-                FROM collocations c
-                WHERE c.lemma1 = %s
-                GROUP BY lemma1, lemma1_tag, label, inv;"""
-            params = (lemma,)
+                SELECT
+                    sub.lemma,
+                    sub.tag,
+                    sub.label,
+                    SUM(sub.frequency) AS freq,
+                    sub.inv
+                FROM (
+                    SELECT
+                        lemma1 AS lemma,
+                        lemma1_tag AS tag,
+                        label,
+                        frequency,
+                        0 AS inv
+                    FROM collocations
+                    WHERE lemma1 = %(lemma)s
+                    UNION ALL
+                    SELECT
+                        lemma2 AS lemma,
+                        lemma2_tag AS tag,
+                        label,
+                        frequency,
+                        1 AS inv
+                    FROM collocations
+                    WHERE lemma2 = %(lemma)s and lemma2 != lemma1
+                ) AS sub
+                GROUP BY sub.lemma, sub.tag, sub.label, sub.inv;"""
+            params = {"lemma": lemma}
         return list(
             filter(
                 lambda l: l.lemma.lower() == lemma.lower(),
@@ -181,7 +227,7 @@ class WPConnect:
         query = """
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, 0,
             IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %s), 1, 0) as has_mwe,
             (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords, c.preposition
         FROM collocations c
@@ -189,13 +235,24 @@ class WPConnect:
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE c.id = %s;
         """
-        res = self.__fetchall(query, (min_freq, coocc_id))
+        res = self.__fetchall(query, (min_freq, abs(coocc_id)))
         if len(res) == 0:
             raise ValueError("Invalid Id")
         elif len(res) > 1:
             raise InternalError(f"Too many results for coocc id {coocc_id}.")
         else:
-            return Coocc(*res[0])
+            result = Coocc(*res[0])
+            if coocc_id < 0:
+                return self._invert_coocc(result)
+            return result
+
+    def _invert_coocc(self, coocc: Coocc) -> Coocc:
+        coocc.inverse = 1
+        coocc.id = coocc.id * -1
+        coocc.lemma1, coocc.lemma2 = coocc.lemma2, coocc.lemma1
+        coocc.tag1, coocc.tag2 = coocc.tag2, coocc.tag1
+        coocc.form1, coocc.form2 = coocc.form2, coocc.form1
+        return coocc
 
     def get_relation_tuples(
         self,
@@ -208,13 +265,13 @@ class WPConnect:
         min_stat: float,
         relation: str,
     ) -> List[Coocc]:
-        """Fetches collocations with related statistics for a specific relation from database backend.
+        """
+        Fetches collocations with related statistics for a specific relation
+        from database backend.
 
         Args:
             lemma1: Lemma of interest, first collocate.
-            lemma1_tag: Pos tag of first lemma.
-            lemma2: Second collocate.
-            lemma2_tag: Pos tag of second lemma.
+            lemma1_tag: Pos tag of lemma.
             start: Number of collocations to skip.
             number: Number of collocations to take.
             order_by: Metric for ordering, frequency or log_dice.
@@ -228,32 +285,37 @@ class WPConnect:
         relation, inv = split_relation_inversion(relation)
         query = f"""
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %s), 1, 0) as has_mwe,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
-            c.preposition
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag,
+            c.lemma2_tag, IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice,
+            %(inv)s, IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %(min_freq)s), 1, 0)
+            as has_mwe, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id))
+            as num_concords, c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            lemma1 = %s AND lemma1_tag = %s
-            AND label = %s AND inv = %s
-            AND frequency >= %s AND c.score >= %s
-        ORDER BY {order_by} DESC LIMIT %s,%s;
+            (lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+            AND label = %(label)s AND %(inv)s = 0
+            AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
+            OR
+            (lemma2 = %(lemma)s AND lemma2_tag = %(tag)s
+            AND label = %(label)s AND %(inv)s = 1
+            AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s)
+        ORDER BY {order_by} DESC LIMIT %(start)s,%(number)s;
         """
-        params = (
-            min_freq,
-            lemma1,
-            lemma1_tag,
-            relation,
-            inv,
-            min_freq,
-            min_stat,
-            start,
-            number,
+        params = {
+            "min_freq": min_freq,
+            "lemma": lemma1,
+            "tag": lemma1_tag,
+            "start": start,
+            "number": number,
+            "label": relation,
+            "min_stat": min_stat,
+            "inv": inv,
+        }
+        return list(
+            map(lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params))
         )
-        return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_meta(
         self,
@@ -266,14 +328,16 @@ class WPConnect:
         min_stat: float,
         relations: List[str],
     ) -> List[Coocc]:
-        """Fetches collocations with related statistics for all relations from database backend.
+        """
+        Fetches collocations with related statistics for all relations
+        from database backend.
 
         Args:
             lemma1: Lemma of interest, first collocate.
-            lemma1_tag: Pos tag of first lemma.
+            lemma1_tag: Pos tag of lemma.
             start: Number of collocations to skip.
             number: Number of collocations to take.
-            order_by: Metric for ordering, frequency or log_dice.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
             relations: List of relations to be returned.
@@ -283,26 +347,57 @@ class WPConnect:
         """
         query = f"""
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, inv, 0,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
-            c.preposition
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag,
+            c.lemma2_tag, IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0)
+            as log_dice,
+            CASE
+                WHEN lemma1 = %(lemma)s
+                    THEN 0
+                WHEN lemma2 = %(lemma)s
+                    THEN 1
+            END AS inv, 0, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id))
+            as num_concords, c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            lemma1 = %s AND lemma1_tag = %s
-            AND frequency >= %s AND c.score >= %s
-        ORDER BY {order_by} DESC LIMIT %s,%s;
-        """
-        params = (lemma1, lemma1_tag, min_freq, min_stat, start, number)
-        relation_filter = {split_relation_inversion(relation) for relation in relations}
-        return list(
-            filter(
-                lambda c: (c.rel, c.inverse) in relation_filter,
-                map(lambda i: Coocc(*i), self.__fetchall(query, params)),
+            ((lemma1 = %(lemma)s AND lemma1_tag = %(tag)s
+            AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND label in %(base_relations)s )
+            OR
+            (lemma2 = %(lemma)s AND lemma2_tag = %(tag)s
+            AND frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND label in %(inverse_relations)s )
             )
+        ORDER BY {order_by} DESC LIMIT %(start)s,%(number)s;
+        """
+        base_relations = {
+            relation for relation in relations if not relation.startswith("~")
+        }
+        inverse_relations = {
+            relation.strip("~") for relation in relations if relation.startswith("~")
+        }
+        params = {
+            "lemma": lemma1,
+            "tag": lemma1_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "start": start,
+            "number": number,
+            "base_relations": base_relations or {""},
+            "inverse_relations": inverse_relations or {""},
+        }
+        return list(
+            map(
+                lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params)
+            ),
         )
+
+    def _coocc_from_db_result(self, result) -> Coocc:
+        coocc = Coocc(*result)
+        if coocc.inverse == 1:
+            return self._invert_coocc(coocc)
+        return coocc
 
     def get_collocates(
         self,
@@ -338,14 +433,34 @@ class WPConnect:
         metric = "score" if order_by == "log_dice" else "frequency"
         query = f"""
         SELECT
-        c.lemma2, IFNULL(c.{metric}, 0) as metric
+          CASE
+            WHEN %(lemma)s = c.lemma1
+                THEN c.lemma2
+            WHEN %(lemma)s = c.lemma2
+                THEN c.lemma1
+          END AS lemma, IFNULL(c.{metric}, 0) as metric
         FROM collocations c
         WHERE
-            lemma1 = %s AND lemma1_tag = %s
-            AND c.frequency >= %s AND c.score >= %s
-        ORDER BY metric DESC LIMIT 0,%s;
-        """
-        params = (lemma, tag, min_freq, min_stat, number)
+          (
+            (%(lemma)s = c.lemma1
+             AND c.lemma1_tag = %(tag)s
+             AND c.frequency >= %(min_freq)s
+             AND c.score >= %(min_stat)s)
+            OR
+            (%(lemma)s = c.lemma2
+             AND c.lemma2_tag = %(tag)s
+             AND c.frequency >= %(min_freq)s
+             AND c.score >= %(min_stat)s)
+             AND c.label != "KON"
+          )
+        ORDER BY metric DESC LIMIT 0,%(number)s;"""
+        params = {
+            "lemma": lemma,
+            "tag": tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "number": number,
+        }
         return list(self.__fetchall(query, params))
 
     def get_relation_tuples_diff(
@@ -361,11 +476,11 @@ class WPConnect:
         """Fetches collocations for both lemmas with related statistics for a specific relation from database backend.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            lemma_tag: Pos tag of second lemma.
-            relation: List of relation labels.
-            order_by: Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest for comparison.
+            lemma2: Second lemma of interest.
+            lemma_tag: Pos tag of compared lemmata.
+            relation: Relation label.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
 
@@ -376,29 +491,34 @@ class WPConnect:
         query = f"""
         SELECT
             c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv,
-            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %s), 1, 0) as has_mwe,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
+            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, %(inv)s,
+            IF(ABS(c.id) IN (SELECT collocation1_id FROM mwe WHERE frequency >= %(min_freq)s), 1, 0)
+            as has_mwe, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
             c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
-            AND c.label = %s AND c.inv = %s
-            AND c.frequency >= %s AND c.score >= %s
+            ((c.lemma1 IN %(lemmata)s AND c.lemma1_tag = %(tag)s
+            AND c.label = %(relation)s AND c.frequency >= %(min_freq)s
+            AND c.score >= %(min_stat)s AND %(inv)s = 0)
+            OR
+            (c.lemma2 IN %(lemmata)s AND c.lemma2_tag = %(tag)s
+            AND c.label = %(relation)s AND c.frequency >=%(min_freq)s
+            AND c.score >=%(min_stat)s AND %(inv)s = 1)
+            )
         ORDER BY {order_by} DESC;"""
-        params = (
-            min_freq,
-            lemma1,
-            lemma2,
-            lemma_tag,
-            relation,
-            inv,
-            min_freq,
-            min_stat,
+        params = {
+            "lemmata": (lemma1, lemma2),
+            "tag": lemma_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "relation": relation,
+            "inv": inv,
+        }
+        return list(
+            map(lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params))
         )
-        return list(map(lambda i: Coocc(*i), self.__fetchall(query, params)))
 
     def get_relation_tuples_diff_meta(
         self,
@@ -413,10 +533,10 @@ class WPConnect:
         """Fetches collocations for both lemmas with related statistics for all relations from database backend.
 
         Args:
-            lemma1: Lemma of interest, first collocate.
-            lemma2: Second collocate.
-            lemma_tag: Pos tag of second lemma.
-            order_by: Metric for ordering, frequency or log_dice.
+            lemma1: First lemma of interest for comparison.
+            lemma2: Second lemma of interest.
+            lemma_tag: Pos tag of lemmata.
+            order_by: Metric for ordering, 'frequency' or 'log_dice'.
             min_freq: Filter collocations with minimal frequency.
             min_stat: Filter collocations with minimal stats score.
             relations: List of relations to be returned.
@@ -426,22 +546,44 @@ class WPConnect:
         """
         query = f"""
         SELECT
-            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0) as log_dice, c.inv, 0,
-            (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id)) as num_concords,
-            c.preposition
+            c.id, c.label, c.lemma1, c.lemma2, tf1.surface, tf2.surface, c.lemma1_tag,
+            c.lemma2_tag, IFNULL(c.frequency, 0) as frequency, IFNULL(c.score, 0.0)
+            as log_dice,
+            CASE
+                WHEN lemma1 IN %(lemmata)s
+                    THEN 0
+                WHEN lemma2 IN %(lemmata)s
+                    THEN 1
+            END AS inv, 0, (SELECT COUNT(*) FROM matches m WHERE m.collocation_id = ABS(c.id))
+            as num_concords, c.preposition
         FROM collocations c
         JOIN token_freqs tf1 ON (c.lemma1 = tf1.lemma && c.lemma1_tag = tf1.tag)
         JOIN token_freqs tf2 ON (c.lemma2 = tf2.lemma && c.lemma2_tag = tf2.tag)
         WHERE
-            c.lemma1 IN (%s, %s) AND c.lemma1_tag = %s
-            AND c.frequency >= %s AND c.score >= %s
+            ((c.lemma1 IN %(lemmata)s AND c.lemma1_tag = %(tag)s
+            AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND c.label IN %(base_relations)s)
+            OR
+            (c.lemma2 IN %(lemmata)s AND c.lemma2_tag = %(tag)s
+            AND c.frequency >= %(min_freq)s AND c.score >= %(min_stat)s
+            AND c.label IN %(inverse_relations)s))
         ORDER BY {order_by} DESC;"""
-        params = (lemma1, lemma2, lemma_tag, min_freq, min_stat)
-        relation_filter = {split_relation_inversion(relation) for relation in relations}
+        base_relations = {
+            relation for relation in relations if not relation.startswith("~")
+        }
+        inverse_relations = {
+            relation.strip("~") for relation in relations if relation.startswith("~")
+        }
+        params = {
+            "lemmata": (lemma1, lemma2),
+            "tag": lemma_tag,
+            "min_freq": min_freq,
+            "min_stat": min_stat,
+            "base_relations": base_relations or {""},
+            "inverse_relations": inverse_relations or {""},
+        }
         return list(
-            filter(
-                lambda c: (c.rel, c.inverse) in relation_filter,
-                map(lambda i: Coocc(*i), self.__fetchall(query, params)),
-            )
+            map(
+                lambda i: self._coocc_from_db_result(i), self.__fetchall(query, params)
+            ),
         )

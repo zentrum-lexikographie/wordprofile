@@ -1,7 +1,6 @@
-from enum import Enum
-
 from collections import defaultdict
 from collections.abc import Iterator
+from enum import Enum
 
 from wordprofile.datatypes import DependencyTree, Match, WPToken
 
@@ -84,9 +83,9 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     },
 }
 
-relation_types = Enum("RELATION_TYPE", sorted(  # type: ignore[misc]
-    list(RELATION_PATTERNS.keys())
-))
+relation_types = Enum(
+    "RELATION_TYPE", sorted(list(RELATION_PATTERNS.keys()))  # type: ignore[misc]
+)
 
 
 def word_classes_of_rule(rule):
@@ -98,14 +97,17 @@ def word_classes_of_rule(rule):
         raise ValueError("Unexpected pattern length.")
 
 
-word_classes = Enum("TAG_TYPE", sorted(  # type: ignore[misc]
-    set(
-        c.upper()
-        for pattern in RELATION_PATTERNS.values()
-        for rule in pattern["rules"]
-        for c in word_classes_of_rule(rule)
-    )
-))
+word_classes = Enum(
+    "TAG_TYPE",
+    sorted(  # type: ignore[misc]
+        set(
+            c.upper()
+            for pattern in RELATION_PATTERNS.values()
+            for rule in pattern["rules"]
+            for c in word_classes_of_rule(rule)
+        )
+    ),
+)
 
 
 def get_inverted_relation_patterns() -> (

@@ -204,7 +204,8 @@ class WPMweConnect:
             FROM
                 collocations c
             WHERE
-                lemma1 = %s AND lemma2 = %s
+                (lemma1 = %(lemma1)s AND lemma2 = %(lemma2)s)
+                OR (lemma1 = %(lemma2)s AND lemma2 = %(lemma1)s)
                 AND ABS(c.id) in (SELECT collocation1_id FROM mwe);"""
-        params = (lemma1, lemma2)
+        params = {"lemma1": lemma1, "lemma2": lemma2}
         return list(self.__fetchall(query, params))
