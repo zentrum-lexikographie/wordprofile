@@ -569,7 +569,7 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, expected)
 
-    def test_collocates_exclude_KON_relation_for_inverse(self):
+    def test_collocates_exclude_KON_relation_if_target_is_collocate(self):
         result = self.connector.get_collocates("Kultur", "NOUN", order_by="frequency")
         expected = [
             ("Festival", 25),
