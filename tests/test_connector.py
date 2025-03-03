@@ -641,10 +641,13 @@ class WPConnectTest(unittest.TestCase):
         self.assertEqual(result, [])
 
     def test_collocation_with_target_as_dep_not_returned_for_regular_relation(self):
-        result = self.connector.get_relation_tuples(
-            "Feuerwehr", "NOUN", 0, 3, "frequency", 0, 0, "GMOD"
-        )
-        self.assertEqual(result, [])
+        result = [
+            (c.id, c.lemma1, c.rel, c.lemma2)
+            for c in self.connector.get_relation_tuples(
+                "Feuerwehr", "NOUN", 0, 3, "frequency", 0, 0, "GMOD"
+            )
+        ]
+        self.assertEqual(result, [(307, "Feuerwehr", "GMOD", "Stadt")])
 
 
 class WPMweConnectTest(unittest.TestCase):
