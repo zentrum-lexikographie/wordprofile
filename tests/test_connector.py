@@ -813,3 +813,11 @@ class WPMweConnectTest(unittest.TestCase):
             prep="vor",
         )
         self.assertEqual(result[0], expected)
+
+    def test_invalid_id_returns_none(self):
+        self.assertIsNone(self.mwe_connector.get_relation_by_id(42))
+
+    def test_logging_for_invalid_id(self):
+        with self.assertLogs() as logged:
+            self.mwe_connector.get_relation_by_id(42)
+            assert "Invalid Id: 42" in logged.output[0]
