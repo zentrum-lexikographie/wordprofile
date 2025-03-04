@@ -454,6 +454,8 @@ class Wordprofile:
             coocc_info = self.db_mwe.get_relation_by_id(int(coocc_id))
         else:
             coocc_info = self.db.get_relation_by_id(int(coocc_id))
+        if coocc_info is None:
+            return {}
         relation_identifier = coocc_info.rel
         if coocc_info.inverse:
             relation_identifier = f"~{relation_identifier}"

@@ -47,7 +47,7 @@ class MockDb:
         }
 
     def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.db[coocc_id]
+        return self.db.get(coocc_id)
 
     def get_lemma_and_pos(self, lemma, pos):
         return [
@@ -815,3 +815,9 @@ class WordprofileTest(unittest.TestCase):
             "data": {},
         }
         self.assertEqual(result, expected)
+
+    def test_invalid_id_returns_empty_dict(self):
+        result = self.wp.get_relation_by_info_id(234, is_mwe=False)
+        mwe_result = self.wp.get_relation_by_info_id(1001, is_mwe=True)
+        self.assertEqual(result, {})
+        self.assertEqual(mwe_result, {})
