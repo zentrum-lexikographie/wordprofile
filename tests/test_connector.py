@@ -649,6 +649,15 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, [(307, "Feuerwehr", "GMOD", "Stadt")])
 
+    def test_invalid_id_returns_none(self):
+        with self.assertLogs() as logged:
+            self.assertIsNone(self.connector.get_relation_by_id(42))
+            assert "Invalid Id: 42" in logged.output[0]
+
+    def test_invalid_id_returns_empty_list_of_concordances(self):
+        result = self.connector.get_concordances(42, 0, 10)
+        self.assertEqual(result, [])
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
