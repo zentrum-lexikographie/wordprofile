@@ -17,6 +17,7 @@ db_test_data_dir = Path(__file__).parent / "testdata" / "test_db"
 @pytest.fixture(autouse=True, scope="session")
 def test_db():
     case = os.environ.get("WP_TEST_DB_FIXTURE")
+    print(case)
     if not case:  # local testing
         check_call(["docker", "compose", "-p", "wp_test", "up", "db", "--wait"])
         load_db(open_db(clear=True), db_test_data_dir)
@@ -24,7 +25,7 @@ def test_db():
         check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
     elif case == 2:  # db tests but container already up
         load_db(open_db(clear=True), db_test_data_dir)
-        yield False
+        yield True
     else:  # no db tests
         yield False
 
