@@ -42,4 +42,4 @@ jobs:
       run: WP_SKIP_TEST_DB_FIXTURE=1 pytest --ignore tests/test_connector.py
     - name: Run tests on PR
       if: github.event.pull_request
-      run: pytest
+      run: WP_SKIP_TEST_DB_FIXTURE=2 pytest
