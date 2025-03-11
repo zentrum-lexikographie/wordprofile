@@ -39,7 +39,7 @@ jobs:
         pip-sync requirements/*.txt
     - name: Run tests on push
       if: github.event_name != 'pull_request'
-      run: WP_SKIP_TEST_DB_FIXTURE=1 pytest --ignore tests/test_connector.py
+      run: WP_TEST_DB_FIXTURE=1 pytest --ignore tests/test_connector.py
     - name: Run tests on PR
       if: github.event.pull_request
-      run: WP_SKIP_TEST_DB_FIXTURE=2 pytest
+      run: WP_TEST_DB_FIXTURE=2 pytest
