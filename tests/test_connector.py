@@ -16,23 +16,18 @@ db_test_data_dir = Path(__file__).parent / "testdata" / "test_db"
 
 @pytest.fixture(autouse=True, scope="session")
 def test_db():
-    case = os.environ.get("WP_TEST_DB_FIXTURE")
-    print(case)
-    if not case:  # local testing
+    if os.environ.get("WP_SKIP_TEST_DB_FIXTURE"):
+        yield False
+    else:
         check_call(["docker", "compose", "-p", "wp_test", "up", "db", "--wait"])
-        load_db(open_db(clear=True), db_test_data_dir)
         yield True
         check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
-    elif case == 2:  # db tests but container already up
-        load_db(open_db(clear=True), db_test_data_dir)
-        yield True
-    else:  # no db tests
-        yield False
 
 
 class WPConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        load_db(open_db(clear=True), db_test_data_dir)
         cls.connector = WPConnect(host="localhost", user="wp", passwd="wp", dbname="wp")
 
     def test_random_examples_extracted(self):
