@@ -20,7 +20,6 @@ def test_db():
         yield False
     else:
         check_call(["docker", "compose", "-p", "wp_test", "up", "db", "--wait"])
-        load_db(open_db(clear=True), db_test_data_dir)
         yield True
         check_call(["docker", "compose", "-p", "wp_test", "down", "db", "-v"])
 
@@ -28,6 +27,7 @@ def test_db():
 class WPConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        load_db(open_db(clear=True), db_test_data_dir)
         cls.connector = WPConnect(host="localhost", user="wp", passwd="wp", dbname="wp")
 
     def test_random_examples_extracted(self):
@@ -653,6 +653,7 @@ class WPConnectTest(unittest.TestCase):
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        load_db(open_db(clear=True), db_test_data_dir)
         cls.mwe_connector = WPMweConnect(
             host="localhost", user="wp", passwd="wp", dbname="wp"
         )
