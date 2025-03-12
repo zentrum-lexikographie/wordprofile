@@ -51,6 +51,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
         "aufs": "auf",
         "ans": "an",
         "beim": "bei",
+        "durchs": "durch",
         "fürs": "für",
         "im": "in",
         "ins": "in",
