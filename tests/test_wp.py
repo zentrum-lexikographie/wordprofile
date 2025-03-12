@@ -47,7 +47,7 @@ class MockDb:
         }
 
     def get_relation_by_id(self, coocc_id, is_mwe=False):
-        return self.db[coocc_id]
+        return self.db.get(coocc_id)
 
     def get_lemma_and_pos(self, lemma, pos):
         return [
@@ -803,3 +803,21 @@ class WordprofileTest(unittest.TestCase):
             result,
             [{"Lemma": "plüschig", "Score": 200}, {"Lemma": "gemütlich", "Score": 20}],
         )
+
+    def test_empty_id_list_returns_empty_data(self):
+        result = self.wp.get_mwe_relations([])
+        self.assertEqual(result, {"parts": [], "data": {}})
+
+    def test_collocations_skipped_if_not_in_passed_relations(self):
+        result = self.wp.get_mwe_relations([14], relations=["GMOD"])
+        expected = {
+            "parts": [{"Lemma": "Grammatik"}, {"Lemma": "lateinisch"}],
+            "data": {},
+        }
+        self.assertEqual(result, expected)
+
+    def test_invalid_id_returns_empty_dict(self):
+        result = self.wp.get_relation_by_info_id(234, is_mwe=False)
+        mwe_result = self.wp.get_relation_by_info_id(1001, is_mwe=True)
+        self.assertEqual(result, {})
+        self.assertEqual(mwe_result, {})
