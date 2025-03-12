@@ -12,3 +12,4 @@
 305	ATTR	Kultur	modern	NOUN	ADJ	_	20	5.25
 306	GMOD	Festival	Kultur	NOUN	NOUN	_	25	6.25
 307	GMOD	Feuerwehr	Stadt	NOUN	NOUN	_	40	7.15
+308	PP	liegen	Boden	VERB	NOUN	an	110	5.25

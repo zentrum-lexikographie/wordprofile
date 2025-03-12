@@ -649,6 +649,16 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, [(307, "Feuerwehr", "GMOD", "Stadt")])
 
+    def test_retrieve_hits_only_for_relevant_collocations(self):
+        hits_an = self.connector.get_concordances(308, start_index=0, result_number=10)
+        hits_auf = self.connector.get_concordances(302, start_index=0, result_number=10)
+        self.assertEqual(len(hits_an), 3)
+        self.assertEqual(len(hits_auf), 1)
+        self.assertEqual(
+            {c.sentence for c in hits_an}.intersection({c.sentence for c in hits_auf}),
+            set(),
+        )
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
