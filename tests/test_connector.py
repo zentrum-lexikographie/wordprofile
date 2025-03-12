@@ -653,6 +653,7 @@ class WPConnectTest(unittest.TestCase):
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        load_db(open_db(clear=True), db_test_data_dir)
         cls.mwe_connector = WPMweConnect(
             host="localhost", user="wp", passwd="wp", dbname="wp"
         )
