@@ -649,6 +649,15 @@ class WPConnectTest(unittest.TestCase):
         ]
         self.assertEqual(result, [(307, "Feuerwehr", "GMOD", "Stadt")])
 
+    def test_invalid_id_returns_none(self):
+        with self.assertLogs() as logged:
+            self.assertIsNone(self.connector.get_relation_by_id(42))
+            assert "Invalid Id: 42" in logged.output[0]
+
+    def test_invalid_id_returns_empty_list_of_concordances(self):
+        result = self.connector.get_concordances(42, 0, 10)
+        self.assertEqual(result, [])
+
     def test_retrieve_hits_only_for_relevant_collocations(self):
         hits_an = self.connector.get_concordances(308, start_index=0, result_number=10)
         hits_auf = self.connector.get_concordances(302, start_index=0, result_number=10)
@@ -824,3 +833,11 @@ class WPMweConnectTest(unittest.TestCase):
             prep="vor",
         )
         self.assertEqual(result[0], expected)
+
+    def test_invalid_id_returns_none(self):
+        self.assertIsNone(self.mwe_connector.get_relation_by_id(42))
+
+    def test_logging_for_invalid_id(self):
+        with self.assertLogs() as logged:
+            self.mwe_connector.get_relation_by_id(42)
+            assert "Invalid Id: 42" in logged.output[0]

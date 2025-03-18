@@ -1,11 +1,10 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 import pymysql
 
 import wordprofile.config
 from wordprofile.datatypes import Coocc, MweConcordance
-from wordprofile.errors import InternalError
 
 pymysql.install_as_MySQLdb()
 import MySQLdb
@@ -84,7 +83,7 @@ class WPMweConnect:
         params = (mwe_id, start_index, result_number)
         return list(map(lambda i: MweConcordance(*i), self.__fetchall(query, params)))
 
-    def get_relation_by_id(self, mwe_id: int) -> Coocc:
+    def get_relation_by_id(self, mwe_id: int) -> Optional[Coocc]:
         """Fetches MWE information for mwe id from database backend.
 
         Args:
@@ -95,9 +94,10 @@ class WPMweConnect:
         """
         query = """
         SELECT
-            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1, c.lemma2, c.lemma1_tag, c.lemma2_tag,
-            IFNULL(mwe.score, 0.0) as log_dice, tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv,
-            (SELECT COUNT(*) FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords,
+            mwe.id, mwe.label, mwe.lemma, mwe.lemma_tag, mwe.frequency, c.lemma1,
+            c.lemma2, c.lemma1_tag, c.lemma2_tag, IFNULL(mwe.score, 0.0) as log_dice,
+            tf_mwe.surface, tf1.surface, tf2.surface, mwe.inv, (SELECT COUNT(*)
+            FROM mwe_match m WHERE m.mwe_id = ABS(mwe.id)) as num_concords,
             c2.preposition
         FROM mwe
         JOIN collocations as c ON (mwe.collocation1_id = c.id)
@@ -110,27 +110,25 @@ class WPMweConnect:
         params = (mwe_id,)
         res = self.__fetchall(query, params)
         if len(res) == 0:
-            raise ValueError("Invalid Id")
-        elif len(res) > 1:
-            raise InternalError("Too many results.")
-        else:
-            c = res[0]
-            return Coocc(
-                id=c[0],
-                rel=c[1],
-                lemma1="{}-{}".format(c[5], c[6]),
-                lemma2=c[2],
-                form1="{}-{}".format(c[11], c[12]),
-                form2=c[10],
-                tag1="{}-{}".format(c[7], c[8]),
-                tag2=c[3],
-                freq=c[4],
-                score=c[9],
-                inverse=c[13],
-                has_mwe=0,
-                num_concords=c[14],
-                prep=c[15],
-            )
+            logger.info("Invalid Id: %d" % mwe_id)
+            return None
+        c = res[0]
+        return Coocc(
+            id=c[0],
+            rel=c[1],
+            lemma1="{}-{}".format(c[5], c[6]),
+            lemma2=c[2],
+            form1="{}-{}".format(c[11], c[12]),
+            form2=c[10],
+            tag1="{}-{}".format(c[7], c[8]),
+            tag2=c[3],
+            freq=c[4],
+            score=c[9],
+            inverse=c[13],
+            has_mwe=0,
+            num_concords=c[14],
+            prep=c[15],
+        )
 
     def get_relation_tuples(
         self, coocc_ids: List[int], order_by: str, min_freq: int, min_stat: float

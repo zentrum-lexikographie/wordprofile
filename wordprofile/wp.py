@@ -6,7 +6,7 @@ from typing import List, Optional, Union
 
 import wordprofile.config
 import wordprofile.formatter as formatting
-from wordprofile.errors import InternalError
+from wordprofile.datatypes import Coocc
 from wordprofile.utils import tag_f2b
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
@@ -344,7 +344,7 @@ class Wordprofile:
         self,
         lemma1: str,
         lemma2: str,
-        diffs,
+        diffs: list[Coocc],
         number: int,
         use_intersection: bool,
         operation: str,
@@ -386,12 +386,12 @@ class Wordprofile:
             elif c.lemma1 == lemma2:
                 collocation_diffs[c.lemma2]["coocc_2"] = c
                 collocation_diffs[c.lemma2]["pos"] = c.tag1
-            elif c.lemma1.lower() in {lemma1.lower(), lemma2.lower()}:
-                continue
             else:
-                raise InternalError(
-                    f"Unexpected lemma {c} for Lemma1 ({lemma1}) and Lemma2 ({lemma2})"
+                logger.warning(
+                    "Unexpected lemma %s from collocation %d for lemma pair (%s, %s)."
+                    % (c.lemma1, c.id, lemma1, lemma2)
                 )
+                continue
         # for intersection, only a subset is used further
         if use_intersection:
             diffs_grouped = [
@@ -454,6 +454,8 @@ class Wordprofile:
             coocc_info = self.db_mwe.get_relation_by_id(int(coocc_id))
         else:
             coocc_info = self.db.get_relation_by_id(int(coocc_id))
+        if coocc_info is None:
+            return {}
         relation_identifier = coocc_info.rel
         if coocc_info.inverse:
             relation_identifier = f"~{relation_identifier}"
