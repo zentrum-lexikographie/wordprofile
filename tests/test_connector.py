@@ -327,7 +327,7 @@ class WPConnectTest(unittest.TestCase):
         result = self.connector.get_lemma_and_pos(lemma="liegen", lemma_tag="VERB")
         self.assertEqual(
             result,
-            [LemmaInfo(lemma="liegen", tag="VERB", rel="PP", freq=230, inv=0)],
+            [LemmaInfo(lemma="liegen", tag="VERB", rel="PP", freq=340, inv=0)],
         )
 
     def test_get_lemma_and_pos_with_inverse(self):
@@ -370,7 +370,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "collocations",
-                "rows": 14,
+                "rows": 15,
             },
             {
                 "name": "token_freqs",
@@ -386,7 +386,7 @@ class WPConnectTest(unittest.TestCase):
             },
             {
                 "name": "matches",
-                "rows": 1126,
+                "rows": 1130,
             },
             {
                 "name": "concord_sentences",
@@ -404,7 +404,7 @@ class WPConnectTest(unittest.TestCase):
         labels = self.connector.get_label_frequencies()
         self.assertEqual(
             labels,
-            {"ATTR": 62, "GMOD": 489, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 616},
+            {"ATTR": 62, "GMOD": 489, "OBJ": 387, "KON": 51, "SUBJA": 472, "PP": 726},
         )
 
     def test_metadata_retrieval_corpora(self):
@@ -429,7 +429,7 @@ class WPConnectTest(unittest.TestCase):
         result = self.connector.get_lemma_and_pos(lemma="Boden")
         self.assertEqual(
             result,
-            [LemmaInfo(lemma="Boden", tag="NOUN", rel="PP", freq=210, inv=1)],
+            [LemmaInfo(lemma="Boden", tag="NOUN", rel="PP", freq=320, inv=1)],
         )
 
     def test_retrieve_inverse_coocc_by_id(self):
@@ -657,6 +657,16 @@ class WPConnectTest(unittest.TestCase):
     def test_invalid_id_returns_empty_list_of_concordances(self):
         result = self.connector.get_concordances(42, 0, 10)
         self.assertEqual(result, [])
+
+    def test_retrieve_hits_only_for_relevant_collocations(self):
+        hits_an = self.connector.get_concordances(308, start_index=0, result_number=10)
+        hits_auf = self.connector.get_concordances(302, start_index=0, result_number=10)
+        self.assertEqual(len(hits_an), 3)
+        self.assertEqual(len(hits_auf), 1)
+        self.assertEqual(
+            {c.sentence for c in hits_an}.intersection({c.sentence for c in hits_auf}),
+            set(),
+        )
 
 
 class WPMweConnectTest(unittest.TestCase):

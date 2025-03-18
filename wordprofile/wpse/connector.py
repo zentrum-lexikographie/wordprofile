@@ -93,16 +93,6 @@ class WPConnect:
         Return:
             List of Concordance.
         """
-        coocc_info = self.get_relation_by_id(coocc_id)
-        if coocc_info is None:
-            return []
-        if coocc_info.inverse:
-            head_lemma, head_tag = coocc_info.lemma2, coocc_info.tag2
-            dep_lemma, dep_tag = coocc_info.lemma1, coocc_info.tag1
-        else:
-            head_lemma, head_tag = coocc_info.lemma1, coocc_info.tag1
-            dep_lemma, dep_tag = coocc_info.lemma2, coocc_info.tag2
-
         query = """
             SELECT * FROM
             (SELECT
@@ -111,32 +101,22 @@ class WPConnect:
                 cf.file
             FROM
                 matches
-            INNER JOIN collocations as c ON (matches.collocation_id = c.id)
             INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
             INNER JOIN concord_sentences as s_center ON
                 (s_center.corpus_file_id = cf.id
                 AND s_center.sentence_id = matches.sentence_id)
-            WHERE (
-                c.label = %s AND
-                c.lemma1 = %s AND
-                c.lemma1_tag = %s AND
-                c.lemma2 = %s AND
-                c.lemma2_tag = %s
-            )
+            WHERE
+                matches.collocation_id = %(id)s
             ORDER BY s_center.random_val
-            LIMIT %s,%s)
+            LIMIT %(start)s,%(number)s)
             as sample
             ORDER BY date DESC;
             """
-        params = (
-            coocc_info.rel,
-            head_lemma,
-            head_tag,
-            dep_lemma,
-            dep_tag,
-            start_index,
-            result_number,
-        )
+        params = {
+            "id": abs(coocc_id),
+            "start": start_index,
+            "number": result_number,
+        }
         return list(map(lambda i: Concordance(*i), self.__fetchall(query, params)))
 
     def get_lemma_and_pos(self, lemma: str, lemma_tag: str = "") -> List[LemmaInfo]:
