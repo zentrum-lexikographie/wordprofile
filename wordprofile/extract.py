@@ -375,8 +375,7 @@ def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                                 )
                                 for dep in child.children
                             )
-                            or _has_case_marking(child.token, "Acc")
-                        ):
+                        ) or _has_case_marking(child.token, "Acc"):
                             relation = "OBJ"
                         else:
                             relation = "OBJO"
