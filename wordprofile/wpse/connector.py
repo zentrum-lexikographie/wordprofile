@@ -1,11 +1,10 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 import pymysql
 
 import wordprofile.config
 from wordprofile.datatypes import Concordance, Coocc, LemmaInfo
-from wordprofile.errors import InternalError
 from wordprofile.utils import split_relation_inversion
 
 pymysql.install_as_MySQLdb()
@@ -95,6 +94,8 @@ class WPConnect:
             List of Concordance.
         """
         coocc_info = self.get_relation_by_id(coocc_id)
+        if coocc_info is None:
+            return []
         if coocc_info.inverse:
             head_lemma, head_tag = coocc_info.lemma2, coocc_info.tag2
             dep_lemma, dep_tag = coocc_info.lemma1, coocc_info.tag1
@@ -214,7 +215,7 @@ class WPConnect:
             )
         )
 
-    def get_relation_by_id(self, coocc_id: int, min_freq: int = 1) -> Coocc:
+    def get_relation_by_id(self, coocc_id: int, min_freq: int = 1) -> Optional[Coocc]:
         """Fetches collocation information for collocation id from database backend.
 
         Args:
@@ -237,14 +238,12 @@ class WPConnect:
         """
         res = self.__fetchall(query, (min_freq, abs(coocc_id)))
         if len(res) == 0:
-            raise ValueError("Invalid Id")
-        elif len(res) > 1:
-            raise InternalError(f"Too many results for coocc id {coocc_id}.")
-        else:
-            result = Coocc(*res[0])
-            if coocc_id < 0:
-                return self._invert_coocc(result)
-            return result
+            logger.info("Invalid Id: %d" % coocc_id)
+            return None
+        result = Coocc(*res[0])
+        if coocc_id < 0:
+            return self._invert_coocc(result)
+        return result
 
     def _invert_coocc(self, coocc: Coocc) -> Coocc:
         coocc.inverse = 1
