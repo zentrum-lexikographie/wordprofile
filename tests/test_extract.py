@@ -873,7 +873,7 @@ def test_double_object_without_prep_acc_and_dative():
         ],
     ]
     for sent in sentences:
-        result = list(ex.extract_objects(DependencyTree(sent), 1))
+        result = {m.relation for m in ex.extract_objects(DependencyTree(sent), 1)}
         assert len(result) == 2
 
 
