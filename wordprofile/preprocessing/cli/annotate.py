@@ -52,7 +52,9 @@ def add_annotation_to_tokens(
         )
 
 
-@click.command(help="Parse conll file and add dependency relation annotations.")
+@click.command(
+    help="Parse conll file and add linguistic annotations and lemmatisation."
+)
 @click.option(
     "-i",
     "--input",

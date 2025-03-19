@@ -3,7 +3,7 @@ import tempfile
 
 import wordprofile.cli.compute_statistics as cs
 import wordprofile.cli.extract_collocations as ec
-import wordprofile.preprocessing.cli.annotate_deprel as ad
+import wordprofile.preprocessing.cli.annotate as ann
 from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 
 
@@ -27,7 +27,7 @@ def convert(tmp_dir):
 
 
 def annotate_dependency_relations(tmp_dir):
-    ad.main(
+    ann.main(
         [
             "-i",
             os.path.join(tmp_dir, "data.orig.conll"),
