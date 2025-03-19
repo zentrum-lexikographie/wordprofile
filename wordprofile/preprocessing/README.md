@@ -132,11 +132,11 @@ To download a model, run for example:
     # For newer versions of pip (>=24.0), state the model name explicitly
     pip install "de_hdt_dist @ https://huggingface.co/zentrum-lexikographie/de_hdt_dist/resolve/main/de_hdt_dist-any-py3-none-any.whl"
 
-For the annotation, the script `annotate_deprel.py` can be used:
+For the annotation, the script `annotate.py` can be used:
 ```sh
-Usage: annotate_deprel.py [OPTIONS]
+Usage: annotate.py [OPTIONS]
 
-  Parse conll file and add dependency relation annotations.
+  Parse conll file and add linguistic annotations and lemmatisation.
 
 Options:
   -i, --input FILENAME      Path to input file in conllu format.
