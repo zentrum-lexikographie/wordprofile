@@ -21,36 +21,27 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    return deprel.SpacyParser(model="de_hdt_lg")
+    return deprel.setup_spacy_pipeline(accurate=False)
 
 
-def test_custom_tokenizer(parser, short_conll_file):
+def test_conversion_to_spacy_doc(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = list(conllu.parse_incr(fh))
     sentence = sentences[0]
-    sentence[1]["form"] = ""
-    result = parser.custom_tokenizer(sentence)
-    assert result[0][1].text == "---"
-
-
-def test_parser_returns_annotations_and_original(parser, multiple_docs_conll_file):
-    with open(multiple_docs_conll_file) as fh:
-        doc = list(conllu.parse_incr(fh))
-        result = next(parser(doc))
-    assert len(result) == 2
-    assert isinstance(result[0], spacy.tokens.Doc)
-    assert isinstance(result[1], conllu.models.TokenList)
-    assert result[1] == doc[0]
+    result = deprel.convert_to_spacy_doc(parser, sentence)
+    assert isinstance(result, spacy.tokens.Doc)
+    assert len(result) == 13
+    assert (
+        result.text
+        == "Sehr geehrter Herr Präsident Palinkás, meine sehr verehrten Damen und Herren , "
+    )
 
 
 def test_add_token_annotation_to_conll_sentence(short_conll_file, parser):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    doc, conll_sent = next(parser(sentences[3:4]))
-    deprel.add_annotation_to_tokens(conll_sent, doc)
-    assert [
-        (tok["form"], tok["upos"], tok["head"], tok["deprel"]) for tok in conll_sent
-    ] == [
+    doc = next(deprel.annotate(parser, sentences[3:4]))
+    assert [(tok["form"], tok["upos"], tok["head"], tok["deprel"]) for tok in doc] == [
         ("Damals", "ADV", 2, "advmod"),
         ("ging", "VERB", 0, "ROOT"),
         ("eine", "DET", 5, "det"),
@@ -60,3 +51,22 @@ def test_add_token_annotation_to_conll_sentence(short_conll_file, parser):
         ("Ende", "NOUN", 2, "obl"),
         (".", "PUNCT", 2, "punct"),
     ]
+
+
+def test_space_after(short_conll_file):
+    with open(short_conll_file) as fh:
+        sentences = conllu.parse(fh.read())
+    spaces = [deprel.is_space_after(tok) for tok in sentences[7]]
+    assert spaces == [True, True, False, False, True, True, True, False, True, True]
+
+
+def test_ner_model_added_as_component_to_nlp_pipeline():
+    nlp = deprel.setup_spacy_pipeline(accurate=False)
+    assert nlp.has_pipe("wikiner")
+
+
+def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
+    with open(short_conll_file) as fh:
+        sentences = conllu.parse(fh.read())
+    result = next(deprel.annotate(parser, sentences))
+    assert result[4]["misc"]["NE"] == "PER"
