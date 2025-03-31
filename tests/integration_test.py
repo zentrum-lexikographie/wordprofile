@@ -1,6 +1,8 @@
 import os
 import tempfile
 
+import conllu
+
 import wordprofile.cli.compute_statistics as cs
 import wordprofile.cli.extract_collocations as ec
 import wordprofile.preprocessing.cli.annotate as ann
@@ -10,7 +12,7 @@ from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 def test_integration():
     with tempfile.TemporaryDirectory() as tmp_dir:
         convert(tmp_dir)
-        annotate_dependency_relations(tmp_dir)
+        annotate(tmp_dir)
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
         compute_statistics_with_mwe(tmp_dir)
@@ -26,22 +28,22 @@ def convert(tmp_dir):
         fh.write(doc.as_conllu())
 
 
-def annotate_dependency_relations(tmp_dir):
+def annotate(tmp_dir):
     ann.main(
         [
             "-i",
             os.path.join(tmp_dir, "data.orig.conll"),
             "-o",
             os.path.join(tmp_dir, "data.anno.conll"),
-            "-m",
-            "de_hdt_lg",
+            "-f",
         ],
         standalone_mode=False,
     )
     assert "data.anno.conll" in os.listdir(tmp_dir)
     with open(os.path.join(tmp_dir, "data.anno.conll")) as fh:
-        lines = fh.readlines()
-    assert lines != []
+        doc = conllu.parse(fh.read())
+    assert doc[0][0]["deprel"] == "det"
+    assert "NE" in doc[9][6]["misc"]
 
 
 def extract_collocation(tmp_dir):
