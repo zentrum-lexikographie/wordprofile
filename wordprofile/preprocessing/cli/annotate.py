@@ -1,4 +1,5 @@
 import logging
+import subprocess
 import time
 from datetime import datetime
 from typing import Iterable, Iterator
@@ -6,50 +7,108 @@ from typing import Iterable, Iterator
 import click
 import conllu
 import spacy
+import thinc
 from spacy.tokens import Doc
 
 from wordprofile.utils import configure_logs_to_file
 
 logger = logging.getLogger(__name__)
 
-
-class SpacyParser:
-    def __init__(self, model: str = "de_hdt_dist", batch_size: int = 128) -> None:
-        self.nlp = spacy.load(model)
-        self.make_doc = lambda s: Doc(self.nlp.vocab, words=list(s))
-        self.batch_size = batch_size
-
-    def custom_tokenizer(
-        self, sentence: conllu.models.TokenList
-    ) -> tuple[Doc, conllu.models.TokenList]:
-        return (
-            self.make_doc(
-                token["form"] if token["form"] else "---" for token in sentence
-            ),
-            sentence,
-        )
-
-    def __call__(
-        self, sentences: Iterable[conllu.models.TokenList]
-    ) -> Iterator[tuple[Doc, conllu.models.TokenList]]:
-        return self.nlp.pipe(
-            map(self.custom_tokenizer, sentences),
-            batch_size=self.batch_size,
-            as_tuples=True,
-        )
+ZDL_MODEL_PACKAGES = {
+    "de_hdt_lg": (
+        "de_hdt_lg @ https://huggingface.co/zentrum-lexikographie/de_hdt_lg/"
+        "resolve/main/de_hdt_lg-any-py3-none-any.whl"
+        "#sha256=44bd0b0299865341ee1756efd60670fa148dbfd2a14d0c1d5ab99c61af08236a"
+    ),
+    "de_wikiner_lg": (
+        "de_wikiner_lg @ https://huggingface.co/zentrum-lexikographie/"
+        "de_wikiner_lg/resolve/main/de_wikiner_lg-any-py3-none-any.whl"
+        "#sha256=8305ec439cad1247bed05907b97f6db4c473d859bc4083ef4ee0f893963c5b2e"
+    ),
+    "de_hdt_dist": (
+        "de_hdt_dist @ https://huggingface.co/zentrum-lexikographie/de_hdt_dist/"
+        "resolve/main/de_hdt_dist-any-py3-none-any.whl"
+        "#sha256=dd54e4f75b249d401ed664c406c1a021ee6733bca7c701eb4500480d473a1a8a"
+    ),
+    "de_wikiner_dist": (
+        "de_wikiner_dist @ https://huggingface.co/zentrum-lexikographie/"
+        "de_wikiner_dist/resolve/main/de_wikiner_dist-any-py3-none-any.whl"
+        "#sha256=70e3bb3cdb30bf7f945fa626c6edb52c1b44aaccc8dc35ea0bfb2a9f24551f4f"
+    ),
+}
 
 
-def add_annotation_to_tokens(
-    conll_sent: conllu.models.TokenList, annotation: Doc
-) -> None:
-    for token, word in zip(conll_sent, annotation):
-        token.update(
-            upos=word.pos_,
-            xpos=word.tag_,
-            feats=word.morph if word.morph else "_",
-            head=0 if word.dep_ == "ROOT" else word.head.i + 1,
-            deprel=word.dep_,
-        )
+def is_space_after(token: conllu.Token):
+    return (token.get("misc") or {}).get("SpaceAfter", "Yes") != "No"
+
+
+def convert_to_spacy_doc(
+    nlp: spacy.Language,
+    sentence: conllu.models.TokenList,
+) -> Doc:
+    return spacy.tokens.Doc(
+        nlp.vocab,
+        words=[t["form"] for t in sentence],
+        spaces=[is_space_after(t) for t in sentence],
+    )
+
+
+def spacy_model(model: str) -> spacy.Language:
+    try:
+        return spacy.load(model)
+    except OSError:
+        logger.debug("Downloading spaCy model '%s'", model)
+        try:
+            subprocess.run(
+                ["pip", "install", "-qqq", ZDL_MODEL_PACKAGES[model]], check=True
+            )
+        except subprocess.CalledProcessError:
+            logger.exception(
+                "Couldn't install spaCy model %s, try manual installation.", model
+            )
+            raise
+        return spacy.load(model)
+
+
+def setup_spacy_pipeline(accurate: bool = True, gpu_id: int = -1) -> spacy.Language:
+    if gpu_id >= 0:
+        logger.info("Using GPU #%d", gpu_id)
+        thinc.api.set_gpu_allocator("pytorch")
+        thinc.api.require_gpu(gpu_id)
+        spacy.prefer_gpu()
+    nlp = spacy_model("de_hdt_dist" if accurate else "de_hdt_lg")
+    ner = spacy_model("de_wikiner_dist" if accurate else "de_wikiner_lg")
+    ner.replace_listeners(
+        "transformer" if accurate else "tok2vec", "ner", ("model.tok2vec",)
+    )
+    nlp.add_pipe("ner", source=ner, name="wikiner")
+    return nlp
+
+
+def annotate(
+    nlp: spacy.Language, sentences: Iterable[conllu.models.TokenList], batch_size=128
+) -> Iterator[conllu.models.TokenList]:
+    docs = nlp.pipe(
+        ((convert_to_spacy_doc(nlp, sent), sent) for sent in sentences),
+        batch_size=batch_size,
+        as_tuples=True,
+    )
+    for doc, conll_sent in docs:
+        for token, nlp_token in zip(conll_sent, doc):
+            token.update(
+                {
+                    "upos": nlp_token.pos_,
+                    "xpos": nlp_token.tag_,
+                    "feats": nlp_token.morph.to_dict(),
+                    "head": 0 if nlp_token.dep_ == "ROOT" else nlp_token.head.i + 1,
+                    "deprel": nlp_token.dep_,
+                }
+            )
+            if nlp_token.ent_iob not in {2, 0}:  # 0: not NE tagging, 2: outside NE
+                misc = token.get("misc") if token.get("misc") else {}
+                misc.update({"NE": nlp_token.ent_type_})
+                token["misc"] = misc
+        yield conll_sent
 
 
 @click.command(
@@ -70,11 +129,18 @@ def add_annotation_to_tokens(
     help="Output file.",
 )
 @click.option(
-    "--model",
-    "-m",
-    default="de_hdt_dist",
-    type=str,
-    help="Name of spacy model, default is 'de_hdt_dist'.",
+    "--fast",
+    "-f",
+    is_flag=True,
+    help="Use CPU-optimized models for faster processing. "
+    "As default, GPU-optmized model group is used.",
+)
+@click.option(
+    "--gpu",
+    "-g",
+    type=int,
+    default=-1,
+    help="ID of GPU to use, default -1 , i.e. using CPU.",
 )
 @click.option(
     "--batch-size",
@@ -83,23 +149,23 @@ def add_annotation_to_tokens(
     type=int,
     help="Batch size used by model during processing. Default is 128 (sentences).",
 )
-def main(input, output, model, batch_size):
+def main(input, output, fast, batch_size, gpu):
     configure_logs_to_file(log_file_identifier="annotate-deprel")
     input_file = input.name if input != "-" else "from stdin"
     logger.info(
-        "Processing corpus %s with %s model (batch size: %d)."
-        % (input_file, model, batch_size)
+        "Processing corpus %s on %s (batch size: %d)."
+        % (input_file, f"gpu {gpu}" if gpu >= 0 else "cpu", batch_size)
     )
-    spacy.prefer_gpu()
-    parser = SpacyParser(model=model, batch_size=batch_size)
+    nlp = setup_spacy_pipeline(not fast, gpu)
 
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
-    for anno, sent in parser(
-        conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS)
+    for sentence in annotate(
+        nlp,
+        conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS),
+        batch_size=batch_size,
     ):
-        add_annotation_to_tokens(sent, anno)
-        output.write(sent.serialize())
+        output.write(sentence.serialize())
     end = time.time()
     elapsed_time = end - start
     logger.info("End time: %s" % datetime.fromtimestamp(end))
