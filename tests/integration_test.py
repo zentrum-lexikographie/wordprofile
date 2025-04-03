@@ -44,6 +44,8 @@ def annotate(tmp_dir):
         doc = conllu.parse(fh.read())
     assert doc[0][0]["deprel"] == "det"
     assert "NE" in doc[9][6]["misc"]
+    assert doc[9][1]["lemma"] == "die"
+    assert doc[9][8]["lemma"] == "zurückholen"
 
 
 def extract_collocation(tmp_dir):
@@ -77,6 +79,7 @@ def check_lemma_freqs(tmp_dir):
         assert ("Zeit", "NOUN", "1") in lemma_freqs
         assert ("erinnern", "VERB", "3") in lemma_freqs
         assert ("heute", "ADV", "2") in lemma_freqs
+        assert ("zurückholen", "VERB", "2") in lemma_freqs
     ec.main(
         [
             "--input",
@@ -178,6 +181,10 @@ def check_matches_stats(tmp_dir):
             ("Chef", "früheren"),
             ("Chef", "früherer"),
         }
+        phrasal_matches = {
+            tuple(line.split("\t")[2:7]) for line in lines if line.split("\t")[6] != "-"
+        }
+        assert ("holt", "Chef", "9", "13", "14") in phrasal_matches
 
 
 def compute_statistics_with_mwe(tmp_dir):
