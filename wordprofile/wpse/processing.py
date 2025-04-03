@@ -64,6 +64,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
             rel=t.rel,
             misc=t.misc,
             morph=t.morph,
+            prt_pos=t.prt_pos,
         )
 
     # this can *probably* be removed since spacy only returns "PROPN" anyway
@@ -78,46 +79,26 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
                 return "PROPN"
         return token["upos"]
 
-    return collapse_phrasal_verbs(
-        [
-            normalize_caps(
-                WPToken(
-                    idx=token["id"],
-                    surface=remove_invalid_chars(token["form"]),
-                    # TODO remove lemma repair call
-                    # ==> lemma=remove_invalid_chars(token['lemma']),
-                    lemma=repair_lemma(
-                        remove_invalid_chars(token["lemma"]), token["upos"]
-                    ),
-                    tag=entity_tag_conversion(token),
-                    head=token["head"],
-                    rel=token["deprel"],
-                    misc=(
-                        token["misc"].get("SpaceAfter") == "No"
-                        if token["misc"]
-                        else False
-                    ),
-                    morph=token.get("feats", None),
-                )
+    return [
+        normalize_caps(
+            WPToken(
+                idx=token["id"],
+                surface=remove_invalid_chars(token["form"]),
+                # TODO remove lemma repair call
+                # ==> lemma=remove_invalid_chars(token['lemma']),
+                lemma=repair_lemma(remove_invalid_chars(token["lemma"]), token["upos"]),
+                tag=entity_tag_conversion(token),
+                head=token["head"],
+                rel=token["deprel"],
+                misc=(
+                    token["misc"].get("SpaceAfter") == "No" if token["misc"] else False
+                ),
+                morph=token.get("feats", None),
+                prt_pos=(token["misc"] or {}).get("Compound:prt", None),
             )
-            for token in sentence
-        ]
-    )
-
-
-def collapse_phrasal_verbs(sentence: list[WPToken]) -> list[WPToken]:
-    for token in sentence:
-        particle = token.surface.lower()
-        if particle == "recht":
-            continue
-        if token.rel == "compound:prt" and token.tag in {"ADP", "ADJ", "ADV"}:
-            head = sentence[token.head - 1]
-            if head.tag in {"VERB", "AUX"}:
-                if head.lemma == "sein":
-                    continue
-                head.prt_pos = token.idx
-                head.lemma = repair_lemma(f"{particle}{head.lemma}", "VERB")
-    return sentence
+        )
+        for token in sentence
+    ]
 
 
 class FileReaderQueue(Protocol):
