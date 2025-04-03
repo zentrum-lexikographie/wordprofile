@@ -5,7 +5,7 @@ import dwdsmor
 import pytest
 import spacy
 
-import wordprofile.preprocessing.cli.annotate as deprel
+import wordprofile.preprocessing.cli.annotate as anno
 
 TEST_DIR = Path(__file__).parent
 
@@ -22,7 +22,7 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    return deprel.setup_spacy_pipeline(accurate=False)
+    return anno.setup_spacy_pipeline(accurate=False)
 
 
 @pytest.fixture(scope="module")
@@ -39,7 +39,7 @@ def test_conversion_to_spacy_doc(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = list(conllu.parse_incr(fh))
     sentence = sentences[0]
-    result = deprel.convert_to_spacy_doc(parser, sentence)
+    result = anno.convert_to_spacy_doc(parser, sentence)
     assert isinstance(result, spacy.tokens.Doc)
     assert len(result) == 13
     assert (
@@ -51,7 +51,7 @@ def test_conversion_to_spacy_doc(parser, short_conll_file):
 def test_add_token_annotation_to_conll_sentence(short_conll_file, parser):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    doc = next(deprel.annotate(parser, sentences[3:4]))
+    doc = next(anno.annotate(parser, sentences[3:4]))
     assert [(tok["form"], tok["upos"], tok["head"], tok["deprel"]) for tok in doc] == [
         ("Damals", "ADV", 2, "advmod"),
         ("ging", "VERB", 0, "ROOT"),
@@ -67,19 +67,19 @@ def test_add_token_annotation_to_conll_sentence(short_conll_file, parser):
 def test_space_after(short_conll_file):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    spaces = [deprel.is_space_after(tok) for tok in sentences[7]]
+    spaces = [anno.is_space_after(tok) for tok in sentences[7]]
     assert spaces == [True, True, False, False, True, True, True, False, True, True]
 
 
 def test_ner_model_added_as_component_to_nlp_pipeline():
-    nlp = deprel.setup_spacy_pipeline(accurate=False)
+    nlp = anno.setup_spacy_pipeline(accurate=False)
     assert nlp.has_pipe("wikiner")
 
 
 def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    result = next(deprel.annotate(parser, sentences))
+    result = next(anno.annotate(parser, sentences))
     assert result[4]["misc"]["NE"] == "PER"
 
 
@@ -210,7 +210,7 @@ def test_lemmatization_updates_lemma(lemmatizer):
             ),
         ]
     )
-    deprel.lemmatize(lemmatizer, sentence)
+    anno.lemmatize(lemmatizer, sentence)
     result = [tok["lemma"] for tok in sentence]
     assert result == [
         "an",
@@ -246,7 +246,7 @@ def test_lemma_not_updated_if_pos_not_matching(lemmatizer):
             ),
         ]
     )
-    deprel.lemmatize(lemmatizer, sentence)
+    anno.lemmatize(lemmatizer, sentence)
     assert sentence[0]["lemma"] == ""
 
 
@@ -266,7 +266,7 @@ def test_lemma_not_update_if_unk_to_dwdsmor(lemmatizer):
             ),
         ]
     )
-    deprel.lemmatize(lemmatizer, sentence)
+    anno.lemmatize(lemmatizer, sentence)
     assert sentence[0]["lemma"] == ""
 
 
@@ -297,7 +297,7 @@ def test_lemmatization_makes_use_of_morph_information(lemmatizer):
             ),
         ]
     )
-    deprel.lemmatize(lemmatizer, sentence)
+    anno.lemmatize(lemmatizer, sentence)
     assert sentence[0]["lemma"] == "testen"
     assert sentence[0]["lemma"] != sentence[1]["lemma"]
 
@@ -305,7 +305,7 @@ def test_lemmatization_makes_use_of_morph_information(lemmatizer):
 def test_lemmatize_phrasal_verb_correct_lemma_added(phrasal_verbs_conll):
     expected_lemmas = ["bereithalten", "stattfinden", "naheliegen", "ankommen"]
     for i, sent in enumerate(phrasal_verbs_conll):
-        deprel.collapse_phrasal_verbs(sent)
+        anno.collapse_phrasal_verbs(sent)
         for token in sent:
             if token["deprel"] == "ROOT":
                 assert token["lemma"] == expected_lemmas[i]
@@ -316,7 +316,7 @@ def test_lemmatize_phrasal_verb_index_of_particle_added_to_lemma(
 ):
     expected_prt_index = [11, 14, 4, 21]
     for i, sent in enumerate(phrasal_verbs_conll):
-        deprel.collapse_phrasal_verbs(sent)
+        anno.collapse_phrasal_verbs(sent)
         for token in sent:
             if token["deprel"] == "ROOT":
                 assert expected_prt_index[i] == token["misc"].get("Compound:prt", 0)
@@ -399,7 +399,7 @@ def test_collapse_lemma_of_phrasal_verbs():
             ),
         ]
     )
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[3] == conllu.Token(
         id=4,
         form="setzt",
@@ -441,7 +441,7 @@ def test_particle_not_collapsed_if_prt_not_adp():
             misc={},
         ),
     ]
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[1] == conllu.Token(
         id=2,
         form="läuft",
@@ -510,7 +510,7 @@ def test_particle_not_collapsed_if_head_not_verb():
             misc={},
         ),
     ]
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[2] == conllu.Token(
         id=3,
         form="Ministerpräsident",
@@ -563,8 +563,8 @@ def test_case_normalization_and_phrasal_verb_lemmatization(lemmatizer):
             ),
         ]
     )
-    deprel.lemmatize(lemmatizer, token_list)
-    deprel.collapse_phrasal_verbs(token_list)
+    anno.lemmatize(lemmatizer, token_list)
+    anno.collapse_phrasal_verbs(token_list)
     assert token_list[1]["lemma"] == "fehlschlagen"
 
 
@@ -634,7 +634,7 @@ def test_verb_ignored_if_sein_during_phrasal_verb_lemmatisation():
             misc={},
         ),
     ]
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[1]["lemma"] == "sein"
     assert sentence[1]["misc"] == {}
 
@@ -703,8 +703,8 @@ def test_wrong_lemma_from_data_replaced_after_phrasal_verb_concatenation(lemmati
             misc={},
         ),
     ]
-    deprel.lemmatize(lemmatizer, sentence)
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.lemmatize(lemmatizer, sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[1]["lemma"] == "herausfallen"
 
 
@@ -826,7 +826,7 @@ def test_phrasal_verb_with_recht_as_particle_not_concatenated():
         ],
     ]
     for sent in sentences:
-        deprel.collapse_phrasal_verbs(sent)
+        anno.collapse_phrasal_verbs(sent)
     assert sentences[0][0]["lemma"] == "haben"
     assert sentences[1][1]["lemma"] == "geben"
     assert sentences[2][1]["lemma"] == "haben"
@@ -871,7 +871,7 @@ def test_sentence_initial_particle_of_phrasal_verbs_normalized():
             misc={},
         ),
     ]
-    deprel.collapse_phrasal_verbs(sentence)
+    anno.collapse_phrasal_verbs(sentence)
     assert sentence[1] == conllu.Token(
         id=2,
         form="kommen",
@@ -990,6 +990,6 @@ def test_particles_with_adj_and_adv_upos_concatenated_in_phrasal_verb_lemmatisat
         ],
     ]
     for sent in sentences:
-        deprel.collapse_phrasal_verbs(sent)
+        anno.collapse_phrasal_verbs(sent)
     assert sentences[0][2]["lemma"] == "vorbeifahren"
     assert sentences[1][2]["lemma"] == "offenstehen"
