@@ -1821,3 +1821,25 @@ def test_unnecessary_corpus_files_removed():
             ["1", "corpus1", "file2", "bibl", "date", "corpus1"],
             ["4", "corpus2", "file5", "bibl", "date", "corpus2"],
         ]
+
+
+def test_conversion_of_conll_token_with_empty_misc():
+    sentence = TokenList(
+        [
+            Token(
+                id=2,
+                form="Wochenende",
+                lemma="Wochenende",
+                upos="NOUN",
+                xpos="",
+                feats={"Gender": "Neut", "Number": "Sing"},
+                head=None,
+                deprel="ROOT",
+                deps=None,
+                misc=None,
+            ),
+        ]
+    )
+    result = pro.convert_sentence(sentence)
+    assert result[0].misc is False
+    assert result[0].prt_pos is None
