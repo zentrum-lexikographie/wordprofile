@@ -6,8 +6,11 @@ from typing import Iterable, Iterator
 
 import click
 import conllu
+import dwdsmor
+import dwdsmor.tag.hdt
 import spacy
 import thinc
+from cachetools import LFUCache, cached
 from spacy.tokens import Doc
 
 from wordprofile.utils import configure_logs_to_file
@@ -111,6 +114,63 @@ def annotate(
         yield conll_sent
 
 
+def lemmatize(
+    lemmatizer: dwdsmor.automaton.Lemmatizer,
+    sentence: conllu.models.TokenList,
+    cache_size: int = 10000,
+) -> None:
+    @cached(LFUCache(cache_size))
+    def lemmatize(form, **criteria):
+        return lemmatizer(form, **criteria)
+
+    for token in sentence:
+        token_form = token["form"]
+        token_pos = token["xpos"]
+        token_morph = token["feats"] or {}
+        token_criteria = {
+            k: frozenset(v) if v else None
+            for k, v in dwdsmor.tag.hdt.criteria(
+                pos=token_pos,
+                number=token_morph.get("Number"),
+                gender=token_morph.get("Gender"),
+                case=token_morph.get("Case"),
+                person=token_morph.get("Person"),
+                tense=token_morph.get("Tense"),
+                degree=token_morph.get("Degree"),
+                mood=token_morph.get("Mood"),
+                nonfinite=token_morph.get("VerbForm"),
+            ).items()
+        }
+        dwdsmor_result = lemmatize(token_form, **token_criteria)
+        if not dwdsmor_result:
+            continue
+        lemma = token["lemma"]
+        dwdsmor_lemma = dwdsmor_result.analysis
+        if lemma == dwdsmor_lemma:
+            dwdsmor_lemma = f"{dwdsmor_lemma}"
+        else:
+            dwdsmor_lemma = f"{dwdsmor_lemma}"
+        # make a POS match mandatory
+        if dwdsmor_result.pos not in dwdsmor.tag.hdt.pos_map[token_pos]:
+            continue
+        token["lemma"] = dwdsmor_lemma
+
+
+def collapse_phrasal_verbs(sentence: conllu.models.TokenList) -> None:
+    for token_index, token in enumerate(sentence, 1):
+        particle = token["form"].lower()
+        if particle == "recht":
+            continue
+        if token["deprel"] == "compound:prt" and token["upos"] in {"ADP", "ADJ", "ADV"}:
+            head = sentence[token["head"] - 1]
+            if head["upos"] in {"VERB", "AUX"}:
+                verb = head["lemma"]
+                if verb == "sein":
+                    continue
+                head["lemma"] = f"{particle}{verb}"
+                head["misc"] = (head["misc"] or {}) | {"Compound:prt": token_index}
+
+
 @click.command(
     help="Parse conll file and add linguistic annotations and lemmatisation."
 )
@@ -157,7 +217,7 @@ def main(input, output, fast, batch_size, gpu):
         % (input_file, f"gpu {gpu}" if gpu >= 0 else "cpu", batch_size)
     )
     nlp = setup_spacy_pipeline(not fast, gpu)
-
+    lemmatizer = dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
     for sentence in annotate(
@@ -165,6 +225,8 @@ def main(input, output, fast, batch_size, gpu):
         conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS),
         batch_size=batch_size,
     ):
+        lemmatize(lemmatizer, sentence)
+        collapse_phrasal_verbs(sentence)
         output.write(sentence.serialize())
     end = time.time()
     elapsed_time = end - start
