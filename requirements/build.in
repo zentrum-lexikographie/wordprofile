@@ -1,5 +1,7 @@
 -c base.txt
+cachetools
 conllu
+dwdsmor
 spacy[cuda11x]==3.7.5
 spacy-transformers
 thinc
