@@ -46,36 +46,9 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
     If tags are not found in mapping, they are left empty.
     """
 
-    prepositional_contract_map: dict[str, str] = {
-        "am": "an",
-        "aufs": "auf",
-        "ans": "an",
-        "beim": "bei",
-        "durchs": "durch",
-        "fürs": "für",
-        "im": "in",
-        "ins": "in",
-        "hinters": "hinter",
-        "hinterm": "hinter",
-        "ums": "um",
-        "übers": "über",
-        "überm": "über",
-        "unterm": "unter",
-        "unters": "unter",
-        "untern": "unter",
-        "vom": "von",
-        "vorm": "vor",
-        "vors": "vor",
-        "zum": "zu",
-        "zur": "zu",
-    }
-
     def case_by_tag(w: str, tag: str) -> str:
         if tag in {"VERB", "ADJ", "ADV", "AUX"}:
             return w.lower()
-        elif tag == "ADP":
-            w = w.lower()
-            return prepositional_contract_map.get(w, w)
         elif tag == "NOUN":
             return w[0].upper() + w[1:]
         else:

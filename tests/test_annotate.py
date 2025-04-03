@@ -993,3 +993,63 @@ def test_particles_with_adj_and_adv_upos_concatenated_in_phrasal_verb_lemmatisat
         anno.collapse_phrasal_verbs(sent)
     assert sentences[0][2]["lemma"] == "vorbeifahren"
     assert sentences[1][2]["lemma"] == "offenstehen"
+
+
+@pytest.mark.xfail
+def test_lemmatization_of_contracted_adp(lemmatizer):
+    prepositions = [
+        ("am", "an"),
+        ("Am", "an"),
+        ("aufs", "auf"),
+        ("ans", "an"),
+        ("beim", "bei"),
+        ("fürs", "für"),
+        ("hinters", "hinter"),
+        ("hinterm", "hinter"),
+        ("hintern", "hinter"),
+        ("im", "in"),
+        ("ins", "in"),
+        ("übers", "über"),
+        ("überm", "über"),
+        ("ums", "um"),
+        ("unterm", "unter"),
+        ("unters", "unter"),
+        ("untern", "unter"),
+        ("vorm", "vor"),
+        ("vors", "vor"),
+        ("vom", "von"),
+        ("zum", "zu"),
+        ("zur", "zu"),
+    ]
+    for prep, lemma in prepositions:
+        token_list = conllu.TokenList(
+            [
+                conllu.Token(
+                    id=1,
+                    form=prep,
+                    lemma=prep,
+                    upos="ADP",
+                    xpos="APPR_ART",
+                    feats={},
+                    head="",
+                    deprel="",
+                    deps=None,
+                    misc={},
+                ),
+            ]
+        )
+        anno.lemmatize(lemmatizer, token_list)
+        assert token_list == [
+            conllu.Token(
+                id=1,
+                form=prep,
+                lemma=lemma,
+                upos="ADP",
+                xpos="APPR_ART",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={},
+            )
+        ]
