@@ -210,7 +210,7 @@ def collapse_phrasal_verbs(sentence: conllu.models.TokenList) -> None:
     help="Batch size used by model during processing. Default is 128 (sentences).",
 )
 def main(input, output, fast, batch_size, gpu):
-    configure_logs_to_file(log_file_identifier="annotate-deprel")
+    configure_logs_to_file(log_file_identifier="annotate")
     input_file = input.name if input != "-" else "from stdin"
     logger.info(
         "Processing corpus %s on %s (batch size: %d)."
