@@ -80,7 +80,7 @@ def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
     result = next(anno.annotate(parser, sentences))
-    assert result[4]["misc"]["NE"] == "PER"
+    assert result[4]["misc"]["NamedEntity"] == "PER"
 
 
 def test_lemmatization_updates_lemma(lemmatizer):
