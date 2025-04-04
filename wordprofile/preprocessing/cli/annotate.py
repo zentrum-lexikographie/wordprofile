@@ -109,7 +109,7 @@ def annotate(
             )
             if nlp_token.ent_iob not in {2, 0}:  # 0: not NE tagging, 2: outside NE
                 misc = token.get("misc") if token.get("misc") else {}
-                misc.update({"NE": nlp_token.ent_type_})
+                misc.update({"NamedEntity": nlp_token.ent_type_})
                 token["misc"] = misc
         yield conll_sent
 
