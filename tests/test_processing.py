@@ -168,7 +168,7 @@ def test_sentence_conversion_ne_tags():
                 head="",
                 deprel="",
                 deps=None,
-                misc={"NER": "S-PER"},
+                misc={"NamedEntity": "S-PER"},
             ),
         ]
     )
