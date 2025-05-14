@@ -67,10 +67,9 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
             prt_pos=t.prt_pos,
         )
 
-    # this can *probably* be removed since spacy only returns "PROPN" anyway
     def entity_tag_conversion(token: Token) -> str:
-        if token["misc"] and "NER" in token["misc"]:
-            ner_tag = token["misc"]["NER"]
+        if token["misc"] and "NamedEntity" in token["misc"]:
+            ner_tag = token["misc"]["NamedEntity"]
             if (
                 ner_tag.endswith("PER")
                 or ner_tag.endswith("LOC")
