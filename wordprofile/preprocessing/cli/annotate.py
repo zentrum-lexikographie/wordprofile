@@ -105,6 +105,7 @@ def annotate(
                     "feats": nlp_token.morph.to_dict(),
                     "head": 0 if nlp_token.dep_ == "ROOT" else nlp_token.head.i + 1,
                     "deprel": nlp_token.dep_,
+                    "lemma": nlp_token.lemma_,
                 }
             )
             if nlp_token.ent_iob not in {2, 0}:  # 0: not NE tagging, 2: outside NE
