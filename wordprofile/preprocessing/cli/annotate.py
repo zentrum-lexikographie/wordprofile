@@ -148,9 +148,7 @@ def lemmatize(
         lemma = token["lemma"]
         dwdsmor_lemma = dwdsmor_result.analysis
         if lemma == dwdsmor_lemma:
-            dwdsmor_lemma = f"{dwdsmor_lemma}"
-        else:
-            dwdsmor_lemma = f"{dwdsmor_lemma}"
+            continue
         # make a POS match mandatory
         if dwdsmor_result.pos not in dwdsmor.tag.hdt.pos_map[token_pos]:
             continue
