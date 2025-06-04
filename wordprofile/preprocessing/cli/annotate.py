@@ -124,10 +124,18 @@ def lemmatize(
     def lemmatize(form, **criteria):
         return lemmatizer(form, **criteria)
 
-    for token in sentence:
+    sep_indices = {
+        t["head"]: t["id"] for t in sentence if t["deprel"] == "compound:prt"
+    }
+    for token_index, token in enumerate(sentence, 1):
         token_form = token["form"]
         token_pos = token["xpos"]
-        token_morph = token["feats"] or {}
+        token_morph = token.get("feats") or {}
+        syninfo = (
+            "SEP"
+            if token_index in (sep_indices.keys() | sep_indices.values())
+            else None
+        )
         token_criteria = {
             k: frozenset(v) if v else None
             for k, v in dwdsmor.tag.hdt.criteria(
@@ -135,39 +143,47 @@ def lemmatize(
                 number=token_morph.get("Number"),
                 gender=token_morph.get("Gender"),
                 case=token_morph.get("Case"),
-                person=token_morph.get("Person"),
+                person=token_morph.get("Person")
+                or ("UnmPers" if token_index in sep_indices.values() else None),
                 tense=token_morph.get("Tense"),
                 degree=token_morph.get("Degree"),
                 mood=token_morph.get("Mood"),
                 nonfinite=token_morph.get("VerbForm"),
+                syninfo=syninfo,
             ).items()
         }
         dwdsmor_result = lemmatize(token_form, **token_criteria)
+        if token_index in sep_indices.values() and dwdsmor_result.syninfo is None:
+            sep_indices.pop(token["head"])
         if not dwdsmor_result:
             continue
         lemma = token["lemma"]
         dwdsmor_lemma = dwdsmor_result.analysis
-        if lemma == dwdsmor_lemma:
+        if lemma == dwdsmor_lemma and token_index not in sep_indices:
             continue
-        # make a POS match mandatory
-        if dwdsmor_result.pos not in dwdsmor.tag.hdt.pos_map[token_pos]:
+        # make a POS match mandatory except for verb particles
+        if (
+            dwdsmor_result.pos not in dwdsmor.tag.hdt.pos_map[token_pos]
+            and token_index not in sep_indices.values()
+        ):
             continue
+        if token_index in sep_indices:
+            particle = sentence[sep_indices[token_index] - 1]
+            pos = particle["xpos"]
+            if particle["form"].lower() == "recht":
+                pos = "+ADJ"
+            part_lemma = lemmatizer(
+                particle["form"],
+                pos=pos,
+                syninfo={"SEP"},
+                person={"UnmPers"},
+            )
+            if part_lemma.syninfo is not None and dwdsmor_result.syninfo is not None:
+                dwdsmor_lemma = f"{part_lemma.analysis}{dwdsmor_lemma}"
+                token["misc"] = (token["misc"] or {}) | {
+                    "compound:prt": sep_indices[token_index]
+                }
         token["lemma"] = dwdsmor_lemma
-
-
-def collapse_phrasal_verbs(sentence: conllu.models.TokenList) -> None:
-    for token_index, token in enumerate(sentence, 1):
-        particle = token["form"].lower()
-        if particle == "recht":
-            continue
-        if token["deprel"] == "compound:prt" and token["upos"] in {"ADP", "ADJ", "ADV"}:
-            head = sentence[token["head"] - 1]
-            if head["upos"] in {"VERB", "AUX"}:
-                verb = head["lemma"]
-                if verb == "sein":
-                    continue
-                head["lemma"] = f"{particle}{verb}"
-                head["misc"] = (head["misc"] or {}) | {"Compound:prt": token_index}
 
 
 @click.command(
@@ -225,7 +241,6 @@ def main(input, output, fast, batch_size, gpu):
         batch_size=batch_size,
     ):
         lemmatize(lemmatizer, sentence)
-        collapse_phrasal_verbs(sentence)
         output.write(sentence.serialize())
     end = time.time()
     elapsed_time = end - start
