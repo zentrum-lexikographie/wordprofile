@@ -1020,6 +1020,80 @@ def test_particles_with_adv_upos_concatenated_in_phrasal_verb_lemmatisation(
                 form="Die",
                 lemma="d",
                 upos="DET",
+                xpos="ART",
+                head=2,
+                deprel="det",
+                misc={},
+            ),
+            conllu.Token(
+                id=2,
+                form="Klimakrise",
+                lemma="Klimakrise",
+                upos="NOUN",
+                xpos="NN",
+                head=3,
+                deprel="nsubj",
+                misc={},
+            ),
+            conllu.Token(
+                id=3,
+                form="tut",
+                lemma="tun",
+                upos="VERB",
+                xpos="VVFIN",
+                head=0,
+                deprel="ROOT",
+                misc={},
+            ),
+            conllu.Token(
+                id=4,
+                form="ihr",
+                lemma="d",
+                upos="DET",
+                xpos="PPOSAT",
+                head=5,
+                deprel="det",
+                misc={},
+            ),
+            conllu.Token(
+                id=5,
+                form="übriges",
+                lemma="übrig",
+                upos="ADJ",
+                xpos="ADJA",
+                head=3,
+                deprel="obj",
+                misc={},
+            ),
+            conllu.Token(
+                id=6,
+                form="dazu",
+                lemma="dazu",
+                upos="ADV",
+                xpos="PROAV",
+                head=3,
+                deprel="compound:prt",
+                misc={},
+            ),
+        ],
+    ]
+    for sent in sentences:
+        anno.lemmatize(lemmatizer, sent)
+    assert sentences[0][2]["lemma"] == "vorbeifahren"
+    assert sentences[1][2]["lemma"] == "dazutun"
+
+
+def test_particles_with_adj_upos_concatenated_in_phrasal_verb_lemmatisation(
+    lemmatizer,
+):
+    sentences = [
+        [
+            conllu.Token(
+                id=1,
+                form="Die",
+                lemma="d",
+                upos="DET",
+                xpos="ART",
                 head=2,
                 deprel="det",
                 misc={},
@@ -1049,6 +1123,49 @@ def test_particles_with_adv_upos_concatenated_in_phrasal_verb_lemmatisation(
                 form="offen",
                 lemma="offen",
                 upos="ADJ",
+                xpos="ADJA",
+                head=3,
+                deprel="compound:prt",
+                misc={},
+            ),
+        ],
+        [
+            conllu.Token(
+                id=1,
+                form="Die",
+                lemma="d",
+                upos="DET",
+                xpos="ART",
+                head=2,
+                deprel="det",
+                misc={},
+            ),
+            conllu.Token(
+                id=2,
+                form="Haus",
+                lemma="Haus",
+                upos="NOUN",
+                xpos="NN",
+                head=3,
+                deprel="nsubj",
+                misc={},
+            ),
+            conllu.Token(
+                id=3,
+                form="steht",
+                lemma="stehen",
+                upos="VERB",
+                xpos="VVFIN",
+                head=0,
+                deprel="ROOT",
+                misc={},
+            ),
+            conllu.Token(
+                id=4,
+                form="leer",
+                lemma="leer",
+                upos="ADJ",
+                xpos="ADJA",
                 head=3,
                 deprel="compound:prt",
                 misc={},
@@ -1056,9 +1173,9 @@ def test_particles_with_adv_upos_concatenated_in_phrasal_verb_lemmatisation(
         ],
     ]
     for sent in sentences:
-        anno.collapse_phrasal_verbs(sent)
-    assert sentences[0][2]["lemma"] == "vorbeifahren"
-    assert sentences[1][2]["lemma"] == "offenstehen"
+        anno.lemmatize(lemmatizer, sent)
+    assert sentences[0][2]["lemma"] == "offenstehen"
+    assert sentences[1][2]["lemma"] == "leerstehen"
 
 
 def test_lemmatization_of_contracted_adp(lemmatizer):
@@ -1082,11 +1199,50 @@ def test_lemmatization_of_contracted_adp(lemmatizer):
         ("vom", "von"),
         ("zum", "zu"),
         ("zur", "zu"),
-        # not covered by DWDSmor open
-        # ("ans", "an"),
-        # ("hintern", "hinter"),
-        # ("übern", "über"),
-        # ("untern", "unter"),
+    ]
+    for prep, lemma in prepositions:
+        token_list = conllu.TokenList(
+            [
+                conllu.Token(
+                    id=1,
+                    form=prep,
+                    lemma=prep,
+                    upos="ADP",
+                    xpos="APPR_ART",
+                    feats={},
+                    head="",
+                    deprel="",
+                    deps=None,
+                    misc={},
+                ),
+            ]
+        )
+        anno.lemmatize(lemmatizer, token_list)
+        assert token_list == [
+            conllu.Token(
+                id=1,
+                form=prep,
+                lemma=lemma,
+                upos="ADP",
+                xpos="APPR_ART",
+                feats={},
+                head="",
+                deprel="",
+                deps=None,
+                misc={},
+            )
+        ]
+
+
+@pytest.mark.skipif(
+    condition=(AUTOMATON_EDITION == "open"), reason="DWDSmor edition not available"
+)
+def test_lemmatization_of_contracted_adp_rare_cases(lemmatizer):
+    prepositions = [
+        ("ans", "an"),
+        ("hintern", "hinter"),
+        ("übern", "über"),
+        ("untern", "unter"),
     ]
     for prep, lemma in prepositions:
         token_list = conllu.TokenList(
