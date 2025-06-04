@@ -912,18 +912,6 @@ def test_extraction_of_matches_from_doc(invalid_sentences, valid_sentences):
     assert len(list(sf.extract_matches_from_doc(valid_sentences[:1]))) == 2
 
 
-def test_lemma_repair_load():
-    repair_dict = sf.load_lemma_repair_files()
-    assert len(repair_dict) == 3
-    assert repair_dict["ADJ"]["mißinformiert"] == "missinformiert"
-
-
-def test_replace_lemma():
-    assert sf.repair_lemma("Tag", "NOUN") == "Tag"
-    assert sf.repair_lemma("tätig", "VERB") == "tätigen"
-    assert sf.repair_lemma("Test", "X") == "Test"
-
-
 def test_remove_invalid_chars():
     assert sf.remove_invalid_chars("path\\to") == "pathto"
     assert sf.remove_invalid_chars("abc\udeed") == "abc"

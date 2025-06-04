@@ -19,7 +19,6 @@ from wordprofile.datatypes import Colloc, CollocInstance, DBMatch, WPToken
 from wordprofile.sentence_filter import (
     extract_matches_from_doc,
     remove_invalid_chars,
-    repair_lemma,
     sentence_is_valid,
 )
 from wordprofile.wpse.prepare import (
@@ -83,9 +82,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
             WPToken(
                 idx=token["id"],
                 surface=remove_invalid_chars(token["form"]),
-                # TODO remove lemma repair call
-                # ==> lemma=remove_invalid_chars(token['lemma']),
-                lemma=repair_lemma(remove_invalid_chars(token["lemma"]), token["upos"]),
+                lemma=remove_invalid_chars(token["lemma"]),
                 tag=entity_tag_conversion(token),
                 head=token["head"],
                 rel=token["deprel"],
