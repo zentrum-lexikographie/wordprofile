@@ -43,45 +43,6 @@ def extract_matches_from_doc(parses: list[list[WPToken]]) -> Iterator[Match]:
     return filter(valid_match, extract_matches(parses))
 
 
-# TODO: Lemma Repair To Be Removed
-def load_lemma_repair_files() -> dict[str, dict[str, str]]:
-    """
-    Load static repair mapping files into dict.
-
-    These mappings are used to repair the poor lemmatizer output (already
-    known problems). The files have tab-separated csv format.
-    Each line contains a mapping of the form:
-        <bad lemma>\t<correct lemma>
-    """
-    word_classes_repair = {}
-    files = [
-        ("ADJ", "spec/lemma_repair_adjektiv.csv"),
-        ("NOUN", "spec/lemma_repair_substantiv.csv"),
-        ("VERB", "spec/lemma_repair_verb.csv"),
-    ]
-    for word_class, path in files:
-        word_class_repair = {}
-        for line in open(path, "r"):
-            entry = line.strip().split("\t")
-            if len(entry) == 2:
-                if entry[0] not in word_class_repair:
-                    word_class_repair[entry[0]] = entry[1]
-        word_classes_repair[word_class] = word_class_repair
-    return word_classes_repair
-
-
-LEMMA_REPAIR = load_lemma_repair_files()
-
-
-def repair_lemma(lemma: str, lemma_tag: str) -> str:
-    if lemma_tag in LEMMA_REPAIR:
-        return LEMMA_REPAIR[lemma_tag].get(lemma, lemma)
-    return lemma
-
-
-# REMOVE END
-
-
 def sent_filter_length(sentence: list[WPToken]) -> bool:
     return 3 <= len(sentence) <= 100
 
