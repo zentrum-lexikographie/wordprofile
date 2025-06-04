@@ -46,7 +46,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
     """
 
     def case_by_tag(w: str, tag: str) -> str:
-        if tag in {"VERB", "ADJ", "ADV", "AUX"}:
+        if tag in {"VERB", "ADJ", "ADV", "AUX", "ADP"}:
             return w.lower()
         elif tag == "NOUN":
             return w[0].upper() + w[1:]
