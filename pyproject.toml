@@ -30,6 +30,7 @@ profile = "black"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+xfail_strict=true
 
 [[tool.mypy.overrides]]
 module = ["pymysql", "MySQLdb"]
