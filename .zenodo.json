@@ -1,0 +1,27 @@
+{
+  "creators": [
+    {
+      "affiliation": "Berlin-Brandenburg Academy of Sciences and Humanities",
+      "name": "Köhler, Luise",
+      "orcid": "0000-0001-5144-1920"
+    },
+    {
+      "affiliation": "Universität Potsdam",
+      "name": "Knaebel, René",
+      "orcid": "0009-0003-1320-6753"
+    }
+  ],
+  "description": "Backend des Wortprofils, einer Übersicht über Kollokationskandidaten, extrahiert aus Korpora des ZDL der BBAW",
+  "keywords": [
+    "computational linguistics",
+    "nlp",
+    "german",
+    "collocation extraction",
+    "lexicography"
+  ],
+  "license": {
+    "id": "GPL-3.0"
+  },
+  "title": "DWDS Wortprofil",
+  "version": "9.0.1"
+}

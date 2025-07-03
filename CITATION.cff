@@ -1,0 +1,22 @@
+cff-version: "1.2.0"
+title: "DWDS Wortprofil"
+version: 9.0.1
+license: "GPL-3.0"
+type: software
+abstract: "Backend des Wortprofils, einer Übersicht über Kollokationskandidaten, extrahiert aus Korpora des ZDL der BBAW"
+message: "If you use this software, please cite it as below."
+authors:
+  - given-names: Luise
+    family-names: Köhler
+    affiliation: Berlin-Brandenburg Academy of Sciences and Humanities
+    orcid: "https://orcid.org/0000-0001-5144-1920"
+  - given-names: René
+    family-names: Knaebel
+    affiliation: Universität Potsdam
+    orcid: "https://orcid.org/0009-0003-1320-6753"
+keywords:
+  - computational linguistics
+  - nlp
+  - german
+  - collocation extraction
+  - lexicography
