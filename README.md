@@ -1,5 +1,7 @@
 # DWDS Wortprofil (wordprofile)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15798451.svg)](https://doi.org/10.5281/zenodo.15798451)
+
 Das *DWDS Wortprofil* Projekt bildet das Backend für die unter www.dwds.de/wp hinterlegte Übersicht von Kollokationen.
 Als Grundlage für die Erstellung eines Wortprofils dienen Korpora des ZDL der BBAW.
 
