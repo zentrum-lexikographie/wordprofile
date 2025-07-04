@@ -98,10 +98,10 @@ def lemmatize(
             ).items()
         }
         dwdsmor_result = lemmatize(token_form, **token_criteria)
-        if token_index in sep_indices.values() and dwdsmor_result.syninfo is None:
-            sep_indices.pop(token["head"])
         if not dwdsmor_result:
             continue
+        if token_index in sep_indices.values() and dwdsmor_result.syninfo is None:
+            sep_indices.pop(token["head"])
         lemma = token["lemma"]
         dwdsmor_lemma = dwdsmor_result.analysis
         if lemma == dwdsmor_lemma and token_index not in sep_indices:
@@ -114,17 +114,20 @@ def lemmatize(
             continue
         if token_index in sep_indices:
             particle = sentence[sep_indices[token_index] - 1]
-            pos = particle["xpos"]
-            if particle["form"].lower() == "recht":
-                pos = "+ADJ"
-            part_lemma = lemmatizer(
+            particle_lemma = lemmatizer(
                 particle["form"],
-                pos=pos,
+                pos="V",
                 syninfo={"SEP"},
                 person={"UnmPers"},
             )
-            if part_lemma.syninfo is not None and dwdsmor_result.syninfo is not None:
-                dwdsmor_lemma = f"{part_lemma.analysis}{dwdsmor_lemma}"
+            if particle["form"].lower() == "recht":
+                particle_lemma = None
+            if (
+                particle_lemma
+                and particle_lemma.syninfo is not None
+                and dwdsmor_result.syninfo is not None
+            ):
+                dwdsmor_lemma = f"{particle_lemma.analysis}{dwdsmor_lemma}"
                 token["misc"] = (token["misc"] or {}) | {
                     "compound:prt": sep_indices[token_index]
                 }
