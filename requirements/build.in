@@ -5,6 +5,5 @@ dwdsmor
 spacy[cuda12x]==3.8.7
 spacy-transformers
 thinc
-de_hdt_lg @ https://huggingface.co/zentrum-lexikographie/de_hdt_lg/resolve/main/de_hdt_lg-any-py3-none-any.whl
-de_hdt_dist @ https://huggingface.co/zentrum-lexikographie/de_hdt_dist/resolve/main/de_hdt_dist-any-py3-none-any.whl
 huggingface-hub
+spacy-models @ git+https://github.com/zentrum-lexikographie/spacy-models.git@v2.2.0
