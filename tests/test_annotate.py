@@ -593,7 +593,6 @@ def test_case_normalization_and_phrasal_verb_lemmatization(lemmatizer):
     assert token_list[1]["lemma"] == "fehlschlagen"
 
 
-@pytest.mark.xfail()
 def test_verb_ignored_if_sein_during_phrasal_verb_lemmatisation(lemmatizer):
     sentence = [
         conllu.Token(
