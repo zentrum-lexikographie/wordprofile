@@ -112,7 +112,7 @@ def lemmatize(
             and token_index not in sep_indices.values()
         ):
             continue
-        if token_index in sep_indices:
+        if token_index in sep_indices and dwdsmor_result.syninfo is not None:
             particle = sentence[sep_indices[token_index] - 1]
             particle_lemma = lemmatizer(
                 particle["form"],
@@ -122,11 +122,7 @@ def lemmatize(
             )
             if particle["form"].lower() == "recht":
                 particle_lemma = None
-            if (
-                particle_lemma
-                and particle_lemma.syninfo is not None
-                and dwdsmor_result.syninfo is not None
-            ):
+            if particle_lemma and particle_lemma.syninfo is not None:
                 dwdsmor_lemma = f"{particle_lemma.analysis}{dwdsmor_lemma}"
                 token["misc"] = (token["misc"] or {}) | {
                     "compound:prt": sep_indices[token_index]
