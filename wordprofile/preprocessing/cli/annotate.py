@@ -9,36 +9,13 @@ import conllu
 import dwdsmor
 import dwdsmor.tag.hdt
 import spacy
-import thinc
+import zdl_spacy
 from cachetools import LFUCache, cached
 from spacy.tokens import Doc
 
 from wordprofile.utils import configure_logs_to_file
 
 logger = logging.getLogger(__name__)
-
-ZDL_MODEL_PACKAGES = {
-    "de_hdt_lg": (
-        "de_hdt_lg @ https://huggingface.co/zentrum-lexikographie/de_hdt_lg/"
-        "resolve/main/de_hdt_lg-any-py3-none-any.whl"
-        "#sha256=44bd0b0299865341ee1756efd60670fa148dbfd2a14d0c1d5ab99c61af08236a"
-    ),
-    "de_wikiner_lg": (
-        "de_wikiner_lg @ https://huggingface.co/zentrum-lexikographie/"
-        "de_wikiner_lg/resolve/main/de_wikiner_lg-any-py3-none-any.whl"
-        "#sha256=8305ec439cad1247bed05907b97f6db4c473d859bc4083ef4ee0f893963c5b2e"
-    ),
-    "de_hdt_dist": (
-        "de_hdt_dist @ https://huggingface.co/zentrum-lexikographie/de_hdt_dist/"
-        "resolve/main/de_hdt_dist-any-py3-none-any.whl"
-        "#sha256=dd54e4f75b249d401ed664c406c1a021ee6733bca7c701eb4500480d473a1a8a"
-    ),
-    "de_wikiner_dist": (
-        "de_wikiner_dist @ https://huggingface.co/zentrum-lexikographie/"
-        "de_wikiner_dist/resolve/main/de_wikiner_dist-any-py3-none-any.whl"
-        "#sha256=70e3bb3cdb30bf7f945fa626c6edb52c1b44aaccc8dc35ea0bfb2a9f24551f4f"
-    ),
-}
 
 
 def is_space_after(token: conllu.Token):
@@ -54,38 +31,6 @@ def convert_to_spacy_doc(
         words=[t["form"] for t in sentence],
         spaces=[is_space_after(t) for t in sentence],
     )
-
-
-def spacy_model(model: str) -> spacy.Language:
-    try:
-        return spacy.load(model)
-    except OSError:
-        logger.debug("Downloading spaCy model '%s'", model)
-        try:
-            subprocess.run(
-                ["pip", "install", "-qqq", ZDL_MODEL_PACKAGES[model]], check=True
-            )
-        except subprocess.CalledProcessError:
-            logger.exception(
-                "Couldn't install spaCy model %s, try manual installation.", model
-            )
-            raise
-        return spacy.load(model)
-
-
-def setup_spacy_pipeline(accurate: bool = True, gpu_id: int = -1) -> spacy.Language:
-    if gpu_id >= 0:
-        logger.info("Using GPU #%d", gpu_id)
-        thinc.api.set_gpu_allocator("pytorch")
-        thinc.api.require_gpu(gpu_id)
-        spacy.prefer_gpu()
-    nlp = spacy_model("de_hdt_dist" if accurate else "de_hdt_lg")
-    ner = spacy_model("de_wikiner_dist" if accurate else "de_wikiner_lg")
-    ner.replace_listeners(
-        "transformer" if accurate else "tok2vec", "ner", ("model.tok2vec",)
-    )
-    nlp.add_pipe("ner", source=ner, name="wikiner")
-    return nlp
 
 
 def annotate(
@@ -231,7 +176,11 @@ def main(input, output, fast, batch_size, gpu):
         "Processing corpus %s on %s (batch size: %d)."
         % (input_file, f"gpu {gpu}" if gpu >= 0 else "cpu", batch_size)
     )
-    nlp = setup_spacy_pipeline(not fast, gpu)
+    nlp = zdl_spacy.load(
+        model_type="dist" if not fast else "lg",
+        ner=True,
+        gpu_id=None if gpu < 0 else gpu,
+    )
     lemmatizer = dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))

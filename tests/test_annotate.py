@@ -6,6 +6,7 @@ import pytest
 import spacy
 import huggingface_hub
 
+import zdl_spacy
 import wordprofile.preprocessing.cli.annotate as anno
 
 TEST_DIR = Path(__file__).parent
@@ -28,7 +29,7 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    return anno.setup_spacy_pipeline(accurate=False)
+    return zdl_spacy.load(model_type="lg", ner=True, gpu_id=None)
 
 
 @pytest.fixture(scope="module")
@@ -77,11 +78,6 @@ def test_space_after(short_conll_file):
         sentences = conllu.parse(fh.read())
     spaces = [anno.is_space_after(tok) for tok in sentences[7]]
     assert spaces == [True, True, False, False, True, True, True, False, True, True]
-
-
-def test_ner_model_added_as_component_to_nlp_pipeline():
-    nlp = anno.setup_spacy_pipeline(accurate=False)
-    assert nlp.has_pipe("wikiner")
 
 
 def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
