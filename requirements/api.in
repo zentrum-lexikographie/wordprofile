@@ -1,4 +1,0 @@
--c base.txt
-fastapi
-uvicorn[standard]
-jinja2

@@ -1,3 +1,6 @@
 starlette
 pymysql
 sqlalchemy
+fastapi
+uvicorn[standard]
+jinja2
