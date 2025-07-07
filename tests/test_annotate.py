@@ -306,6 +306,9 @@ def test_lemmatization_makes_use_of_morph_information(lemmatizer):
     assert sentence[0]["lemma"] != sentence[1]["lemma"]
 
 
+@pytest.mark.skipif(
+    condition=(AUTOMATON_EDITION == "open"), reason="DWDSmor edition not available"
+)
 def test_lemmatize_phrasal_verb_correct_lemma_added(phrasal_verbs_conll, lemmatizer):
     expected_lemmas = ["bereithalten", "stattfinden", "naheliegen", "ankommen"]
     for i, sent in enumerate(phrasal_verbs_conll):
@@ -548,6 +551,9 @@ def test_particle_not_collapsed_if_head_not_verb(lemmatizer):
     )
 
 
+@pytest.mark.skipif(
+    condition=(AUTOMATON_EDITION == "open"), reason="DWDSmor edition not available"
+)
 def test_case_normalization_and_phrasal_verb_lemmatization(lemmatizer):
     token_list = conllu.TokenList(
         [
@@ -1078,6 +1084,9 @@ def test_particles_with_adv_upos_concatenated_in_phrasal_verb_lemmatisation(
     assert sentences[1][2]["lemma"] == "dazutun"
 
 
+@pytest.mark.skipif(
+    condition=(AUTOMATON_EDITION == "open"), reason="DWDSmor edition not available"
+)
 def test_particles_with_adj_upos_concatenated_in_phrasal_verb_lemmatisation(
     lemmatizer,
 ):
