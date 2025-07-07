@@ -2,11 +2,11 @@ from pathlib import Path
 
 import conllu
 import dwdsmor
+import huggingface_hub
 import pytest
 import spacy
-import huggingface_hub
-
 import zdl_spacy
+
 import wordprofile.preprocessing.cli.annotate as anno
 
 TEST_DIR = Path(__file__).parent
