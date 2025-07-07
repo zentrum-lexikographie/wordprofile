@@ -6,7 +6,7 @@ WORKDIR /app
 COPY requirements ./requirements
 
 RUN pip install -U pip pip-tools setuptools &&\
-    pip-sync requirements/base.txt requirements/api.txt
+    pip-sync requirements/base.txt
 
 COPY . /app
 
