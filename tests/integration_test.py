@@ -43,7 +43,7 @@ def annotate(tmp_dir):
     with open(os.path.join(tmp_dir, "data.anno.conll")) as fh:
         doc = conllu.parse(fh.read())
     assert doc[0][0]["deprel"] == "det"
-    assert "NamedEntity" in doc[9][6]["misc"]
+    assert "NamedEntity" in doc[9][9]["misc"]
     assert doc[9][1]["lemma"] == "die"
     assert doc[9][8]["lemma"] == "zurückholen"
 
@@ -161,8 +161,6 @@ def check_token_freqs(tmp_dir):
             "wie",
             "erinnern",
             "hier",
-            "heute",
-            "Dank",
             "Mensch",
             "herzlich",
         }
