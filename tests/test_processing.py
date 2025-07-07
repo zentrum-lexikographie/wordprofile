@@ -523,7 +523,7 @@ def test_prt_position_of_phrasal_verb_stored_during_conll_conversion():
                 head=0,
                 deprel="ROOT",
                 deps=None,
-                misc={"SpaceAfter": "Yes", "Compound:prt": 3},
+                misc={"SpaceAfter": "Yes", "compound:prt": 3},
             ),
             Token(
                 id=3,
