@@ -90,7 +90,7 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
                     token["misc"].get("SpaceAfter") == "No" if token["misc"] else False
                 ),
                 morph=token.get("feats", None),
-                prt_pos=(token["misc"] or {}).get("Compound:prt", None),
+                prt_pos=(token["misc"] or {}).get("compound:prt", None),
             )
         )
         for token in sentence
