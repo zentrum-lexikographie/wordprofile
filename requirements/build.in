@@ -5,4 +5,4 @@ dwdsmor
 spacy[cuda12x]==3.8.7
 spacy-transformers
 huggingface-hub
-spacy-models @ git+https://github.com/zentrum-lexikographie/spacy-models.git@v2.2.0
+spacy-models @ git+https://github.com/zentrum-lexikographie/spacy-models.git@v2.2.2
