@@ -21,7 +21,7 @@ catalogue==2.0.10
     #   spacy
     #   srsly
     #   thinc
-certifi==2025.6.15
+certifi==2025.7.14
     # via requests
 charset-normalizer==3.4.2
     # via requests
@@ -44,7 +44,7 @@ cymem==2.0.11
     #   preshed
     #   spacy
     #   thinc
-dwdsmor==0.9.0
+dwdsmor==0.10.0
     # via -r requirements/build.in
 fastrlock==0.8.3
     # via cupy-cuda12x
@@ -53,13 +53,13 @@ filelock==3.18.0
     #   huggingface-hub
     #   torch
     #   transformers
-fsspec==2025.5.1
+fsspec==2025.7.0
     # via
     #   huggingface-hub
     #   torch
 hf-xet==1.1.5
     # via huggingface-hub
-huggingface-hub[cli]==0.33.2
+huggingface-hub[cli]==0.33.4
     # via
     #   -r requirements/build.in
     #   dwdsmor
