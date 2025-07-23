@@ -254,7 +254,7 @@ def test_lemma_not_updated_if_pos_not_matching(lemmatizer):
     assert sentence[0]["lemma"] == ""
 
 
-def test_lemma_not_update_if_unk_to_dwdsmor(lemmatizer):
+def test_lemma_not_updated_if_unk_to_dwdsmor(lemmatizer):
     sentence = conllu.TokenList(
         [
             conllu.Token(
@@ -429,7 +429,7 @@ def test_collapse_lemma_of_phrasal_verbs(lemmatizer):
     )
 
 
-def test_particle_not_collapsed_if_prt_not_adp(lemmatizer):
+def test_particle_not_collapsed_if_prt_noun(lemmatizer):
     sentence = [
         conllu.Token(
             id=1,
