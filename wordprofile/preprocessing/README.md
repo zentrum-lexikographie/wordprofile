@@ -119,20 +119,16 @@ see [readme](../../README.md) for `wordprofile`.
 
 Tests:
 
-- Run Unit Tests: `pytest -v wordprofile/preprocessing`
+- Run Unit Tests: `pytest tests/test_annotate.py tests/test_data_update.py tests/test_pytabs.py tests/test_tabs2conllu.py`
 
 # II Annotation of Dependency Relations
-For the annotation of  dependeny relations, a model should be used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/), e.g. [`de_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_hdt_dist) for  parsing with [`spacy`](https://spacy.io/).
+For the annotation of dependency relations, a model is used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/) and follows [`spaCy`](https://spacy.io/)'s model architecture, e.g. [`de_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_hdt_dist).
 
-If the environment has gpu/cuda enabled, use the `de_hdt_dist`, otherwise the [`de_hdt_lg`](https://huggingface.co/zentrum-lexikographie/de_hdt_lg) can be used on cpu.
+If the environment has gpu/cuda enabled, the `de_hdt_dist` model is used, otherwise the [`de_hdt_lg`](https://huggingface.co/zentrum-lexikographie/de_hdt_lg) is used for processing on cpu.
 
-To download a model, run for example:
+If not installed already, the desired model is installed automatically upon execution of the annotation script. Additionally, a model for named entity recognition (e.g. [`de_ner_d_dist`](https://huggingface.co/zentrum-lexikographie/de_ner_d_dist) for gpu usage) is installed and added as a component to dependency parser.
 
-    pip install https://huggingface.co/zentrum-lexikographie/de_hdt_dist/resolve/main/de_hdt_dist-any-py3-none-any.whl
-    # For newer versions of pip (>=24.0), state the model name explicitly
-    pip install "de_hdt_dist @ https://huggingface.co/zentrum-lexikographie/de_hdt_dist/resolve/main/de_hdt_dist-any-py3-none-any.whl"
-
-For the annotation, the script `annotate.py` can be used:
+The annotation script `annotate.py` has the following options:
 ```sh
 Usage: annotate.py [OPTIONS]
 
@@ -141,9 +137,10 @@ Usage: annotate.py [OPTIONS]
 Options:
   -i, --input FILENAME      Path to input file in conllu format.
   -o, --output FILENAME     Output file.
-  -m, --model TEXT          Name of spacy model, default is
-                            'de_hdt_dist'.
+  -f, --fast                Use CPU-optimized models for faster processing. As
+                            default, GPU-optmized model group is used.
+  -g, --gpu INTEGER         ID of GPU to use, default -1 , i.e. using CPU.
   -b, --batch-size INTEGER  Batch size used by model during processing.
                             Default is 128 (sentences).
-  --help                    Show this message and exit.
+  -h, --help                Show this message and exit.
 ```
