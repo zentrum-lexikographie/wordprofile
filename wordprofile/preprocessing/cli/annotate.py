@@ -130,7 +130,8 @@ def lemmatize(
 
 
 @click.command(
-    help="Parse conll file and add linguistic annotations and lemmatisation."
+    help="Parse conll file and add linguistic annotations and lemmatisation.",
+    context_settings={"help_option_names": ["-h", "--help"]},
 )
 @click.option(
     "-i",
