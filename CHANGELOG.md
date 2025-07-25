@@ -1,5 +1,32 @@
 # Changelog
 
+## [10.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v9.1.0...v10.0.0) (2025-07-25)
+
+
+### Features
+
+* add DWDSmor as lemmatizer ([e303341](https://github.com/zentrum-lexikographie/wordprofile/commit/e30334185f368865617b1169ee552c2dcad71fb7))
+* add NER model to annotaton pipeline ([344272f](https://github.com/zentrum-lexikographie/wordprofile/commit/344272f76eb082fe180e8ce9e65b5625efa3f4a3))
+* check for availability of dwdsmor-dwds edition for tests ([e3ec34c](https://github.com/zentrum-lexikographie/wordprofile/commit/e3ec34c3ddf4e27e12c15232add0eaadd89fc6b8))
+* improve phrasal verb lemmatization ([3d747a2](https://github.com/zentrum-lexikographie/wordprofile/commit/3d747a2b102dbf890b8f662a002e79d0bfc118a9))
+* use spaCy lemma as default ([d66b7ed](https://github.com/zentrum-lexikographie/wordprofile/commit/d66b7edd814f92057bde7786335bc42767adb088))
+
+
+### Bug Fixes
+
+* remove reference to requirements/api.txt as it was merged with requirements/base.txt ([a00ab89](https://github.com/zentrum-lexikographie/wordprofile/commit/a00ab893a48e5dec30ef7d3a721db88910ddc3fa))
+* use lower case for particle index information ([2ee2570](https://github.com/zentrum-lexikographie/wordprofile/commit/2ee2570cddc8fa3b4a53135323d808a2b44f6ced))
+
+
+### Documentation
+
+* update readme ([ebd30cb](https://github.com/zentrum-lexikographie/wordprofile/commit/ebd30cb90ad99157761ac39e9cc37bbc585313c7))
+
+
+### Miscellaneous Chores
+
+* release 10.0.0 ([8e8cf84](https://github.com/zentrum-lexikographie/wordprofile/commit/8e8cf8496048d235cecc0b75af4b799de2b5d736))
+
 ## [9.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v9.0.0...v9.1.0) (2025-07-03)
 
 
