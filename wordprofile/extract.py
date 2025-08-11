@@ -77,9 +77,7 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     "SUBJP": {
         "desc": "hat Passivsubjekt",
         "inverse": "ist Passivsubjekt von",
-        "rules": [
-            ("nsubj:pass", "verb", "noun"),
-        ],
+        "rules": [],
     },
 }
 
