@@ -341,6 +341,18 @@ def extract_active_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                     )
 
 
+def extract_passive_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
+    for n in dtree.nodes:
+        if n.token.rel == "nsubj:pass" and n.token.tag == "NOUN":
+            parent = n.parent
+            if parent.token.tag == "VERB":
+                if any(
+                    child.token.rel == "aux:pass" and child.token.lemma == "werden"
+                    for child in parent.children
+                ):
+                    yield Match(parent.token, n.token, None, "SUBJP", sid)
+
+
 def extract_objects(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """
     Extract acc./dat./gen. object relation from a dependency tree.
@@ -405,4 +417,6 @@ def extract_matches(parses: list[list[WPToken]]) -> Iterator[Match]:
         for match in extract_comparing_groups(sentence, sid):
             yield match
         for match in extract_active_subjects(dtree, sid):
+            yield match
+        for match in extract_passive_subjects(dtree, sid):
             yield match
