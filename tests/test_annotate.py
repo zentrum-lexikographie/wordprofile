@@ -35,7 +35,9 @@ def parser():
 @pytest.fixture(scope="module")
 def lemmatizer():
     if AUTOMATON_EDITION == "dwdsmor-dwds":
-        return dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
+        return dwdsmor.lemmatizer(
+            "zentrum-lexikographie/dwdsmor-dwds", local_files_only=True
+        )
     return dwdsmor.lemmatizer()
 
 
