@@ -251,7 +251,10 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     for n in dtree.nodes:
         # subject predicative
         if n.token.tag in {"NOUN", "VERB", "ADJ"}:
-            if any(c.token.rel == "cop" and c.token.tag == "AUX" for c in n.children):
+            if any(
+                c.token.rel == "cop" and c.token.lemma in {"werden", "sein", "bleiben"}
+                for c in n.children
+            ):
                 if not any(c.token.rel == "case" for c in n.children):
                     for nsubj in n.children:
                         if nsubj.token.rel == "nsubj" and nsubj.token.tag == "NOUN":

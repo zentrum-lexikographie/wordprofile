@@ -155,6 +155,53 @@ def test_extract_predicatives_noun():
     )
 
 
+def test_extract_predicatives_noun_with_verb_other_than_sein():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Maßlosigkeit",
+            lemma="Maßlosigkeit",
+            tag="NOUN",
+            head=4,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="bleibt",
+            lemma="bleiben",
+            tag="VERB",
+            head=4,
+            rel="cop",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="die",
+            lemma="d",
+            tag="DET",
+            head=4,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Folge",
+            lemma="Folge",
+            tag="NOUN",
+            head=0,
+            rel="ROOT",
+            misc=False,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))[0]
+    assert (result.head.surface, result.dep.surface, result.relation) == (
+        "Maßlosigkeit",
+        "Folge",
+        "PRED",
+    )
+
+
 def test_extract_predicatives_noun_with_prep_phrase():
     sentence = [
         WPToken(
