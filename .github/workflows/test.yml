@@ -35,7 +35,7 @@ jobs:
     - name: Install Python dependencies
       if: steps.cache-python.outputs.cache-hit != 'true'
       run: |
-        pip install -U pip pip-tools setuptools
+        pip install -U 'pip<25.3' pip-tools setuptools
         pip-sync requirements/*.txt
     - name: Run tests
       run: |

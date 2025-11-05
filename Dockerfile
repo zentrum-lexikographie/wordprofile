@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY requirements ./requirements
 
-RUN pip install -U pip pip-tools setuptools &&\
+RUN pip install -U 'pip<25.3' pip-tools setuptools &&\
     pip-sync requirements/base.txt
 
 COPY . /app
