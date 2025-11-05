@@ -1,5 +1,21 @@
 # Changelog
 
+## [11.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v10.0.0...v11.0.0) (2025-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* change extraction of PRED collocations ([#27](https://github.com/zentrum-lexikographie/wordprofile/issues/27))
+
+### Features
+
+* change extraction of PRED collocations ([#27](https://github.com/zentrum-lexikographie/wordprofile/issues/27)) ([2248294](https://github.com/zentrum-lexikographie/wordprofile/commit/224829493d02538ab2b166517f39fb3d181441c1))
+
+
+### Bug Fixes
+
+* require co-occurrences for pass subject to include verb form with 'werden' ([#25](https://github.com/zentrum-lexikographie/wordprofile/issues/25)) ([ad3d826](https://github.com/zentrum-lexikographie/wordprofile/commit/ad3d82618959a628828cb2a96b182cb071dc05de))
+
 ## [10.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v9.1.0...v10.0.0) (2025-07-25)
 
 
