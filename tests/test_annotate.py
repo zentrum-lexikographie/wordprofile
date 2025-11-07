@@ -5,7 +5,6 @@ import dwdsmor
 import huggingface_hub
 import pytest
 import spacy
-import zdl_spacy
 
 import wordprofile.preprocessing.cli.annotate as anno
 
@@ -29,7 +28,7 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    return zdl_spacy.load(model_type="lg", ner=True, gpu_id=None)
+    return spacy.load("de_zdl_lg")
 
 
 @pytest.fixture(scope="module")

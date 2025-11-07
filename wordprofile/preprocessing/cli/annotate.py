@@ -8,7 +8,7 @@ import conllu
 import dwdsmor
 import dwdsmor.tag.hdt
 import spacy
-import zdl_spacy
+import thinc.api
 from cachetools import LFUCache, cached
 from spacy.tokens import Doc
 
@@ -175,11 +175,11 @@ def main(input, output, fast, batch_size, gpu):
         "Processing corpus %s on %s (batch size: %d)."
         % (input_file, f"gpu {gpu}" if gpu >= 0 else "cpu", batch_size)
     )
-    nlp = zdl_spacy.load(
-        model_type="dist" if not fast else "lg",
-        ner=True,
-        gpu_id=None if gpu < 0 else gpu,
-    )
+    if gpu >= 0:
+        thinc.api.set_gpu_allocator("pytorch")
+        thinc.api.require_gpu(gpu)
+    nlp = spacy.load("de_zdl_lg" if fast else "de_zdl_dist")
+    nlp.add_pipe("doc_cleaner")
     lemmatizer = dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
