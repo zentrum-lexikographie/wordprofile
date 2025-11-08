@@ -267,20 +267,33 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             )
         # object predicative
         if n.token.tag == "VERB":
-            for obj in n.children:
-                if obj.token.tag in {"VERB", "ADJ", "NOUN"} and obj.token.rel in {
+            for pred in n.children:
+                # case1: als + nom
+                # case2 : als + akk
+                # case3: für
+                # case4: wie
+
+                if pred.token.tag in {"VERB", "ADJ", "NOUN"} and pred.token.rel in {
                     "obj",
                     "obl",
+                    "adv",
+                    "advcl",
                 }:  # ++ 'advcl', 'xcomp'
                     # if any(c.token.rel in {'mark', 'case'} and c.token.tag in {'CCONJ', 'ADP'} for c in obj.children):
-                    if any(c.token.surface in {"als", "für"} for c in obj.children):
-                        yield Match(
-                            n.token,
-                            obj.token,
-                            None,
-                            "PRED",
-                            sid,
-                        )
+                    if _has_case_marking(pred.token, "NOM") or any(
+                        _has_case_marking(dep.token, "NOM") for dep in pred.children
+                    ):
+                        if any(
+                            c.token.surface in {"als", "für"} for c in pred.children
+                        ):
+
+                            yield Match(
+                                n.token,
+                                obj.token,
+                                None,
+                                "PRED",
+                                sid,
+                            )
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
