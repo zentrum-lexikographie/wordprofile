@@ -1,8 +1,8 @@
 -c base.txt
 cachetools
 conllu
-de_zdl_lg @ https://repo.zdl.org/repository/pypi/packages/de-zdl-lg/3.0.0/de_zdl_lg-3.0.0-py3-none-any.whl
-de_zdl_dist @ https://repo.zdl.org/repository/pypi/packages/de-zdl-dist/3.0.0/de_zdl_dist-3.0.0-py3-none-any.whl
+de_zdl_lg @ https://repo.zdl.org/repository/pypi/packages/de-zdl-lg/3.1.0/de_zdl_lg-3.1.0-py3-none-any.whl
+de_zdl_dist @ https://repo.zdl.org/repository/pypi/packages/de-zdl-dist/3.1.0/de_zdl_dist-3.1.0-py3-none-any.whl
 dwdsmor
 spacy[cuda12x]==3.8.7
 spacy-transformers

@@ -43,9 +43,9 @@ cymem==2.0.11
     #   preshed
     #   spacy
     #   thinc
-de-zdl-dist @ https://repo.zdl.org/repository/pypi/packages/de-zdl-dist/3.0.0/de_zdl_dist-3.0.0-py3-none-any.whl
+de-zdl-dist @ https://repo.zdl.org/repository/pypi/packages/de-zdl-dist/3.1.0/de_zdl_dist-3.1.0-py3-none-any.whl
     # via -r requirements/build.in
-de-zdl-lg @ https://repo.zdl.org/repository/pypi/packages/de-zdl-lg/3.0.0/de_zdl_lg-3.0.0-py3-none-any.whl
+de-zdl-lg @ https://repo.zdl.org/repository/pypi/packages/de-zdl-lg/3.1.0/de_zdl_lg-3.1.0-py3-none-any.whl
     # via -r requirements/build.in
 dwdsmor==0.11.0
     # via -r requirements/build.in
