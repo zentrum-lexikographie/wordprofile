@@ -1,5 +1,12 @@
 # Changelog
 
+## [11.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.0.0...v11.1.0) (2025-11-10)
+
+
+### Features
+
+* deploy integrated custom spaCy pipelines for annotation ([#29](https://github.com/zentrum-lexikographie/wordprofile/issues/29)) ([8cc1ae9](https://github.com/zentrum-lexikographie/wordprofile/commit/8cc1ae9d931c602eabe474650bade2c75822cdf6))
+
 ## [11.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v10.0.0...v11.0.0) (2025-11-05)
 
 
