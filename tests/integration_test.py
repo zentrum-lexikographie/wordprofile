@@ -16,11 +16,10 @@ def test_integration():
         if huggingface_hub.repo_exists("zentrum-lexikographie/dwdsmor-dwds"):
             convert(tmp_dir)
             annotate(tmp_dir)
-        else:
-            shutil.copyfile(
-                os.path.join("tests", "testdata", "data.anno.conll"),
-                os.path.join(tmp_dir, "data.anno.conll"),
-            )
+        shutil.copyfile(
+            os.path.join("tests", "testdata", "data.anno.conll"),
+            os.path.join(tmp_dir, "data.anno.conll"),
+        )
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
         compute_statistics_with_mwe(tmp_dir)
