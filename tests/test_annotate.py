@@ -5,7 +5,6 @@ import dwdsmor
 import huggingface_hub
 import pytest
 import spacy
-import zdl_spacy
 
 import wordprofile.preprocessing.cli.annotate as anno
 
@@ -29,7 +28,7 @@ def multiple_docs_conll_file():
 
 @pytest.fixture(scope="module")
 def parser():
-    return zdl_spacy.load(model_type="lg", ner=True, gpu_id=None)
+    return spacy.load("de_zdl_lg")
 
 
 @pytest.fixture(scope="module")
@@ -85,8 +84,8 @@ def test_space_after(short_conll_file):
 def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    result = next(anno.annotate(parser, sentences))
-    assert result[4]["misc"]["NamedEntity"] == "PER"
+    result = list(anno.annotate(parser, sentences))
+    assert result[2][5]["misc"]["NamedEntity"] == "LOC"
 
 
 def test_lemmatization_updates_lemma(lemmatizer):

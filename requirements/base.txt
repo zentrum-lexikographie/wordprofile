@@ -28,9 +28,9 @@ jinja2==3.1.6
     # via -r requirements/base.in
 markupsafe==3.0.3
     # via jinja2
-pydantic==2.12.3
+pydantic==2.12.4
     # via fastapi
-pydantic-core==2.41.4
+pydantic-core==2.41.5
     # via pydantic
 pymysql==1.1.2
     # via -r requirements/base.in
