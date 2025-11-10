@@ -84,8 +84,8 @@ def test_space_after(short_conll_file):
 def test_named_entity_annotation_added_to_tokens(parser, short_conll_file):
     with open(short_conll_file) as fh:
         sentences = conllu.parse(fh.read())
-    result = next(anno.annotate(parser, sentences))
-    assert result[4]["misc"]["NamedEntity"] == "PER"
+    result = list(anno.annotate(parser, sentences))
+    assert result[2][5]["misc"]["NamedEntity"] == "LOC"
 
 
 def test_lemmatization_updates_lemma(lemmatizer):
