@@ -49,7 +49,7 @@ def test_basename_to_tabs_mapping():
     }
 
 
-def test_filte_new_files():
+def test_filter_new_files():
     old_basenames = {"ab", "cd", "e/f"}
     new_files = {
         "corpus-tabs.d/ab.tabs": "ab",
