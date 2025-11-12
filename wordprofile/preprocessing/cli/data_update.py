@@ -4,7 +4,6 @@ import logging
 import os
 import re
 from datetime import date
-from typing import Dict, List, Set
 
 import click
 
@@ -14,7 +13,7 @@ from wordprofile.utils import configure_logs_to_file
 logger = logging.getLogger(__name__)
 
 
-def collect_current_basenames(data_root: str, corpus_name: str) -> Set[str]:
+def collect_current_basenames(data_root: str, corpus_name: str) -> set[str]:
     """
     Collect basenames from corpus.toc files in data_root.
 
@@ -29,7 +28,7 @@ def collect_current_basenames(data_root: str, corpus_name: str) -> Set[str]:
     return current_basenames
 
 
-def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
+def map_tabs_file_to_basename(corpus_tabs_file: str) -> dict[str, str]:
     file_basename_mapping = {}
     with open(corpus_tabs_file) as fp:
         for line in fp:
@@ -44,8 +43,8 @@ def map_tabs_file_to_basename(corpus_tabs_file: str) -> Dict[str, str]:
 
 
 def filter_new_files(
-    old_basenames: Set[str], file_basename_mapping: Dict[str, str]
-) -> List[str]:
+    old_basenames: set[str], file_basename_mapping: dict[str, str]
+) -> list[str]:
     return [
         file
         for file, basename in file_basename_mapping.items()
