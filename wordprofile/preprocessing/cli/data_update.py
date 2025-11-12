@@ -1,4 +1,5 @@
 import glob
+import gzip
 import logging
 import os
 import re
@@ -52,6 +53,23 @@ def filter_new_files(
     ]
 
 
+def convert_files(
+    corpus: str, output_path: str, tabs_dump_path: str, files_to_process: list[str]
+) -> list[str]:
+    basenames = []
+    with gzip.open(os.path.join(output_path, f"{corpus}.conll.gz"), "wt") as fp:
+        for file in files_to_process:
+            file_path = os.path.join(tabs_dump_path, file)
+            try:
+                doc = TabsDocument.from_tabs(file_path)
+            except UnicodeDecodeError:
+                logger.exception("Couldn't process file: %s" % file_path)
+            else:
+                fp.write(doc.as_conllu())
+                basenames.append(doc.meta["basename"])
+    return basenames
+
+
 @click.command()
 @click.option(
     "--corpus",
@@ -89,8 +107,8 @@ def main(
     Existing basenames are read from .toc files, new basenames are extracted
     from list in 'corpus-tabs.files'.
     New data is written to a subdirectory of the existing data directory,
-    using the current date as name. A .toc file with the new basenames is
-    added there as well.
+    using the current date as name. The .conll output file is compressed
+    using gzip. A .toc file with the new basenames is added there as well.
     """
     configure_logs_to_file(log_file_identifier="data-update")
     old_basenames = collect_current_basenames(data_root, corpus)
@@ -110,18 +128,7 @@ def main(
     output_path = os.path.join(data_root, output_dir)
     os.makedirs(os.path.abspath(output_path), exist_ok=True)
 
-    new_basenames = []
-    with open(os.path.join(output_path, f"{corpus}.conll"), "w") as fp:
-        for file in files_to_process:
-            file_path = os.path.join(tabs_dump_path, file)
-            try:
-                doc = TabsDocument.from_tabs(file_path)
-            except UnicodeDecodeError:
-                logger.exception("Couldn't process file: %s" % file_path)
-            else:
-                fp.write(doc.as_conllu())
-                new_basenames.append(doc.meta["basename"])
-
+    new_basenames = convert_files(corpus, output_path, tabs_dump_path, files_to_process)
     logger.info("Processed %d documents successfully." % len(new_basenames))
     with open(os.path.join(output_path, f"{corpus}.toc"), "w", encoding="utf-8") as fp:
         fp.write("\n".join(new_basenames))

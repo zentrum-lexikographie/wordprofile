@@ -1,3 +1,4 @@
+import gzip
 import os
 import tempfile
 
@@ -59,3 +60,17 @@ def test_filter_new_files():
     }
     result = du.filter_new_files(old_basenames, new_files)
     assert result == ["corpus-tabs.d/a/b.tabs", "corpus-tabs.d/g/asb.tabs"]
+
+
+def test_output_file_compressed():
+    tp_path = os.path.join("tests", "testdata", "dump")
+    with tempfile.TemporaryDirectory() as tmpdir:
+        result = du.convert_files(
+            "tst",
+            tmpdir,
+            tp_path,
+            [os.path.join("corpus-tabs.d", "sample.tabs")],
+        )
+        assert result == ["src/de1/DE1_0999_20090602"]
+        with gzip.open(os.path.join(tmpdir, "tst.conll.gz"), "rt") as f:
+            assert f.readline().startswith("# DDC:tokid")
