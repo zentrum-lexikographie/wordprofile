@@ -100,8 +100,8 @@ def main(
     tabs_dump_path: str,
 ):
     """
-    Generate .conll file for corpus from .tabs files that are not contained
-    in existing data.
+    Generate .conll.gz file for corpus from .tabs files that are not
+    contained in existing data.
 
     Existing basenames are read from .toc files, new basenames are extracted
     from list in 'corpus-tabs.files'.

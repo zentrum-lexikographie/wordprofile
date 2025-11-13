@@ -11,24 +11,26 @@ Convert ZDL-internal DDC-Dump/Tabs files to conllu format.
 
 ## Usage
 ### Update existing .conll data
-To extend an existing collection of `.conll` files with new data, the `data_update.py` script can be used.
+To extend an existing collection of `.conll.gz` files with new data, the `data_update.py` script can be used.
 
-This script is specially tailored to the `ddc/dstar` infrastructure. It processes data in two directories: The first is the `data-root` directory where existing `.conll` data is stored. In this directory and subdirectories, basenames of documents for a `corpus` are extracted from all `corpus.toc` files present. A `.toc` file contains one basename per line. New data will be written to a subdirectory of `data-root` with the current date as name. A `corpus.conll` with the processed conll data and a `corpus.toc` file containing the basenames of the documents in the new conll file are stored in this subdirectory.
+This script is specially tailored to the `ddc/dstar` infrastructure. It processes data in two directories: The first is the `data-root` directory where existing `.conll.gz` data is stored. In this directory and subdirectories, basenames of documents for a `corpus` are extracted from all `corpus.toc` files present. A `.toc` file contains one basename per line. New data will be written to a subdirectory of `data-root` with the current date as name. A `corpus.conll.gz` with the processed conll data and compressed with `gzip` and a `corpus.toc` file containing the basenames of the documents in the new conll file are stored in this subdirectory.
 
 The second directory is `corpus/build/ddc_dump` that should contain a `corpus-tabs.files` file and a subdirectory `corpus-tabs.d` with `.tabs` files for `corpus`.
 
-If no `corpus.toc` exists in data directory, this script can also be used to build a whole `.conll` corpus from scratch.
+If no `corpus.toc` exists in data directory, this script can also be used to build a whole `.conll.gz` corpus from scratch.
 
 ```shell script
 Usage: data_update.py [OPTIONS]
 
-  Generate .conll file for corpus from .tabs files that are not contained in
-  existing data.
+  Generate .conll.gz file for corpus from .tabs files that are not
+  contained in existing data.
 
   Existing basenames are read from .toc files, new basenames are extracted
-  from list in 'corpus-tabs.files'. New data is written to a subdirectory of
-  the existing data directory, using the current date as name. A .toc file
-  with the new basenames is added there as well.
+  from list in 'corpus-tabs.files'. New data is written to a subdirectory
+  of the existing data directory, using the current date as name. The
+  .conll output file is compressed using gzip. A .toc file with the new
+  basenames is added there as well.
+
 
 Options:
   -c, --corpus TEXT               Name of corpus. Used for detection of .toc
@@ -53,21 +55,21 @@ Log files are stored in a `log` directory in the project root directory.
 Structure of the data directory with existing data.
 ```.
 ├── 2023-11-01
-│   ├── corpus.conll
+│   ├── corpus.conll.gz
 │   └── corpus.toc
-├── corpus.conll
+├── corpus.conll.gz
 └── corpus.toc
 ```
 After the data update, the directory looks like this:
 ```
 .
 ├── 2023-11-01
-│   ├── corpus.conll
+│   ├── corpus.conll.gz
 │   └── corpus.toc
 ├── 2023-xx-xx
-│   ├── corpus.conll
+│   ├── corpus.conll.gz
 │   └── corpus.toc
-├── corpus.conll
+├── corpus.conll.gz
 └── corpus.toc
 ```
 
@@ -122,11 +124,11 @@ Tests:
 - Run Unit Tests: `pytest tests/test_annotate.py tests/test_data_update.py tests/test_pytabs.py tests/test_tabs2conllu.py`
 
 # II Annotation of Dependency Relations
-For the annotation of dependency relations, a model is used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/) and follows [`spaCy`](https://spacy.io/)'s model architecture, e.g. [`de_hdt_dist`](https://huggingface.co/zentrum-lexikographie/de_hdt_dist).
+For the annotation of dependency relations, a model is used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/) and follows [`spaCy`](https://spacy.io/)'s model architecture, e.g. `de_zdl_dist` (for more information, see the [repository](https://github.com/zentrum-lexikographie/spacy-models) used for model training).
 
-If the environment has gpu/cuda enabled, the `de_hdt_dist` model is used, otherwise the [`de_hdt_lg`](https://huggingface.co/zentrum-lexikographie/de_hdt_lg) is used for processing on cpu.
+If the environment has gpu/cuda enabled, the `de_zdl_dist` model can be used, otherwise the `de_zdl_lg` is used for processing on cpu.
 
-If not installed already, the desired model is installed automatically upon execution of the annotation script. Additionally, a model for named entity recognition (e.g. [`de_ner_d_dist`](https://huggingface.co/zentrum-lexikographie/de_ner_d_dist) for gpu usage) is installed and added as a component to dependency parser.
+Both models are installed as as build dependencies.The annotation script has an option that allows choosing between the two models.
 
 The annotation script `annotate.py` has the following options:
 ```sh
@@ -135,8 +137,8 @@ Usage: annotate.py [OPTIONS]
   Parse conll file and add linguistic annotations and lemmatisation.
 
 Options:
-  -i, --input FILENAME      Path to input file in conllu format.
-  -o, --output FILENAME     Output file.
+  -i, --input FILENAME      Path to input file in conllu format (gzip compressed).
+  -o, --output FILENAME     Output file (data is compressed with gzip).
   -f, --fast                Use CPU-optimized models for faster processing. As
                             default, GPU-optmized model group is used.
   -g, --gpu INTEGER         ID of GPU to use, default -1 , i.e. using CPU.
