@@ -17,7 +17,7 @@ def parse_arguments(args):
         "--input",
         default="-",
         type=str,
-        help="conll input file(s). As default stdin is used, if this option is not used.",
+        help="(gzip compressed) conll input file(s). As default stdin is used, if this option is not used.",
         nargs="*",
     )
     parser.add_argument("--dest", help="temporary storage path")

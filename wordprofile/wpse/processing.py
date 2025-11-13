@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import gzip
 import hashlib
 import logging
 import math
@@ -193,7 +194,7 @@ class FileReader:
             if file == "-":
                 self._process_content(sys.stdin)
             else:
-                with open(file, "r", encoding="utf-8") as fh:
+                with gzip.open(file, "rt", encoding="utf-8") as fh:
                     self._process_content(fh)
 
     def stop(self, n_procs: int) -> None:
