@@ -1,3 +1,4 @@
+import gzip
 import os
 import shutil
 import tempfile
@@ -17,8 +18,8 @@ def test_integration():
             convert(tmp_dir)
             annotate(tmp_dir)
         shutil.copyfile(
-            os.path.join("tests", "testdata", "data.anno.conll"),
-            os.path.join(tmp_dir, "data.anno.conll"),
+            os.path.join("tests", "testdata", "data.anno.conll.gz"),
+            os.path.join(tmp_dir, "data.anno.conll.gz"),
         )
         extract_collocation(tmp_dir)
         compute_statistics(tmp_dir)
@@ -31,7 +32,7 @@ def convert(tmp_dir):
         os.path.join("tests", "testdata", "int_test_data.tabs")
     )
     assert doc.sentences != []
-    with open(os.path.join(tmp_dir, "data.orig.conll"), "w") as fh:
+    with gzip.open(os.path.join(tmp_dir, "data.orig.conll.gz"), "wt") as fh:
         fh.write(doc.as_conllu())
 
 
@@ -39,15 +40,15 @@ def annotate(tmp_dir):
     ann.main(
         [
             "-i",
-            os.path.join(tmp_dir, "data.orig.conll"),
+            os.path.join(tmp_dir, "data.orig.conll.gz"),
             "-o",
-            os.path.join(tmp_dir, "data.anno.conll"),
+            os.path.join(tmp_dir, "data.anno.conll.gz"),
             "-f",
         ],
         standalone_mode=False,
     )
-    assert "data.anno.conll" in os.listdir(tmp_dir)
-    with open(os.path.join(tmp_dir, "data.anno.conll")) as fh:
+    assert "data.anno.conll.gz" in os.listdir(tmp_dir)
+    with gzip.open(os.path.join(tmp_dir, "data.anno.conll.gz"), "rt") as fh:
         doc = conllu.parse(fh.read())
     assert doc[0][0]["deprel"] == "det"
     assert "NamedEntity" in doc[9][9]["misc"]
@@ -61,7 +62,7 @@ def extract_collocation(tmp_dir):
             "--input",
             os.path.join(
                 tmp_dir,
-                "data.anno.conll",
+                "data.anno.conll.gz",
             ),
             "--dest",
             os.path.join(tmp_dir, "colloc", "corpus"),
@@ -92,7 +93,7 @@ def check_lemma_freqs(tmp_dir):
             "--input",
             os.path.join(
                 tmp_dir,
-                "data.anno.conll",
+                "data.anno.conll.gz",
             ),
             "--dest",
             os.path.join(tmp_dir, "colloc-j"),
