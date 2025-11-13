@@ -99,11 +99,9 @@ def convert_sentence(sentence: TokenList) -> list[WPToken]:
 
 
 class FileReaderQueue(Protocol):
-    def get(self) -> Any:
-        ...
+    def get(self) -> Any: ...
 
-    def put(self, item: Any) -> None:
-        ...
+    def put(self, item: Any) -> None: ...
 
 
 class LemmaCounter:
@@ -644,9 +642,9 @@ def extract_collocations(match_fin: str, collocs_fout: str) -> None:
 
 def extract_most_common_surface(match_fin: str, fout: str) -> None:
     """Generates a mapping from a lemma to its most common surface form."""
-    common_surfaces: defaultdict[
-        str, defaultdict[str, defaultdict[str, int]]
-    ] = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    common_surfaces: defaultdict[str, defaultdict[str, defaultdict[str, int]]] = (
+        defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+    )
     with open(match_fin, "r") as fin:
         for line in fin:
             m = tuple(line.strip().split("\t"))
