@@ -1,3 +1,4 @@
+import gzip
 import logging
 import time
 from datetime import datetime
@@ -137,15 +138,15 @@ def lemmatize(
     "-i",
     "--input",
     default="-",
-    type=click.File("r"),
-    help="Path to input file in conllu format.",
+    type=click.Path(allow_dash=True, dir_okay=False),
+    help="Path to input file in conllu format (gzip compressed).",
 )
 @click.option(
     "-o",
     "--output",
     default="-",
-    type=click.File("w", encoding="utf-8"),
-    help="Output file.",
+    type=click.Path(dir_okay=False),
+    help="Output file (data is compressed with gzip).",
 )
 @click.option(
     "--fast",
@@ -170,7 +171,7 @@ def lemmatize(
 )
 def main(input, output, fast, batch_size, gpu):
     configure_logs_to_file(log_file_identifier="annotate")
-    input_file = input.name if input != "-" else "from stdin"
+    input_file = input if input != "-" else "from stdin"
     logger.info(
         "Processing corpus %s on %s (batch size: %d)."
         % (input_file, f"gpu {gpu}" if gpu >= 0 else "cpu", batch_size)
@@ -183,13 +184,15 @@ def main(input, output, fast, batch_size, gpu):
     lemmatizer = dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
-    for sentence in annotate(
-        nlp,
-        conllu.parse_incr(input, fields=conllu.parser.DEFAULT_FIELDS),
-        batch_size=batch_size,
-    ):
-        lemmatize(lemmatizer, sentence)
-        output.write(sentence.serialize())
+    with gzip.open(input, "rt") as f:
+        with gzip.open(output, "wt") as fo:
+            for sentence in annotate(
+                nlp,
+                conllu.parse_incr(f, fields=conllu.parser.DEFAULT_FIELDS),
+                batch_size=batch_size,
+            ):
+                lemmatize(lemmatizer, sentence)
+                fo.write(sentence.serialize())
     end = time.time()
     elapsed_time = end - start
     logger.info("End time: %s" % datetime.fromtimestamp(end))
