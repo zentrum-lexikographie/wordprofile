@@ -1,5 +1,16 @@
 # Changelog
 
+## [12.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.1.0...v12.0.0) (2025-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* compress conll data with gzip ([#31](https://github.com/zentrum-lexikographie/wordprofile/issues/31))
+
+### Features
+
+* compress conll data with gzip ([#31](https://github.com/zentrum-lexikographie/wordprofile/issues/31)) ([1a9008d](https://github.com/zentrum-lexikographie/wordprofile/commit/1a9008d289f790c55c03f326abbf09096b889c72))
+
 ## [11.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.0.0...v11.1.0) (2025-11-10)
 
 
