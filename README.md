@@ -25,7 +25,7 @@ Für das Erstellen eines *Wortprofils* sind folgende Schritte nötig:
 Falls das Korpus für das Wortprofil aus verschiedenen Teilen (Subkorpora) besteht, wird der Schritt der Konvertierung und Annotation sowie die Extraktion der Kollokationen für jedes Subkorpus separat durchgeführt. Im zweiten Schritt werden die Daten aus den Teilkorpora aggregiert.
 
 ### 0. Datenkonvertierung + Annotation
-Sofern die Korpusdaten noch nicht annotiert und im `.conll`-Format vorliegen, müssen sie zunächst konvertiert und mit Dependenzannotationen und morphologischen Annotationen versehen werden (s. `preprocessing`).
+Sofern die Korpusdaten noch nicht annotiert und im `.conll`-Format vorliegen, müssen sie zunächst konvertiert und mit Dependenzannotationen und morphologischen Annotationen versehen werden (s. `preprocessing`). Die Skripte zur Annotation und Kollokationsextraktion erwarten mit `gzip` komprimierte Dateien.
 
 ### 1. Kollokationsextraktion
 
@@ -35,16 +35,16 @@ Hierzu wird das Skript `wordprofile/cli/extract_collocations.py` verwendet (bei 
 ```sh
 options:
   -h, --help           show this help message and exit
-  --input [INPUT ...]  conll input file(s). As default stdin is used, if this option is not used.
+  --input [INPUT ...]  (gzip compressed) conll input file(s). As default stdin is used, if this option is not used.
   --dest DEST          temporary storage path
   --njobs NJOBS        number of process jobs
 ```
 Als `--input` werden mehrere `.conll`-Dateien akzeptiert.
 Beispielaufruf:
 ```shell
-python -m wordprofile.cli.extract_collocations --input corpora/test_corpus.conll --dest test_wp/colloc/test_corpus --njobs 4
+python -m wordprofile.cli.extract_collocations --input corpora/test_corpus.conll.gz --dest test_wp/colloc/test_corpus --njobs 4
 ```
-Die Datei `test_corpus.conll` wird verarbeitet, die extrahierten Daten werden nach `test_wp/colloc/test_corpus` geschrieben.
+Die Datei `test_corpus.conll.gz` wird verarbeitet, die extrahierten Daten werden nach `test_wp/colloc/test_corpus` geschrieben.
 
 ### 2. Aggregation der Teilkorpora
 In diesem Schritt werden die Ergebnisse der Teilkorpora zusammengeführt und die Statistiken über das gesamte Korpus berechnet.
