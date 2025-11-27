@@ -1,7 +1,7 @@
 name: wordprofile
 services:
   db:
-    image: mariadb:10
+    image: mariadb:12
     environment:
       MYSQL_DATABASE: "wp"
       MYSQL_USER: "wp"
@@ -12,9 +12,8 @@ services:
     ports:
       - "3306:3306"
     command:
-      - "mysqld"
-      - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
+      ["--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_bin"]
     healthcheck:
       test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       start_period: 1m
