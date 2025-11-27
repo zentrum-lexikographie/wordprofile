@@ -734,6 +734,6 @@ def test_page_replaced_with_dash():
 
 
 def test_format_collocate():
-    collocate = ("Collocate1", 10)
+    collocate = ("Collocate1", "Tag1", 10)
     result = form.format_collocate(collocate)
-    assert result == {"Lemma": "Collocate1", "Score": 10}
+    assert result == {"Lemma": "Collocate1", "Score": 10, "POS": "Tag1"}

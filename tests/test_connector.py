@@ -275,22 +275,26 @@ class WPConnectTest(unittest.TestCase):
 
     def test_retrieval_of_collocates_order_by_logdice(self):
         result = [
-            (col[0], round(col[1], 2))
+            (col[0], col[1], round(col[2], 2))
             for col in self.connector.get_collocates(
                 "Feuerwehr", "NOUN", order_by="log_dice"
             )
         ]
         expected = [
-            ("nehmen", 8.25),
-            ("Angabe", 7.25),
-            ("Stadt", 7.15),
-            ("Sprecher", 7.05),
+            ("nehmen", "VERB", 8.25),
+            ("Angabe", "NOUN", 7.25),
+            ("Stadt", "NOUN", 7.15),
+            ("Sprecher", "NOUN", 7.05),
         ]
         self.assertEqual(result, expected)
 
     def test_retrieval_of_collocates_order_by_freq(self):
         result = self.connector.get_collocates("Kunst", "NOUN", order_by="frequency")
-        expected = [("Haus", 389), ("Kultur", 51), ("schön", 42)]
+        expected = [
+            ("Haus", "NOUN", 389),
+            ("Kultur", "NOUN", 51),
+            ("schön", "ADJ", 42),
+        ]
         self.assertEqual(result, expected)
 
     def test_retrieval_of_collocates_cutoff(self):
@@ -298,9 +302,9 @@ class WPConnectTest(unittest.TestCase):
             "nehmen", "VERB", order_by="frequency", number=3
         )
         expected = [
-            ("fest", 387),
-            ("Angabe", 386),
-            ("Polizei", 262),
+            ("fest", "ADP", 387),
+            ("Angabe", "NOUN", 386),
+            ("Polizei", "NOUN", 262),
         ]
         self.assertEqual(result, expected)
 
@@ -312,16 +316,16 @@ class WPConnectTest(unittest.TestCase):
         result = self.connector.get_collocates(
             "liegen", "VERB", order_by="frequency", min_freq=200
         )
-        self.assertEqual(result, [("Boden", 210)])
+        self.assertEqual(result, [("Boden", "NOUN", 210)])
 
     def test_collocates_filtered_by_logdice(self):
         result = [
-            (col[0], round(col[1], 1))
+            (col[0], col[1], round(col[2], 1))
             for col in self.connector.get_collocates(
                 "nehmen", "VERB", order_by="log_dice", min_stat=10.0
             )
         ]
-        self.assertEqual(result, [("Angabe", 11.0), ("fest", 10.9)])
+        self.assertEqual(result, [("Angabe", "NOUN", 11.0), ("fest", "ADP", 10.9)])
 
     def test_get_lemma_and_pos_no_inverse(self):
         result = self.connector.get_lemma_and_pos(lemma="liegen", lemma_tag="VERB")
@@ -422,7 +426,7 @@ class WPConnectTest(unittest.TestCase):
 
     def test_retrieval_of_inverse_collocates(self):
         result = self.connector.get_collocates("Polizei", "NOUN", order_by="frequency")
-        expected = [("nehmen", 262)]
+        expected = [("nehmen", "VERB", 262)]
         self.assertEqual(result, expected)
 
     def test_get_lemma_and_pos_without_pos(self):
@@ -572,8 +576,8 @@ class WPConnectTest(unittest.TestCase):
     def test_collocates_exclude_KON_relation_if_target_is_collocate(self):
         result = self.connector.get_collocates("Kultur", "NOUN", order_by="frequency")
         expected = [
-            ("Festival", 25),
-            ("modern", 20),
+            ("Festival", "NOUN", 25),
+            ("modern", "ADJ", 20),
         ]
         self.assertEqual(result, expected)
 
