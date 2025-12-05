@@ -324,11 +324,11 @@ def extract_comparing_groups(tokens: list[WPToken], sid: int) -> Iterator[Match]
 
 def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """
-    Extracts matches for subject predicative relation from a dependency
+    Extracts matches for predicative relation from a dependency
     tree of a sentence.
-
-    TODO: extend for object predicative relations
-    (https://www.deutschplus.net/pages/Pradikativ)
+    The list of verbs for object predicative relations is guided by
+    information from E-VALBU on verbs with 'prd' complements (cf.
+    https://grammis.ids-mannheim.de/verbs/search?komplemente[]=praed&suchtabelle=lesart)
 
     Args:
         dtree: dependency tree of a single sentence
