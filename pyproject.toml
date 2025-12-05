@@ -41,7 +41,6 @@ readme = {file = ["README.md"], content-type = "text/markdown"}
 version = {attr = "wordprofile.version.__version__"}
 dependencies = { file = ["requirements/base.txt"] }
 optional-dependencies.dev = { file = ["requirements/dev.txt"] }
-optional-dependencies.api = { file = ["requirements/api.txt"] }
 optional-dependencies.build = { file = ["requirements/build.txt"] }
 
 [tool.setuptools.packages.find]
