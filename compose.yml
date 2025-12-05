@@ -14,7 +14,7 @@ services:
     command:
       - "mysqld"
       - "--character-set-server=utf8mb4"
-      - "--collation-server=utf8mb4_unicode_ci"
+      - "--collation-server=utf8mb4_bin"
     healthcheck:
       test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
       start_period: 1m

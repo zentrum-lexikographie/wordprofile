@@ -10,7 +10,7 @@ from wordprofile.extract import relation_types, word_classes
 
 logger = logging.getLogger(__name__)
 
-FORM_TYPE = types.VARCHAR(config.max_form_length)
+FORM_TYPE = types.VARCHAR(config.max_form_length, collation="utf8mb4_bin")
 CORPUS_FILE_TYPE = types.Integer
 RELATION_TYPE = Enum(relation_types)
 TAG_TYPE = Enum(word_classes)
