@@ -1,3 +1,4 @@
+import itertools
 from collections import defaultdict
 from collections.abc import Iterator
 from enum import Enum
@@ -357,32 +358,100 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
         # object predicative
         if n.token.tag == "VERB":
             for pred in n.children:
-                # case1: als + nom
-                # case2 : als + akk
-                # case3: für
-                # case4: wie
-
-                if pred.token.tag in {"VERB", "ADJ", "NOUN"} and pred.token.rel in {
-                    "obj",
-                    "obl",
-                    "adv",
-                    "advcl",
-                }:  # ++ 'advcl', 'xcomp'
-                    # if any(c.token.rel in {'mark', 'case'} and c.token.tag in {'CCONJ', 'ADP'} for c in obj.children):
-                    if _has_case_marking(pred.token, "NOM") or any(
-                        _has_case_marking(dep.token, "NOM") for dep in pred.children
+                # filter subclauses:
+                # full verbs, particle  + aux
+                if pred.token.tag == "VERB":
+                    morph = pred.token.morph or {}
+                    if morph.get("VerbForm", "") == "Fin" or (
+                        morph.get("VerbForm", "") == "Part"
+                        and any(c.token.tag == "AUX" for c in pred.children)
                     ):
+                        continue
+                # case 1: als + NOUN > obl
+                if pred.token.tag == "NOUN" and pred.token.rel == "obl":
+                    if (
+                        n.token.lemma in PRED_VERBS["als_noun"]
+                        or n.token.lemma in PRED_VERBS["als_adj"]
+                    ):
+                        # skip sentences with "mehr ... als"
+                        if _is_probably_comparative(n):
+                            continue
                         if any(
-                            c.token.surface in {"als", "für"} for c in pred.children
+                            c.token.lemma == "als" and c.token.rel == "case"
+                            for c in pred.children
                         ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 2 : als + ADJ > advcl
+                if pred.token.tag in {"ADJ", "VERB"} and pred.token.rel in {
+                    "advcl",  # relation used in HDT-UD
+                    "xcomp",
+                }:
+                    # skip sentences with "mehr ... als"
+                    if _is_probably_comparative(n):
+                        continue
+                    if n.token.lemma in PRED_VERBS["als_adj"]:
+                        if any(
+                            c.token.rel in {"mark", "case"} and c.token.lemma == "als"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 3: für + ADJ/NOUN > obl/obj/xcomp
+                if pred.token.tag in {"ADJ", "NOUN"} and pred.token.rel in {
+                    "obl",
+                    "obj",
+                    "xcomp",
+                }:
+                    if n.token.lemma in PRED_VERBS["für_adj-noun"]:
+                        if any(
+                            c.token.rel == "case" and c.token.lemma == "für"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 4: wie + NOUN/ADJ/VERB > obl/advcl
+                if (
+                    pred.token.tag in {"ADJ", "VERB"} and pred.token.rel == "advcl"
+                ) or (pred.token == "NOUN" and pred.token.rel == "obl"):
+                    # adj/verb > mark, advcl
+                    # noun, case, obl
+                    if n.token.lemma in PRED_VERBS["wie_adj-noun"]:
+                        if any(
+                            c.token.rel in {"case", "mark"} and c.token.lemma == "wie"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 5: verb + adj ohne als/wie
+                if pred.token.tag == "ADJ" and not any(
+                    c.token.lemma in {"als", "wie"} for c in pred.children
+                ):
+                    if (n.token.lemma == "lassen" and pred.token.rel == "xcomp") or (
+                        n.token.lemma == "aussehen" and pred.token.rel == "advcl"
+                    ):
+                        yield Match(
+                            n.token,
+                            pred.token,
+                            None,
+                            "PRED",
+                            sid,
+                        )
+                    if n.token.lemma == "bleiben" and pred.token.rel == "xcomp":
+                        subj = [
+                            c
+                            for c in n.children
+                            if c.token.rel == "nsubj"
+                            and c.token.tag in {"ADJ", "NOUN", "VERB"}
+                        ]
+                        if len(subj) == 1:
+                            yield Match(subj[0].token, pred.token, None, "PRED", sid)
 
-                            yield Match(
-                                n.token,
-                                obj.token,
-                                None,
-                                "PRED",
-                                sid,
-                            )
+
+def _is_probably_comparative(node: "DependencyTree.Node") -> bool:
+    return any(
+        c.token.surface == "mehr" and c.token.rel in {"advmod", "obj"}
+        for c in itertools.chain(
+            node.children,
+            itertools.chain.from_iterable(c.children for c in node.children),
+        )
+    )
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
