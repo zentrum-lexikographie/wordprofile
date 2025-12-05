@@ -1392,10 +1392,15 @@ def test_pp_match_only_extracted_once():
             ),
         ],
     ]
-    for sentence in sentences:
+    expected = [
+        ["PP", "SUBJA"],
+        ["PP", "SUBJA"],
+        ["PP", "PRED"],
+    ]
+    for sentence, rel in zip(sentences, expected):
         result = list(ex.extract_matches([sentence]))
         assert len(result) == 2
-        assert "PP" in [match.relation for match in result]
+        assert rel == sorted([match.relation for match in result])
 
 
 @pytest.mark.xfail
@@ -1449,7 +1454,7 @@ def test_pred_match_only_extracted_once():
     ]
     result = list(ex.extract_matches([sentence]))
     assert "PRED" in [match.relation for match in result]
-    assert len(result) == 2
+    assert len(result) == 1
 
 
 def test_adverbial_adjective_with_verb_extracted():
