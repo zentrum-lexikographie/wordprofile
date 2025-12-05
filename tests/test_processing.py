@@ -1,3 +1,4 @@
+import gzip
 import io
 import multiprocessing as mp
 import pathlib
@@ -41,8 +42,8 @@ def testdata_dir():
 
 @pytest.fixture
 def conll_sentences(testdata_dir):
-    testdata_file = testdata_dir / "process_data.conll"
-    with open(testdata_file, "r") as fh:
+    testdata_file = testdata_dir / "process_data.conll.gz"
+    with gzip.open(testdata_file, "rt") as fh:
         return conllu.parse(fh.read(), fields=conllu.parser.DEFAULT_FIELDS)
 
 
@@ -288,7 +289,7 @@ def test_process_doc_file_errors_logged(conll_sentences, caplog):
 
 
 def test_file_reader_single_file(testdata_dir):
-    conll_file = testdata_dir / "process_data.conll"
+    conll_file = testdata_dir / "process_data.conll.gz"
     file_reader = pro.FileReader([conll_file], MockQueue())
     file_reader.run()
     file_reader.stop(1)
@@ -328,7 +329,7 @@ def test_file_reader_multiple_files(testdata_dir):
 
 
 def test_file_reader_with_std_input(monkeypatch, testdata_dir):
-    with open(testdata_dir / "corpus" / "file1.conll") as fh:
+    with gzip.open(testdata_dir / "corpus" / "file1.conll.gz", "rt") as fh:
         data = io.StringIO()
         for line in fh:
             data.write(line)

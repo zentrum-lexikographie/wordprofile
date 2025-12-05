@@ -24,7 +24,6 @@ def test_inverting_of_relation_patterns():
         ("nmod", "case"),
         ("obl", "case"),
         ("obj", "case"),
-        "nsubj:pass",
     ]
     assert result["advmod"] == {
         ("VERB", "ADV"): "ADV",
@@ -607,10 +606,48 @@ def test_all_extractions():
                 misc=True,
             ),
         ],
+        [
+            WPToken(
+                idx=1,
+                surface="der",
+                lemma="d",
+                tag="DET",
+                head=2,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Baum",
+                lemma="Baum",
+                tag="NOUN",
+                head=4,
+                rel="nsubj:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="wurde",
+                lemma="werden",
+                tag="AUX",
+                head=4,
+                rel="aux:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="gefällt",
+                lemma="fällen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=False,
+            ),
+        ],
     ]
     result = list(ex.extract_matches(sentences))
-    assert len(result) == 3
-    assert [match.sid for match in result] == [1, 2, 2]
+    assert len(result) == 4
+    assert [match.sid for match in result] == [1, 2, 2, 3]
 
 
 def test_prepositional_object_not_matched_by_extract_object():
@@ -3852,6 +3889,197 @@ def test_obj_with_explicit_acc_case_marking_not_classified_as_objo():
     for sent in sentences:
         result = list(ex.extract_objects(DependencyTree(sent), 1))
         assert all(match.relation == "OBJ" for match in result) is True
+
+
+def test_extraction_of_passive_subject_with_werden():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Welche",
+            lemma="welche",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Personen",
+            lemma="Person",
+            tag="NOUN",
+            head=6,
+            rel="nsubj:pass",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="werden",
+            lemma="werden",
+            tag="AUX",
+            head=6,
+            rel="aux:pass",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="als",
+            lemma="als",
+            tag="CCONJ",
+            head=5,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="Kandidaten",
+            lemma="Kandidat",
+            tag="NOUN",
+            head=6,
+            rel="obl",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="aufgestellt",
+            lemma="aufstellen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+    ]
+    result = next(ex.extract_passive_subjects(DependencyTree(sentence), 1))
+    assert result.relation == "SUBJP"
+    assert result.head.lemma == "aufstellen"
+
+
+def test_verbs_with_sein_not_extracted_as_passive_subject():
+    sentences = [
+        [
+            WPToken(
+                idx=1,
+                surface="S.",
+                lemma="S.",
+                tag="PROPN",
+                head=6,
+                rel="nsubj:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="war",
+                lemma="sein",
+                tag="AUX",
+                head=6,
+                rel="aux:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="in",
+                lemma="in",
+                tag="ADP",
+                head=4,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="Berlin",
+                lemma="Berlin",
+                tag="PROPN",
+                head=6,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="hoch",
+                lemma="hoch",
+                tag="ADJ",
+                head=6,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="angesehen",
+                lemma="ansehen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="Der",
+                lemma="d",
+                tag="DET",
+                head=2,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Alkoholkonsum",
+                lemma="Alkoholkonsum",
+                tag="NOUN",
+                head=7,
+                rel="nsubj:pass",  # wrong tag by parser
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="sei",
+                lemma="sein",
+                tag="AUX",
+                head=7,
+                rel="aux:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="bereits",
+                lemma="bereits",
+                tag="ADV",
+                head=1,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="seit",
+                lemma="seit",
+                tag="ADP",
+                head=6,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="Jahresanfang",
+                lemma="Jahresanfang",
+                tag="NOUN",
+                head=7,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface="gesunken",
+                lemma="sinken",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+        ],
+    ]
+    for sent in sentences:
+        result = list(ex.extract_passive_subjects(DependencyTree(sent), 1))
+        assert result == []
 
 
 def test_predicative_verb_skips_subclause_with_full_verb():

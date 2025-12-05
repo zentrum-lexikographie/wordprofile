@@ -1,5 +1,39 @@
 # Changelog
 
+## [12.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.1.0...v12.0.0) (2025-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* compress conll data with gzip ([#31](https://github.com/zentrum-lexikographie/wordprofile/issues/31))
+
+### Features
+
+* compress conll data with gzip ([#31](https://github.com/zentrum-lexikographie/wordprofile/issues/31)) ([1a9008d](https://github.com/zentrum-lexikographie/wordprofile/commit/1a9008d289f790c55c03f326abbf09096b889c72))
+
+## [11.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.0.0...v11.1.0) (2025-11-10)
+
+
+### Features
+
+* deploy integrated custom spaCy pipelines for annotation ([#29](https://github.com/zentrum-lexikographie/wordprofile/issues/29)) ([8cc1ae9](https://github.com/zentrum-lexikographie/wordprofile/commit/8cc1ae9d931c602eabe474650bade2c75822cdf6))
+
+## [11.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v10.0.0...v11.0.0) (2025-11-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* change extraction of PRED collocations ([#27](https://github.com/zentrum-lexikographie/wordprofile/issues/27))
+
+### Features
+
+* change extraction of PRED collocations ([#27](https://github.com/zentrum-lexikographie/wordprofile/issues/27)) ([2248294](https://github.com/zentrum-lexikographie/wordprofile/commit/224829493d02538ab2b166517f39fb3d181441c1))
+
+
+### Bug Fixes
+
+* require co-occurrences for pass subject to include verb form with 'werden' ([#25](https://github.com/zentrum-lexikographie/wordprofile/issues/25)) ([ad3d826](https://github.com/zentrum-lexikographie/wordprofile/commit/ad3d82618959a628828cb2a96b182cb071dc05de))
+
 ## [10.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v9.1.0...v10.0.0) (2025-07-25)
 
 

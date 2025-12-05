@@ -1,3 +1,4 @@
+import gzip
 import unittest
 from datetime import date
 from pathlib import Path
@@ -109,7 +110,8 @@ class DataUpdateTest(unittest.TestCase):
                 str(self.data_dir / "dump"),
             ],
         )
-        result = (self.todays_dir / "corpus.conll").read_text()
+        with gzip.open((self.todays_dir / "corpus.conll.gz"), "rt") as f:
+            result = f.read()
         expected = (self.data_dir / "sample.conllu").read_text()
         self.assertEqual(result, expected)
 

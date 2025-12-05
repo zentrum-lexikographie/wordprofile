@@ -193,7 +193,7 @@ def format_lemma_with_preposition(lemma: str, preposition: str, inverse: int) ->
 
 
 def format_collocate(
-    collocate: tuple[str, int | float]
+    collocate: tuple[str, int | float],
 ) -> dict[str, str | int | float]:
-    lemma, score = collocate
-    return {"Lemma": lemma, "Score": score}
+    lemma, tag, score = collocate
+    return {"Lemma": lemma, "Score": score, "POS": tag}
