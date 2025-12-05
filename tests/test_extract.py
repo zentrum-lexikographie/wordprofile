@@ -151,7 +151,7 @@ def test_extract_predicatives_noun():
     assert (result.head.surface, result.dep.surface, result.relation) == (
         "Maßlosigkeit",
         "Folge",
-        "PRED",
+        "PREDC",
     )
 
 
@@ -198,7 +198,7 @@ def test_extract_predicatives_noun_with_verb_other_than_sein():
     assert (result.head.surface, result.dep.surface, result.relation) == (
         "Maßlosigkeit",
         "Folge",
-        "PRED",
+        "PREDC",
     )
 
 
@@ -260,7 +260,7 @@ def test_extract_predicatives_noun_with_prep_phrase():
         ),
     ]
     result = list(ex.extract_predicatives(DependencyTree(sentence), 1))
-    assert (result[0].relation, result[0].dep.surface) == ("PRED", "denkbar")
+    assert (result[0].relation, result[0].dep.surface) == ("PREDC", "denkbar")
 
 
 def test_extract_predicatives_verb():
@@ -3847,3 +3847,606 @@ def test_obj_with_explicit_acc_case_marking_not_classified_as_objo():
     for sent in sentences:
         result = list(ex.extract_objects(DependencyTree(sent), 1))
         assert all(match.relation == "OBJ" for match in result) is True
+
+
+def test_predicative_verb_skips_subclause_with_full_verb():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Als",
+            lemma="als",
+            tag="SCONJ",
+            head=4,
+            rel="mark",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="die",
+            lemma="die",
+            tag="DET",
+            head=3,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="Einsatzkräfte",
+            lemma="Einsatzkraft",
+            tag="NOUN",
+            head=4,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="eintrafen",
+            lemma="eintreffen",
+            tag="VERB",
+            head=6,
+            rel="advcl",
+            morph={
+                "Mood": "Ind",
+                "Number": "Plur",
+                "Person": 3,
+                "Tense": "Past",
+                "VerbForm": "Fin",
+            },
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface=",",
+            lemma=",",
+            tag="PUNCT",
+            head=4,
+            rel="punct",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="befanden",
+            lemma="befinden",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="sich",
+            lemma="sich",
+            tag="PRON",
+            head=6,
+            rel="expl:pv",
+            misc=True,
+        ),
+        WPToken(
+            idx=8,
+            surface="Menschen",
+            lemma="Mensch",
+            tag="NOUN",
+            head=6,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=9,
+            surface="auf",
+            lemma="auf",
+            tag="ADP",
+            head=11,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=10,
+            surface="der",
+            lemma="die",
+            tag="DET",
+            head=11,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=11,
+            surface="Fahrbahn",
+            lemma="Fahrbahn",
+            tag="NOUN",
+            head=6,
+            rel="obl",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))
+    assert result == []
+
+
+def test_predicative_verb_skips_subclause_with_particle_and_aux_verb():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Als",
+            lemma="als",
+            tag="SCONJ",
+            head=4,
+            rel="mark",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="die",
+            lemma="die",
+            tag="DET",
+            head=3,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="Einsatzkräfte",
+            lemma="Einsatzkraft",
+            tag="NOUN",
+            head=4,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="eingetroffen",
+            lemma="eintreffen",
+            tag="VERB",
+            head=7,
+            rel="advcl",
+            morph={
+                "Aspect": "Perf",
+                "VerbForm": "Part",
+            },
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="waren",
+            lemma="sein",
+            tag="AUX",
+            head=4,
+            rel="aux",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface=",",
+            lemma=",",
+            tag="PUNCT",
+            head=4,
+            rel="punct",
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="befanden",
+            lemma="befinden",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=8,
+            surface="sich",
+            lemma="sich",
+            tag="PRON",
+            head=7,
+            rel="expl:pv",
+            misc=True,
+        ),
+        WPToken(
+            idx=9,
+            surface="Menschen",
+            lemma="Mensch",
+            tag="NOUN",
+            head=7,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=10,
+            surface="auf",
+            lemma="auf",
+            tag="ADP",
+            head=12,
+            rel="case",
+            misc=True,
+        ),
+        WPToken(
+            idx=11,
+            surface="der",
+            lemma="die",
+            tag="DET",
+            head=12,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=12,
+            surface="Fahrbahn",
+            lemma="Fahrbahn",
+            tag="NOUN",
+            head=7,
+            rel="obl",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))
+    assert result == []
+
+
+def test_predicative_with_particle_in_advcl_not_filtered():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Das",
+            lemma="die",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Amtsgericht",
+            lemma="Amtsgericht",
+            tag="NOUN",
+            head=3,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="sah",
+            lemma="ansehen",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="es",
+            lemma="es",
+            tag="PORN",
+            head=3,
+            rel="obj",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="als",
+            lemma="als",
+            tag="CCONJ",
+            head=6,
+            rel="mark",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="erwiesen",
+            lemma="erweisen",
+            tag="VERB",
+            head=3,
+            rel="advcl",
+            morph={"Aspect": "Perf", "VerbForm": "Part"},
+            misc=True,
+        ),
+        WPToken(
+            idx=7,
+            surface="an",
+            lemma="an",
+            tag="ADP",
+            head=3,
+            rel="compound:prt",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))[0]
+    assert result.relation == "PRED"
+    assert result.head.lemma == "ansehen"
+    assert result.dep.lemma == "erweisen"
+
+
+def test_predicative_rel_skips_sentence_with_comparative():
+    sentences = [
+        [
+            WPToken(
+                idx=1,
+                surface="Bei",
+                lemma="bei",
+                tag="ADP",
+                head=2,
+                rel="case",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Abstimmungen",
+                lemma="Abstimmung",
+                tag="NOUN",
+                head=6,
+                rel="obl",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="wurden",
+                lemma="werden",
+                tag="AUX",
+                head=6,
+                rel="aux:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="mehr",
+                lemma="mehr",
+                tag="ADV",
+                head=5,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="Stimmen",
+                lemma="Stimme",
+                tag="NOUN",
+                head=6,
+                rel="nsubj:pass",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="gezählt",
+                lemma="zählen",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface=",",
+                lemma=",",
+                tag="PUNCT",
+                head=10,
+                rel="punct",
+                misc=True,
+            ),
+            WPToken(
+                idx=8,
+                surface="als",
+                lemma="als",
+                tag="CCONJ",
+                head=10,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=9,
+                surface="Delegierte",
+                lemma="Delegierte",
+                tag="NOUN",
+                head=10,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=10,
+                surface="anwesend",
+                lemma="anwesend",
+                tag="ADJ",
+                head=6,
+                rel="advcl",
+                misc=True,
+            ),
+            WPToken(
+                idx=11,
+                surface="waren",
+                lemma="sein",
+                tag="AUX",
+                head=10,
+                rel="_",
+                misc=True,
+            ),
+        ],
+        [
+            WPToken(
+                idx=1,
+                surface="Die",
+                lemma="die",
+                tag="DET",
+                head=2,
+                rel="det",
+                misc=True,
+            ),
+            WPToken(
+                idx=2,
+                surface="Regierung",
+                lemma="Regierung",
+                tag="NOUN",
+                head=5,
+                rel="nsubj",
+                misc=True,
+            ),
+            WPToken(
+                idx=3,
+                surface="will",
+                lemma="wollen",
+                tag="AUX",
+                head=5,
+                rel="aux",
+                misc=True,
+            ),
+            WPToken(
+                idx=4,
+                surface="mehr",
+                lemma="mehr",
+                tag="ADV",
+                head=5,
+                rel="advmod",
+                misc=True,
+            ),
+            WPToken(
+                idx=5,
+                surface="ausgeben",
+                lemma="ausgeben",
+                tag="VERB",
+                head=0,
+                rel="ROOT",
+                misc=True,
+            ),
+            WPToken(
+                idx=6,
+                surface="als",
+                lemma="als",
+                tag="VERB",
+                head=7,
+                rel="mark",
+                misc=True,
+            ),
+            WPToken(
+                idx=7,
+                surface="einnehmen",
+                lemma="einnehmen",
+                tag="VERB",
+                head=5,
+                rel="advcl",
+                misc=True,
+            ),
+        ],
+    ]
+    for sent in sentences:
+        result = list(ex.extract_predicatives(DependencyTree(sent), 1))
+        assert result == []
+
+
+def test_predicative_with_bleiben_not_tagged_as_copula_return_subj():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="Das",
+            lemma="die",
+            tag="DET",
+            head=2,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="Schicksal",
+            lemma="Schicksal",
+            tag="NOUN",
+            head=5,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="der",
+            lemma="die",
+            tag="DET",
+            head=4,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="Vermissten",
+            lemma="Vermisste",
+            tag="NOUN",
+            head=2,
+            rel="nmod",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="bleibt",
+            lemma="bleiben",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="ungeklärt",
+            lemma="ungeklärt",
+            tag="ADJ",
+            head=5,
+            rel="xcomp",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))[0]
+    assert result.relation == "PREDC"
+    assert result.head.lemma == "Schicksal"
+    assert result.dep.lemma == "ungeklärt"
+
+
+def test_ignore_unwanted_pos_in_predicative_copula_constructions():
+    sentence = [
+        WPToken(
+            idx=1,
+            surface="es",
+            lemma="es",
+            tag="PRON",
+            head=2,
+            rel="expl",
+            misc=True,
+        ),
+        WPToken(
+            idx=2,
+            surface="bleibt",
+            lemma="bleiben",
+            tag="VERB",
+            head=0,
+            rel="ROOT",
+            misc=True,
+        ),
+        WPToken(
+            idx=3,
+            surface="mir",
+            lemma="ich",
+            tag="PRON",
+            head=2,
+            rel="obl:arg",
+            misc=True,
+        ),
+        WPToken(
+            idx=4,
+            surface="nichts",
+            lemma="nichts",
+            tag="PRON",
+            head=5,
+            rel="det",
+            misc=True,
+        ),
+        WPToken(
+            idx=5,
+            surface="anderes",
+            lemma="ander",
+            tag="DET",
+            head=2,
+            rel="nsubj",
+            misc=True,
+        ),
+        WPToken(
+            idx=6,
+            surface="übrig",
+            lemma="übrig",
+            tag="ADJ",
+            head=2,
+            rel="xcomp",
+            misc=True,
+        ),
+    ]
+    result = list(ex.extract_predicatives(DependencyTree(sentence), 1))
+    assert result == []
