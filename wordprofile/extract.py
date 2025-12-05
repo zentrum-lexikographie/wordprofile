@@ -70,6 +70,11 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         "inverse": "ist Prädikativ von",
         "rules": [],
     },
+    "PREDC": {
+        "desc": "mit Prädikativ",
+        "inverse": "ist Prädikativ zu",
+        "rules": [],
+    },
     "SUBJA": {
         "desc": "hat Subjekt",
         "inverse": "ist Subjekt von",
@@ -352,7 +357,7 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                                 nsubj.token,
                                 n.token,
                                 None,
-                                "PRED",
+                                "PREDC",
                                 sid,
                             )
         # object predicative
@@ -441,7 +446,7 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                             and c.token.tag in {"ADJ", "NOUN", "VERB"}
                         ]
                         if len(subj) == 1:
-                            yield Match(subj[0].token, pred.token, None, "PRED", sid)
+                            yield Match(subj[0].token, pred.token, None, "PREDC", sid)
 
 
 def _is_probably_comparative(node: "DependencyTree.Node") -> bool:

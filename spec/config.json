@@ -44,6 +44,14 @@
       "ist Prädikativ von",
       "$1 ist Prädikativ von $2"
     ],
+    "PREDC": [
+      "mit Prädikativ",
+      "$1 mit Prädikativ $2"
+    ],
+    "~PREDC": [
+      "ist Prädikativ zu",
+      "$1 ist Prädikativ zu $2"
+    ],
     "KOM": [
       "hat vergleichende Wortgruppe",
       "$1 hat vergleichende Wortgruppe $2"
@@ -108,6 +116,8 @@
     "KON",
     "PRED",
     "~PRED",
+    "PREDC",
+    "~PREDC",
     "KOM",
     "~KOM",
     "SUBJA",
@@ -122,6 +132,8 @@
       "META",
       "~ATTR",
       "~PRED",
+      "PREDC",
+      "~PREDC",
       "ADV",
       "~ADV",
       "KON",
@@ -136,6 +148,8 @@
       "KON",
       "SUBJA",
       "PRED",
+      "~PRED",
+      "~PREDC",
       "KOM",
       "SUBJP"
     ],
@@ -147,12 +161,13 @@
       "~PP",
       "GMOD",
       "KON",
-      "PRED",
+      "PREDC",
       "KOM",
       "~SUBJA",
       "PP",
       "~GMOD",
       "~PRED",
+      "~PREDC",
       "~KOM",
       "~SUBJP"
     ]
