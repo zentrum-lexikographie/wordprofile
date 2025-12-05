@@ -79,8 +79,8 @@ class MockDb:
             if coocc.lemma1 == lemma and coocc.tag1 == lemma_tag:
                 if coocc.freq >= min_freq and coocc.score >= min_stat:
                     score = coocc.score if order_by == "log_dice" else coocc.freq
-                    collocates.append((coocc.lemma2, score))
-        return sorted(collocates, key=lambda x: x[1], reverse=True)[:number]
+                    collocates.append((coocc.lemma2, coocc.tag2, score))
+        return sorted(collocates, key=lambda x: x[2], reverse=True)[:number]
 
 
 class MockMweDb(MockDb):
@@ -788,11 +788,10 @@ class WordprofileTest(unittest.TestCase):
             col["Score"] = round(score, 1)
             result.append(col)
         expected = [
-            {"Lemma": "Kommandant", "Score": 8.5},
-            {"Lemma": "rücken", "Score": 8.5},
-            {"Lemma": "Umgebung", "Score": 4.8},
+            {"Lemma": "Kommandant", "POS": "NOUN", "Score": 8.5},
+            {"Lemma": "rücken", "POS": "VERB", "Score": 8.5},
+            {"Lemma": "Umgebung", "POS": "NOUN", "Score": 4.8},
         ]
-
         self.assertEqual(result, expected)
 
     def test_reduced_profile_order_by_freq(self):
@@ -801,7 +800,10 @@ class WordprofileTest(unittest.TestCase):
         )
         self.assertEqual(
             result,
-            [{"Lemma": "plüschig", "Score": 200}, {"Lemma": "gemütlich", "Score": 20}],
+            [
+                {"Lemma": "plüschig", "POS": "ADJ", "Score": 200},
+                {"Lemma": "gemütlich", "POS": "ADJ", "Score": 20},
+            ],
         )
 
     def test_empty_id_list_returns_empty_data(self):

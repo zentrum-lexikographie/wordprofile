@@ -391,13 +391,13 @@ class WPConnect:
         Fetch only collocates and metrics (logDice or frequency) for target
         lemma from all relations.
 
-        The result is a list of tuples (collocate, score) sorted by the
-        retrieved metric in descending order. Collocations are filtered
-        by frequency and logDice score.
+        The result is a list of tuples (collocate, pos, score) sorted by
+        the retrieved metric in descending order. Collocations are
+        filtered by frequency and logDice score.
         N.B.: The look-up of collocates is relation-agnostic and returns
-        only the lemma of the collocate. I.e. the same lemma might appear
-        more than once with different scores because they originate from
-        different relations or are differentiated by their preposition.
+        only the lemma and pos of the collocate. I.e. the same lemma might
+        appear more than once with different scores because they originate
+        from different relations or are differentiated by their preposition.
 
         Args:
             lemma:      Target lemma.
@@ -417,7 +417,14 @@ class WPConnect:
                 THEN c.lemma2
             WHEN %(lemma)s = c.lemma2
                 THEN c.lemma1
-          END AS lemma, IFNULL(c.{metric}, 0) as metric
+          END AS lemma,
+          CASE
+            WHEN %(lemma)s = c.lemma1
+                THEN c.lemma2_tag
+            WHEN %(lemma)s = c.lemma2
+                THEN c.lemma1_tag
+          END AS pos,
+          IFNULL(c.{metric}, 0) as metric
         FROM collocations c
         WHERE
           (
