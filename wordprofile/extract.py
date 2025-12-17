@@ -1,3 +1,4 @@
+import itertools
 from collections import defaultdict
 from collections.abc import Iterator
 from enum import Enum
@@ -69,6 +70,11 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
         "inverse": "ist Prädikativ von",
         "rules": [],
     },
+    "PREDC": {
+        "desc": "mit Prädikativ",
+        "inverse": "ist Prädikativ zu",
+        "rules": [],
+    },
     "SUBJA": {
         "desc": "hat Subjekt",
         "inverse": "ist Subjekt von",
@@ -81,6 +87,95 @@ RELATION_PATTERNS: dict[str, dict[str, str | list[tuple[str, ...]]]] = {
     },
 }
 
+PRED_VERBS = {
+    "für_adj-noun": {"befinden", "halten"},
+    "als_adj": {
+        "annehmen",
+        "ansehen",
+        "ausgeben",
+        "befinden",
+        "bezeichnen",
+        "empfehlen",
+        "erfahren",
+        "erkennen",
+        "erklären",
+        "erleben",
+        "erscheinen",
+        "fürchten",
+        "kennen",
+        "kennenlernen",
+        "kritisieren",
+        "missverstehen",
+        "nehmen",
+        "rechnen",
+        "verkaufen",
+        "wirken",
+        "zeichnen",
+        "zählen",
+    },
+    "als_noun": {
+        "ablehnen",
+        "anfangen",
+        "beginnen",
+        "behalten",
+        "behandeln",
+        "benutzen",
+        "bestimmen",
+        "bestätigen",
+        "bewerben",
+        "buchstabieren",
+        "dienen",
+        "drucken",
+        "eignen",
+        "einsetzen",
+        "enden",
+        "entdecken",
+        "erhalten",
+        "finden",
+        "funktionieren",
+        "fühlen",
+        "gebrauchen",
+        "gehen",
+        "gewinnen",
+        "haben",
+        "handeln",
+        "kandidieren",
+        "laufen",
+        "lesen",
+        "malen",
+        "meinen",
+        "nennen",
+        "nutzen",
+        "organisieren",
+        "planen",
+        "sehen",
+        "tragen",
+        "verbringen",
+        "verstehen",
+        "verwenden",
+        "vorkommen",
+        "vorschlagen",
+        "vorstellen",
+        "wirken",
+        "wählen",
+        "zeichnen",
+        "zählen",
+        "überraschen",
+    },
+    "wie_adj-noun": {
+        "aussehen",
+        "behandeln",
+        "bleiben",
+        "erscheinen",
+        "fühlen",
+        "gebrauchen",
+        "malen",
+        "organisieren",
+        "vorkommen",
+        "vorstellen",
+        "wirken",
+    },
+}
 relation_types = Enum(
     "RELATION_TYPE", sorted(list(RELATION_PATTERNS.keys()))  # type: ignore[misc]
 )
@@ -233,11 +328,11 @@ def extract_comparing_groups(tokens: list[WPToken], sid: int) -> Iterator[Match]
 
 def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
     """
-    Extracts matches for subject predicative relation from a dependency
+    Extracts matches for predicative relation from a dependency
     tree of a sentence.
-
-    TODO: extend for object predicative relations
-    (https://www.deutschplus.net/pages/Pradikativ)
+    The list of verbs for object predicative relations is guided by
+    information from E-VALBU on verbs with 'prd' complements (cf.
+    https://grammis.ids-mannheim.de/verbs/search?komplemente[]=praed&suchtabelle=lesart)
 
     Args:
         dtree: dependency tree of a single sentence
@@ -260,9 +355,106 @@ def extract_predicatives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
                                 nsubj.token,
                                 n.token,
                                 None,
-                                "PRED",
+                                "PREDC",
                                 sid,
                             )
+        # object predicative
+        if n.token.tag == "VERB":
+            for pred in n.children:
+                # filter subclauses:
+                # full verbs, particle  + aux
+                if pred.token.tag == "VERB":
+                    morph = pred.token.morph or {}
+                    if morph.get("VerbForm", "") == "Fin" or (
+                        morph.get("VerbForm", "") == "Part"
+                        and any(c.token.tag == "AUX" for c in pred.children)
+                    ):
+                        continue
+                # case 1: als + NOUN > obl
+                if pred.token.tag == "NOUN" and pred.token.rel == "obl":
+                    if (
+                        n.token.lemma in PRED_VERBS["als_noun"]
+                        or n.token.lemma in PRED_VERBS["als_adj"]
+                    ):
+                        # skip sentences with "mehr ... als"
+                        if _is_probably_comparative(n):
+                            continue
+                        if any(
+                            c.token.lemma == "als" and c.token.rel == "case"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 2 : als + ADJ > advcl
+                if pred.token.tag in {"ADJ", "VERB"} and pred.token.rel in {
+                    "advcl",  # relation used in HDT-UD
+                    "xcomp",
+                }:
+                    # skip sentences with "mehr ... als"
+                    if _is_probably_comparative(n):
+                        continue
+                    if n.token.lemma in PRED_VERBS["als_adj"]:
+                        if any(
+                            c.token.rel in {"mark", "case"} and c.token.lemma == "als"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 3: für + ADJ/NOUN > obl/obj/xcomp
+                if pred.token.tag in {"ADJ", "NOUN"} and pred.token.rel in {
+                    "obl",
+                    "obj",
+                    "xcomp",
+                }:
+                    if n.token.lemma in PRED_VERBS["für_adj-noun"]:
+                        if any(
+                            c.token.rel == "case" and c.token.lemma == "für"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 4: wie + NOUN/ADJ/VERB > obl/advcl
+                if (
+                    pred.token.tag in {"ADJ", "VERB"} and pred.token.rel == "advcl"
+                ) or (pred.token == "NOUN" and pred.token.rel == "obl"):
+                    # adj/verb > mark, advcl
+                    # noun, case, obl
+                    if n.token.lemma in PRED_VERBS["wie_adj-noun"]:
+                        if any(
+                            c.token.rel in {"case", "mark"} and c.token.lemma == "wie"
+                            for c in pred.children
+                        ):
+                            yield Match(n.token, pred.token, None, "PRED", sid)
+                # case 5: verb + adj ohne als/wie
+                if pred.token.tag == "ADJ" and not any(
+                    c.token.lemma in {"als", "wie"} for c in pred.children
+                ):
+                    if (n.token.lemma == "lassen" and pred.token.rel == "xcomp") or (
+                        n.token.lemma == "aussehen" and pred.token.rel == "advcl"
+                    ):
+                        yield Match(
+                            n.token,
+                            pred.token,
+                            None,
+                            "PRED",
+                            sid,
+                        )
+                    if n.token.lemma == "bleiben" and pred.token.rel == "xcomp":
+                        subj = [
+                            c
+                            for c in n.children
+                            if c.token.rel == "nsubj"
+                            and c.token.tag in {"ADJ", "NOUN", "VERB"}
+                        ]
+                        if len(subj) == 1:
+                            yield Match(subj[0].token, pred.token, None, "PREDC", sid)
+
+
+def _is_probably_comparative(node: "DependencyTree.Node") -> bool:
+    return any(
+        c.token.surface == "mehr" and c.token.rel in {"advmod", "obj"}
+        for c in itertools.chain(
+            node.children,
+            itertools.chain.from_iterable(c.children for c in node.children),
+        )
+    )
 
 
 def extract_genitives(dtree: DependencyTree, sid: int) -> Iterator[Match]:
