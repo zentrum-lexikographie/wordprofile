@@ -1,5 +1,31 @@
 # Changelog
 
+## [13.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v12.0.0...v13.0.0) (2026-01-05)
+
+
+### ⚠ BREAKING CHANGES
+
+* update db image ([#35](https://github.com/zentrum-lexikographie/wordprofile/issues/35))
+
+### Features
+
+* add list of verbs with predicative complement ([29abf94](https://github.com/zentrum-lexikographie/wordprofile/commit/29abf9457c45a938dcb3880da7755f10d7367ad2))
+* define rules for predicative relation with verb as head ([94b5f6c](https://github.com/zentrum-lexikographie/wordprofile/commit/94b5f6c57a3e964d6c3e05d8a70a2feec481a9e1))
+* predicative relation with verb as head ([c5f4fa9](https://github.com/zentrum-lexikographie/wordprofile/commit/c5f4fa9a411fd2ef84bc06e1664d2b1f719f9504))
+* retrieve POS tag for reduced profile query ([#34](https://github.com/zentrum-lexikographie/wordprofile/issues/34)) ([7c64f41](https://github.com/zentrum-lexikographie/wordprofile/commit/7c64f41739f49cc753256a1ce9e8bf912150444a))
+* split PRED relation two separate relations ([d1817a1](https://github.com/zentrum-lexikographie/wordprofile/commit/d1817a1bfa27df7c319faacd46fd0881305b2d59))
+
+
+### Bug Fixes
+
+* Deactivate test run via GitHub Actions due to resource constraints ([a6fd093](https://github.com/zentrum-lexikographie/wordprofile/commit/a6fd093a86731ec2637a780d0402deea8ab6ec9e))
+* make collation case-sensitive in docker command and lemma/token columns ([#33](https://github.com/zentrum-lexikographie/wordprofile/issues/33)) ([ed3bbb5](https://github.com/zentrum-lexikographie/wordprofile/commit/ed3bbb54e0b6e9c4c2af86aec206c6e60e95ff90))
+
+
+### Miscellaneous Chores
+
+* update db image ([#35](https://github.com/zentrum-lexikographie/wordprofile/issues/35)) ([3e80c3a](https://github.com/zentrum-lexikographie/wordprofile/commit/3e80c3a7d18e21ca1d80da60c0c7dab4cec2a00b))
+
 ## [12.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v11.1.0...v12.0.0) (2025-11-14)
 
 
