@@ -1,0 +1,11 @@
+name: dwds-wp
+services:
+  api:
+    image: ${CI_REGISTRY_IMAGE:-dwds/wordprofile}:${CI_COMMIT_SHORT_SHA:-latest}
+    network_mode: host
+    restart: unless-stopped
+    environment:
+      WP_HTTP_PORT: 12025
+      WP_DB_NAME: wp_20260105
+      WP_DB_USER: wp
+      WP_DB_PASSWORD: ${WORDPROFILE_DB_PASSWORD}

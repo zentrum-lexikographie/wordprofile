@@ -1,0 +1,27 @@
+default:
+  image: docker:26.1.0
+  services:
+    - docker:26.1.0-dind
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
+
+build:
+  stage: build
+  script:
+    - docker compose build
+    - docker compose push
+  tags:
+    - zdl
+    - build
+
+deploy:
+  stage: deploy
+  script:
+    - docker compose -f compose.prod.yml pull
+    - docker compose -f compose.prod.yml down --remove-orphans
+    - docker compose -f compose.prod.yml up -d
+  tags:
+    - riker.bbaw.de
+    - shell
+  only:
+    - feature/gitup-deployment
