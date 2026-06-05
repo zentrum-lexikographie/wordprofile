@@ -25,7 +25,10 @@ class WPMweConnect:
 
     def __init_connection(self):
         self.__conn = MySQLdb.connect(
-            host=self.__host, user=self.__user, passwd=self.__passwd, db=self.__dbname
+            host=self.__host,
+            user=self.__user,
+            password=self.__passwd,
+            database=self.__dbname,
         )
         self.__cursor = self.__conn.cursor()
 
