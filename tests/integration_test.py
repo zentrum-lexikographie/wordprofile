@@ -4,7 +4,6 @@ import shutil
 import tempfile
 
 import conllu
-import huggingface_hub
 
 import wordprofile.cli.compute_statistics as cs
 import wordprofile.cli.extract_collocations as ec
@@ -14,9 +13,13 @@ from wordprofile.preprocessing.pytabs.tabs import TabsDocument
 
 def test_integration():
     with tempfile.TemporaryDirectory() as tmp_dir:
-        if huggingface_hub.repo_exists("zentrum-lexikographie/dwdsmor-dwds"):
+        try:
+            import dwdsmor_dwds
+
             convert(tmp_dir)
             annotate(tmp_dir)
+        except ModuleNotFoundError:
+            print("DWDSmor DWDS edition not available, skipping annotation.")
         shutil.copyfile(
             os.path.join("tests", "testdata", "data.anno.conll.gz"),
             os.path.join(tmp_dir, "data.anno.conll.gz"),

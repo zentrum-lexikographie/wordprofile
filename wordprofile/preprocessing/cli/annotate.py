@@ -61,7 +61,7 @@ def annotate(
 
 
 def lemmatize(
-    lemmatizer: dwdsmor.automaton.Lemmatizer,
+    lemmatizer: dwdsmor.Lemmatizer,
     sentence: conllu.models.TokenList,
     cache_size: int = 10000,
 ) -> None:
@@ -200,7 +200,7 @@ def main(input, output, fast, batch_size, gpu):
         thinc.api.require_gpu(gpu)
     nlp = spacy.load("de_zdl_lg" if fast else "de_zdl_dist")
     nlp.add_pipe("doc_cleaner")
-    lemmatizer = dwdsmor.lemmatizer("zentrum-lexikographie/dwdsmor-dwds")
+    lemmatizer = dwdsmor.lemmatizer("lemma")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
     with gzip.open(input, "rt") as f:

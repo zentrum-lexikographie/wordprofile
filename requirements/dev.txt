@@ -4,33 +4,37 @@
 #
 #    pip-compile requirements/dev.in
 #
-black==25.9.0
+ast-serialize==0.5.0
+    # via mypy
+black==26.5.1
     # via -r requirements/dev.in
-click==8.3.0
+click==8.4.1
     # via black
 flake8==7.3.0
     # via -r requirements/dev.in
 iniconfig==2.3.0
     # via pytest
-isort==7.0.0
+isort==8.0.1
     # via -r requirements/dev.in
+librt==0.11.0
+    # via mypy
 mccabe==0.7.0
     # via flake8
-mypy==1.18.2
+mypy==2.1.0
     # via -r requirements/dev.in
 mypy-extensions==1.1.0
     # via
     #   black
     #   mypy
-packaging==25.0
+packaging==26.2
     # via
     #   black
     #   pytest
-pathspec==0.12.1
+pathspec==1.1.1
     # via
     #   black
     #   mypy
-platformdirs==4.5.0
+platformdirs==4.10.0
     # via black
 pluggy==1.6.0
     # via pytest
@@ -38,11 +42,11 @@ pycodestyle==2.14.0
     # via flake8
 pyflakes==3.4.0
     # via flake8
-pygments==2.19.2
+pygments==2.20.0
     # via pytest
-pytest==8.4.2
+pytest==9.0.3
     # via -r requirements/dev.in
-pytokens==0.3.0
+pytokens==0.4.1
     # via black
 typing-extensions==4.15.0
     # via mypy

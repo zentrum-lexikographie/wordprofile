@@ -12,6 +12,16 @@ To install the full editable project including dev dependencies, run:
     pip install -U pip pip-tools setuptools
     pip-sync requirements/*.txt
 
+### Annotation setup
+
+The [custom ZDL spaCy models](https://gitup.uni-potsdam.de/zentrum-lexikographie/spacy-models) for dependency annotation and Named-Entity recognition are installed automatically with the other requirements.
+
+If available, install the DWDSmor [DWDS edition](https://github.com/zentrum-lexikographie/dwdsmor#installing-the-dwds-edition):
+
+    pip install dwdsmor-dwds --index-url https://gitup.uni-potsdam.de/api/v4/projects/21585/packages/pypi/simple
+
+NB: If you run `pip-sync` again, it will remove all additionally installed packages, i.e. you have to install the DWDSmor edition again.
+
 ## Erstellen eines Wortprofils
 Für das Erstellen eines *Wortprofils* sind folgende Schritte nötig:
 

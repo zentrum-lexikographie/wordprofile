@@ -2,7 +2,6 @@ from pathlib import Path
 
 import conllu
 import dwdsmor
-import huggingface_hub
 import pytest
 import spacy
 
@@ -10,9 +9,11 @@ import wordprofile.preprocessing.cli.annotate as anno
 
 TEST_DIR = Path(__file__).parent
 
-if huggingface_hub.repo_exists("zentrum-lexikographie/dwdsmor-dwds"):
+try:
+    import dwdsmor_dwds
+
     AUTOMATON_EDITION = "dwdsmor-dwds"
-else:
+except ModuleNotFoundError:
     AUTOMATON_EDITION = "open"
 
 
@@ -33,11 +34,7 @@ def parser():
 
 @pytest.fixture(scope="module")
 def lemmatizer():
-    if AUTOMATON_EDITION == "dwdsmor-dwds":
-        return dwdsmor.lemmatizer(
-            "zentrum-lexikographie/dwdsmor-dwds", local_files_only=True
-        )
-    return dwdsmor.lemmatizer()
+    return dwdsmor.lemmatizer("lemma")
 
 
 @pytest.fixture
