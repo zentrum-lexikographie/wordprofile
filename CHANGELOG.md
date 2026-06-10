@@ -1,5 +1,17 @@
 # Changelog
 
+## [14.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v13.0.0...v14.0.0) (2026-06-10)
+
+
+### Features
+
+* deduce case for nouns if direct annotation is missing ([#40](https://github.com/zentrum-lexikographie/wordprofile/issues/40)) ([accebf7](https://github.com/zentrum-lexikographie/wordprofile/commit/accebf72f8ce0d58909ea33434401914c475b7cf))
+
+
+### Miscellaneous Chores
+
+* release v14.0.0 ([6874345](https://github.com/zentrum-lexikographie/wordprofile/commit/687434552ed435ef7333bb612e1b8f06adf501c2))
+
 ## [13.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v12.0.0...v13.0.0) (2026-01-05)
 
 
