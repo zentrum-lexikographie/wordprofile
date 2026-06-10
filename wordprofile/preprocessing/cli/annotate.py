@@ -81,6 +81,11 @@ def lemmatize(
             if token_index in (sep_indices.keys() | sep_indices.values())
             else None
         )
+
+        if token_pos == "NN" and "Case" not in token_morph:
+            case = deduce_case(sentence, token_index)
+            if case is not None:
+                token_morph["Case"] = case
         token_criteria = {
             k: frozenset(v) if v else None
             for k, v in dwdsmor.tag.hdt.criteria(
@@ -128,6 +133,20 @@ def lemmatize(
                     "compound:prt": sep_indices[token_index]
                 }
         token["lemma"] = dwdsmor_lemma
+
+
+def deduce_case(sentence: conllu.models.TokenList, token_index: int) -> str:
+    token = sentence[token_index - 1]
+    if token["deprel"] in {"nsubj", "nsubj:pass"}:
+        return "Nom"
+    for t in sentence:
+        if t["head"] != token_index:
+            continue
+        if t["deprel"] in {"det", "case", "amod"}:
+            case = t.get("feats", {}).get("Case", None)
+            if case is not None:
+                return case
+    return None
 
 
 @click.command(
