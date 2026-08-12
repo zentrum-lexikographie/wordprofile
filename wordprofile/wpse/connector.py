@@ -99,18 +99,18 @@ class WPConnect:
         query = """
             SELECT * FROM
             (SELECT
-                s_center.sentence, matches.head_position, matches.dep_position,
+                sents.sentence, matches.head_position, matches.dep_position,
                 matches.prep_position, cf.corpus, cf.date, cf.orig, cf.available,
                 cf.file
             FROM
                 matches
             INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
-            INNER JOIN concord_sentences as s_center ON
-                (s_center.corpus_file_id = cf.id
-                AND s_center.sentence_id = matches.sentence_id)
+            INNER JOIN concord_sentences as sents ON
+                (sents.corpus_file_id = cf.id
+                AND sents.sentence_id = matches.sentence_id)
             WHERE
                 matches.collocation_id = %(id)s
-            ORDER BY s_center.random_val
+            ORDER BY sents.random_val
             LIMIT %(start)s,%(number)s)
             as sample
             ORDER BY date DESC;
