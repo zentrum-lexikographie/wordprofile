@@ -389,7 +389,7 @@ class WPConnect:
         order_by: str = "log_dice",
         min_freq: int = 5,
         min_stat: float = 0.0,
-    ) -> list[tuple[str, int | float]]:
+    ) -> list[tuple[str, str, int | float]]:
         """
         Fetch only collocates and metrics (logDice or frequency) for target
         lemma from all relations.
