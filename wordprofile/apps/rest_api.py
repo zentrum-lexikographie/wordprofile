@@ -56,7 +56,7 @@ templates = Jinja2Templates(directory="wordprofile/apps/static")
 
 @app.get("/", tags=["view"])
 async def get_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 
 @app.get("/status", tags=["info"])
