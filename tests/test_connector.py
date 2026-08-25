@@ -904,3 +904,71 @@ class WPMweConnectTest(unittest.TestCase):
         with self.assertLogs() as logged:
             self.mwe_connector.get_relation_by_id(42)
             assert "Invalid Id: 42" in logged.output[0]
+
+    def test_order_by_random_and_gdex_different_result(self):
+        random_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="random"
+        )
+        gdex_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        self.assertNotEqual(random_order, gdex_order)
+
+    def test_default_order_is_random_for_concordances(self):
+        gdex_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        default_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3
+        )
+        self.assertNotEqual(default_order, gdex_order)
+
+    def test_gdex_order_returns_concordances_with_high_score_first(self):
+        result = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        expected = [
+            MweConcordance(
+                "text",
+                3,
+                2,
+                "0",
+                3,
+                15,
+                "0",
+                "corpus",
+                datetime.datetime(2008, 9, 15),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            MweConcordance(
+                "text",
+                5,
+                7,
+                "0",
+                5,
+                12,
+                "0",
+                "corpus",
+                datetime.datetime(2008, 4, 22),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            MweConcordance(
+                "text",
+                3,
+                2,
+                "0",
+                3,
+                7,
+                "0",
+                "corpus",
+                datetime.datetime(2007, 4, 2),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+        ]
+        self.assertEqual(result, expected)
