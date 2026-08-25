@@ -54,6 +54,8 @@ class WPMweConnect:
             mwe_id: Collocation id for concordances.
             start_index: Row index to start with.
             result_number: Number of results to return.
+            order: Selection method for concordances, 'random' or 'gdex',
+                default is 'random'.
 
         Return:
             List of Concordance.
