@@ -84,7 +84,11 @@ class WPConnect:
         }
 
     def get_concordances(
-        self, coocc_id: int, start_index: int, result_number: int
+        self,
+        coocc_id: int,
+        start_index: int,
+        result_number: int,
+        order: str = "random",
     ) -> List[Concordance]:
         """Fetches concordances for collocation id from database backend.
 
@@ -92,6 +96,8 @@ class WPConnect:
             coocc_id: Collocation id for concordances.
             start_index: Row index to start with.
             result_number: Number of results to return.
+            order: selection method for concordances, 'random' or 'gdex',
+                default is 'random'.
 
         Return:
             List of Concordance.
@@ -110,15 +116,25 @@ class WPConnect:
                 AND sents.sentence_id = matches.sentence_id)
             WHERE
                 matches.collocation_id = %(id)s
-            ORDER BY sents.random_val
+            ORDER BY
+                CASE
+                  WHEN %(order_by)s = 'random_val'
+                    THEN sents.random_val
+                  WHEN %(order_by)s = 'gdex_score'
+                    THEN sents.gdex_score
+                END DESC
             LIMIT %(start)s,%(number)s)
             as sample
             ORDER BY date DESC;
             """
+        order_by = {"random": "random_val", "gdex": "gdex_score"}.get(
+            order, "random_val"
+        )
         params = {
             "id": abs(coocc_id),
             "start": start_index,
             "number": result_number,
+            "order_by": order_by,
         }
         return list(map(lambda i: Concordance(*i), self.__fetchall(query, params)))
 
