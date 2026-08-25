@@ -34,6 +34,7 @@ concord_sentences = Table(
     Column("sentence_id", types.Integer),
     Column("sentence", types.Text),
     Column("random_val", types.Float, server_default=func.rand()),
+    Column("gdex_score", types.Float, default=0.0),
     mysql_engine="Aria",
 )
 matches = Table(
@@ -115,6 +116,7 @@ indices = (
         unique=True,
     ),
     Index("rand_val", concord_sentences.c.random_val),
+    Index("gdex", concord_sentences.c.gdex_score),
     Index("matches_index", matches.c.id, unique=True),
     Index("matches_corpus_index", matches.c.corpus_file_id),
     Index(
@@ -177,7 +179,7 @@ def load_db(db, data_dir):
             logger.info("Loading table '%s'" % table)
             sql = f"LOAD DATA LOCAL INFILE '{table_file}' INTO TABLE {table}"
             if table == "concord_sentences":
-                sql += " (corpus_file_id, sentence_id, sentence)"
+                sql += " (corpus_file_id, sentence_id, sentence, gdex_score)"
             sql += ";"
             c.execute(text(sql))
         logger.info("Creating corpus frequency statistics")
