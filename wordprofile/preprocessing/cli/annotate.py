@@ -142,7 +142,7 @@ def lemmatize(
         token["lemma"] = dwdsmor_lemma
 
 
-def deduce_case(sentence: conllu.models.TokenList, token_index: int) -> str:
+def deduce_case(sentence: conllu.models.TokenList, token_index: int) -> str | None:
     token = sentence[token_index - 1]
     if token["deprel"] in {"nsubj", "nsubj:pass"}:
         return "Nom"
