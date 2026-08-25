@@ -196,3 +196,4 @@ def load_db(db, data_dir):
         for index in indices:
             logger.info("Creating index '%s" % index.name)
             index.create(c)
+    logger.info("Data upload finished.")
