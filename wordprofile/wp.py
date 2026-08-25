@@ -471,6 +471,7 @@ class Wordprofile:
         start_index: int = 0,
         result_number: int = 20,
         is_mwe: bool = False,
+        selection: str = "random",
     ):
         """Fetches collocation information and concordances for a specified hit id.
 
@@ -479,18 +480,23 @@ class Wordprofile:
             start_index: Collocation id.
             result_number: Collocation id.
             is_mwe: If true, then coocc_id refers to MWE, otherwise collocation.
-
+            selection: Selection method for concordances ('random' or 'gdex'),
+                default is 'random'.
         Return:
             Dictionary with collocation information and their concordances.
         """
         relation = self.get_relation_by_info_id(coocc_id, is_mwe=is_mwe)
         if is_mwe:
             relation["Tuples"] = formatting.format_concordances(
-                self.db_mwe.get_concordances(int(coocc_id), start_index, result_number)
+                self.db_mwe.get_concordances(
+                    int(coocc_id), start_index, result_number, selection
+                )
             )
         else:
             relation["Tuples"] = formatting.format_concordances(
-                self.db.get_concordances(int(coocc_id), start_index, result_number)
+                self.db.get_concordances(
+                    int(coocc_id), start_index, result_number, selection
+                )
             )
         return relation
 
