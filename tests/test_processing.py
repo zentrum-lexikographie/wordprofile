@@ -1675,8 +1675,8 @@ def test_reindex_filter_concordances(testdata_dir):
             sents = fh.readlines()
     assert len(result) == len(sents) == 36
     assert len(duplicate_sents) == 4
-    assert duplicate_sents[0] == "file2\t5\thabe\x01angenommen\n"
-    assert sents[0] == "1\t0\tsiebzig\x01siebzig\n"
+    assert duplicate_sents[0] == "file2\t5\thabe\x01angenommen\t0.15\n"
+    assert sents[0] == "1\t0\tsiebzig\x01siebzig\t0.1\n"
 
 
 def test_reindex_corpus_files(testdata_dir):
@@ -1844,3 +1844,21 @@ def test_conversion_of_conll_token_with_empty_misc():
     result = pro.convert_sentence(sentence)
     assert result[0].misc is False
     assert result[0].prt_pos is None
+
+
+def test_gdex_score_set_to_zero_if_missing(conll_sentences):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(conll_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueue()
+    lemma_counters = []
+    pro.process_doc_file(
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
+    )
+    db_sentences = db_sents_queue.get()
+    assert db_sentences[0].gdex_score == 0

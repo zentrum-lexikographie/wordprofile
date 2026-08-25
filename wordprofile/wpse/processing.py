@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import gzip
 import hashlib
+import itertools
 import logging
 import math
 import multiprocessing
@@ -216,8 +217,15 @@ def process_doc_file(
             break
         try:
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
-            parses = list(filter(sentence_is_valid, map(convert_sentence, sentences)))
-            db_concord_sentences = prepare_concord_sentences(doc_id, parses)
+            gdex_scores = [s.metadata.get("gdex_score", 0.0) for s in sentences]
+            parses = list(map(convert_sentence, sentences))
+            sentences_valid = map(sentence_is_valid, parses)
+            parses, gdex_scores = zip(
+                *itertools.compress(zip(parses, gdex_scores), sentences_valid)
+            )
+            db_concord_sentences = prepare_concord_sentences(
+                doc_id, parses, gdex_scores
+            )
             counter.count_token(parses)
             matches = extract_matches_from_doc(parses)
             db_matches = prepare_matches(doc_id, matches)
