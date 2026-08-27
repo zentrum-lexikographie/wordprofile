@@ -1,5 +1,16 @@
 # Changelog
 
+## [15.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v14.0.0...v15.0.0) (2026-08-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* add gdex score as method to select concordances ([#42](https://github.com/zentrum-lexikographie/wordprofile/issues/42))
+
+### Features
+
+* add gdex score as method to select concordances ([#42](https://github.com/zentrum-lexikographie/wordprofile/issues/42)) ([3bad932](https://github.com/zentrum-lexikographie/wordprofile/commit/3bad932e714a096b78da96d7d37be7437549f722))
+
 ## [14.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v13.0.0...v14.0.0) (2026-06-10)
 
 
