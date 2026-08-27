@@ -48,8 +48,11 @@ def test_prepare_concord_sentence():
             ),
         ]
     ]
-    assert pre.prepare_concord_sentences("1", parses) == [
-        DBConcordance(corpus_file_id="1", sentence_id=1, sentence="A\x01B")
+    gdex_scores = [0.1]
+    assert pre.prepare_concord_sentences("1", parses, gdex_scores) == [
+        DBConcordance(
+            corpus_file_id="1", sentence_id=1, sentence="A\x01B", gdex_score=0.1
+        )
     ]
 
 
@@ -57,7 +60,8 @@ def test_index_counter_starts_at_one_for_concord_sentences():
     parses = [
         [WPToken(idx=1, surface="A", lemma="", tag="", head="", rel="", misc=True)]
     ]
-    result = pre.prepare_concord_sentences("1", parses * 3)
+    gdex_scores = [0.1]
+    result = pre.prepare_concord_sentences("1", parses * 3, gdex_scores * 3)
     assert [sent.sentence_id for sent in result] == [1, 2, 3]
 
 

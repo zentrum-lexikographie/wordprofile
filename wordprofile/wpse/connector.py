@@ -84,7 +84,11 @@ class WPConnect:
         }
 
     def get_concordances(
-        self, coocc_id: int, start_index: int, result_number: int
+        self,
+        coocc_id: int,
+        start_index: int,
+        result_number: int,
+        order: str = "random",
     ) -> List[Concordance]:
         """Fetches concordances for collocation id from database backend.
 
@@ -92,6 +96,8 @@ class WPConnect:
             coocc_id: Collocation id for concordances.
             start_index: Row index to start with.
             result_number: Number of results to return.
+            order: Selection method for concordances, 'random' or 'gdex',
+                default is 'random'.
 
         Return:
             List of Concordance.
@@ -99,26 +105,36 @@ class WPConnect:
         query = """
             SELECT * FROM
             (SELECT
-                s_center.sentence, matches.head_position, matches.dep_position,
+                sents.sentence, matches.head_position, matches.dep_position,
                 matches.prep_position, cf.corpus, cf.date, cf.orig, cf.available,
                 cf.file
             FROM
                 matches
             INNER JOIN corpus_files as cf ON (matches.corpus_file_id = cf.id)
-            INNER JOIN concord_sentences as s_center ON
-                (s_center.corpus_file_id = cf.id
-                AND s_center.sentence_id = matches.sentence_id)
+            INNER JOIN concord_sentences as sents ON
+                (sents.corpus_file_id = cf.id
+                AND sents.sentence_id = matches.sentence_id)
             WHERE
                 matches.collocation_id = %(id)s
-            ORDER BY s_center.random_val
+            ORDER BY
+                CASE
+                  WHEN %(order_by)s = 'random_val'
+                    THEN sents.random_val
+                  WHEN %(order_by)s = 'gdex_score'
+                    THEN sents.gdex_score
+                END DESC
             LIMIT %(start)s,%(number)s)
             as sample
             ORDER BY date DESC;
             """
+        order_by = {"random": "random_val", "gdex": "gdex_score"}.get(
+            order, "random_val"
+        )
         params = {
             "id": abs(coocc_id),
             "start": start_index,
             "number": result_number,
+            "order_by": order_by,
         }
         return list(map(lambda i: Concordance(*i), self.__fetchall(query, params)))
 
@@ -389,7 +405,7 @@ class WPConnect:
         order_by: str = "log_dice",
         min_freq: int = 5,
         min_stat: float = 0.0,
-    ) -> list[tuple[str, int | float]]:
+    ) -> list[tuple[str, str, int | float]]:
         """
         Fetch only collocates and metrics (logDice or frequency) for target
         lemma from all relations.

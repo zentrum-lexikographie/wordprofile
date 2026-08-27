@@ -176,8 +176,8 @@ PRED_VERBS = {
         "wirken",
     },
 }
-relation_types = Enum(
-    "RELATION_TYPE", sorted(list(RELATION_PATTERNS.keys()))  # type: ignore[misc]
+relation_types = Enum(  # type: ignore[misc]
+    "RELATION_TYPE", sorted(list(RELATION_PATTERNS.keys()))
 )
 
 
@@ -190,9 +190,9 @@ def word_classes_of_rule(rule):
         raise ValueError("Unexpected pattern length.")
 
 
-word_classes = Enum(
+word_classes = Enum(  # type: ignore[misc]
     "TAG_TYPE",
-    sorted(  # type: ignore[misc]
+    sorted(
         set(
             c.upper()
             for pattern in RELATION_PATTERNS.values()
@@ -524,7 +524,7 @@ def extract_passive_subjects(dtree: DependencyTree, sid: int) -> Iterator[Match]
     for n in dtree.nodes:
         if n.token.rel == "nsubj:pass" and n.token.tag == "NOUN":
             parent = n.parent
-            if parent.token.tag == "VERB":
+            if parent is not None and parent.token.tag == "VERB":
                 if any(
                     child.token.rel == "aux:pass" and child.token.lemma == "werden"
                     for child in parent.children

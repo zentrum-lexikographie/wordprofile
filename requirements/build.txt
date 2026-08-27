@@ -67,6 +67,8 @@ fsspec==2026.4.0
     # via
     #   huggingface-hub
     #   torch
+gdex @ git+https://github.com/zentrum-lexikographie/gdex.git
+    # via -r requirements/build.in
 hf-xet==1.5.0
     # via huggingface-hub
 huggingface-hub==0.36.2
@@ -201,6 +203,7 @@ smart-open==7.6.1
 spacy[cuda12x]==3.8.11
     # via
     #   -r requirements/build.in
+    #   gdex
     #   spacy-transformers
 spacy-alignments==0.9.2
     # via spacy-transformers

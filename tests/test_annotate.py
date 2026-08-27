@@ -2,6 +2,7 @@ from pathlib import Path
 
 import conllu
 import dwdsmor
+import gdex
 import pytest
 import spacy
 
@@ -40,6 +41,11 @@ def lemmatizer():
 @pytest.fixture
 def phrasal_verbs_conll():
     return conllu.parse((TEST_DIR / "testdata" / "phrasal_verbs.conll").read_text())
+
+
+@pytest.fixture(scope="module")
+def gdex_scorer():
+    return gdex.de_hdt
 
 
 def test_conversion_to_spacy_doc(parser, short_conll_file):
@@ -1718,3 +1724,13 @@ def test_lemmatization_makes_use_of_indirect_case_marking(lemmatizer):
     anno.lemmatize(lemmatizer, sent_with_morph)
     assert sent_without_morph[4]["lemma"] == "Softei"
     assert sent_with_morph[4]["lemma"] == "Softeis"
+
+
+def test_gdex_annotation_added_to_conll_metadata(gdex_scorer, short_conll_file, parser):
+    with open(short_conll_file) as fh:
+        sentences = conllu.parse(fh.read())
+    gdex_scores = []
+    for sent in anno.annotate(parser, sentences, scorer=gdex_scorer):
+        gdex_scores.append(round(sent.metadata.get("gdex_score"), 2))
+    expected_scores = [0.28, 0, 0.05, 0.79, 0.5, 0.42, 0.21, 0.94, 0.4, 0.92]
+    assert expected_scores == gdex_scores

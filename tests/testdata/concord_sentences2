@@ -1,20 +1,20 @@
-file3	0	ichvergangen
-file3	1	KnappAuch
-file3	2	Heimatsind
-file3	3	Jahregern
-file3	4	angenommenEinladung
-file3	5	ichHeimat
-file3	6	ichvergangen
-file3	7	deshalbEinladung
-file3	8	habegern
-file3	9	EinladungKnapp
-file4	1	sind,
-file4	2	vergangenvergangen
-file4	3	Jahrehabe
-file4	4	musstenangenommen
-file4	5	verlassenhabe
-file4	6	siebzigmussten
-file4	7	musstenIhre
-file4	8	angenommendeshalb
-file4	9	vergangenfreundliche
-file4	10	deshalb,
+file3	0	ichvergangen	0.12
+file3	1	KnappAuch	0.13
+file3	2	Heimatsind	0.14
+file3	3	Jahregern	0.15
+file3	4	angenommenEinladung	0.16
+file3	5	ichHeimat	0.17
+file3	6	ichvergangen	0.18
+file3	7	deshalbEinladung	0.19
+file3	8	habegern	0.20
+file3	9	EinladungKnapp	0.21
+file4	1	sind,	0.22
+file4	2	vergangenvergangen	0.23
+file4	3	Jahrehabe	0.24
+file4	4	musstenangenommen	0.25
+file4	5	verlassenhabe	0.26
+file4	6	siebzigmussten	0.27
+file4	7	musstenIhre	0.28
+file4	8	angenommendeshalb	0.29
+file4	9	vergangenfreundliche	0.30
+file4	10	deshalb,	0.31

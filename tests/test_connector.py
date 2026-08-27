@@ -6,7 +6,7 @@ from subprocess import check_call
 
 import pytest
 
-from wordprofile.datatypes import Coocc, LemmaInfo
+from wordprofile.datatypes import Concordance, Coocc, LemmaInfo, MweConcordance
 from wordprofile.db import load_db, open_db
 from wordprofile.wpse.connector import WPConnect
 from wordprofile.wpse.mwe_connector import WPMweConnect
@@ -672,6 +672,65 @@ class WPConnectTest(unittest.TestCase):
             set(),
         )
 
+    def test_order_by_random_and_gdex_different_result(self):
+        random_order = self.connector.get_concordances(
+            368, start_index=0, result_number=3, order="random"
+        )
+        gdex_order = self.connector.get_concordances(
+            368, start_index=0, result_number=3, order="gdex"
+        )
+        self.assertNotEqual(random_order, gdex_order)
+
+    def test_default_order_is_random_for_concordances(self):
+        gdex_order = self.connector.get_concordances(
+            368, start_index=0, result_number=3, order="gdex"
+        )
+        default_order = self.connector.get_concordances(
+            368, start_index=0, result_number=3
+        )
+        self.assertNotEqual(default_order, gdex_order)
+
+    def test_gdex_order_returns_concordances_with_high_score_first(self):
+        result = self.connector.get_concordances(
+            30601, start_index=0, result_number=3, order="gdex"
+        )
+        expected = [
+            Concordance(
+                "text",
+                15,
+                17,
+                "0",
+                "corpus",
+                datetime.datetime(2017, 7, 10),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            Concordance(
+                "text",
+                23,
+                25,
+                "0",
+                "corpus",
+                datetime.datetime(2013, 1, 2),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            Concordance(
+                "text",
+                14,
+                16,
+                "0",
+                "corpus",
+                datetime.datetime(2005, 8, 29),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+        ]
+        self.assertEqual(result, expected)
+
 
 class WPMweConnectTest(unittest.TestCase):
     @classmethod
@@ -845,3 +904,71 @@ class WPMweConnectTest(unittest.TestCase):
         with self.assertLogs() as logged:
             self.mwe_connector.get_relation_by_id(42)
             assert "Invalid Id: 42" in logged.output[0]
+
+    def test_order_by_random_and_gdex_different_result(self):
+        random_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="random"
+        )
+        gdex_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        self.assertNotEqual(random_order, gdex_order)
+
+    def test_default_order_is_random_for_concordances(self):
+        gdex_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        default_order = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3
+        )
+        self.assertNotEqual(default_order, gdex_order)
+
+    def test_gdex_order_returns_concordances_with_high_score_first(self):
+        result = self.mwe_connector.get_concordances(
+            512, start_index=0, result_number=3, order="gdex"
+        )
+        expected = [
+            MweConcordance(
+                "text",
+                3,
+                2,
+                "0",
+                3,
+                15,
+                "0",
+                "corpus",
+                datetime.datetime(2008, 9, 15),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            MweConcordance(
+                "text",
+                5,
+                7,
+                "0",
+                5,
+                12,
+                "0",
+                "corpus",
+                datetime.datetime(2008, 4, 22),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+            MweConcordance(
+                "text",
+                3,
+                2,
+                "0",
+                3,
+                7,
+                "0",
+                "corpus",
+                datetime.datetime(2007, 4, 2),
+                "bibl",
+                "corpus",
+                "orig_id",
+            ),
+        ]
+        self.assertEqual(result, expected)

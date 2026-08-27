@@ -1,20 +1,20 @@
-file1	0	siebzigsiebzig
-file1	1	musstenIhre
-file1	2	Auchfreundliche
-file1	3	freundlicheEinladung
-file1	4	habeangenommen
-file1	5	Einladungsiebzig
-file1	6	verlassenJahre
-file1	7	seitmussten
-file1	8	Knappdamalige
-file1	9	Jahreangenommen
-file2	1	freundlichemussten
-file2	2	siebzighabe
-file2	3	damaligeverlassen
-file2	4	angenommenKnapp
-file2	5	habeangenommen
-file2	6	seitsiebzig
-file2	7	habeJahre
-file2	8	verlassensind
-file2	9	siebzigsiebzig
-file2	10	ichsind
+file1	0	siebzigsiebzig	0.1
+file1	1	musstenIhre	0.2
+file1	2	Auchfreundliche	0.3
+file1	3	freundlicheEinladung	0.4
+file1	4	habeangenommen	0.15
+file1	5	Einladungsiebzig	0.6
+file1	6	verlassenJahre	0.7
+file1	7	seitmussten	0.8
+file1	8	Knappdamalige	0.9
+file1	9	Jahreangenommen	0.10
+file2	1	freundlichemussten	0.11
+file2	2	siebzighabe	0.12
+file2	3	damaligeverlassen	0.13
+file2	4	angenommenKnapp	0.14
+file2	5	habeangenommen	0.15
+file2	6	seitsiebzig	0.16
+file2	7	habeJahre	0.17
+file2	8	verlassensind	0.18
+file2	9	siebzigsiebzig	0.19
+file2	10	ichsind	0.20

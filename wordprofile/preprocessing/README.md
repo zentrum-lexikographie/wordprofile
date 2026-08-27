@@ -126,6 +126,8 @@ Tests:
 # II Annotation of Dependency Relations
 For the annotation of dependency relations, a model is used that was trained on [HDT tag set](https://nats-www.informatik.uni-hamburg.de/HDT/) and follows [`spaCy`](https://spacy.io/)'s model architecture, e.g. `de_zdl_dist` (for more information, see the [repository](https://github.com/zentrum-lexikographie/spacy-models) used for model training).
 
+During annotation, sentences are scored with [gdex](https://github.com/zentrum-lexikographie/gdex), an implementation of [GDEX](https://www.sketchengine.eu/guide/gdex/) algorithm for German.
+
 If the environment has gpu/cuda enabled, the `de_zdl_dist` model can be used, otherwise the `de_zdl_lg` is used for processing on cpu.
 
 Both models are installed as as build dependencies.The annotation script has an option that allows choosing between the two models.

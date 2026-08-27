@@ -46,7 +46,7 @@ class WPMweConnect:
         return res
 
     def get_concordances(
-        self, mwe_id: int, start_index: int, result_number: int
+        self, mwe_id: int, start_index: int, result_number: int, order: str = "random"
     ) -> List[MweConcordance]:
         """Fetches concordances for collocation id from database backend.
 
@@ -54,6 +54,8 @@ class WPMweConnect:
             mwe_id: Collocation id for concordances.
             start_index: Row index to start with.
             result_number: Number of results to return.
+            order: Selection method for concordances, 'random' or 'gdex',
+                default is 'random'.
 
         Return:
             List of Concordance.
@@ -63,7 +65,7 @@ class WPMweConnect:
             SELECT *
             FROM
             (SELECT
-                s_center.sentence, m1.head_position AS m1_head_pos,
+                sents.sentence, m1.head_position AS m1_head_pos,
                 m1.dep_position AS m1_dep_pos, m1.prep_position AS m1_prep_pos,
                 m2.head_position AS m2_head_pos, m2.dep_position AS m2_dep_pos,
                 m2.prep_position AS m2_prep_pos,
@@ -73,17 +75,31 @@ class WPMweConnect:
             INNER JOIN matches as m1 ON (mwe_match.match1_id = m1.id)
             INNER JOIN matches as m2 ON (mwe_match.match2_id = m2.id)
             INNER JOIN corpus_files as cf ON (m1.corpus_file_id = cf.id)
-            INNER JOIN concord_sentences as s_center ON
-                (s_center.corpus_file_id = cf.id
-                and s_center.sentence_id = m1.sentence_id)
+            INNER JOIN concord_sentences as sents ON
+                (sents.corpus_file_id = cf.id
+                and sents.sentence_id = m1.sentence_id)
             WHERE
-                mwe_match.mwe_id = %s
-            ORDER BY s_center.random_val
-            LIMIT %s,%s)
+                mwe_match.mwe_id = %(mwe_id)s
+            ORDER BY
+              CASE
+                WHEN %(order_by)s = 'random_val'
+                  THEN sents.random_val
+                WHEN %(order_by)s = 'gdex_score'
+                  THEN sents.gdex_score
+              END DESC
+            LIMIT %(start)s,%(number)s)
             as sample
             ORDER BY date DESC ;
             """
-        params = (mwe_id, start_index, result_number)
+        order_by = {"random": "random_val", "gdex": "gdex_score"}.get(
+            order, "random_val"
+        )
+        params = {
+            "mwe_id": mwe_id,
+            "start": start_index,
+            "number": result_number,
+            "order_by": order_by,
+        }
         return list(map(lambda i: MweConcordance(*i), self.__fetchall(query, params)))
 
     def get_relation_by_id(self, mwe_id: int) -> Optional[Coocc]:

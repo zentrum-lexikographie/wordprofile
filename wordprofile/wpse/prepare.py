@@ -31,7 +31,7 @@ def prepare_corpus_file(meta: Metadata) -> tuple[str, DBCorpusFile]:
 
 
 def prepare_concord_sentences(
-    doc_id: str, parses: list[list[WPToken]]
+    doc_id: str, parses: Iterable[list[WPToken]], gdex_scores: Iterable[float]
 ) -> list[DBConcordance]:
     """Converts concordances into DB entries.
 
@@ -42,6 +42,7 @@ def prepare_concord_sentences(
     Args:
         doc_id: document id
         parses: list of valid sentences
+        gdex_scores: list of gdex scores
 
     Returns:
         List of concordances as database entries with encoded sentences.
@@ -57,8 +58,9 @@ def prepare_concord_sentences(
                 )
                 for tok in parse
             ),
+            gdex_score=gdex_score,
         )
-        for sent_i, parse in enumerate(parses, 1)
+        for sent_i, (parse, gdex_score) in enumerate(zip(parses, gdex_scores), 1)
     ]
 
 

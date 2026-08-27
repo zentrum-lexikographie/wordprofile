@@ -8,6 +8,7 @@ import click
 import conllu
 import dwdsmor
 import dwdsmor.tag.hdt
+import gdex
 import spacy
 import thinc.api
 from cachetools import LFUCache, cached
@@ -34,7 +35,10 @@ def convert_to_spacy_doc(
 
 
 def annotate(
-    nlp: spacy.Language, sentences: Iterable[conllu.models.TokenList], batch_size=128
+    nlp: spacy.Language,
+    sentences: Iterable[conllu.models.TokenList],
+    batch_size=128,
+    scorer: gdex.SentenceScorer | None = None,
 ) -> Iterator[conllu.models.TokenList]:
     docs = nlp.pipe(
         ((convert_to_spacy_doc(nlp, sent), sent) for sent in sentences),
@@ -42,6 +46,9 @@ def annotate(
         as_tuples=True,
     )
     for doc, conll_sent in docs:
+        if scorer is not None:
+            score = scorer.score_sentence(doc)
+            conll_sent.metadata.update({"gdex_score": score})
         for token, nlp_token in zip(conll_sent, doc):
             token.update(
                 {
@@ -135,7 +142,7 @@ def lemmatize(
         token["lemma"] = dwdsmor_lemma
 
 
-def deduce_case(sentence: conllu.models.TokenList, token_index: int) -> str:
+def deduce_case(sentence: conllu.models.TokenList, token_index: int) -> str | None:
     token = sentence[token_index - 1]
     if token["deprel"] in {"nsubj", "nsubj:pass"}:
         return "Nom"
@@ -203,12 +210,14 @@ def main(input, output, fast, batch_size, gpu):
     lemmatizer = dwdsmor.lemmatizer("lemma")
     start = time.time()
     logger.info("Start time: %s" % datetime.fromtimestamp(start))
+    gdex_scorer = gdex.de_hdt  # gdex.SentenceScorer
     with gzip.open(input, "rt") as f:
         with gzip.open(output, "wt") as fo:
             for sentence in annotate(
                 nlp,
                 conllu.parse_incr(f, fields=conllu.parser.DEFAULT_FIELDS),
                 batch_size=batch_size,
+                scorer=gdex_scorer,
             ):
                 lemmatize(lemmatizer, sentence)
                 fo.write(sentence.serialize())

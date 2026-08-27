@@ -66,9 +66,13 @@ class MockDb:
         ]
 
     def get_concordances(
-        self, coocc_id: int, start_index=0, result_number=3
+        self, coocc_id: int, start_index=0, result_number=3, selection="random"
     ) -> list[Concordance]:
         concordances = self.conc.get(coocc_id, [])
+        if selection == "gdex":
+            concordances = sorted(
+                concordances, key=lambda x: x.token_position_1, reverse=True
+            )
         return concordances[start_index : start_index + result_number]
 
     def get_collocates(
@@ -823,3 +827,21 @@ class WordprofileTest(unittest.TestCase):
         mwe_result = self.wp.get_relation_by_info_id(1001, is_mwe=True)
         self.assertEqual(result, {})
         self.assertEqual(mwe_result, {})
+
+    def test_default_selection_method_for_concordances_is_random(self):
+        result_default = self.wp.get_concordances_and_relation(11, result_number=2)[
+            "Tuples"
+        ]
+        result_random = self.wp.get_concordances_and_relation(
+            11, result_number=2, selection="random"
+        )["Tuples"]
+        self.assertEqual(result_default, result_random)
+
+    def test_gdex_selection_differs_from_random_concordances(self):
+        result_gdex = self.wp.get_concordances_and_relation(
+            11, result_number=2, selection="gdex"
+        )["Tuples"]
+        result_random = self.wp.get_concordances_and_relation(
+            11, result_number=2, selection="random"
+        )["Tuples"]
+        self.assertNotEqual(result_random, result_gdex)

@@ -56,7 +56,7 @@ templates = Jinja2Templates(directory="wordprofile/apps/static")
 
 @app.get("/", tags=["view"])
 async def get_index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="index.html")
 
 
 @app.get("/status", tags=["info"])
@@ -170,6 +170,7 @@ async def get_concordances_and_relation(
     coocc_id: int,
     start_index: int = 0,
     result_number: int = 20,
+    selection: str = "random",
 ):
     """Get collocation information and concordances for a specified collocation id.
 
@@ -177,11 +178,16 @@ async def get_concordances_and_relation(
     - coocc_id: Collocation id.
     - start_index (optional): Number of concordances to skip. Default is 0.
     - result_number (optional): Number of concordances to return. Default is 20.
+    - selection (optional): Selection method for concordances. 'random' or
+        'gdex', default is 'random'.
 
     Returns:
     - Dictionary with collocation information and their concordances.
     """
-    return wp.get_concordances_and_relation(coocc_id, start_index, result_number)
+    selection = selection if selection in ["random", "gdex"] else "random"
+    return wp.get_concordances_and_relation(
+        coocc_id, start_index, result_number, selection=selection
+    )
 
 
 @app.get("/api/v1/cmp/diff", tags=["cmp"])
@@ -345,6 +351,7 @@ def get_mwe_concordances_and_relation(
     coocc_id: int,
     start_index: int = 0,
     result_number: int = 20,
+    selection: str = "random",
 ):
     """
     Get MWE collocation information and concordances for a specified
@@ -355,12 +362,15 @@ def get_mwe_concordances_and_relation(
     - start_index (optional): Number of concordances to skip. Default is 0.
     - result_number (optional): Number of concordances to return.
         Default is 20.
+    - selection (optional): Selection method for concordances. 'random' or
+        'gdex', default is 'random'.
 
     Returns:
     - Dictionary with collocation information and their concordances.
     """
+    selection = selection if selection in ["random", "gdex"] else "random"
     return wp.get_concordances_and_relation(
-        coocc_id, start_index, result_number, is_mwe=True
+        coocc_id, start_index, result_number, is_mwe=True, selection=selection
     )
 
 
