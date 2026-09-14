@@ -93,8 +93,15 @@
       "$1 ist Genitivattribut von $2"
     ],
     "KON": [
-      "ist in Koordination mit",
-      "$1 ist in Koordination mit $2"
+      "ist in Koordination mit (als Erstglied)",
+      "$1 ist in Koordination mit $2 (als Erstglied)"
+
+
+    ],
+    "~KON": [
+      "ist in Koordination mit (als Zweitglied)",
+      "$2 ist in Koordination mit $1 (als Zweitglied)"
+
     ],
     "META": [
       "Überblick",
@@ -114,6 +121,7 @@
     "GMOD",
     "~GMOD",
     "KON",
+    "~KON",
     "PRED",
     "~PRED",
     "PREDC",
@@ -137,6 +145,7 @@
       "ADV",
       "~ADV",
       "KON",
+      "~KON",
       "KOM"
     ],
     "Verb": [
@@ -146,6 +155,7 @@
       "OBJO",
       "PP",
       "KON",
+      "~KON",
       "SUBJA",
       "PRED",
       "~PRED",
@@ -161,6 +171,7 @@
       "~PP",
       "GMOD",
       "KON",
+      "~KON",
       "PREDC",
       "KOM",
       "~SUBJA",

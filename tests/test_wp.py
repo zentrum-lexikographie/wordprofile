@@ -384,6 +384,22 @@ class WordprofileTest(unittest.TestCase):
                 num_concords=3,
                 prep="_",
             ),
+            19: Coocc(
+                id=5,
+                rel="REL",
+                lemma1="Rettungsdienst",
+                lemma2="Feuerwehr",
+                form1="Rettungsdienst",
+                form2="Feuerwehr",
+                tag1="NOUN",
+                tag2="NOUN",
+                freq=8,
+                score=8.768778800964355,
+                inverse=1,
+                has_mwe=1,
+                num_concords=8,
+                prep="_",
+            ),
         }
         self.mwe_data = {
             10: [
@@ -547,7 +563,7 @@ class WordprofileTest(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_relation_description_falls_back_to_default_if_relation_is_not_found(self):
-        result = self.wp.get_relation_by_info_id(5)
+        result = self.wp.get_relation_by_info_id(19)
         self.assertEqual(
             result["Description"], "Rettungsdienst tritt auf mit Feuerwehr"
         )
@@ -580,7 +596,7 @@ class WordprofileTest(unittest.TestCase):
         result = [(group["Relation"], group["Description"]) for group in mwe_data]
         expected = [
             ("~SUBJP", "ist Passivsubjekt von"),
-            ("KON", "ist in Koordination mit"),
+            ("KON", "ist in Koordination mit (als Erstglied)"),
             ("PRED", "hat Prädikativ"),
         ]
         self.assertEqual(result, expected)
@@ -845,3 +861,8 @@ class WordprofileTest(unittest.TestCase):
             11, result_number=2, selection="random"
         )["Tuples"]
         self.assertNotEqual(result_random, result_gdex)
+
+    def test_inverse_coordination_relation_description(self):
+        result = self.wp.get_relation_by_info_id(5)["Description"]
+        expected = "Feuerwehr ist in Koordination mit Rettungsdienst (als Zweitglied)"
+        self.assertEqual(result, expected)
