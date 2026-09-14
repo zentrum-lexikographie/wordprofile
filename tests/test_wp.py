@@ -668,7 +668,7 @@ class WordprofileTest(unittest.TestCase):
 
     def test_retrieval_of_objo_relation_description(self):
         result = self.wp.get_relation_by_info_id(15)["Description"]
-        expected = "gedenken hat Dativ-/Genitiv-Objekt Heldin"
+        expected = "gedenken hat Dativ-/Genitivobjekt Heldin"
         self.assertEqual(result, expected)
 
     def test_get_lemma_and_pos_returns_empty_list_for_different_pos(self):
