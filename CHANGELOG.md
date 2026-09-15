@@ -1,5 +1,17 @@
 # Changelog
 
+## [15.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v15.0.0...v15.1.0) (2026-09-15)
+
+
+### Features
+
+* allow queries for inverse coordination  ([#48](https://github.com/zentrum-lexikographie/wordprofile/issues/48)) ([561568a](https://github.com/zentrum-lexikographie/wordprofile/commit/561568ab3a703bd9c8b78c29c978721ecd8b09a9))
+
+
+### Bug Fixes
+
+* harmonise spelling with wb ([#46](https://github.com/zentrum-lexikographie/wordprofile/issues/46)) ([fa1a41a](https://github.com/zentrum-lexikographie/wordprofile/commit/fa1a41a1ca1ff6086d45082758aa3ac0ef2758cc))
+
 ## [15.0.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v14.0.0...v15.0.0) (2026-08-27)
 
 
