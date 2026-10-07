@@ -48,6 +48,13 @@ def conll_sentences(testdata_dir):
 
 
 @pytest.fixture
+def invalid_sentences(testdata_dir):
+    testdata_file = testdata_dir / "invalid_sentences.conll.gz"
+    with gzip.open(testdata_file, "rt") as fh:
+        return conllu.parse(fh.read(), fields=conllu.parser.DEFAULT_FIELDS)
+
+
+@pytest.fixture
 def collocations():
     return {
         30601: Colloc(
@@ -1862,3 +1869,21 @@ def test_gdex_score_set_to_zero_if_missing(conll_sentences):
     )
     db_sentences = db_sents_queue.get()
     assert db_sentences[0].gdex_score == 0
+
+
+def test_doc_skipped_if_no_sentence_valid(invalid_sentences):
+    file_reader_queue = MockQueue()
+    file_reader_queue.put(invalid_sentences)
+    db_files_queue = MockQueue()
+    db_sents_queue = MockQueue()
+    db_matches_queue = MockQueue()
+    lemma_counters = []
+    pro.process_doc_file(
+        file_reader_queue,
+        db_files_queue,
+        db_sents_queue,
+        db_matches_queue,
+        lemma_counters,
+    )
+    db_sentences = db_sents_queue.get()
+    assert db_sentences is None

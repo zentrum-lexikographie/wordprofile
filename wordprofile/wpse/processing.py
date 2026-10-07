@@ -219,7 +219,9 @@ def process_doc_file(
             doc_id, db_corpus_file = prepare_corpus_file(sentences[0].metadata)
             gdex_scores = [s.metadata.get("gdex_score", 0.0) for s in sentences]
             parses = list(map(convert_sentence, sentences))
-            sentences_valid = map(sentence_is_valid, parses)
+            sentences_valid = list(map(sentence_is_valid, parses))
+            if not any(sentences_valid):
+                break
             parses, gdex_scores = zip(
                 *itertools.compress(zip(parses, gdex_scores), sentences_valid)
             )
