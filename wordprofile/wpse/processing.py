@@ -220,11 +220,12 @@ def process_doc_file(
             gdex_scores = [s.metadata.get("gdex_score", 0.0) for s in sentences]
             parses = list(map(convert_sentence, sentences))
             sentences_valid = list(map(sentence_is_valid, parses))
-            if not any(sentences_valid):
-                break
-            parses, gdex_scores = zip(
-                *itertools.compress(zip(parses, gdex_scores), sentences_valid)
-            )
+            if any(sentences_valid):
+                parses, gdex_scores = zip(
+                    *itertools.compress(zip(parses, gdex_scores), sentences_valid)
+                )
+            else:
+                parses, gdex_scores = [], []
             db_concord_sentences = prepare_concord_sentences(
                 doc_id, parses, gdex_scores
             )
