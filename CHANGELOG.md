@@ -1,5 +1,13 @@
 # Changelog
 
+## [15.1.1](https://github.com/zentrum-lexikographie/wordprofile/compare/v15.1.0...v15.1.1) (2026-10-08)
+
+
+### Bug Fixes
+
+* handle docs with only invalid sentences ([#51](https://github.com/zentrum-lexikographie/wordprofile/issues/51)) ([405a528](https://github.com/zentrum-lexikographie/wordprofile/commit/405a5283bae7d329130b88eb30e7c47ee5c52343))
+* parallel processes hanging if docs skipped ([#53](https://github.com/zentrum-lexikographie/wordprofile/issues/53)) ([20a2c19](https://github.com/zentrum-lexikographie/wordprofile/commit/20a2c19dc61f028883ac146de28cb50570537381))
+
 ## [15.1.0](https://github.com/zentrum-lexikographie/wordprofile/compare/v15.0.0...v15.1.0) (2026-09-15)
 
 
