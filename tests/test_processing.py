@@ -1886,4 +1886,4 @@ def test_doc_skipped_if_no_sentence_valid(invalid_sentences):
         lemma_counters,
     )
     db_sentences = db_sents_queue.get()
-    assert db_sentences is None
+    assert db_sentences == []
