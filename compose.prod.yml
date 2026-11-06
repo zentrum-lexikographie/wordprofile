@@ -1,7 +1,7 @@
 name: dwds-wp
 services:
   api_2026:
-    image: gitup.uni-potsdam.de:4567/zentrum-lexikographie/wordprofile:c122124c
+    image: registry.gitlab.bbaw.science-berlin.de/adl/wordprofile:c122124c
     network_mode: host
     restart: unless-stopped
     environment:
