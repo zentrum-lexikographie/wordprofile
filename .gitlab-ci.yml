@@ -24,4 +24,4 @@ deploy:
     - riker.bbaw.de
     - shell
   only:
-    - feature/gitup-deployment
+    - release
